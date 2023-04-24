@@ -234,13 +234,15 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             if signal['Type'] == '$SAA_SignalType_Biological;':
                 this.bodies[bodyname_insystem].set_bio_signals(signal['Count'])
 
+        update_display()
+
     elif entry['event'] == 'SAASignalsFound':
         bodyname_insystem = get_bodyname(entry['BodyName'])
 
         if bodyname_insystem not in this.bodies:
-            body_data = BodyData(bodyname_insystem)
+            body_data = BodyData(bodyname_insystem).set_id(entry['BodyID'])
         else:
-            body_data = this.bodies[bodyname_insystem]
+            body_data = this.bodies[bodyname_insystem].set_id(entry['BodyID'])
 
         # Add bio signal number just in case
         for signal in entry['Signals']:
