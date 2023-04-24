@@ -12,7 +12,7 @@ from theme import theme
 from EDMCLogging import get_main_logger
 import semantic_version
 
-from bio_scan.body_data import BodyData
+from bio_scan.body_data import BodyData, get_body_shorthand
 from bio_scan.bio_data import bio_genus, bio_types
 from bio_scan.format_util import Formatter
 
@@ -35,6 +35,8 @@ this.game_version = semantic_version.Version.coerce('0.0.0.0')
 this.shorten_values = None
 this.main_star_id = None
 this.main_star_type = ''
+this.location_name = ''
+this.location_id = ''
 this.body_location = 0
 this.starsystem = ''
 
@@ -197,6 +199,8 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
             this.starsystem = entry['StarSystem']
         this.main_star_id = entry['BodyID'] if 'BodyID' in entry else 0
         this.main_star_type = ""
+        this.location_name = ""
+        this.location_id = -1
         this.bodies = {}
         update_display()
         this.scroll_canvas.yview_moveto(0.0)
@@ -279,53 +283,109 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
 
         update_display()
 
+    elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff', 'Embark', 'Disembark']:
+        body_name = get_bodyname(entry["Body"])
+        if body_name in this.bodies:
+            this.location_name = body_name
+            this.location_id = get_bodyname(entry["BodyID"])
+
+    elif entry['event'] == 'LeaveBody':
+        this.location_name = ''
+        this.location_id = -1
+
 
 def update_display():
     detail_text = ""
-    bio_bodies = sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.bodies.items())).items(),
-                        key=lambda item: item[1].get_id())
+    bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.bodies.items())).items(),
+                        key=lambda item: item[1].get_id()))
+    exobio_body_names = [
+        '%s%s: %d' % (body_name, get_body_shorthand(body_data.get_type()), body_data.get_bio_signals())
+        for body_name, body_data
+        in bio_bodies
+    ]
 
     total_value = 0
-    for name, body in bio_bodies:
-        detail_text += "{}:\n".format(name)
-        if len(body.get_flora()) > 0:
-            count = 0
-            for genus, data in body.get_flora().items():
-                count += 1
-                if data[1] == 3:
-                    total_value += bio_types[genus][data[0]][1]
-                if data[0] != "":
-                    detail_text += "{} ({}): {}{}\n".format(bio_types[genus][data[0]][0],
-                                                            scan_label(data[1]),
-                                                            this.formatter.format_credits(bio_types[genus][data[0]][1]),
-                                                            u' 🗸' if data[1] == 3 else '')
-                else:
-                    min_val, max_val = value_estimate(body, genus)
-                    detail_text += "{} (Not located): {}\n".format(bio_genus[genus],
-                                                                 this.formatter.format_credit_range(min_val, max_val))
-                if len(body.get_flora()) == count:
-                    detail_text += "\n"
+    if this.location_name != "" and this.location_name in bio_bodies:
+        count = 0
+        for genus, data in bio_bodies[this.location_name].get_flora().items():
+            count += 1
+            if data[1] == 3:
+                total_value += bio_types[genus][data[0]][1]
+            if data[0] != "":
+                detail_text += "{} ({}): {}{}\n".format(bio_types[genus][data[0]][0],
+                                                        scan_label(data[1]),
+                                                        this.formatter.format_credits(bio_types[genus][data[0]][1]),
+                                                        u' 🗸' if data[1] == 3 else '')
+            else:
+                min_val, max_val = value_estimate(bio_bodies[this.location_name], genus)
+                detail_text += "{} (Not located): {}\n".format(bio_genus[genus],
+                                                             this.formatter.format_credit_range(min_val, max_val))
+            if len(bio_bodies[this.location_name].get_flora()) == count:
+                detail_text += "\n"
 
-        else:
-            types = get_possible_values(body)
-            detail_text += "{} Signals - Possible Types:\n".format(body.get_bio_signals())
-            count = 0
-            for genus, values in types:
-                count += 1
-                detail_text += "{}: {}\n".format(genus,
-                                               this.formatter.format_credit_range(values[0], values[1]))
-                if len(types) == count:
-                    detail_text += "\n"
+    else:
+        for name, body in bio_bodies:
+            detail_text += "{}:\n".format(name)
+            if len(body.get_flora()) > 0:
+                count = 0
+                for genus, data in body.get_flora().items():
+                    count += 1
+                    if data[1] == 3:
+                        total_value += bio_types[genus][data[0]][1]
+                    if data[0] != "":
+                        detail_text += "{} ({}): {}{}\n".format(bio_types[genus][data[0]][0],
+                                                                scan_label(data[1]),
+                                                                this.formatter.format_credits(bio_types[genus][data[0]][1]),
+                                                                u' 🗸' if data[1] == 3 else '')
+                    else:
+                        min_val, max_val = value_estimate(body, genus)
+                        detail_text += "{} (Not located): {}\n".format(bio_genus[genus],
+                                                                     this.formatter.format_credit_range(min_val, max_val))
+                    if len(body.get_flora()) == count:
+                        detail_text += "\n"
+
+            else:
+                types = get_possible_values(body)
+                detail_text += "{} Signals - Possible Types:\n".format(body.get_bio_signals())
+                count = 0
+                for genus, values in types:
+                    count += 1
+                    detail_text += "{}: {}\n".format(genus,
+                                                   this.formatter.format_credit_range(values[0], values[1]))
+                    if len(types) == count:
+                        detail_text += "\n"
 
     if len(bio_bodies) > 0:
-        text = 'BioScan Estimates:'
+        this.scroll_canvas.grid()
+        this.scrollbar.grid()
+        this.total_label.grid()
+        text = 'BioScan Estimates:\n'
+        if this.location_name != "" and this.location_name in bio_bodies:
+            complete = len(dict(filter(lambda x: x[1][1] == 3 , bio_bodies[this.location_name].get_flora().items())))
+            text += '{} - {} - {}/{} Analysed'.format(bio_bodies[this.location_name].get_name(),
+                                                      bio_bodies[this.location_name].get_type(),
+                                                      complete, len(bio_bodies[this.location_name].get_flora()))
+        else:
+            while True:
+                exo_list = exobio_body_names[:5]
+                exobio_body_names = exobio_body_names[5:]
+                text += ' ⬦ '.join([b for b in exo_list])
+                if len(exobio_body_names) == 0:
+                    break
+                else:
+                    text += '\n'
+        this.total_label['text'] = "Analysed System Samples:\n{} | FF: {}".format(
+            this.formatter.format_credits(total_value),
+            this.formatter.format_credits((total_value * 5)))
     else:
+        this.scroll_canvas.grid_remove()
+        this.scrollbar.grid_remove()
+        this.total_label.grid_remove()
         text = 'BioScan: No Signals Found'
+        this.total_label['text'] = ""
 
     this.label['text'] = text
     this.values_label['text'] = detail_text
-    this.total_label['text'] = "Analysed System Samples:\n{} | FF: {}".format(this.formatter.format_credits(total_value),
-                                                                          this.formatter.format_credits((total_value*5)))
 
     # if this.show_details.get():
     #     this.scroll_canvas.grid()

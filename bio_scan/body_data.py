@@ -97,3 +97,18 @@ class BodyData:
     def set_mapped(self, value: bool):
         self.mapped = value
         return self
+
+def get_body_shorthand(type: str):
+    match type:
+        case 'Icy body':
+            return " (I)"
+        case 'Rocky body':
+            return " (R)"
+        case 'Rocky ice body':
+            return " (RI)"
+        case 'Metal rich body':
+            return " (M)"
+        case 'High metal content body':
+            return " (HMC)"
+        case _:
+            return ''
