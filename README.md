@@ -5,12 +5,14 @@ This plugin is heavily a WIP. Expect bugs. Please report any errors that might b
 
 ---
 
+<img src="BioScan-DSS.png" align="left">
 BioScan is a utility for Explorers and Exobiologists that attempts to determine the possible value range of biological
 signals on bodies. It uses data such as the atmosphere, gravity, volcanism, surface temperature, body type, and local
 star type to make the best guess as to what types of fauna will be present.
 
 Once done, it will summarize the possible value ranges for all qualifying genus and species.
 
+<img src="BioScan-SAA-Prog.png" align="right">
 After you've mapped a planet with biological signals, it will then pare down the list to the detected genera.
 And finally, once you've started to scan each species it will display the final type and value of the sample as well as
 indicate the scan progress.
