@@ -8,12 +8,13 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 
+from RegionMap import findRegion
 from theme import theme
 from EDMCLogging import get_main_logger
 import semantic_version
 
 from bio_scan.body_data import BodyData, get_body_shorthand, body_check
-from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex
+from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex, region_map
 from bio_scan.format_util import Formatter
 
 logger = get_main_logger()
@@ -35,6 +36,7 @@ this.game_version = semantic_version.Version.coerce('0.0.0.0')
 this.shorten_values = None
 this.main_star_id = None
 this.main_star_type = ''
+this.coordinates = [0, 0, 0]
 this.location_name = ''
 this.location_id = ''
 this.body_location = 0
@@ -148,7 +150,25 @@ def value_estimate(body: BodyData, genus: str):
                 logger.debug("Eliminated for body type")
                 eliminated_species.add(species)
         if reqs[8] is not None:
-            match reqs[8]:
+            if this.coordinates is not None:
+                found = None
+                for region in reqs[8]:
+                    region_id = findRegion(*this.coordinates)
+                    if region_id is not None:
+                        logger.debug("Current region: {} - {}".format(region_id[0], region_id[1]))
+                        if region.startswith("!"):
+                            if region_id[0] in region_map[region[1:]]:
+                                logger.debug("Eliminated by region")
+                                eliminated_species.add(species)
+                        else:
+                            found = False if found is None else found
+                            if region_id[0] in region_map[region]:
+                                found = True
+                if not found and found is not None:
+                    logger.debug("Eliminated by region")
+                    eliminated_species.add(species)
+        if reqs[9] is not None:
+            match reqs[9]:
                 case '2500ls':
                     if body.get_distance() < 2500.0:
                         eliminated_species.add(species)
@@ -217,6 +237,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
 
     elif entry['event'] == 'Location':
         this.starsystem = entry['StarSystem']
+        this.coordinates = entry['StarPos']
 
     elif entry['event'] == 'FSDJump':
         if 'StarSystem' in entry:
@@ -226,6 +247,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         this.location_name = ""
         this.location_id = -1
         this.bodies = {}
+        this.coordinates = entry['StarPos']
         update_display()
         this.scroll_canvas.yview_moveto(0.0)
 

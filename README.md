@@ -30,6 +30,8 @@ Once fully analysed, the total system value (and possible first footfall value) 
 
 ## Acknowledgements
 
+Conversion of system coordinates to regions thanks to klightspeed's [EliteDangerousRegionMap].
+
 Species calculations are based on various sources, primarily the 
 [Deep Space Network](https://ed-dsn.net/) and the
 [Codex NSP and Bio requirements spreadsheet][Bio req spreadsheet].
@@ -53,3 +55,4 @@ Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 [latest release]: https://github.com/Silarn/EDMC-BioScan/releases/latest
 [GPLv2]: http://www.gnu.org/licenses/gpl-2.0.html
 [Bio req spreadsheet]: https://docs.google.com/spreadsheets/d/1nV_UD_0kIxkWAHhAqvf62ILHpbYzdZpJ53CqPHn3qlA/
+[EliteDangerousRegionMap]: https://github.com/klightspeed/EliteDangerousRegionMap/
