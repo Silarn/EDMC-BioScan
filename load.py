@@ -12,7 +12,7 @@ from theme import theme
 from EDMCLogging import get_main_logger
 import semantic_version
 
-from bio_scan.body_data import BodyData, get_body_shorthand
+from bio_scan.body_data import BodyData, get_body_shorthand, body_check
 from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex
 from bio_scan.format_util import Formatter
 
@@ -113,7 +113,7 @@ def value_estimate(body: BodyData, genus: str):
         possible_species.add(species)
         logger.debug(species)
         if reqs[2] is not None:
-            if reqs[2] == "Any" and body.get_atmosphere() == "":
+            if reqs[2] == "Any" and body.get_atmosphere() in ["", "None"]:
                 logger.debug("Eliminated for no atmos")
                 eliminated_species.add(species)
             elif body.get_atmosphere() not in reqs[2]:
@@ -152,13 +152,34 @@ def value_estimate(body: BodyData, genus: str):
                 case '2500ls':
                     if body.get_distance() < 2500.0:
                         eliminated_species.add(species)
+                case 'A':
+                    if len(this.main_star_type) > 0:
+                        if this.main_star_type[0] != 'A':
+                            logger.debug("Eliminated for star type")
+                            eliminated_species.add(species)
+                    if not body_check(this.bodies):
+                        logger.debug("Eliminated for missing body type(s)")
+                        eliminated_species.add(species)
                 case 'AV':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type.startswith('AVI') and not this.main_star_type.startswith('N'):
+                            logger.debug("Eliminated for star type")
                             eliminated_species.add(species)
                 case 'OBA':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] not in ['O', 'B', 'A']:
+                            logger.debug("Eliminated for star type")
+                            eliminated_species.add(species)
+                case 'AFGKMS':
+                    if len(this.main_star_type) > 0:
+                        if this.main_star_type[0] not in ['A', 'F', 'G', 'K', 'M', 'S']:
+                            logger.debug("Eliminated for star type")
+                            eliminated_species.add(species)
+                        if body.get_distance() < 12000.0:
+                            logger.debug("Eliminated for distance")
+                            eliminated_species.add(species)
+                        if not body_check(this.bodies):
+                            logger.debug("Eliminated for missing body type(s)")
                             eliminated_species.add(species)
                 case 'special':
                     eliminated_species.add(species)  # ignore old flora with special rules for now
