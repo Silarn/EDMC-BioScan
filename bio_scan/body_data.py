@@ -101,8 +101,9 @@ class BodyData:
         self.mapped = value
         return self
 
-def get_body_shorthand(type: str):
-    match type:
+
+def get_body_shorthand(body_type: str):
+    match body_type:
         case 'Icy body':
             return " (I)"
         case 'Rocky body':
@@ -115,3 +116,19 @@ def get_body_shorthand(type: str):
             return " (HMC)"
         case _:
             return ''
+
+
+def body_check(bodies: dict[str, BodyData]):
+    required_types = [
+        "Earthlike body",
+        "Ammonia world",
+        "Water giant",
+        "Water giant with life",
+        "Gas giant with water based life",
+        "Gas giant with ammonia based life"
+    ]
+    for _, body_data in bodies.items():
+        if body_data.get_type() in required_types:
+            return True
+    return False
+
