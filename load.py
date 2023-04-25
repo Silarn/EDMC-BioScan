@@ -405,20 +405,19 @@ def update_display():
         this.scrollbar.grid()
         this.total_label.grid()
         text = 'BioScan Estimates:\n'
+        while True:
+            exo_list = exobio_body_names[:5]
+            exobio_body_names = exobio_body_names[5:]
+            text += ' ⬦ '.join([b for b in exo_list])
+            if len(exobio_body_names) == 0:
+                break
+            else:
+                text += '\n'
         if this.location_name != "" and this.location_name in bio_bodies:
             complete = len(dict(filter(lambda x: x[1][1] == 3 , bio_bodies[this.location_name].get_flora().items())))
-            text += '{} - {} - {}/{} Analysed'.format(bio_bodies[this.location_name].get_name(),
+            text += '\n{} - {} - {}/{} Analysed'.format(bio_bodies[this.location_name].get_name(),
                                                       bio_bodies[this.location_name].get_type(),
                                                       complete, len(bio_bodies[this.location_name].get_flora()))
-        else:
-            while True:
-                exo_list = exobio_body_names[:5]
-                exobio_body_names = exobio_body_names[5:]
-                text += ' ⬦ '.join([b for b in exo_list])
-                if len(exobio_body_names) == 0:
-                    break
-                else:
-                    text += '\n'
         this.total_label['text'] = "Analysed System Samples:\n{} | FF: {}".format(
             this.formatter.format_credits(total_value),
             this.formatter.format_credits((total_value * 5)))
