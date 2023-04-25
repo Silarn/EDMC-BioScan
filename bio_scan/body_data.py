@@ -80,7 +80,10 @@ class BodyData:
         return self.flora
 
     def add_flora(self, genus: str, species: str = ""):
-        self.flora[genus] = (species, 0)
+        scan = 0
+        if genus in self.flora:
+            scan = self.flora[genus][1]
+        self.flora[genus] = (species, scan)
         return self
 
     def set_flora(self, genus: str, species: str, scan: int):

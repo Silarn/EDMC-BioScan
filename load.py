@@ -13,7 +13,7 @@ from EDMCLogging import get_main_logger
 import semantic_version
 
 from bio_scan.body_data import BodyData, get_body_shorthand
-from bio_scan.bio_data import bio_genus, bio_types
+from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex
 from bio_scan.format_util import Formatter
 
 logger = get_main_logger()
@@ -113,7 +113,10 @@ def value_estimate(body: BodyData, genus: str):
         possible_species.add(species)
         logger.debug(species)
         if reqs[2] is not None:
-            if body.get_atmosphere() not in reqs[2]:
+            if reqs[2] == "Any" and body.get_atmosphere() == "":
+                logger.debug("Eliminated for no atmos")
+                eliminated_species.add(species)
+            elif body.get_atmosphere() not in reqs[2]:
                 logger.debug("Eliminated for atmos")
                 eliminated_species.add(species)
         if reqs[3] is not None:
@@ -130,7 +133,7 @@ def value_estimate(body: BodyData, genus: str):
                 eliminated_species.add(species)
         if reqs[6] is not None:
             if reqs[6] == "Any" and body.get_volcanism() == "":
-                logger.debug("Eliminated for volcanism")
+                logger.debug("Eliminated for no volcanism")
                 eliminated_species.add(species)
             else:
                 found = False
@@ -283,15 +286,36 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
 
         update_display()
 
+    elif entry['event'] == 'CodexEntry' and entry['BodyID'] == this.location_id and entry['Category'] == "$Codex_Category_Biology;":
+        target_body = None
+        for name, body in this.bodies.items():
+            if body.get_id() == entry['BodyID']:
+                target_body = name
+                break
+
+        if target_body is not None:
+            genus, species = get_species_from_codex(entry["Name"])
+            this.bodies[target_body].add_flora(genus, species)
+
+        update_display()
+
+
+
     elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff', 'Embark', 'Disembark']:
         body_name = get_bodyname(entry["Body"])
         if body_name in this.bodies:
             this.location_name = body_name
-            this.location_id = get_bodyname(entry["BodyID"])
+            this.location_id = entry["BodyID"]
+
+        update_display()
+        this.scroll_canvas.yview_moveto(0.0)
 
     elif entry['event'] == 'LeaveBody':
         this.location_name = ''
         this.location_id = -1
+
+        update_display()
+        this.scroll_canvas.yview_moveto(0.0)
 
 
 def update_display():
@@ -301,7 +325,7 @@ def update_display():
     exobio_body_names = [
         '%s%s: %d' % (body_name, get_body_shorthand(body_data.get_type()), body_data.get_bio_signals())
         for body_name, body_data
-        in bio_bodies
+        in bio_bodies.items()
     ]
 
     total_value = 0
@@ -324,7 +348,7 @@ def update_display():
                 detail_text += "\n"
 
     else:
-        for name, body in bio_bodies:
+        for name, body in bio_bodies.items():
             detail_text += "{}:\n".format(name)
             if len(body.get_flora()) > 0:
                 count = 0
