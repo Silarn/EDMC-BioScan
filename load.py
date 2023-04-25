@@ -7,11 +7,15 @@
 import sys
 import tkinter as tk
 from tkinter import ttk
+import semantic_version
+
+import myNotebook as nb
+from ttkHyperlinkLabel import HyperlinkLabel
+from config import config
+from theme import theme
 
 from RegionMap import findRegion
-from theme import theme
 from EDMCLogging import get_main_logger
-import semantic_version
 
 from bio_scan.body_data import BodyData, get_body_shorthand, body_check
 from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex, region_map
@@ -19,10 +23,14 @@ from bio_scan.format_util import Formatter
 
 logger = get_main_logger()
 
-VERSION = '0.1'
+VERSION = '0.6-beta'
 
 this = sys.modules[__name__]  # For holding module globals
 this.formatter = Formatter()
+this.focus_setting = None
+this.signal_setting = None
+this.debug_logging_enabled = None
+
 this.frame = None
 this.scroll_canvas = None
 this.scrollbar = None
@@ -39,6 +47,7 @@ this.main_star_type = ''
 this.coordinates = [0, 0, 0]
 this.location_name = ''
 this.location_id = ''
+this.location_state = ''
 this.body_location = 0
 this.starsystem = ''
 
@@ -52,8 +61,8 @@ def plugin_start():
     return 'BioScan'
 
 
-def plugin_app(parent: tk.Frame):
-    # parse_config()
+def plugin_app(parent: tk.Frame) -> tk.Frame:
+    parse_config()
     this.frame = tk.Frame(parent)
     this.label = tk.Label(this.frame)
     this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
@@ -83,16 +92,88 @@ def plugin_app(parent: tk.Frame):
     return this.frame
 
 
-# def plugin_prefs(parent, cmdr, is_beta):
-#
-#
-# def prefs_changed(cmdr, is_beta):
-#     config.set('bioscan_setting', this.setting.get())
-#     update_display()
-#
-#
-# def parse_config():
-#     this.setting = tk.IntVar(value=config.get_int(key='bioscan_setting', default=400000))
+def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
+    x_padding = 10
+    x_button_padding = 12
+    y_padding = 2
+    frame = nb.Frame(parent)
+    frame.columnconfigure(0, weight=1)
+    frame.columnconfigure(1, weight=1)
+    frame.rowconfigure(20, weight=1)
+
+    HyperlinkLabel(frame, text='BioScan', background=nb.Label().cget('background'),
+                   url='https://github.com/Silarn/EDMC-BioScan', underline=True) \
+        .grid(row=1, padx=x_padding, sticky=tk.W)
+    nb.Label(frame, text = 'Version %s' % VERSION).grid(row=1, column=1, padx=x_padding, sticky=tk.E)
+
+    ttk.Separator(frame).grid(row=5, columnspan=2, pady=y_padding*2, sticky=tk.EW)
+
+    nb.Label(
+        frame,
+        text="Focus Body Signals:",
+    ).grid(row=10, padx=x_padding, sticky=tk.W)
+    focus_options = [
+        "Never",
+        "On Approach",
+        "On Surface",
+    ]
+    nb.OptionMenu(
+        frame,
+        this.focus_setting,
+        this.focus_setting.get(),
+        *focus_options
+    ).grid(row=11, padx=x_padding, pady=y_padding, column=0, sticky=tk.W)
+    nb.Label(frame,
+             text='Never: Never filter signal details\n' +
+                  'On Approach: Show only local signals on approach\n' +
+                  'On Surface: Show only local signals when on surface',
+             justify=tk.LEFT) \
+        .grid(row=12, padx=x_padding, column=0, sticky=tk.NW)
+
+    nb.Label(
+        frame,
+        text="Display Signal Summary:"
+    ).grid(row=10, column=1, sticky=tk.W)
+    signal_options = [
+        "Always",
+        "In Flight",
+    ]
+    nb.OptionMenu(
+        frame,
+        this.signal_setting,
+        this.signal_setting.get(),
+        *signal_options
+    ).grid(row=11, column=1, pady=y_padding, sticky=tk.W)
+    nb.Label(frame,
+             text='Always: Always display the body signal summary\n' +
+                  'In Flight: Show the signal summary in flight only',
+             justify=tk.LEFT) \
+        .grid(row=12, column=1, sticky=tk.NW)
+
+    nb.Checkbutton(
+        frame,
+        text='Enable Debug Logging',
+        variable=this.debug_logging_enabled
+    ).grid(row=20, column=1, padx=x_button_padding, sticky=tk.SE)
+    return frame
+
+
+def prefs_changed(cmdr: str, is_beta: bool) -> None:
+    config.set('bioscan_focus', this.focus_setting.get())
+    config.set('bioscan_signal', this.signal_setting.get())
+    config.set('bioscan_debugging', this.debug_logging_enabled.get())
+    update_display()
+
+
+def parse_config() -> None:
+    this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default="On Approach"))
+    this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default="Always"))
+    this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
+
+
+def log(*args):
+    if this.debug_logging_enabled.get():
+        logger.debug(args)
 
 
 def scan_label(scans: int):
@@ -107,35 +188,35 @@ def scan_label(scans: int):
             return "Analysed"
 
 
-def value_estimate(body: BodyData, genus: str):
+def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
     possible_species = set()
     eliminated_species = set()
-    logger.debug(genus)
+    log(genus)
     for species, reqs in bio_types[genus].items():
         possible_species.add(species)
-        logger.debug(species)
+        log(species)
         if reqs[2] is not None:
             if reqs[2] == "Any" and body.get_atmosphere() in ["", "None"]:
-                logger.debug("Eliminated for no atmos")
+                log("Eliminated for no atmos")
                 eliminated_species.add(species)
             elif body.get_atmosphere() not in reqs[2]:
-                logger.debug("Eliminated for atmos")
+                log("Eliminated for atmos")
                 eliminated_species.add(species)
         if reqs[3] is not None:
             if body.get_gravity() / 9.80665 > reqs[3]:
-                logger.debug("Eliminated for grav")
+                log("Eliminated for grav")
                 eliminated_species.add(species)
         if reqs[4] is not None:
             if body.get_temp() > reqs[4]:
-                logger.debug("Eliminated for high heat")
+                log("Eliminated for high heat")
                 eliminated_species.add(species)
         if reqs[5] is not None:
             if body.get_temp() < reqs[5]:
-                logger.debug("Eliminated for low heat")
+                log("Eliminated for low heat")
                 eliminated_species.add(species)
         if reqs[6] is not None:
             if reqs[6] == "Any" and body.get_volcanism() == "":
-                logger.debug("Eliminated for no volcanism")
+                log("Eliminated for no volcanism")
                 eliminated_species.add(species)
             else:
                 found = False
@@ -143,11 +224,11 @@ def value_estimate(body: BodyData, genus: str):
                     if body.get_volcanism().find(volc_type) != -1:
                         found = True
                 if not found:
-                    logger.debug("Eliminated for volcanism")
+                    log("Eliminated for volcanism")
                     eliminated_species.add(species)
         if reqs[7] is not None:
             if body.get_type() not in reqs[7]:
-                logger.debug("Eliminated for body type")
+                log("Eliminated for body type")
                 eliminated_species.add(species)
         if reqs[8] is not None:
             if this.coordinates is not None:
@@ -155,17 +236,17 @@ def value_estimate(body: BodyData, genus: str):
                 for region in reqs[8]:
                     region_id = findRegion(*this.coordinates)
                     if region_id is not None:
-                        logger.debug("Current region: {} - {}".format(region_id[0], region_id[1]))
+                        log("Current region: {} - {}".format(region_id[0], region_id[1]))
                         if region.startswith("!"):
                             if region_id[0] in region_map[region[1:]]:
-                                logger.debug("Eliminated by region")
+                                log("Eliminated by region")
                                 eliminated_species.add(species)
                         else:
                             found = False if found is None else found
                             if region_id[0] in region_map[region]:
                                 found = True
                 if not found and found is not None:
-                    logger.debug("Eliminated by region")
+                    log("Eliminated by region")
                     eliminated_species.add(species)
         if reqs[9] is not None:
             match reqs[9]:
@@ -175,31 +256,31 @@ def value_estimate(body: BodyData, genus: str):
                 case 'A':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] != 'A':
-                            logger.debug("Eliminated for star type")
+                            log("Eliminated for star type")
                             eliminated_species.add(species)
                     if not body_check(this.bodies):
-                        logger.debug("Eliminated for missing body type(s)")
+                        log("Eliminated for missing body type(s)")
                         eliminated_species.add(species)
                 case 'AV':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type.startswith('AVI') and not this.main_star_type.startswith('N'):
-                            logger.debug("Eliminated for star type")
+                            log("Eliminated for star type")
                             eliminated_species.add(species)
                 case 'OBA':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] not in ['O', 'B', 'A']:
-                            logger.debug("Eliminated for star type")
+                            log("Eliminated for star type")
                             eliminated_species.add(species)
                 case 'AFGKMS':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] not in ['A', 'F', 'G', 'K', 'M', 'S']:
-                            logger.debug("Eliminated for star type")
+                            log("Eliminated for star type")
                             eliminated_species.add(species)
                         if body.get_distance() < 12000.0:
-                            logger.debug("Eliminated for distance")
+                            log("Eliminated for distance")
                             eliminated_species.add(species)
                         if not body_check(this.bodies):
-                            logger.debug("Eliminated for missing body type(s)")
+                            log("Eliminated for missing body type(s)")
                             eliminated_species.add(species)
                 case 'special':
                     eliminated_species.add(species)  # ignore old flora with special rules for now
@@ -212,17 +293,17 @@ def value_estimate(body: BodyData, genus: str):
     return 0, 0
 
 
-def get_possible_values(body: BodyData):
+def get_possible_values(body: BodyData) -> dict[str, tuple]:
     possible_genus = {}
     for genus, species_reqs in bio_types.items():
         min_potential_value, max_potential_value = value_estimate(body, genus)
         if min_potential_value != 0:
             possible_genus[bio_genus[genus]] = (min_potential_value, max_potential_value)
 
-    return sorted(possible_genus.items(), key=lambda gen_v: gen_v[0])
+    return dict(sorted(possible_genus.items(), key=lambda gen_v: gen_v[0]))
 
 
-def get_bodyname(fullname: str = ""):
+def get_bodyname(fullname: str = "") -> str:
     if fullname.startswith(this.starsystem + ' '):
         bodyname = fullname[len(this.starsystem + ' '):]
     else:
@@ -230,7 +311,9 @@ def get_bodyname(fullname: str = ""):
     return bodyname
 
 
-def journal_entry(cmdr, is_beta, system, station, entry, state):
+def journal_entry(
+        cmdr: str, is_beta: bool, system: str, station: str, entry: dict[str, any], state: dict[str, any]
+) -> str:
     if entry['event'] == 'Fileheader' or entry['event'] == 'LoadGame':
         this.odyssey = entry.get('Odyssey', False)
         this.game_version = semantic_version.Version.coerce(entry.get('gameversion'))
@@ -246,6 +329,7 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
         this.main_star_type = ""
         this.location_name = ""
         this.location_id = -1
+        this.location_state = ""
         this.bodies = {}
         this.coordinates = entry['StarPos']
         update_display()
@@ -329,7 +413,9 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
 
         update_display()
 
-    elif entry['event'] == 'CodexEntry' and entry['BodyID'] == this.location_id and entry['Category'] == "$Codex_Category_Biology;":
+    elif entry['event'] == 'CodexEntry' and \
+            entry['BodyID'] == this.location_id and \
+            entry['Category'] == "$Codex_Category_Biology;":
         target_body = None
         for name, body in this.bodies.items():
             if body.get_id() == entry['BodyID']:
@@ -342,13 +428,16 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
 
         update_display()
 
-
-
     elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff', 'Embark', 'Disembark']:
         body_name = get_bodyname(entry["Body"])
         if body_name in this.bodies:
             this.location_name = body_name
             this.location_id = entry["BodyID"]
+
+        if entry['event'] in ['ApproachBody', 'Liftoff']:
+            this.location_state = 'approach'
+        else:
+            this.location_state = 'surface'
 
         update_display()
         this.scroll_canvas.yview_moveto(0.0)
@@ -356,12 +445,15 @@ def journal_entry(cmdr, is_beta, system, station, entry, state):
     elif entry['event'] == 'LeaveBody':
         this.location_name = ''
         this.location_id = -1
+        this.location_state = ''
 
         update_display()
         this.scroll_canvas.yview_moveto(0.0)
 
+    return ''  # No error
 
-def update_display():
+
+def update_display() -> None:
     detail_text = ""
     bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.bodies.items())).items(),
                         key=lambda item: item[1].get_id()))
@@ -372,7 +464,9 @@ def update_display():
     ]
 
     total_value = 0
-    if this.location_name != "" and this.location_name in bio_bodies:
+    if (this.location_name != "" and this.location_name in bio_bodies) and this.focus_setting.get() != "Never" and \
+            ((this.focus_setting.get() == 'On Approach' and this.location_state == 'approach')
+             or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
         count = 0
         for genus, data in bio_bodies[this.location_name].get_flora().items():
             count += 1
@@ -415,7 +509,7 @@ def update_display():
                 types = get_possible_values(body)
                 detail_text += "{} Signals - Possible Types:\n".format(body.get_bio_signals())
                 count = 0
-                for genus, values in types:
+                for genus, values in types.items():
                     count += 1
                     detail_text += "{}: {}\n".format(genus,
                                                    this.formatter.format_credit_range(values[0], values[1]))
@@ -427,14 +521,15 @@ def update_display():
         this.scrollbar.grid()
         this.total_label.grid()
         text = 'BioScan Estimates:\n'
-        while True:
-            exo_list = exobio_body_names[:5]
-            exobio_body_names = exobio_body_names[5:]
-            text += ' ⬦ '.join([b for b in exo_list])
-            if len(exobio_body_names) == 0:
-                break
-            else:
-                text += '\n'
+        if this.signal_setting.get() == "Always" or this.location_state != "surface":
+            while True:
+                exo_list = exobio_body_names[:5]
+                exobio_body_names = exobio_body_names[5:]
+                text += ' ⬦ '.join([b for b in exo_list])
+                if len(exobio_body_names) == 0:
+                    break
+                else:
+                    text += '\n'
         if this.location_name != "" and this.location_name in bio_bodies:
             complete = len(dict(filter(lambda x: x[1][1] == 3 , bio_bodies[this.location_name].get_flora().items())))
             text += '\n{} - {} - {}/{} Analysed'.format(bio_bodies[this.location_name].get_name(),
@@ -461,7 +556,7 @@ def update_display():
     #     this.scrollbar.grid_remove()
 
 
-def bind_mousewheel(event):
+def bind_mousewheel(event: tk.Event) -> None:
     if sys.platform in ("linux", "cygwin", "msys"):
         this.scroll_canvas.bind_all('<Button-4>', on_mousewheel)
         this.scroll_canvas.bind_all('<Button-5>', on_mousewheel)
@@ -469,7 +564,7 @@ def bind_mousewheel(event):
         this.scroll_canvas.bind_all('<MouseWheel>', on_mousewheel)
 
 
-def unbind_mousewheel(event):
+def unbind_mousewheel(event: tk.Event) -> None:
     if sys.platform in ("linux", "cygwin", "msys"):
         this.scroll_canvas.unbind_all('<Button-4>')
         this.scroll_canvas.unbind_all('<Button-5>')
@@ -477,7 +572,7 @@ def unbind_mousewheel(event):
         this.scroll_canvas.unbind_all('<MouseWheel>')
 
 
-def on_mousewheel(event):
+def on_mousewheel(event: tk.Event) -> None:
     shift = (event.state & 0x1) != 0
     scroll = 0
     if event.num == 4 or event.delta == 120:
