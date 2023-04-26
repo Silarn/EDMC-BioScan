@@ -66,7 +66,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     this.frame = tk.Frame(parent)
     this.label = tk.Label(this.frame)
     this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
-    this.scroll_canvas = tk.Canvas(this.frame, height=60, highlightthickness=0)
+    this.scroll_canvas = tk.Canvas(this.frame, height=80, highlightthickness=0)
     this.scrollbar = ttk.Scrollbar(this.frame, orient="vertical", command=this.scroll_canvas.yview)
     this.scrollable_frame = ttk.Frame(this.scroll_canvas)
     this.scrollable_frame.bind(
@@ -465,7 +465,7 @@ def update_display() -> None:
 
     total_value = 0
     if (this.location_name != "" and this.location_name in bio_bodies) and this.focus_setting.get() != "Never" and \
-            ((this.focus_setting.get() == 'On Approach' and this.location_state == 'approach')
+            ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
              or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
         count = 0
         for genus, data in bio_bodies[this.location_name].get_flora().items():
@@ -521,6 +521,7 @@ def update_display() -> None:
         this.scrollbar.grid()
         this.total_label.grid()
         text = 'BioScan Estimates:\n'
+
         if this.signal_setting.get() == "Always" or this.location_state != "surface":
             while True:
                 exo_list = exobio_body_names[:5]
@@ -530,11 +531,15 @@ def update_display() -> None:
                     break
                 else:
                     text += '\n'
-        if this.location_name != "" and this.location_name in bio_bodies:
+
+        if (this.location_name != "" and this.location_name in bio_bodies) and this.focus_setting.get() != "Never" and \
+                ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
+                 or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
             complete = len(dict(filter(lambda x: x[1][1] == 3 , bio_bodies[this.location_name].get_flora().items())))
             text += '\n{} - {} - {}/{} Analysed'.format(bio_bodies[this.location_name].get_name(),
                                                       bio_bodies[this.location_name].get_type(),
                                                       complete, len(bio_bodies[this.location_name].get_flora()))
+
         this.total_label['text'] = "Analysed System Samples:\n{} | FF: {}".format(
             this.formatter.format_credits(total_value),
             this.formatter.format_credits((total_value * 5)))
