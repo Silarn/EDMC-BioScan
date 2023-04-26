@@ -60,9 +60,9 @@ bio_types = {
     },
     "$Codex_Ent_Conchas_Genus_Name;": {
         "$Codex_Ent_Conchas_01_Name;": ("Concha Renibus", 4572400, ["CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
-        "$Codex_Ent_Conchas_02_Name;": ("Concha Aureolas", 7774700, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
+        "$Codex_Ent_Conchas_02_Name;": ("Concha Aureolas", 7774700, ["Ammonia"], 0.275, None, None, None, ["Rocky body"], None, None),
         "$Codex_Ent_Conchas_03_Name;": ("Concha Labiata", 2352400, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
-        "$Codex_Ent_Conchas_04_Name;": ("Concha Biconcavis", 16777215, ["Nitrogen"], 0.275, None, None, None, None, None, None),
+        "$Codex_Ent_Conchas_04_Name;": ("Concha Biconcavis", 16777215, ["Nitrogen"], 0.275, None, None, None, ["Rocky body"], None, None),
     },
     "$Codex_Ent_Cone_Name;": {  # No atmos, near center of nebula
         "$Codex_Ent_Cone_Name;": ("Bark Mound", 1471900, ["None"], None, None, None, None, None, None, "nebula"),
@@ -80,13 +80,13 @@ bio_types = {
         "$Codex_Ent_Fonticulus_06_Name;": ("Fonticulua Digitos", 1804100, ["Methane", "MethaneRich"], 0.275, None, None, None, ["Icy body", "Rocky ice body"], None, None),
     },
     "$Codex_Ent_Fumerolas_Genus_Name;": {  # Needs femarole geological signal - can add
-        "$Codex_Ent_Fumerolas_01_Name;": ("Fumerola Carbosis", 6284600, None, 0.275, None, None, ["Carbon", "Methane"], None, None, None),
-        "$Codex_Ent_Fumerolas_02_Name;": ("Fumerola Extremus", 16202800, None, 0.275, None, None, ["Silicate", "Iron", "Rocky"], None, None, None),
-        "$Codex_Ent_Fumerolas_03_Name;": ("Fumerola Nitris", 7500900, None, 0.275, None, None, ["Nitrogen", "Ammonia"], None, None, None),
-        "$Codex_Ent_Fumerolas_04_Name;": ("Fumerola Aquatis", 6284600, None, 0.275, None, None, ["Water"], None, None, None),
+        "$Codex_Ent_Fumerolas_01_Name;": ("Fumerola Carbosis", 6284600, None, 0.275, None, None, ["carbon", "methane"], None, None, None),
+        "$Codex_Ent_Fumerolas_02_Name;": ("Fumerola Extremus", 16202800, None, 0.275, None, None, ["silicate", "iron", "rocky"], None, None, None),
+        "$Codex_Ent_Fumerolas_03_Name;": ("Fumerola Nitris", 7500900, None, 0.275, None, None, ["nitrogen", "ammonia"], None, None, None),
+        "$Codex_Ent_Fumerolas_04_Name;": ("Fumerola Aquatis", 6284600, None, 0.275, None, None, ["water"], None, None, None),
     },
     "$Codex_Ent_Fungoids_Genus_Name;": {
-        "$Codex_Ent_Fungoids_01_Name;": ("Fungoida Setisis", 1670100, ["Methane", "MethaneRich", "Ammonia"], 0.275, None, None, None, None, None, None),
+        "$Codex_Ent_Fungoids_01_Name;": ("Fungoida Setisis", 1670100, ["Ammonia"], 0.275, None, None, None, None, None, None),  # "Methane", "MethaneRich", ?
         "$Codex_Ent_Fungoids_02_Name;": ("Fungoida Stabitis", 2680300, ["CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["orion-cygnus"], None),
         "$Codex_Ent_Fungoids_03_Name;": ("Fungoida Bullarum", 3703200, ["Argon", "ArgonRich"], 0.275, None, None, None, None, None, None),
         "$Codex_Ent_Fungoids_04_Name;": ("Fungoida Gelata", 3330300, ["CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
@@ -98,7 +98,7 @@ bio_types = {
         "$Codex_Ent_Osseus_01_Name;": ("Osseus Fractus", 4027800, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 190.0, 180.0, None, ["Rocky body", "High metal content body"], None, None),
         "$Codex_Ent_Osseus_02_Name;": ("Osseus Discus", 12934900, ["Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
         "$Codex_Ent_Osseus_03_Name;": ("Osseus Spiralis", 2404700, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
-        "$Codex_Ent_Osseus_04_Name;": ("Osseus Pumice", 3156300, ["Argon", "ArgonRich", "Methane", "MethaneRich"], 0.275, None, None, None, None, None, None),
+        "$Codex_Ent_Osseus_04_Name;": ("Osseus Pumice", 3156300, ["Argon", "ArgonRich", "Methane", "MethaneRich", "Nitrogen"], 0.275, None, None, None, ["Rocky body", "Rocky ice body", "High metal content body"], None, None),
         "$Codex_Ent_Osseus_05_Name;": ("Osseus Cornibus", 1483000, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 195.0, 180.0, None, ["Rocky body", "High metal content body"], ["perseus"], None),
         "$Codex_Ent_Osseus_06_Name;": ("Osseus Pellebantus", 9739000, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 195.0, 190.0, None, ["Rocky body", "High metal content body"], None, None),
     },
