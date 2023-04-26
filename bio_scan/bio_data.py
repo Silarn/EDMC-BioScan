@@ -86,9 +86,9 @@ bio_types = {
         "$Codex_Ent_Fumerolas_04_Name;": ("Fumerola Aquatis", 6284600, None, 0.275, None, None, ["water"], None, None, None),
     },
     "$Codex_Ent_Fungoids_Genus_Name;": {
-        "$Codex_Ent_Fungoids_01_Name;": ("Fungoida Setisis", 1670100, ["Ammonia"], 0.275, None, None, None, None, None, None),  # "Methane", "MethaneRich", ?
+        "$Codex_Ent_Fungoids_01_Name;": ("Fungoida Setisis", 1670100, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),  # "Methane", "MethaneRich", ?
         "$Codex_Ent_Fungoids_02_Name;": ("Fungoida Stabitis", 2680300, ["CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["orion-cygnus"], None),
-        "$Codex_Ent_Fungoids_03_Name;": ("Fungoida Bullarum", 3703200, ["Argon", "ArgonRich"], 0.275, None, None, None, None, None, None),
+        "$Codex_Ent_Fungoids_03_Name;": ("Fungoida Bullarum", 3703200, ["Argon", "ArgonRich"], 0.275, None, None, None, ["Rocky ice body"], None, None),
         "$Codex_Ent_Fungoids_04_Name;": ("Fungoida Gelata", 3330300, ["CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
     },
     "$Codex_Ent_Ground_Struct_Ice_Name;": {  # No atmos, A F G K M S star, < 273K, with Earth, Ammonia, Giant w/life, Water giant, >12kLs
