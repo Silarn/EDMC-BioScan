@@ -531,12 +531,13 @@ def update_display() -> None:
                     break
                 else:
                     text += '\n'
+            text += '\n'
 
         if (this.location_name != "" and this.location_name in bio_bodies) and this.focus_setting.get() != "Never" and \
                 ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
                  or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
             complete = len(dict(filter(lambda x: x[1][1] == 3 , bio_bodies[this.location_name].get_flora().items())))
-            text += '\n{} - {} - {}/{} Analysed'.format(bio_bodies[this.location_name].get_name(),
+            text += '{} - {} - {}/{} Analysed'.format(bio_bodies[this.location_name].get_name(),
                                                       bio_bodies[this.location_name].get_type(),
                                                       complete, len(bio_bodies[this.location_name].get_flora()))
 
