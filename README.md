@@ -52,7 +52,7 @@ Species calculations are based on various sources, primarily the
 
 * Refinements to species requirements
 * ~~Track when near a planet and focus the data view for that planet~~
-* Add settings for visibility and display options
+* ~~Add settings for visibility and display options~~
 * Add info about sample distance requirements
 * ~~Investigate plausibility of getting species from codex scans (Ship / SRV)~~
 
