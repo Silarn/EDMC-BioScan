@@ -10,6 +10,7 @@ from tkinter import ttk
 import semantic_version
 
 import myNotebook as nb
+from bio_scan.nebulae_data import planetary_nebulae, nebula_sectors
 from ttkHyperlinkLabel import HyperlinkLabel
 from config import config
 from theme import theme
@@ -282,6 +283,17 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                         if not body_check(this.bodies):
                             log("Eliminated for missing body type(s)")
                             eliminated_species.add(species)
+                case 'nebula':
+                    found = False
+                    if this.starsystem in planetary_nebulae:
+                        found = True
+                    for sector in nebula_sectors:
+                        if this.starsystem.startswith(sector):
+                            found = True
+                            break
+                    if not found:
+                        log("Eliminated for lack of nebula")
+                        eliminated_species.add(species)
                 case 'special':
                     eliminated_species.add(species)  # ignore old flora with special rules for now
 
