@@ -264,7 +264,10 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                         eliminated_species.add(species)
                 case 'AV':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type.startswith('AVI') and not this.main_star_type.startswith('N'):
+                        if not this.main_star_type.startswith('A') and not this.main_star_type.startswith('N'):
+                            log("Eliminated for star type")
+                            eliminated_species.add(species)
+                        elif this.main_star_type.startswith('AVI'):
                             log("Eliminated for star type")
                             eliminated_species.add(species)
                 case 'OBA':
@@ -295,6 +298,7 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                         log("Eliminated for lack of nebula")
                         eliminated_species.add(species)
                 case 'special':
+                    log("Eliminated due to unhandled special rules")
                     eliminated_species.add(species)  # ignore old flora with special rules for now
 
     final_species = possible_species - eliminated_species
