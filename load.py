@@ -21,12 +21,12 @@ from EDMCLogging import get_main_logger
 from RegionMap import findRegion
 
 from bio_scan.body_data import BodyData, get_body_shorthand, body_check
-from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex, region_map
+from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex, region_map, guardian_sectors
 from bio_scan.format_util import Formatter
 
 logger = get_main_logger()
 
-VERSION = '0.7-beta'
+VERSION = '0.8-beta'
 
 this = sys.modules[__name__]  # For holding module globals
 this.formatter = Formatter()
@@ -265,6 +265,27 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
             match reqs[9]:
                 case '2500ls':
                     if body.get_distance() < 2500.0:
+                        eliminated_species.add(species)
+                case 'guardian':
+                    found = False
+                    for sector in guardian_sectors:
+                        if this.starsystem.startswith(sector):
+                            found = True
+                            break
+                    if not found:
+                        log("Eliminated for not being in a guardian sector")
+                        eliminated_species.add(species)
+                case 'guardian+life':
+                    found = False
+                    for sector in guardian_sectors:
+                        if this.starsystem.startswith(sector):
+                            found = True
+                            break
+                    if not found:
+                        log("Eliminated for not being in a guardian sector")
+                        eliminated_species.add(species)
+                    if not body_check(this.bodies):
+                        log("Eliminated for missing body type(s)")
                         eliminated_species.add(species)
                 case 'life':
                     if not body_check(this.bodies):

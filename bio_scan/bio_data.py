@@ -108,14 +108,14 @@ bio_types = {
         "$Codex_Ent_Recepta_03_Name;": ("Recepta Conditivus", 14313700, ["SulphurDioxide"], 0.275, None, 132.0, None, ["Icy body", "Rocky ice body"], None, None),
     },
     "$Codex_Ent_Seed_Name;": {  # No atmos, volc, near guardian ruins
-        "$Codex_Ent_Seed_Name;": ("Roseum Brain Tree", 1593700, ["None"], None, 500.0, 200.0, "Any", None, None, None),
+        "$Codex_Ent_Seed_Name;": ("Roseum Brain Tree", 1593700, ["None"], None, 500.0, 200.0, "Any", None, None, "guardian"),
         "$Codex_Ent_SeedABCD_01_Name;": ("Gypseeum Brain Tree", 1593700, ["None"], None, 300.0, 200.0, "Any", ["Rocky body"], None, "life"),
-        "$Codex_Ent_SeedABCD_02_Name;": ("Ostrinum Brain Tree", 1593700, ["None"], None, None, None, "Any", ["Metal rich body", "High metal content body"], None, "life"),
-        "$Codex_Ent_SeedABCD_03_Name;": ("Viride Brain Tree", 1593700, ["None"], None, 270.0, 100.0, "Any", ["Rocky ice body"], None, "life"),
-        "$Codex_Ent_SeedEFGH_01_Name;": ("Aureum Brain Tree", 1593700, ["None"], None, 500.0, 300.0, "Any", ["Metal rich body", "High metal content body"], None, "life"),
-        "$Codex_Ent_SeedEFGH_02_Name;": ("Puniceum Brain Tree", 1593700, ["None"], None, 500.0, 300.0, "Any", ["Metal rich body", "High metal content body"], None, "life"),
-        "$Codex_Ent_SeedEFGH_03_Name;": ("Lindigoticum Brain Tree", 1593700, ["None"], None, 500.0, 300.0, "Any", ["Rocky body", "High metal content body"], None, "life"),
-        "$Codex_Ent_SeedEFGH_Name;": ("Lividum Brain Tree", 1593700, ["None"], None, None, None, "Any", ["Rocky body"], None, "life"),
+        "$Codex_Ent_SeedABCD_02_Name;": ("Ostrinum Brain Tree", 1593700, ["None"], None, None, None, "Any", ["Metal rich body", "High metal content body"], None, "guardian+life"),
+        "$Codex_Ent_SeedABCD_03_Name;": ("Viride Brain Tree", 1593700, ["None"], None, 270.0, 100.0, "Any", ["Rocky ice body"], None, "guardian+life"),
+        "$Codex_Ent_SeedEFGH_01_Name;": ("Aureum Brain Tree", 1593700, ["None"], None, 500.0, 300.0, "Any", ["Metal rich body", "High metal content body"], None, "guardian+life"),
+        "$Codex_Ent_SeedEFGH_02_Name;": ("Puniceum Brain Tree", 1593700, ["None"], None, 500.0, 300.0, "Any", ["Metal rich body", "High metal content body"], None, "guardian+life"),
+        "$Codex_Ent_SeedEFGH_03_Name;": ("Lindigoticum Brain Tree", 1593700, ["None"], None, 500.0, 300.0, "Any", ["Rocky body", "High metal content body"], None, "guardian+life"),
+        "$Codex_Ent_SeedEFGH_Name;": ("Lividum Brain Tree", 1593700, ["None"], None, None, None, "Any", ["Rocky body"], None, "guardian+life"),
     },
     "$Codex_Ent_Shrubs_Genus_Name;": {
         "$Codex_Ent_Shrubs_01_Name;": ("Frutexa Flabellum", 1808900, ["Ammonia"], 0.275, None, None, None, ["Rocky body"], None, None),
@@ -147,14 +147,14 @@ bio_types = {
         "$Codex_Ent_Stratum_08_Name;": ("Stratum Frigus", 2637500, ["CarbonDioxide", "CarbonDioxideRich", "SulphurDioxide"], None, None, 190.0, None, ["Rocky body"], ["perseus"], None),
     },
     "$Codex_Ent_Tube_Name;": {
-        "$Codex_Ent_Tube_Name;": ("Roseum Sinuous Tubers", 111300, ["None"], None, 500.0, 200.0, "silicate magme", None, None, None),
-        "$Codex_Ent_TubeABCD_01_Name;": ("Prasinum Sinuous Tubers", 1514500, ["None"], None, 500.0, 200.0, "Any", ["Metal rich body", "High metal content body"], None, None),
-        "$Codex_Ent_TubeABCD_02_Name;": ("Albidum Sinuous Tubers", 111300, ["None"], None, 500.0, 200.0, "Any", ["Rocky body"], None, None),
-        "$Codex_Ent_TubeABCD_03_Name;": ("Caeruleum Sinuous Tubers", 1514500, ["None"], None, 500.0, 200.0, "Any", ["Rocky body"], None, None),
-        "$Codex_Ent_TubeEFGH_01_Name;": ("Lindigoticum Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Rocky body"], None, None),
-        "$Codex_Ent_TubeEFGH_02_Name;": ("Violaceum Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Metal rich body", "High metal content body", "Rocky body"], None, None),
-        "$Codex_Ent_TubeEFGH_03_Name;": ("Viride Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Rocky body", "High metal content body"], None, None),
-        "$Codex_Ent_TubeEFGH_Name;": ("Blatteum Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Metal rich body", "High metal content body", "Rocky body"], None, None),
+        "$Codex_Ent_Tube_Name;": ("Roseum Sinuous Tubers", 111300, ["None"], None, 500.0, 200.0, "silicate magme", None, ["core"], None),
+        "$Codex_Ent_TubeABCD_01_Name;": ("Prasinum Sinuous Tubers", 1514500, ["None"], None, 500.0, 200.0, "Any", ["Metal rich body", "High metal content body"], ["core"], None),
+        "$Codex_Ent_TubeABCD_02_Name;": ("Albidum Sinuous Tubers", 111300, ["None"], None, 500.0, 200.0, "Any", ["Rocky body"], ["core"], None),
+        "$Codex_Ent_TubeABCD_03_Name;": ("Caeruleum Sinuous Tubers", 1514500, ["None"], None, 500.0, 200.0, "Any", ["Rocky body"], ["core"], None),
+        "$Codex_Ent_TubeEFGH_01_Name;": ("Lindigoticum Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Rocky body"], ["core"], None),
+        "$Codex_Ent_TubeEFGH_02_Name;": ("Violaceum Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Metal rich body", "High metal content body", "Rocky body"], ["core"], None),
+        "$Codex_Ent_TubeEFGH_03_Name;": ("Viride Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Rocky body", "High metal content body"], ["core"], None),
+        "$Codex_Ent_TubeEFGH_Name;": ("Blatteum Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Metal rich body", "High metal content body", "Rocky body"], ["core"], None),
     },
     "$Codex_Ent_Tubus_Genus_Name;": {
         "$Codex_Ent_Tubus_01_Name;": ("Tubus Conifer", 2415500, ["CarbonDioxide", "CarbonDioxideRich"], 0.155, 190.0, 160.0, None, ["Rocky body"], ["perseus"], None),
@@ -195,7 +195,15 @@ region_map = {
     "outer": [5, 6, 13, 14, 27, 29, 31, 41, 37],
     "perseus": [1, 2, 3, 4, 7, 15, 30, 32, 33, 34, 36, 38, 39],
     "perseus-1": [2, 3, 4, 7, 15, 30, 32, 33, 34, 36, 38, 39],
+    "core": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19]
 }
+
+guardian_sectors = [
+    "Synuefe",
+    "Col 173 Sector",
+    "Vela Dark Region",
+    "IC 2391 Sector",
+]
 
 # journal_id: (localized name, base value, atmosphere, maximum gravity, maximum temp, minimum temp, volcanism, planet, extra)
 bio_codex_map = {
