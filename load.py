@@ -194,7 +194,7 @@ def scan_label(scans: int):
 def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
     possible_species = set()
     eliminated_species = set()
-    log(genus)
+    log("Running checks for {}:".format(bio_genus[genus]["name"]))
     for species, reqs in bio_types[genus].items():
         possible_species.add(species)
         log(species)
@@ -266,8 +266,11 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                 case '2500ls':
                     if body.get_distance() < 2500.0:
                         eliminated_species.add(species)
-                        continue
-                case 'A':
+                case 'life':
+                    if not body_check(this.bodies):
+                        log("Eliminated for missing body type(s)")
+                        eliminated_species.add(species)
+                case 'A+life':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] != 'A':
                             log("Eliminated for star type")
@@ -276,7 +279,6 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                     if not body_check(this.bodies):
                         log("Eliminated for missing body type(s)")
                         eliminated_species.add(species)
-                        continue
                 case 'AV':
                     if len(this.main_star_type) > 0:
                         if not this.main_star_type.startswith('A') and not this.main_star_type.startswith('N'):
@@ -286,16 +288,30 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                         elif this.main_star_type.startswith('AVI'):
                             log("Eliminated for star type")
                             eliminated_species.add(species)
-                            continue
-                case 'OBA':
+                case 'A':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type[0] not in ['O', 'B', 'A']:
+                        if this.main_star_type[0] != 'A':
                             log("Eliminated for star type")
                             eliminated_species.add(species)
-                            continue
-                case 'AFGKMS':
+                case 'B':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type[0] not in ['A', 'F', 'G', 'K', 'M', 'S']:
+                        if this.main_star_type[0] != 'B':
+                            log("Eliminated for star type")
+                            eliminated_species.add(species)
+                case 'AB':
+                    if len(this.main_star_type) > 0:
+                        if this.main_star_type[0] not in ['A', 'B']:
+                            log("Eliminated for star type")
+                            eliminated_species.add(species)
+                case 'O':
+                    if len(this.main_star_type) > 0:
+                        if this.main_star_type[0] != 'O':
+                            log("Eliminated for star type")
+                            eliminated_species.add(species)
+                case 'AFGKMSS':
+                    if len(this.main_star_type) > 0:
+                        if this.main_star_type[0] not in ['A', 'F', 'G', 'K', 'S'] or \
+                                not this.main_star_type.startswith("MS"):
                             log("Eliminated for star type")
                             eliminated_species.add(species)
                             continue
@@ -303,10 +319,9 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                             log("Eliminated for distance")
                             eliminated_species.add(species)
                             continue
-                        if not body_check(this.bodies):
+                        if not body_check(this.bodies, True):
                             log("Eliminated for missing body type(s)")
                             eliminated_species.add(species)
-                            continue
                 case 'nebula':
                     found = False
                     if this.starsystem in planetary_nebulae:
@@ -326,10 +341,6 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                     if not found:
                         log("Eliminated for lack of nebula")
                         eliminated_species.add(species)
-                        continue
-                case 'special':
-                    log("Eliminated due to unhandled special rules")
-                    eliminated_species.add(species)  # ignore old flora with special rules for now
 
     final_species = possible_species - eliminated_species
     sorted_species = sorted(final_species, key=lambda species: bio_types[genus][species][1])

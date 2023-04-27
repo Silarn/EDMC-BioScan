@@ -65,7 +65,7 @@ bio_types = {
         "$Codex_Ent_Conchas_04_Name;": ("Concha Biconcavis", 16777215, ["Nitrogen"], 0.275, None, None, None, ["Rocky body"], None, None),
     },
     "$Codex_Ent_Cone_Name;": {  # No atmos, near center of nebula
-        "$Codex_Ent_Cone_Name;": ("Bark Mound", 1471900, ["None"], None, None, None, None, None, None, "nebula"),
+        "$Codex_Ent_Cone_Name;": ("Bark Mound", 1471900, ["None"], None, None, None, "Any", None, None, "nebula"),
     },
     "$Codex_Ent_Electricae_Genus_Name;": {
         "$Codex_Ent_Electricae_01_Name;": ("Electricae Pluma", 6284600, ["Helium", "Neon", "NeonRich", "Argon", "ArgonRich"], 0.275, None, None, None, ["Icy body"], None, "AV"),
@@ -92,7 +92,7 @@ bio_types = {
         "$Codex_Ent_Fungoids_04_Name;": ("Fungoida Gelata", 3330300, ["CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
     },
     "$Codex_Ent_Ground_Struct_Ice_Name;": {  # No atmos, A F G K M S star, < 273K, with Earth, Ammonia, Giant w/life, Water giant, >12kLs
-        "$Codex_Ent_Ground_Struct_Ice_Name;": ("Crystalline Shards", 1628800, ["None"], None, 273.0, None, None, None, None, "AFGKMS"),
+        "$Codex_Ent_Ground_Struct_Ice_Name;": ("Crystalline Shards", 1628800, ["None"], None, 273.0, None, None, None, None, "AFGKMSS"),
     },
     "$Codex_Ent_Osseus_Genus_Name;": {
         "$Codex_Ent_Osseus_01_Name;": ("Osseus Fractus", 4027800, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 190.0, 180.0, None, ["Rocky body", "High metal content body"], None, None),
@@ -108,14 +108,14 @@ bio_types = {
         "$Codex_Ent_Recepta_03_Name;": ("Recepta Conditivus", 14313700, ["SulphurDioxide"], 0.275, None, 132.0, None, ["Icy body", "Rocky ice body"], None, None),
     },
     "$Codex_Ent_Seed_Name;": {  # No atmos, volc, near guardian ruins
-        "$Codex_Ent_Seed_Name;": ("Roseum Brain Tree", 1593700, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_SeedABCD_01_Name;": ("Gypseeum Brain Tree", 1593700, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_SeedABCD_02_Name;": ("Ostrinum Brain Tree", 1593700, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_SeedABCD_03_Name;": ("Viride Brain Tree", 1593700, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_SeedEFGH_01_Name;": ("Aureum Brain Tree", 1593700, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_SeedEFGH_02_Name;": ("Puniceum Brain Tree", 1593700, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_SeedEFGH_03_Name;": ("Lindigoticum Brain Tree", 1593700, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_SeedEFGH_Name;": ("Lividum Brain Tree", 1593700, ["None"], None, None, None, "Any", None, None, None),
+        "$Codex_Ent_Seed_Name;": ("Roseum Brain Tree", 1593700, ["None"], None, 500.0, 200.0, "Any", None, None, None),
+        "$Codex_Ent_SeedABCD_01_Name;": ("Gypseeum Brain Tree", 1593700, ["None"], None, 300.0, 200.0, "Any", ["Rocky body"], None, "life"),
+        "$Codex_Ent_SeedABCD_02_Name;": ("Ostrinum Brain Tree", 1593700, ["None"], None, None, None, "Any", ["Metal rich body", "High metal content body"], None, "life"),
+        "$Codex_Ent_SeedABCD_03_Name;": ("Viride Brain Tree", 1593700, ["None"], None, 270.0, 100.0, "Any", ["Rocky ice body"], None, "life"),
+        "$Codex_Ent_SeedEFGH_01_Name;": ("Aureum Brain Tree", 1593700, ["None"], None, 500.0, 300.0, "Any", ["Metal rich body", "High metal content body"], None, "life"),
+        "$Codex_Ent_SeedEFGH_02_Name;": ("Puniceum Brain Tree", 1593700, ["None"], None, 500.0, 300.0, "Any", ["Metal rich body", "High metal content body"], None, "life"),
+        "$Codex_Ent_SeedEFGH_03_Name;": ("Lindigoticum Brain Tree", 1593700, ["None"], None, 500.0, 300.0, "Any", ["Rocky body", "High metal content body"], None, "life"),
+        "$Codex_Ent_SeedEFGH_Name;": ("Lividum Brain Tree", 1593700, ["None"], None, None, None, "Any", ["Rocky body"], None, "life"),
     },
     "$Codex_Ent_Shrubs_Genus_Name;": {
         "$Codex_Ent_Shrubs_01_Name;": ("Frutexa Flabellum", 1808900, ["Ammonia"], 0.275, None, None, None, ["Rocky body"], None, None),
@@ -127,14 +127,14 @@ bio_types = {
         "$Codex_Ent_Shrubs_07_Name;": ("Frutexa Collum", 1639800, ["SulphurDioxide"], 0.275, None, None, None, ["Rocky body"], None, None),
     },
     "$Codex_Ent_Sphere_Name;": {
-        "$Codex_Ent_Sphere_Name;": ("Luteolum Anemone", 1499900, None, None, None, 600.0, "Any", None, None, "OBA"),
-        "$Codex_Ent_SphereABCD_01_Name;": ("Croceum Anemone", 1499900, None, None, None, 600.0, "Any", None, None, "OBA"),
-        "$Codex_Ent_SphereABCD_02_Name;": ("Puniceum Anemone", 1499900, None, None, None, 600.0, "Any", None, None, "OBA"),
-        "$Codex_Ent_SphereABCD_03_Name;": ("Roseum Anemone", 1499900, None, None, None, 600.0, "Any", None, None, "OBA"),
-        "$Codex_Ent_SphereEFGH_01_Name;": ("Rubeum Bioluminescent Anemone", 1499900, None, None, None, 600.0, "Any", None, None, "OBA"),
-        "$Codex_Ent_SphereEFGH_02_Name;": ("Prasinum Bioluminescent Anemone", 1499900, None, None, None, 600.0, "Any", None, None, "OBA"),
-        "$Codex_Ent_SphereEFGH_03_Name;": ("Roseum Bioluminescent Anemone", 1499900, None, None, None, 600.0, "Any", None, None, "OBA"),
-        "$Codex_Ent_SphereEFGH_Name;": ("Blatteum Bioluminescent Anemone", 1499900, None, None, None, 600.0, "Any", None, None, "OBA"),
+        "$Codex_Ent_Sphere_Name;": ("Luteolum Anemone", 1499900, None, None, 440.0, 200.0, "Any", ["Rocky body"], None, "B"),
+        "$Codex_Ent_SphereABCD_01_Name;": ("Croceum Anemone", 1499900, None, None, 440.0, 200.0, "Any", ["Rocky body"], None, "AB"),
+        "$Codex_Ent_SphereABCD_02_Name;": ("Puniceum Anemone", 1499900, None, None, 860.0, 65.0, "Any", ["Icy body", "Rocky ice body"], None, "O"),
+        "$Codex_Ent_SphereABCD_03_Name;": ("Roseum Anemone", 1499900, None, None, 440.0, 200.0, "Any", ["Rocky body"], None, "B"),
+        "$Codex_Ent_SphereEFGH_01_Name;": ("Rubeum Bioluminescent Anemone", 1499900, None, None, None, 160.0, "Any", ["Metal rich body", "High metal content body"], None, "AB"),
+        "$Codex_Ent_SphereEFGH_02_Name;": ("Prasinum Bioluminescent Anemone", 1499900, None, None, None, None, "Any", ["Metal rich body", "Rocky body", "High metal content body"], None, "O"),
+        "$Codex_Ent_SphereEFGH_03_Name;": ("Roseum Bioluminescent Anemone", 1499900, None, None, None, 200.0, "Any", ["Metal rich body", "High metal content body"], None, "B"),
+        "$Codex_Ent_SphereEFGH_Name;": ("Blatteum Bioluminescent Anemone", 1499900, None, None, None, 220.0, "Any", ["Metal rich body", "High metal content body"], None, "B"),
     },
     "$Codex_Ent_Stratum_Genus_Name;": {
         "$Codex_Ent_Stratum_01_Name;": ("Stratum Excutitus", 2448900, ["CarbonDioxide", "CarbonDioxideRich", "SulphurDioxide"], None, 190.0, 165.0, None, ["Rocky body"], ["orion-cygnus"], None),
@@ -147,14 +147,14 @@ bio_types = {
         "$Codex_Ent_Stratum_08_Name;": ("Stratum Frigus", 2637500, ["CarbonDioxide", "CarbonDioxideRich", "SulphurDioxide"], None, None, 190.0, None, ["Rocky body"], ["perseus"], None),
     },
     "$Codex_Ent_Tube_Name;": {
-        "$Codex_Ent_Tube_Name;": ("Roseum Sinuous Tubers", 111300, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_TubeABCD_01_Name;": ("Prasinum Sinuous Tubers", 1514500, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_TubeABCD_02_Name;": ("Albidum Sinuous Tubers", 111300, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_TubeABCD_03_Name;": ("Caeruleum Sinuous Tubers", 1514500, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_TubeEFGH_01_Name;": ("Lindigoticum Sinuous Tubers", 3425600, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_TubeEFGH_02_Name;": ("Violaceum Sinuous Tubers", 3425600, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_TubeEFGH_03_Name;": ("Viride Sinuous Tubers", 3425600, ["None"], None, None, None, "Any", None, None, None),
-        "$Codex_Ent_TubeEFGH_Name;": ("Blatteum Sinuous Tubers", 3425600, ["None"], None, None, None, "Any", None, None, None),
+        "$Codex_Ent_Tube_Name;": ("Roseum Sinuous Tubers", 111300, ["None"], None, 500.0, 200.0, "silicate magme", None, None, None),
+        "$Codex_Ent_TubeABCD_01_Name;": ("Prasinum Sinuous Tubers", 1514500, ["None"], None, 500.0, 200.0, "Any", ["Metal rich body", "High metal content body"], None, None),
+        "$Codex_Ent_TubeABCD_02_Name;": ("Albidum Sinuous Tubers", 111300, ["None"], None, 500.0, 200.0, "Any", ["Rocky body"], None, None),
+        "$Codex_Ent_TubeABCD_03_Name;": ("Caeruleum Sinuous Tubers", 1514500, ["None"], None, 500.0, 200.0, "Any", ["Rocky body"], None, None),
+        "$Codex_Ent_TubeEFGH_01_Name;": ("Lindigoticum Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Rocky body"], None, None),
+        "$Codex_Ent_TubeEFGH_02_Name;": ("Violaceum Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Metal rich body", "High metal content body", "Rocky body"], None, None),
+        "$Codex_Ent_TubeEFGH_03_Name;": ("Viride Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Rocky body", "High metal content body"], None, None),
+        "$Codex_Ent_TubeEFGH_Name;": ("Blatteum Sinuous Tubers", 3425600, ["None"], None, 500.0, 200.0, "Any", ["Metal rich body", "High metal content body", "Rocky body"], None, None),
     },
     "$Codex_Ent_Tubus_Genus_Name;": {
         "$Codex_Ent_Tubus_01_Name;": ("Tubus Conifer", 2415500, ["CarbonDioxide", "CarbonDioxideRich"], 0.155, 190.0, 160.0, None, ["Rocky body"], ["perseus"], None),
@@ -181,7 +181,7 @@ bio_types = {
         "$Codex_Ent_Tussocks_15_Name;": ("Tussock Capillum", 7025800, ["Argon", "ArgonRich", "Methane", "MethaneRich"], 0.275, None, None, None, ["Rocky ice body"], None, None),
     },
     "$Codex_Ent_Vents_Name;": {  # Metal rich, no atmos, A star, with one of (earth-like, ammonia, giant /w life, water giant)
-        "$Codex_Ent_Vents_Name;": ("Amphora Plant", 3626400, ["None"], None, None, None, None, ["Metal rich body"], None, "A"),
+        "$Codex_Ent_Vents_Name;": ("Amphora Plant", 3626400, ["None"], None, None, None, ["volcanism"], ["Metal rich body"], None, "A+life"),
     },
 }
 
