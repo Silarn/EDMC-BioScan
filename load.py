@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+import locale
+import math
 # BioScan plugin for EDMC
 # Source: https://github.com/Silarn/EDMC-BioScan
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
@@ -10,6 +11,7 @@ from tkinter import ttk
 import semantic_version
 
 import myNotebook as nb
+from bio_scan.nebula_coordinates import nebula_coords
 from bio_scan.nebulae_data import planetary_nebulae, nebula_sectors
 from ttkHyperlinkLabel import HyperlinkLabel
 from config import config
@@ -45,7 +47,7 @@ this.game_version = semantic_version.Version.coerce('0.0.0.0')
 this.shorten_values = None
 this.main_star_id = None
 this.main_star_type = ''
-this.coordinates = [0, 0, 0]
+this.coordinates = [0.0, 0.0, 0.0]
 this.location_name = ''
 this.location_id = ''
 this.location_state = ''
@@ -292,6 +294,14 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                         found = True
                     for sector in nebula_sectors:
                         if this.starsystem.startswith(sector):
+                            found = True
+                            break
+                    for system, coords in nebula_coords.items():
+                        distance = math.sqrt((coords[0]-this.coordinates[0])**2
+                                             + (coords[1]-this.coordinates[1])**2
+                                             + (coords[2]-this.coordinates[2])**2)
+                        log("Distance to {0} from {1}: {2:n} ly".format(system, this.starsystem, distance))
+                        if distance < 100.0:
                             found = True
                             break
                     if not found:

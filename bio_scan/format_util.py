@@ -42,5 +42,5 @@ class Formatter:
         else:
             return self.format_credits(min, space)
 
-    def format_ls(self, ls, space=True):
-        return self.format_unit(ls, 'ls', space)
+    def format_distance(self, ls, unit="ls", space=True):
+        return self.format_unit(ls, unit, space)
