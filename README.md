@@ -31,6 +31,12 @@ It can also track scans with the composition scanner and will lock in the final 
 you to scan biologicals one at a time. In this way you can lock in a species and value while competing the analysis of
 another lifeform.
 
+### Please Note
+
+EDMC does not parse old system logs so this tool has trouble when revisiting systems. I may use EDSM data to fill in
+some holes (if enabled) but it will still be missing signal data. Fortunately, reentering a system does usually trigger
+the detailed scan signal data to be logged in the journal again. But not the FSS signal data.
+
 ## Requirements
 * EDMC version 5 and above
 
@@ -50,10 +56,12 @@ Species calculations are based on various sources, primarily the
 
 ## Roadmap
 
+* Currently implementing a system to detect the presence of a nebula
 * Refinements to species requirements
 * ~~Track when near a planet and focus the data view for that planet~~
 * ~~Add settings for visibility and display options~~
 * Add info about sample distance requirements
+* Possibly utilize EDSM data to fill in missing data (revisiting a system)
 * ~~Investigate plausibility of getting species from codex scans (Ship / SRV)~~
 
 ## License
