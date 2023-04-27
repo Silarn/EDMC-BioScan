@@ -41,7 +41,7 @@ this.scrollable_frame = None
 this.label = None
 this.values_label = None
 this.total_label = None
-this.bodies = {}  # type: dict[str, BodyData]
+this.bodies = dict[str, BodyData]()
 this.odyssey = False
 this.game_version = semantic_version.Version.coerce('0.0.0.0')
 this.shorten_values = None
@@ -202,25 +202,31 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
             if reqs[2] == "Any" and body.get_atmosphere() in ["", "None"]:
                 log("Eliminated for no atmos")
                 eliminated_species.add(species)
+                continue
             elif body.get_atmosphere() not in reqs[2]:
                 log("Eliminated for atmos")
                 eliminated_species.add(species)
+                continue
         if reqs[3] is not None:
             if body.get_gravity() / 9.80665 > reqs[3]:
                 log("Eliminated for grav")
                 eliminated_species.add(species)
+                continue
         if reqs[4] is not None:
             if body.get_temp() > reqs[4]:
                 log("Eliminated for high heat")
                 eliminated_species.add(species)
+                continue
         if reqs[5] is not None:
             if body.get_temp() < reqs[5]:
                 log("Eliminated for low heat")
                 eliminated_species.add(species)
+                continue
         if reqs[6] is not None:
             if reqs[6] == "Any" and body.get_volcanism() == "":
                 log("Eliminated for no volcanism")
                 eliminated_species.add(species)
+                continue
             else:
                 found = False
                 for volc_type in reqs[6]:
@@ -229,10 +235,12 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                 if not found:
                     log("Eliminated for volcanism")
                     eliminated_species.add(species)
+                    continue
         if reqs[7] is not None:
             if body.get_type() not in reqs[7]:
                 log("Eliminated for body type")
                 eliminated_species.add(species)
+                continue
         if reqs[8] is not None:
             if this.coordinates is not None:
                 found = None
@@ -244,6 +252,7 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                             if region_id[0] in region_map[region[1:]]:
                                 log("Eliminated by region")
                                 eliminated_species.add(species)
+                                continue
                         else:
                             found = False if found is None else found
                             if region_id[0] in region_map[region]:
@@ -251,43 +260,53 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                 if not found and found is not None:
                     log("Eliminated by region")
                     eliminated_species.add(species)
+                    continue
         if reqs[9] is not None:
             match reqs[9]:
                 case '2500ls':
                     if body.get_distance() < 2500.0:
                         eliminated_species.add(species)
+                        continue
                 case 'A':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] != 'A':
                             log("Eliminated for star type")
                             eliminated_species.add(species)
+                            continue
                     if not body_check(this.bodies):
                         log("Eliminated for missing body type(s)")
                         eliminated_species.add(species)
+                        continue
                 case 'AV':
                     if len(this.main_star_type) > 0:
                         if not this.main_star_type.startswith('A') and not this.main_star_type.startswith('N'):
                             log("Eliminated for star type")
                             eliminated_species.add(species)
+                            continue
                         elif this.main_star_type.startswith('AVI'):
                             log("Eliminated for star type")
                             eliminated_species.add(species)
+                            continue
                 case 'OBA':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] not in ['O', 'B', 'A']:
                             log("Eliminated for star type")
                             eliminated_species.add(species)
+                            continue
                 case 'AFGKMS':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] not in ['A', 'F', 'G', 'K', 'M', 'S']:
                             log("Eliminated for star type")
                             eliminated_species.add(species)
+                            continue
                         if body.get_distance() < 12000.0:
                             log("Eliminated for distance")
                             eliminated_species.add(species)
+                            continue
                         if not body_check(this.bodies):
                             log("Eliminated for missing body type(s)")
                             eliminated_species.add(species)
+                            continue
                 case 'nebula':
                     found = False
                     if this.starsystem in planetary_nebulae:
@@ -307,6 +326,7 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
                     if not found:
                         log("Eliminated for lack of nebula")
                         eliminated_species.add(species)
+                        continue
                 case 'special':
                     log("Eliminated due to unhandled special rules")
                     eliminated_species.add(species)  # ignore old flora with special rules for now
