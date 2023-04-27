@@ -191,7 +191,7 @@ def scan_label(scans: int):
             return "Analysed"
 
 
-def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
+def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
     possible_species = set()
     eliminated_species = set()
     log("Running checks for {}:".format(bio_genus[genus]["name"]))
@@ -366,17 +366,19 @@ def value_estimate(body: BodyData, genus: str) -> tuple[int, int]:
     final_species = possible_species - eliminated_species
     sorted_species = sorted(final_species, key=lambda species: bio_types[genus][species][1])
 
+    if len(sorted_species) == 1:
+        return bio_types[genus][sorted_species[0]][0], bio_types[genus][sorted_species[0]][1], bio_types[genus][sorted_species[0]][1]
     if len(sorted_species) > 0:
-        return bio_types[genus][sorted_species[0]][1], bio_types[genus][sorted_species[-1]][1]
-    return 0, 0
+        return bio_genus[genus]["name"], bio_types[genus][sorted_species[0]][1], bio_types[genus][sorted_species[-1]][1]
+    return "", 0, 0
 
 
 def get_possible_values(body: BodyData) -> dict[str, tuple]:
     possible_genus = {}
     for genus, species_reqs in bio_types.items():
-        min_potential_value, max_potential_value = value_estimate(body, genus)
+        name, min_potential_value, max_potential_value = value_estimate(body, genus)
         if min_potential_value != 0:
-            possible_genus[bio_genus[genus]["name"]] = (min_potential_value, max_potential_value)
+            possible_genus[name] = (min_potential_value, max_potential_value)
 
     return dict(sorted(possible_genus.items(), key=lambda gen_v: gen_v[0]))
 
@@ -550,16 +552,16 @@ def update_display() -> None:
             if data[1] == 3:
                 total_value += bio_types[genus][data[0]][1]
             if data[0] != "":
-                detail_text += "{} ({}) [{}m]: {}{}\n".format(
+                detail_text += "{} ({}){}: {}{}\n".format(
                     bio_types[genus][data[0]][0],
                     scan_label(data[1]),
-                    bio_genus[genus]["distance"],
+                    " [{}m]".format(bio_genus[genus]["distance"]) if 0 < data[1] < 3 else "",
                     this.formatter.format_credits(bio_types[genus][data[0]][1]),
                     u' 🗸' if data[1] == 3 else '')
             else:
-                min_val, max_val = value_estimate(bio_bodies[this.location_name], genus)
-                detail_text += "{} (Not located): {}\n".format(bio_genus[genus]["name"],
-                                                             this.formatter.format_credit_range(min_val, max_val))
+                name, min_val, max_val = value_estimate(bio_bodies[this.location_name], genus)
+                detail_text += "{} (Not located): {}\n".format(name,
+                                                               this.formatter.format_credit_range(min_val, max_val))
             if len(bio_bodies[this.location_name].get_flora()) == count:
                 detail_text += "\n"
 
@@ -573,17 +575,17 @@ def update_display() -> None:
                     if data[1] == 3:
                         total_value += bio_types[genus][data[0]][1]
                     if data[0] != "":
-                        detail_text += "{} ({}) [{}m]: {}{}\n".format(bio_types[genus][data[0]][0],
-                                                                      scan_label(data[1]),
-                                                                      bio_genus[genus]["distance"],
-                                                                      this.formatter.format_credits(
-                                                                          bio_types[genus][data[0]][1]
-                                                                      ),
-                                                                      u' 🗸' if data[1] == 3 else '')
+                        detail_text += "{} ({}){}: {}{}\n".format(
+                            bio_types[genus][data[0]][0],
+                            scan_label(data[1]),
+                            " [{}m]".format(bio_genus[genus]["distance"]) if 0 < data[1] < 3 else "",
+                            this.formatter.format_credits(bio_types[genus][data[0]][1]),
+                            u' 🗸' if data[1] == 3 else ''
+                        )
                     else:
-                        min_val, max_val = value_estimate(body, genus)
+                        bio_name, min_val, max_val = value_estimate(body, genus)
                         detail_text += "{} (Not located): {}\n".format(
-                            bio_genus[genus]["name"],
+                            bio_name,
                             this.formatter.format_credit_range(min_val, max_val))
                     if len(body.get_flora()) == count:
                         detail_text += "\n"
@@ -592,10 +594,12 @@ def update_display() -> None:
                 types = get_possible_values(body)
                 detail_text += "{} Signals - Possible Types:\n".format(body.get_bio_signals())
                 count = 0
-                for genus, values in types.items():
+                for bio_name, values in types.items():
                     count += 1
-                    detail_text += "{}: {}\n".format(genus,
-                                                     this.formatter.format_credit_range(values[0], values[1]))
+                    detail_text += "{}: {}\n".format(
+                        bio_name,
+                        this.formatter.format_credit_range(values[0], values[1])
+                    )
                     if len(types) == count:
                         detail_text += "\n"
 
