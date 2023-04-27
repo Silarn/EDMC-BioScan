@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import locale
-import math
 # BioScan plugin for EDMC
 # Source: https://github.com/Silarn/EDMC-BioScan
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
@@ -9,16 +7,18 @@ import sys
 import tkinter as tk
 from tkinter import ttk
 import semantic_version
+import math
 
 import myNotebook as nb
 from bio_scan.nebula_coordinates import nebula_coords
 from bio_scan.nebulae_data import planetary_nebulae, nebula_sectors
 from ttkHyperlinkLabel import HyperlinkLabel
+
 from config import config
 from theme import theme
+from EDMCLogging import get_main_logger
 
 from RegionMap import findRegion
-from EDMCLogging import get_main_logger
 
 from bio_scan.body_data import BodyData, get_body_shorthand, body_check
 from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex, region_map
@@ -344,7 +344,7 @@ def get_possible_values(body: BodyData) -> dict[str, tuple]:
     for genus, species_reqs in bio_types.items():
         min_potential_value, max_potential_value = value_estimate(body, genus)
         if min_potential_value != 0:
-            possible_genus[bio_genus[genus]] = (min_potential_value, max_potential_value)
+            possible_genus[bio_genus[genus]["name"]] = (min_potential_value, max_potential_value)
 
     return dict(sorted(possible_genus.items(), key=lambda gen_v: gen_v[0]))
 
@@ -387,7 +387,6 @@ def journal_entry(
             if entry['BodyID'] == this.main_star_id or entry['BodyID'] == 0:
                 this.main_star_type = "{}{}".format(entry['StarType'], entry['Luminosity'])
         if 'PlanetClass' in entry:
-            odyssey_bonus = this.odyssey or this.game_version.major >= 4
             if 'StarSystem' in entry:
                 this.starsystem = entry['StarSystem']
 
@@ -519,13 +518,15 @@ def update_display() -> None:
             if data[1] == 3:
                 total_value += bio_types[genus][data[0]][1]
             if data[0] != "":
-                detail_text += "{} ({}): {}{}\n".format(bio_types[genus][data[0]][0],
-                                                        scan_label(data[1]),
-                                                        this.formatter.format_credits(bio_types[genus][data[0]][1]),
-                                                        u' 🗸' if data[1] == 3 else '')
+                detail_text += "{} ({}) [{}m]: {}{}\n".format(
+                    bio_types[genus][data[0]][0],
+                    scan_label(data[1]),
+                    bio_genus[genus]["distance"],
+                    this.formatter.format_credits(bio_types[genus][data[0]][1]),
+                    u' 🗸' if data[1] == 3 else '')
             else:
                 min_val, max_val = value_estimate(bio_bodies[this.location_name], genus)
-                detail_text += "{} (Not located): {}\n".format(bio_genus[genus],
+                detail_text += "{} (Not located): {}\n".format(bio_genus[genus]["name"],
                                                              this.formatter.format_credit_range(min_val, max_val))
             if len(bio_bodies[this.location_name].get_flora()) == count:
                 detail_text += "\n"
@@ -540,14 +541,18 @@ def update_display() -> None:
                     if data[1] == 3:
                         total_value += bio_types[genus][data[0]][1]
                     if data[0] != "":
-                        detail_text += "{} ({}): {}{}\n".format(bio_types[genus][data[0]][0],
-                                                                scan_label(data[1]),
-                                                                this.formatter.format_credits(bio_types[genus][data[0]][1]),
-                                                                u' 🗸' if data[1] == 3 else '')
+                        detail_text += "{} ({}) [{}m]: {}{}\n".format(bio_types[genus][data[0]][0],
+                                                                      scan_label(data[1]),
+                                                                      bio_genus[genus]["distance"],
+                                                                      this.formatter.format_credits(
+                                                                          bio_types[genus][data[0]][1]
+                                                                      ),
+                                                                      u' 🗸' if data[1] == 3 else '')
                     else:
                         min_val, max_val = value_estimate(body, genus)
-                        detail_text += "{} (Not located): {}\n".format(bio_genus[genus],
-                                                                     this.formatter.format_credit_range(min_val, max_val))
+                        detail_text += "{} (Not located): {}\n".format(
+                            bio_genus[genus]["name"],
+                            this.formatter.format_credit_range(min_val, max_val))
                     if len(body.get_flora()) == count:
                         detail_text += "\n"
 
@@ -558,7 +563,7 @@ def update_display() -> None:
                 for genus, values in types.items():
                     count += 1
                     detail_text += "{}: {}\n".format(genus,
-                                                   this.formatter.format_credit_range(values[0], values[1]))
+                                                     this.formatter.format_credit_range(values[0], values[1]))
                     if len(types) == count:
                         detail_text += "\n"
 
@@ -583,7 +588,7 @@ def update_display() -> None:
                  or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
             if text[-1] != '\n':
                 text += '\n'
-            complete = len(dict(filter(lambda x: x[1][1] == 3 , bio_bodies[this.location_name].get_flora().items())))
+            complete = len(dict(filter(lambda x: x[1][1] == 3, bio_bodies[this.location_name].get_flora().items())))
             text += '{} - {} - {}/{} Analysed'.format(bio_bodies[this.location_name].get_name(),
                                                       bio_bodies[this.location_name].get_type(),
                                                       complete, len(bio_bodies[this.location_name].get_flora()))
