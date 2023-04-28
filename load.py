@@ -604,6 +604,8 @@ def journal_entry(
         update_display()
 
     elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff', 'Embark', 'Disembark']:
+        if entry['event'] in ['Liftoff', 'Touchdown'] and entry['PlayerControlled'] is False:
+            return ''
         body_name = get_bodyname(entry["Body"])
         if body_name in this.bodies:
             this.location_name = body_name
