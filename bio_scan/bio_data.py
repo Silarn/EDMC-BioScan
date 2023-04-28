@@ -376,3 +376,4 @@ def get_species_from_codex(name: str):
                 for species, _ in bio_types[genus].items():
                     if species.startswith(search):
                         return genus, species
+    return "", ""

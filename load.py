@@ -51,6 +51,13 @@ this.coordinates = [0.0, 0.0, 0.0]
 this.location_name = ''
 this.location_id = ''
 this.location_state = ''
+this.planet_radius = 0
+this.planet_latitude = 0
+this.planet_longitude = 0
+this.planet_altitude = 0
+this.scan_latitude = [None, None]
+this.scan_longitude = [None, None]
+this.current_scan = ''
 this.body_location = 0
 this.starsystem = ''
 
@@ -489,6 +496,22 @@ def journal_entry(
 
         if target_body is not None:
             this.bodies[target_body].set_flora(entry['Genus'], entry['Species'], scan_level)
+            if this.current_scan != "" and this.current_scan != entry['Genus']:
+                species = this.bodies[target_body].get_flora(this.current_scan)[0]
+                this.bodies[target_body].set_flora(this.current_scan, species, 0)
+            this.current_scan = entry['Genus']
+
+        match scan_level:
+            case 1:
+                this.scan_latitude[0] = this.planet_latitude
+                this.scan_longitude[0] = this.planet_longitude
+            case 2:
+                this.scan_latitude[1] = this.planet_latitude
+                this.scan_longitude[1] = this.planet_longitude
+            case _:
+                this.scan_longitude = [None, None]
+                this.scan_latitude = [None, None]
+                this.current_scan = ""
 
         update_display()
 
@@ -503,7 +526,8 @@ def journal_entry(
 
         if target_body is not None:
             genus, species = get_species_from_codex(entry["Name"])
-            this.bodies[target_body].add_flora(genus, species)
+            if genus is not "" and species is not "":
+                this.bodies[target_body].add_flora(genus, species)
 
         update_display()
 
@@ -532,6 +556,42 @@ def journal_entry(
     return ''  # No error
 
 
+def dashboard_entry(cmdr, monitor, entry) -> str:
+    if "PlanetRadius" in entry and entry['PlanetRadius'] > 0:
+        this.planet_latitude = entry['Latitude']
+        this.planet_longitude = entry['Longitude']
+        this.planet_altitude = entry['Altitude'] if 'Altitidue' in entry else 0
+        this.planet_radius = entry['PlanetRadius']
+    else:
+        this.planet_latitude = 0
+        this.planet_longitude = 0
+        this.planet_altitude = 0
+        this.planet_radius = 0
+
+    if this.location_name != "" and this.current_scan != "":
+        update_display()
+
+    return ''
+
+
+def get_distance() -> float:
+    if this.scan_latitude[0] is not None:
+        lat_difference = (this.planet_latitude-this.scan_latitude[0]) * math.pi/180
+        long_difference = (this.planet_longitude-this.scan_longitude[0]) * math.pi/180
+        haversine_a = math.sin(lat_difference/2)**2 + math.cos(this.planet_latitude) * math.cos(this.scan_latitude[0]) * math.sin(long_difference/2)**2
+        haversine_c = 2 * math.atan2(math.sqrt(haversine_a), math.sqrt(1-haversine_a))
+        distance_a = this.planet_radius * haversine_c
+        if this.scan_latitude[1] is not None:
+            lat_difference = (this.planet_latitude-this.scan_latitude[1]) * math.pi/180
+            long_difference = (this.planet_longitude-this.scan_longitude[1]) * math.pi/180
+            haversine_a = math.sin(lat_difference/2)**2 + math.cos(this.planet_latitude) * math.cos(this.scan_latitude[1]) * math.sin(long_difference/2)**2
+            haversine_c = 2 * math.atan2(math.sqrt(haversine_a), math.sqrt(1-haversine_a))
+            distance_b = this.planet_radius * haversine_c
+            return min(distance_a, distance_b)
+        return distance_a
+    return 0
+
+
 def update_display() -> None:
     detail_text = ""
     bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.bodies.items())).items(),
@@ -552,10 +612,16 @@ def update_display() -> None:
             if data[1] == 3:
                 total_value += bio_types[genus][data[0]][1]
             if data[0] != "":
+                distance = get_distance()
                 detail_text += "{} ({}){}: {}{}\n".format(
                     bio_types[genus][data[0]][0],
                     scan_label(data[1]),
-                    " [{}m]".format(bio_genus[genus]["distance"]) if 0 < data[1] < 3 else "",
+                    " [{}/{}m]".format(
+                        "{:.2f}".format(distance)
+                        if distance < bio_genus[genus]["distance"]
+                        else "> {}".format(bio_genus[genus]["distance"]),
+                        bio_genus[genus]["distance"]
+                    ) if 0 < data[1] < 3 else "",
                     this.formatter.format_credits(bio_types[genus][data[0]][1]),
                     u' 🗸' if data[1] == 3 else '')
             else:
@@ -578,7 +644,7 @@ def update_display() -> None:
                         detail_text += "{} ({}){}: {}{}\n".format(
                             bio_types[genus][data[0]][0],
                             scan_label(data[1]),
-                            " [{}m]".format(bio_genus[genus]["distance"]) if 0 < data[1] < 3 else "",
+                            " [{:.2f}/{}m]".format(get_distance(), bio_genus[genus]["distance"]) if 0 < data[1] < 3 else "",
                             this.formatter.format_credits(bio_types[genus][data[0]][1]),
                             u' 🗸' if data[1] == 3 else ''
                         )
@@ -625,9 +691,12 @@ def update_display() -> None:
             if text[-1] != '\n':
                 text += '\n'
             complete = len(dict(filter(lambda x: x[1][1] == 3, bio_bodies[this.location_name].get_flora().items())))
-            text += '{} - {} - {}/{} Analysed'.format(bio_bodies[this.location_name].get_name(),
-                                                      bio_bodies[this.location_name].get_type(),
-                                                      complete, len(bio_bodies[this.location_name].get_flora()))
+            text += '{} - {} [{:.2f}G] - {}/{} Analysed'.format(
+                bio_bodies[this.location_name].get_name(),
+                bio_bodies[this.location_name].get_type(),
+                bio_bodies[this.location_name].get_gravity() / 9.80665,
+                complete, len(bio_bodies[this.location_name].get_flora())
+            )
 
         this.total_label['text'] = "Analysed System Samples:\n{} | FF: {}".format(
             this.formatter.format_credits(total_value),
