@@ -1,10 +1,5 @@
 # BioScan plugin for [EDMC]
 
-## BETA
-This plugin is a WIP. Feel free to try it, I welcome input about incorrect species requirements and suggestions.
-
----
-
 <img src="BioScan-DSS.png" align="left" style="margin-right: 10px">
 BioScan is a utility for Explorers and Exobiologists that attempts to determine the possible value range of biological
 signals on bodies. It uses data such as the atmosphere, gravity, volcanism, surface temperature, body type, and local
@@ -57,13 +52,17 @@ Species calculations are based on various sources, primarily the
 [Deep Space Network](https://ed-dsn.net/) and the
 [Codex NSP and Bio requirements spreadsheet][Bio req spreadsheet].
 
+Nebula locations pulled from the [Catalog of Galactic Nebulae] (thanks marx and contributors)
+
+Procedurally generated nebula reference star coordinates pulled from [EDSM]'s API
+
 ## Roadmap
 
-* Currently implementing a system to detect the presence of a nebula
+* ~~Currently implementing a system to detect the presence of a nebula~~
 * Refinements to species requirements
 * ~~Track when near a planet and focus the data view for that planet~~
 * ~~Add settings for visibility and display options~~
-* Add info about sample distance requirements
+* ~~Add info about sample distance requirements~~
 * Possibly utilize EDSM data to fill in missing data (revisiting a system)
 * ~~Investigate plausibility of getting species from codex scans (Ship / SRV)~~
 
@@ -79,3 +78,5 @@ Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 [GPLv2]: http://www.gnu.org/licenses/gpl-2.0.html
 [Bio req spreadsheet]: https://docs.google.com/spreadsheets/d/1nV_UD_0kIxkWAHhAqvf62ILHpbYzdZpJ53CqPHn3qlA/
 [EliteDangerousRegionMap]: https://github.com/klightspeed/EliteDangerousRegionMap/
+[Catalog of Galactic Nebulae]: https://forums.frontier.co.uk/threads/catalogue-of-galactic-nebulae-submit-your-planetary-nebulae.511743/
+[EDSM]: https://www.edsm.net/
