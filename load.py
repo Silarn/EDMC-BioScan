@@ -338,7 +338,7 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                             eliminated_species.add(species)
                 case 'AFGKMSS':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type[0] not in ['A', 'F', 'G', 'K', 'S'] or \
+                        if this.main_star_type[0] not in ['A', 'F', 'G', 'K', 'S'] and \
                                 not this.main_star_type.startswith("MS"):
                             log("Eliminated for star type")
                             eliminated_species.add(species)
