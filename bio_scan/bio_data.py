@@ -95,12 +95,12 @@ bio_types = {
         "$Codex_Ent_Ground_Struct_Ice_Name;": ("Crystalline Shards", 1628800, ["None"], None, 273.0, None, None, None, None, "AFGKMSS"),
     },
     "$Codex_Ent_Osseus_Genus_Name;": {
-        "$Codex_Ent_Osseus_01_Name;": ("Osseus Fractus", 4027800, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 190.0, 180.0, None, ["Rocky body", "High metal content body"], None, None),
+        "$Codex_Ent_Osseus_01_Name;": ("Osseus Fractus", 4027800, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 190.0, 180.0, None, ["Rocky body", "High metal content body"], ["!perseus"], None),
         "$Codex_Ent_Osseus_02_Name;": ("Osseus Discus", 12934900, ["Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
         "$Codex_Ent_Osseus_03_Name;": ("Osseus Spiralis", 2404700, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
         "$Codex_Ent_Osseus_04_Name;": ("Osseus Pumice", 3156300, ["Argon", "ArgonRich", "Methane", "MethaneRich", "Nitrogen"], 0.275, None, None, None, ["Rocky body", "Rocky ice body", "High metal content body"], None, None),
         "$Codex_Ent_Osseus_05_Name;": ("Osseus Cornibus", 1483000, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 195.0, 180.0, None, ["Rocky body", "High metal content body"], ["perseus"], None),
-        "$Codex_Ent_Osseus_06_Name;": ("Osseus Pellebantus", 9739000, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 195.0, 190.0, None, ["Rocky body", "High metal content body"], None, None),
+        "$Codex_Ent_Osseus_06_Name;": ("Osseus Pellebantus", 9739000, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 195.0, 190.0, None, ["Rocky body", "High metal content body"], ["!perseus"], None),
     },
     "$Codex_Ent_Recepta_Genus_Name;": {
         "$Codex_Ent_Recepta_01_Name;": ("Recepta Umbrux", 12934900, ["SulphurDioxide"], 0.275, None, 132.0, None, ["Icy body", "Rocky ice body", "Rocky body"], None, None),
@@ -139,7 +139,7 @@ bio_types = {
     "$Codex_Ent_Stratum_Genus_Name;": {
         "$Codex_Ent_Stratum_01_Name;": ("Stratum Excutitus", 2448900, ["CarbonDioxide", "CarbonDioxideRich", "SulphurDioxide"], None, 190.0, 165.0, None, ["Rocky body"], ["orion-cygnus"], None),
         "$Codex_Ent_Stratum_02_Name;": ("Stratum Paleas", 1362000, ["Ammonia", "CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], None, None, 165.0, None, ["Rocky body"], None, None),
-        "$Codex_Ent_Stratum_03_Name;": ("Stratum Laminamus", 2788300, ["Ammonia"], None, None, 165.0, None, ["Rocky body"], ["orion-cygnus-1"], None),
+        "$Codex_Ent_Stratum_03_Name;": ("Stratum Laminamus", 2788300, ["Ammonia"], None, None, 165.0, None, ["Rocky body"], ["orion-cygnus"], None),
         "$Codex_Ent_Stratum_04_Name;": ("Stratum Araneamus", 2448900, ["SulphurDioxide"], None, None, 165.0, None, ["Rocky body"], None, None),
         "$Codex_Ent_Stratum_05_Name;": ("Stratum Limaxus", 1362000, ["CarbonDioxide", "CarbonDioxideRich", "SulphurDioxide"], None, 190.0, 165.0, None, ["Rocky body"], ["scutum-centaurus-core"], None),
         "$Codex_Ent_Stratum_06_Name;": ("Stratum Cucumisis", 16202800, ["CarbonDioxide", "CarbonDioxideRich", "SulphurDioxide"], None, None, 190.0, None, ["Rocky body"], ["carina-sagittarius"], None),
@@ -164,18 +164,18 @@ bio_types = {
         "$Codex_Ent_Tubus_05_Name;": ("Tubus Compagibus", 7774700, ["CarbonDioxide", "CarbonDioxideRich"], 0.155, 190.0, 160.0, None, ["Rocky body"], ["carina-sagittarius"], None),
     },
     "$Codex_Ent_Tussocks_Genus_Name;": {
-        "$Codex_Ent_Tussocks_01_Name;": ("Tussock Pennata", 5853800, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 155.0, 145.0, None, ["Rocky body"], ["carina-sagittarius-1", "perseus-1"], None),
-        "$Codex_Ent_Tussocks_02_Name;": ("Tussock Ventusa", 3227700, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 160.0, 155.0, None, ["Rocky body"], ["carina-sagittarius-1", "perseus-1"], None),
+        "$Codex_Ent_Tussocks_01_Name;": ("Tussock Pennata", 5853800, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 155.0, 145.0, None, ["Rocky body"], ["carina-sagittarius-core", "orion-cygnus-1", "perseus-core"], None),
+        "$Codex_Ent_Tussocks_02_Name;": ("Tussock Ventusa", 3227700, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 160.0, 155.0, None, ["Rocky body"], ["carina-sagittarius-core", "orion-cygnus-1", "perseus-core"], None),
         "$Codex_Ent_Tussocks_03_Name;": ("Tussock Ignis", 1849000, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 170.0, 160.0, None, ["Rocky body"], ["carina-sagittarius", "perseus"], None),
         "$Codex_Ent_Tussocks_04_Name;": ("Tussock Cultro", 1766600, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["orion-cygnus"], None),
         "$Codex_Ent_Tussocks_05_Name;": ("Tussock Catena", 1766600, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["scutum-centaurus-core"], None),
         "$Codex_Ent_Tussocks_06_Name;": ("Tussock Pennatis", 1000000, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["outer"], None),
-        "$Codex_Ent_Tussocks_07_Name;": ("Tussock Serrati", 4447100, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 175.0, 170.0, None, ["Rocky body", "High metal content body"], ["carina-sagittarius-1", "perseus-1"], None),
+        "$Codex_Ent_Tussocks_07_Name;": ("Tussock Serrati", 4447100, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 175.0, 170.0, None, ["Rocky body", "High metal content body"], ["carina-sagittarius-core", "orion-cygnus-1", "perseus-core"], None),
         "$Codex_Ent_Tussocks_08_Name;": ("Tussock Albata", 3252500, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 180.0, 175.0, None, ["Rocky body", "High metal content body"], ["carina-sagittarius", "perseus"], None),
         "$Codex_Ent_Tussocks_09_Name;": ("Tussock Propagito", 1000000, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["scutum-centaurus"], None),
         "$Codex_Ent_Tussocks_10_Name;": ("Tussock Divisa", 1766600, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["perseus"], None),
         "$Codex_Ent_Tussocks_11_Name;": ("Tussock Caputus", 3472400, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 190.0, 180.0, None, ["Rocky body", "High metal content body"], ["carina-sagittarius", "perseus"], None),
-        "$Codex_Ent_Tussocks_12_Name;": ("Tussock Triticum", 7774700, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 195.0, 190.0, None, ["Rocky body", "High metal content body"], ["carina-sagittarius-1", "perseus-1"], None),
+        "$Codex_Ent_Tussocks_12_Name;": ("Tussock Triticum", 7774700, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 195.0, 190.0, None, ["Rocky body", "High metal content body"], ["carina-sagittarius-core", "orion-cygnus-1", "perseus-core"], None),
         "$Codex_Ent_Tussocks_13_Name;": ("Tussock Stigmasis", 19010800, ["SulphurDioxide"], 0.275, None, None, None, ["Rocky body"], None, None),
         "$Codex_Ent_Tussocks_14_Name;": ("Tussock Virgam", 14313700, ["Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
         "$Codex_Ent_Tussocks_15_Name;": ("Tussock Capillum", 7025800, ["Argon", "ArgonRich", "Methane", "MethaneRich"], 0.275, None, None, None, ["Rocky ice body"], None, None),
@@ -186,15 +186,15 @@ bio_types = {
 }
 
 region_map = {
-    "orion-cygnus": [1, 2, 3, 4, 7, 8, 15, 16, 17, 18, 35],
-    "orion-cygnus-1": [2, 3, 4, 7, 8, 15, 16, 17, 18, 35],
-    "carina-sagittarius": [1, 2, 3, 4, 9, 18, 19, 20, 21, 22, 23, 40],
-    "carina-sagittarius-1": [2, 3, 4, 9, 18, 19, 20, 21, 22, 23, 40],
-    "scutum-centaurus": [1, 4, 9, 10, 11, 12, 18, 24, 25, 26, 42, 28],
-    "scutum-centaurus-core": [9, 10, 11, 12, 18, 24, 25, 26, 42, 28],
-    "outer": [5, 6, 13, 14, 27, 29, 31, 41, 37],
-    "perseus": [1, 2, 3, 4, 7, 15, 30, 32, 33, 34, 36, 38, 39],
-    "perseus-1": [2, 3, 4, 7, 15, 30, 32, 33, 34, 36, 38, 39],
+    "orion-cygnus": [1, 4, 8, 16, 17, 18, 35],
+    "orion-cygnus-1": [4, 8, 16, 17, 18, 35],
+    "carina-sagittarius": [1, 4, 9, 18, 19, 20, 21, 22, 23, 40],
+    "carina-sagittarius-core": [9, 18, 19, 20, 21, 22, 23, 40],
+    "scutum-centaurus": [1, 4, 9, 10, 11, 12, 24, 25, 26, 42, 28],
+    "scutum-centaurus-core": [9, 10, 11, 12, 24, 25, 26, 42, 28],
+    "outer": [1, 2, 5, 6, 13, 14, 27, 29, 31, 41, 37],
+    "perseus": [3, 4, 7, 15, 30, 32, 33, 34, 36, 38, 39],
+    "perseus-core": [3, 7, 15, 30, 32, 33, 34, 36, 38, 39],
     "core": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15, 16, 17, 18, 19]
 }
 
