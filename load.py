@@ -4,8 +4,12 @@
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
 
 import sys
+import threading
 import tkinter as tk
 from tkinter import ttk
+from urllib.parse import quote
+
+import requests
 import semantic_version
 import math
 
@@ -20,13 +24,14 @@ from EDMCLogging import get_main_logger
 
 from RegionMap import findRegion
 
-from bio_scan.body_data import BodyData, get_body_shorthand, body_check
+from bio_scan.body_data import BodyData, get_body_shorthand, body_check, parse_edsm_star_class, \
+    map_edsm_type, map_edsm_atmosphere
 from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex, region_map, guardian_sectors
 from bio_scan.format_util import Formatter
 
 logger = get_main_logger()
 
-VERSION = '1.0.0'
+VERSION = '1.1.0'
 
 this = sys.modules[__name__]  # For holding module globals
 this.formatter = Formatter()
@@ -41,6 +46,7 @@ this.scrollable_frame = None
 this.label = None
 this.values_label = None
 this.total_label = None
+this.edsm_button = None
 this.bodies = dict[str, BodyData]()
 this.odyssey = False
 this.game_version = semantic_version.Version.coerce('0.0.0.0')
@@ -61,6 +67,10 @@ this.current_scan = ''
 this.body_location = 0
 this.starsystem = ''
 
+this.edsm_session = None
+this.edsm_bodies = None
+this.fetched_edsm = False
+
 
 def plugin_start3(plugin_dir):
     return plugin_start()
@@ -74,6 +84,7 @@ def plugin_start():
 def plugin_app(parent: tk.Frame) -> tk.Frame:
     parse_config()
     this.frame = tk.Frame(parent)
+    this.frame.bind('<<BioScanEDSMData>>', edsm_data)
     this.label = tk.Label(this.frame)
     this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
     this.scroll_canvas = tk.Canvas(this.frame, height=80, highlightthickness=0)
@@ -97,6 +108,9 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     this.scrollbar.grid(row=1, column=1, sticky=tk.NSEW)
     this.total_label = tk.Label(this.frame)
     this.total_label.grid(row=2, column=0, columnspan=2, sticky=tk.N)
+    this.edsm_button = tk.Label(this.frame, text='Fetch EDSM Data', fg="white", cursor="hand2")
+    this.edsm_button.grid(row=3, columnspan=2, sticky=tk.EW)
+    this.edsm_button.bind("<Button-1>", lambda e: edsm_fetch())
     update_display()
     theme.register(this.values_label)
     return this.frame
@@ -184,6 +198,64 @@ def parse_config() -> None:
 def log(*args):
     if this.debug_logging_enabled.get():
         logger.debug(args)
+
+
+def edsm_fetch():
+    thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.starsystem,))
+    thread.daemon = True
+    thread.start()
+
+
+def edsm_worker(system_name):
+    if not this.edsm_session:
+        this.edsm_session = requests.Session()
+
+    try:
+        r = this.edsm_session.get('https://www.edsm.net/api-system-v1/bodies?systemName=%s' % quote(system_name),
+                                  timeout=10)
+        r.raise_for_status()
+        this.edsm_bodies = r.json() or {}
+    except:
+        this.edsm_bodies = None
+
+    this.frame.event_generate('<<BioScanEDSMData>>', when='tail')
+
+
+def edsm_data(event):
+    if this.edsm_bodies is None:
+        return
+
+    for body in this.edsm_bodies.get('bodies', []):
+        bodyname_insystem = get_bodyname(body['name'])
+        if body['type'] == 'Star':
+            if body['isMainStar']:
+                this.main_star_name = "{}{}".format(
+                    parse_edsm_star_class(body['subType']),
+                    body['luminosity']
+                )
+                this.main_star_id = body['bodyId']
+
+        elif body['type'] == 'Planet':
+            try:
+                if bodyname_insystem not in this.bodies:
+                    this.bodies[bodyname_insystem] = BodyData(bodyname_insystem)
+                planet_type = map_edsm_type(body['subType'])
+                this.bodies[bodyname_insystem].set_type(planet_type)
+                this.bodies[bodyname_insystem].set_distance(body['distanceToArrival'])
+                this.bodies[bodyname_insystem].set_id(body['bodyId'])
+                this.bodies[bodyname_insystem].set_atmosphere(map_edsm_atmosphere(body['atmosphereType']))
+                if body['volcanismType'] == "No volcanism":
+                    volcanism = ""
+                else:
+                    volcanism = body['volcanismType'].lower().capitalize() + " volcanism"
+                this.bodies[bodyname_insystem].set_volcanism(volcanism)
+                this.bodies[bodyname_insystem].set_gravity(body['gravity'])
+                this.bodies[bodyname_insystem].set_temp(body['surfaceTemperature'])
+
+            except Exception as e:
+                logger.error(e)
+    this.fetched_edsm = True
+    update_display()
 
 
 def scan_label(scans: int):
@@ -401,12 +473,12 @@ def get_bodyname(fullname: str = "") -> str:
 def journal_entry(
         cmdr: str, is_beta: bool, system: str, station: str, entry: dict[str, any], state: dict[str, any]
 ) -> str:
+    this.starsystem = system
     if entry['event'] == 'Fileheader' or entry['event'] == 'LoadGame':
         this.odyssey = entry.get('Odyssey', False)
         this.game_version = semantic_version.Version.coerce(entry.get('gameversion'))
 
     elif entry['event'] == 'Location':
-        this.starsystem = entry['StarSystem']
         this.coordinates = entry['StarPos']
 
     elif entry['event'] == 'FSDJump':
@@ -417,6 +489,7 @@ def journal_entry(
         this.location_name = ""
         this.location_id = -1
         this.location_state = ""
+        this.fetched_edsm = False
         this.bodies = {}
         this.coordinates = entry['StarPos']
         update_display()
@@ -428,9 +501,6 @@ def journal_entry(
             if entry['BodyID'] == this.main_star_id or entry['BodyID'] == 0:
                 this.main_star_type = "{}{}".format(entry['StarType'], entry['Luminosity'])
         if 'PlanetClass' in entry:
-            if 'StarSystem' in entry:
-                this.starsystem = entry['StarSystem']
-
             if bodyname_insystem not in this.bodies:
                 body_data = BodyData(bodyname_insystem)
             else:
@@ -602,6 +672,11 @@ def get_distance() -> float:
 
 
 def update_display() -> None:
+    if this.fetched_edsm or this.starsystem == "":
+        this.edsm_button.grid_remove()
+    else:
+        this.edsm_button.grid()
+
     detail_text = ""
     bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.bodies.items())).items(),
                         key=lambda item: item[1].get_id()))
