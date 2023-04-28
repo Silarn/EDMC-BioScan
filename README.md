@@ -6,7 +6,9 @@ BioScan is a utility for explorers and exobiologists that attempts to determine 
 value) of biological signals on bodies. It uses data such as the atmosphere, gravity, volcanism, surface temperature,
 body type, nearby nebulae, and local star type to make the best guess as to what types of flora will be present.
 
-Once done, it will summarize the possible value ranges for all qualifying genera and species.
+Once done, it will summarize the possible value ranges for all qualifying genera and species. This is typically
+extremely accurate and will often narrow down a specific species per genera and only a handful of extra qualifying
+genera (if any). Sometimes it will tell you exactly what's on a planet before even mapping it.
 
 <img src="BioScan-SAA-Prog.png">
 
