@@ -52,9 +52,9 @@ this.location_name = ''
 this.location_id = ''
 this.location_state = ''
 this.planet_radius = 0
-this.planet_latitude = 0
-this.planet_longitude = 0
-this.planet_altitude = 0
+this.planet_latitude = None
+this.planet_longitude = None
+this.planet_altitude = None
 this.scan_latitude = [None, None]
 this.scan_longitude = [None, None]
 this.current_scan = ''
@@ -499,6 +499,8 @@ def journal_entry(
             if this.current_scan != "" and this.current_scan != entry['Genus']:
                 species = this.bodies[target_body].get_flora(this.current_scan)[0]
                 this.bodies[target_body].set_flora(this.current_scan, species, 0)
+                this.scan_latitude = [None, None]
+                this.scan_longitude = [None, None]
             this.current_scan = entry['Genus']
 
         match scan_level:
@@ -509,8 +511,8 @@ def journal_entry(
                 this.scan_latitude[1] = this.planet_latitude
                 this.scan_longitude[1] = this.planet_longitude
             case _:
-                this.scan_longitude = [None, None]
                 this.scan_latitude = [None, None]
+                this.scan_longitude = [None, None]
                 this.current_scan = ""
 
         update_display()
@@ -549,6 +551,8 @@ def journal_entry(
         this.location_name = ''
         this.location_id = -1
         this.location_state = ''
+        this.planet_latitude = None
+        this.planet_longitude = None
 
         update_display()
         this.scroll_canvas.yview_moveto(0.0)
@@ -556,15 +560,15 @@ def journal_entry(
     return ''  # No error
 
 
-def dashboard_entry(cmdr, monitor, entry) -> str:
+def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     if "PlanetRadius" in entry and entry['PlanetRadius'] > 0:
         this.planet_latitude = entry['Latitude']
         this.planet_longitude = entry['Longitude']
         this.planet_altitude = entry['Altitude'] if 'Altitidue' in entry else 0
         this.planet_radius = entry['PlanetRadius']
     else:
-        this.planet_latitude = 0
-        this.planet_longitude = 0
+        this.planet_latitude = None
+        this.planet_longitude = None
         this.planet_altitude = 0
         this.planet_radius = 0
 
@@ -575,20 +579,25 @@ def dashboard_entry(cmdr, monitor, entry) -> str:
 
 
 def get_distance() -> float:
-    if this.scan_latitude[0] is not None:
-        lat_difference = (this.planet_latitude-this.scan_latitude[0]) * math.pi/180
-        long_difference = (this.planet_longitude-this.scan_longitude[0]) * math.pi/180
-        haversine_a = math.sin(lat_difference/2)**2 + math.cos(this.planet_latitude) * math.cos(this.scan_latitude[0]) * math.sin(long_difference/2)**2
-        haversine_c = 2 * math.atan2(math.sqrt(haversine_a), math.sqrt(1-haversine_a))
-        distance_a = this.planet_radius * haversine_c
-        if this.scan_latitude[1] is not None:
-            lat_difference = (this.planet_latitude-this.scan_latitude[1]) * math.pi/180
-            long_difference = (this.planet_longitude-this.scan_longitude[1]) * math.pi/180
-            haversine_a = math.sin(lat_difference/2)**2 + math.cos(this.planet_latitude) * math.cos(this.scan_latitude[1]) * math.sin(long_difference/2)**2
-            haversine_c = 2 * math.atan2(math.sqrt(haversine_a), math.sqrt(1-haversine_a))
-            distance_b = this.planet_radius * haversine_c
-            return min(distance_a, distance_b)
-        return distance_a
+    if this.planet_latitude is not None:
+        if this.scan_latitude[0] is not None:
+            phi_1 = math.radians(this.planet_latitude)
+            phi_2 = math.radians(this.scan_latitude[0])
+            delta_phi = math.radians(this.scan_latitude[0] - this.planet_latitude)
+            delta_lambda = math.radians(this.scan_longitude[0] - this.planet_longitude)
+            a = math.sin(delta_phi / 2.0) ** 2 + math.cos(phi_1) * math.cos(phi_2) * math.sin(delta_lambda / 2.0) ** 2
+            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+            distance_a = this.planet_radius * c
+            if this.scan_latitude[1] is not None:
+                phi_1 = math.radians(this.planet_latitude)
+                phi_2 = math.radians(this.scan_latitude[1])
+                delta_phi = math.radians(this.scan_latitude[1] - this.planet_latitude)
+                delta_lambda = math.radians(this.scan_longitude[1] - this.planet_longitude)
+                a = math.sin(delta_phi / 2.0) ** 2 + math.cos(phi_1) * math.cos(phi_2) * math.sin(delta_lambda / 2.0) ** 2
+                c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+                distance_b = this.planet_radius * c
+                return min(distance_a, distance_b)
+            return distance_a
     return 0
 
 
