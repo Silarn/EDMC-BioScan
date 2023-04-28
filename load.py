@@ -26,7 +26,7 @@ from bio_scan.format_util import Formatter
 
 logger = get_main_logger()
 
-VERSION = '0.8-beta'
+VERSION = '1.0.0'
 
 this = sys.modules[__name__]  # For holding module globals
 this.formatter = Formatter()
