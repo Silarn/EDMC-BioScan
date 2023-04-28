@@ -12,7 +12,7 @@ genera (if any). Sometimes it will tell you exactly what's on a planet before ev
 
 <img src="BioScan-SAA-Prog.png">
 
-After you've mapped a planet with biological signals, it will then pare down the list to the detected genera.
+After you've mapped a planet with biological signals, it will then pare down the list to the detected genera or species.
 And finally, once you've started to scan each species it will display the final type and value of the sample as well as
 indicate the scan progress.
 
