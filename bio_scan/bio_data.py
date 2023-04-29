@@ -71,7 +71,7 @@ bio_types = {
         "$Codex_Ent_Electricae_01_Name;": ("Electricae Pluma", 6284600, ["Helium", "Neon", "NeonRich", "Argon", "ArgonRich"], 0.275, None, None, None, ["Icy body"], None, "AV"),
         "$Codex_Ent_Electricae_02_Name;": ("Electricae Radialem", 6284600, ["Helium", "Neon", "NeonRich", "Argon", "ArgonRich"], 0.275, None, None, None, ["Icy body"], None, "nebula"),
     },
-    "$Codex_Ent_Fonticulus_Genus_Name;": {
+    "$Codex_Ent_Fonticulus_Genus_Name;": {  # No volcanism?
         "$Codex_Ent_Fonticulus_01_Name;": ("Fonticulua Segmentatus", 19010800, ["Neon", "NeonRich"], 0.275, None, None, None, ["Icy body", "Rocky ice body"], None, None),
         "$Codex_Ent_Fonticulus_02_Name;": ("Fonticulua Campestris", 1000000, ["Argon"], 0.275, None, None, None, ["Icy body", "Rocky ice body"], None, None),
         "$Codex_Ent_Fonticulus_03_Name;": ("Fonticulua Upupam", 5727600, ["ArgonRich"], 0.275, None, None, None, ["Icy body", "Rocky ice body"], None, None),
@@ -79,17 +79,17 @@ bio_types = {
         "$Codex_Ent_Fonticulus_05_Name;": ("Fonticulua Fluctus", 20000000, ["Oxygen"], 0.275, None, None, None, ["Icy body", "Rocky ice body"], None, None),
         "$Codex_Ent_Fonticulus_06_Name;": ("Fonticulua Digitos", 1804100, ["Methane", "MethaneRich"], 0.275, None, None, None, ["Icy body", "Rocky ice body"], None, None),
     },
-    "$Codex_Ent_Fumerolas_Genus_Name;": {  # Needs femarole geological signal - can add
+    "$Codex_Ent_Fumerolas_Genus_Name;": {  # Alongside fumerole geologic signals
         "$Codex_Ent_Fumerolas_01_Name;": ("Fumerola Carbosis", 6284600, None, 0.275, None, None, ["carbon", "methane"], None, None, None),
         "$Codex_Ent_Fumerolas_02_Name;": ("Fumerola Extremus", 16202800, None, 0.275, None, None, ["silicate", "iron", "rocky"], None, None, None),
         "$Codex_Ent_Fumerolas_03_Name;": ("Fumerola Nitris", 7500900, None, 0.275, None, None, ["nitrogen", "ammonia"], None, None, None),
         "$Codex_Ent_Fumerolas_04_Name;": ("Fumerola Aquatis", 6284600, None, 0.275, None, None, ["water"], None, None, None),
     },
     "$Codex_Ent_Fungoids_Genus_Name;": {
-        "$Codex_Ent_Fungoids_01_Name;": ("Fungoida Setisis", 1670100, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),  # "Methane", "MethaneRich", ?
+        "$Codex_Ent_Fungoids_01_Name;": ("Fungoida Setisis", 1670100, ["Ammonia", "Methane", "MethaneRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),  # "Methane", "MethaneRich", ?
         "$Codex_Ent_Fungoids_02_Name;": ("Fungoida Stabitis", 2680300, ["CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["orion-cygnus"], None),
         "$Codex_Ent_Fungoids_03_Name;": ("Fungoida Bullarum", 3703200, ["Argon", "ArgonRich"], 0.275, None, None, None, ["Rocky ice body"], None, None),
-        "$Codex_Ent_Fungoids_04_Name;": ("Fungoida Gelata", 3330300, ["CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
+        "$Codex_Ent_Fungoids_04_Name;": ("Fungoida Gelata", 3330300, ["CarbonDioxide", "CarbonDioxideRich", "Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["!orion-cygnus"], None, None),
     },
     "$Codex_Ent_Ground_Struct_Ice_Name;": {  # No atmos, A F G K M S star, < 273K, with Earth, Ammonia, Giant w/life, Water giant, >12kLs
         "$Codex_Ent_Ground_Struct_Ice_Name;": ("Crystalline Shards", 1628800, ["None"], None, 273.0, None, None, None, None, "AFGKMSS"),
@@ -178,7 +178,7 @@ bio_types = {
         "$Codex_Ent_Tussocks_12_Name;": ("Tussock Triticum", 7774700, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 195.0, 190.0, None, ["Rocky body", "High metal content body"], ["carina-sagittarius-core", "orion-cygnus-1", "perseus-core"], None),
         "$Codex_Ent_Tussocks_13_Name;": ("Tussock Stigmasis", 19010800, ["SulphurDioxide"], 0.275, None, None, None, ["Rocky body"], None, None),
         "$Codex_Ent_Tussocks_14_Name;": ("Tussock Virgam", 14313700, ["Water", "WaterRich"], 0.275, None, None, None, ["Rocky body", "High metal content body"], None, None),
-        "$Codex_Ent_Tussocks_15_Name;": ("Tussock Capillum", 7025800, ["Argon", "ArgonRich", "Methane", "MethaneRich"], 0.275, None, None, None, ["Rocky ice body"], None, None),
+        "$Codex_Ent_Tussocks_15_Name;": ("Tussock Capillum", 7025800, ["Argon", "ArgonRich", "Methane", "MethaneRich"], 0.275, None, None, None, ["Rocky body", "Rocky ice body"], None, None),  # 180-190?
     },
     "$Codex_Ent_Vents_Name;": {  # Metal rich, no atmos, A star, with one of (earth-like, ammonia, giant /w life, water giant)
         "$Codex_Ent_Vents_Name;": ("Amphora Plant", 3626400, ["None"], None, None, None, ["volcanism"], ["Metal rich body"], None, "A+life"),
