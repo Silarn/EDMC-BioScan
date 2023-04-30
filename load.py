@@ -575,20 +575,17 @@ def journal_entry(
             if this.current_scan != "" and this.current_scan != entry['Genus']:
                 species = this.bodies[target_body].get_flora(this.current_scan)[0]
                 this.bodies[target_body].set_flora(this.current_scan, species, 0)
-                this.scan_latitude = [None, None]
-                this.scan_longitude = [None, None]
+                this.scan_latitude.clear()
+                this.scan_longitude.clear()
             this.current_scan = entry['Genus']
 
         match scan_level:
-            case 1:
-                this.scan_latitude[0] = this.planet_latitude
-                this.scan_longitude[0] = this.planet_longitude
-            case 2:
-                this.scan_latitude[1] = this.planet_latitude
-                this.scan_longitude[1] = this.planet_longitude
+            case 1 | 2:
+                this.scan_latitude.append(this.planet_latitude)
+                this.scan_longitude.append(this.planet_longitude)
             case _:
-                this.scan_latitude = [None, None]
-                this.scan_longitude = [None, None]
+                this.scan_latitude.clear()
+                this.scan_longitude.clear()
                 this.current_scan = ""
 
         update_display()
@@ -656,27 +653,20 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     return ''
 
 
-def get_distance() -> float:
-    if this.planet_latitude is not None:
-        if this.scan_latitude[0] is not None:
-            phi_1 = math.radians(this.planet_latitude)
-            phi_2 = math.radians(this.scan_latitude[0])
-            delta_phi = math.radians(this.scan_latitude[0] - this.planet_latitude)
-            delta_lambda = math.radians(this.scan_longitude[0] - this.planet_longitude)
-            a = math.sin(delta_phi / 2.0) ** 2 + math.cos(phi_1) * math.cos(phi_2) * math.sin(delta_lambda / 2.0) ** 2
-            c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-            distance_a = this.planet_radius * c
-            if this.scan_latitude[1] is not None:
+def get_distance() -> float | None:
+    distance_list = []
+    if this.planet_latitude is not None and this.planet_latitude is not None:
+        if len(this.scan_latitude) == len(this.scan_longitude) and len(this.scan_latitude) > 0:
+            for i, _ in enumerate(this.scan_latitude):
                 phi_1 = math.radians(this.planet_latitude)
-                phi_2 = math.radians(this.scan_latitude[1])
-                delta_phi = math.radians(this.scan_latitude[1] - this.planet_latitude)
-                delta_lambda = math.radians(this.scan_longitude[1] - this.planet_longitude)
+                phi_2 = math.radians(this.scan_latitude[i])
+                delta_phi = math.radians(this.scan_latitude[i] - this.planet_latitude)
+                delta_lambda = math.radians(this.scan_longitude[i] - this.planet_longitude)
                 a = math.sin(delta_phi / 2.0) ** 2 + math.cos(phi_1) * math.cos(phi_2) * math.sin(delta_lambda / 2.0) ** 2
                 c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-                distance_b = this.planet_radius * c
-                return min(distance_a, distance_b)
-            return distance_a
-    return 0
+                distance_list.append(this.planet_radius * c)
+            return min(distance_list)
+    return None
 
 
 def update_display() -> None:
@@ -704,18 +694,12 @@ def update_display() -> None:
             if data[1] == 3:
                 total_value += bio_types[genus][data[0]][1]
             if data[0] != "":
-                distance = get_distance()
-                detail_text += "{} ({}){}: {}{}\n".format(
+                detail_text += "{} ({}): {}{}\n".format(
                     bio_types[genus][data[0]][0],
                     scan_label(data[1]),
-                    " [{}/{}m]".format(
-                        "{:.2f}".format(distance)
-                        if distance < bio_genus[genus]["distance"]
-                        else "> {}".format(bio_genus[genus]["distance"]),
-                        bio_genus[genus]["distance"]
-                    ) if 0 < data[1] < 3 else "",
                     this.formatter.format_credits(bio_types[genus][data[0]][1]),
-                    u' 🗸' if data[1] == 3 else '')
+                    u' 🗸' if data[1] == 3 else ''
+                )
             else:
                 name, min_val, max_val = value_estimate(bio_bodies[this.location_name], genus)
                 detail_text += "{} (Not located): {}\n".format(name,
@@ -733,10 +717,9 @@ def update_display() -> None:
                     if data[1] == 3:
                         total_value += bio_types[genus][data[0]][1]
                     if data[0] != "":
-                        detail_text += "{} ({}){}: {}{}\n".format(
+                        detail_text += "{} ({}): {}{}\n".format(
                             bio_types[genus][data[0]][0],
                             scan_label(data[1]),
-                            " [{:.2f}/{}m]".format(get_distance(), bio_genus[genus]["distance"]) if 0 < data[1] < 3 else "",
                             this.formatter.format_credits(bio_types[genus][data[0]][1]),
                             u' 🗸' if data[1] == 3 else ''
                         )
@@ -789,6 +772,23 @@ def update_display() -> None:
                 bio_bodies[this.location_name].get_gravity() / 9.80665,
                 complete, len(bio_bodies[this.location_name].get_flora())
             )
+            for genus, data in this.bodies[this.location_name].get_flora().items():
+                if 0 < data[1] < 3:
+                    distance = get_distance()
+                    distance_format = "{:.2f}".format(distance) if distance is not None else "unk"
+                    distance = distance if distance is not None else 0
+                    text += "\nIn Progress: {} - {} ({}/3) [{}]".format(
+                        bio_types[genus][data[0]][0],
+                        scan_label(data[1]),
+                        data[1],
+                        "{}/{}m".format(
+                            distance_format
+                            if distance < bio_genus[genus]["distance"]
+                            else "> {}".format(bio_genus[genus]["distance"]),
+                            bio_genus[genus]["distance"]
+                        )
+                    )
+                    break
 
         this.total_label['text'] = "Analysed System Samples:\n{} | FF: {}".format(
             this.formatter.format_credits(total_value),
