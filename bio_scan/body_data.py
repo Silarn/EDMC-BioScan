@@ -1,3 +1,6 @@
+from typing import Self
+
+
 class BodyData:
     def __init__(self, name):
         self.name: str = name
@@ -12,66 +15,66 @@ class BodyData:
         self.flora: dict[str, tuple[str, int]] = {}
         self.mapped: bool = False
 
-    def get_name(self):
+    def get_name(self) -> str:
         return self.name
 
-    def get_type(self):
+    def get_type(self) -> str:
         return self.type
 
-    def set_type(self, value: str):
+    def set_type(self, value: str) -> Self:
         self.type = value
         return self
 
-    def get_id(self):
+    def get_id(self) -> int:
         return self.id
 
-    def set_id(self, value: int):
+    def set_id(self, value: int) -> Self:
         self.id = value
         return self
 
-    def get_atmosphere(self):
+    def get_atmosphere(self) -> str:
         return self.atmosphere
 
-    def set_atmosphere(self, value: str):
+    def set_atmosphere(self, value: str) -> Self:
         self.atmosphere = value
         return self
 
-    def get_volcanism(self):
+    def get_volcanism(self) -> str:
         return self.volcanism
 
-    def set_volcanism(self, value: int):
+    def set_volcanism(self, value: int) -> Self:
         self.volcanism = value
         return self
 
-    def get_distance(self):
+    def get_distance(self) -> float:
         return self.distance
 
-    def set_distance(self, value: float):
+    def set_distance(self, value: float) -> Self:
         self.distance = value
         return self
 
-    def get_gravity(self):
+    def get_gravity(self) -> float:
         return self.gravity
 
-    def set_gravity(self, value: float):
+    def set_gravity(self, value: float) -> Self:
         self.gravity = value
         return self
 
-    def get_temp(self):
+    def get_temp(self) -> float:
         return self.temp
 
-    def set_temp(self, value: float):
+    def set_temp(self, value: float) -> Self:
         self.temp = value
         return self
 
-    def get_bio_signals(self):
+    def get_bio_signals(self) -> int:
         return self.bio_signals
 
-    def set_bio_signals(self, value: int):
+    def set_bio_signals(self, value: int) -> Self:
         self.bio_signals = value
         return self
 
-    def get_flora(self, genus: str = None):
+    def get_flora(self, genus: str = None) -> dict[str, tuple[str, int]] | tuple[str, int] | None:
         if genus:
             if genus in self.flora:
                 return self.flora[genus]
@@ -79,30 +82,30 @@ class BodyData:
                 return None
         return self.flora
 
-    def add_flora(self, genus: str, species: str = ""):
+    def add_flora(self, genus: str, species: str = "") -> Self:
         scan = 0
         if genus in self.flora:
             scan = self.flora[genus][1]
         self.flora[genus] = (species, scan)
         return self
 
-    def set_flora(self, genus: str, species: str, scan: int):
+    def set_flora(self, genus: str, species: str, scan: int) -> Self:
         self.flora[genus] = (species, scan)
         return self
 
-    def clear_flora(self):
+    def clear_flora(self) -> Self:
         self.flora = {}
         return self
 
-    def is_mapped(self):
+    def is_mapped(self) -> bool:
         return self.mapped
 
-    def set_mapped(self, value: bool):
+    def set_mapped(self, value: bool) -> Self:
         self.mapped = value
         return self
 
 
-def get_body_shorthand(body_type: str):
+def get_body_shorthand(body_type: str) -> str:
     match body_type:
         case 'Icy body':
             return " (I)"
@@ -118,7 +121,7 @@ def get_body_shorthand(body_type: str):
             return ''
 
 
-def body_check(bodies: dict[str, BodyData], extra: bool = False):
+def body_check(bodies: dict[str, BodyData], extra: bool = False) -> bool:
     required_types = [
         "Earthlike body",
         "Gas giant with water based life",
@@ -137,7 +140,7 @@ def body_check(bodies: dict[str, BodyData], extra: bool = False):
     return False
 
 
-def map_edsm_type(edsm_class):
+def map_edsm_type(edsm_class: str) -> str:
     match edsm_class:
         case 'Earth-like world':
             return 'Earthlike body'
@@ -167,7 +170,7 @@ def map_edsm_type(edsm_class):
             return edsm_class
 
 
-def parse_edsm_star_class(subtype):
+def parse_edsm_star_class(subtype: str) -> tuple[str, str]:
     star_class = ""
     subclass = "0"
     match subtype:

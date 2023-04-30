@@ -7,10 +7,10 @@ class Formatter:
         locale.setlocale(locale.LC_ALL, '')
         self.shorten: bool = shorten
 
-    def set_shorten(self, value: bool):
+    def set_shorten(self, value: bool) -> None:
         self.shorten = value
 
-    def format_unit(self, num, unit, space=True):
+    def format_unit(self, num: float, unit: str, space: bool = True) -> str:
         if num > 999999:
             # 1.3 Mu
             s = locale.format_string('%.1f M', num / 1000000.0, grouping=True, monetary=True)
@@ -28,19 +28,19 @@ class Formatter:
 
         return s
 
-    def format_credits(self, credits, space=True):
+    def format_credits(self, credits: float, space: bool = True) -> str:
         if self.shorten:
             return self.format_unit(credits, 'Cr', space)
         return locale.format_string('%d Cr', credits, grouping=True, monetary=True)
 
-    def format_credit_range(self, min, max, space=True):
-        if min != max:
+    def format_credit_range(self, min_value: float, max_value: float, space: bool = True) -> str:
+        if min_value != max_value:
             if self.shorten:
-                return "{} - {}".format(self.format_unit(min, '', space),
-                                        self.format_unit(max, ' Cr', space))
-            return locale.format_string('%d - %d Cr', (min, max), grouping=True, monetary=True)
+                return "{} - {}".format(self.format_unit(min_value, '', space),
+                                        self.format_unit(max_value, ' Cr', space))
+            return locale.format_string('%d - %d Cr', (min_value, max_value), grouping=True, monetary=True)
         else:
-            return self.format_credits(min, space)
+            return self.format_credits(min_value, space)
 
-    def format_distance(self, ls, unit="ls", space=True):
+    def format_distance(self, ls: int, unit: str = "ls", space: bool = True) -> str:
         return self.format_unit(ls, unit, space)
