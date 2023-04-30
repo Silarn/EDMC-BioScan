@@ -14,8 +14,8 @@ import semantic_version
 import math
 
 import myNotebook as nb
-from bio_scan.nebula_coordinates import nebula_coords
-from bio_scan.nebulae_data import planetary_nebulae, nebula_sectors
+from bio_scan.nebula_coordinates import nebulae_coords
+from bio_scan.nebulae_data import planetary_nebulae, nebulae_sectors
 from ttkHyperlinkLabel import HyperlinkLabel
 
 from config import config
@@ -31,53 +31,59 @@ from bio_scan.format_util import Formatter
 
 logger = get_main_logger()
 
-VERSION = '1.1.0'
-
-this = sys.modules[__name__]  # For holding module globals
-this.formatter = Formatter()
-this.focus_setting = None
-this.signal_setting = None
-this.debug_logging_enabled = None
-
-this.frame = None
-this.scroll_canvas = None
-this.scrollbar = None
-this.scrollable_frame = None
-this.label = None
-this.values_label = None
-this.total_label = None
-this.edsm_button = None
-this.bodies = dict[str, BodyData]()
-this.odyssey = False
-this.game_version = semantic_version.Version.coerce('0.0.0.0')
-this.shorten_values = None
-this.main_star_id = None
-this.main_star_type = ''
-this.coordinates = [0.0, 0.0, 0.0]
-this.location_name = ''
-this.location_id = ''
-this.location_state = ''
-this.planet_radius = 0
-this.planet_latitude = None
-this.planet_longitude = None
-this.planet_altitude = None
-this.scan_latitude = [None, None]
-this.scan_longitude = [None, None]
-this.current_scan = ''
-this.body_location = 0
-this.starsystem = ''
-
-this.edsm_session = None
-this.edsm_bodies = None
-this.fetched_edsm = False
+VERSION = '1.1.2'
 
 
-def plugin_start3(plugin_dir):
-    return plugin_start()
+class This:
+    """Holds module globals."""
+
+    def __init__(self):
+        self.formatter = Formatter()
+
+        # Settings vars
+        self.focus_setting: tk.StringVar | None = None
+        self.signal_setting: tk.StringVar | None = None
+        self.debug_logging_enabled: tk.BooleanVar | None = None
+
+        # GUI Objects
+        self.frame: tk.Frame | None = None
+        self.scroll_canvas: tk.Canvas | None = None
+        self.scrollbar: ttk.Scrollbar | None = None
+        self.scrollable_frame: ttk.Frame | None = None
+        self.label: tk.Label | None = None
+        self.values_label: tk.Label | None = None
+        self.total_label: tk.Label | None = None
+        self.edsm_button: tk.Label | None = None
+
+        # Plugin state data
+        self.bodies: dict[str, BodyData] = {}
+        self.odyssey: bool = False
+        self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
+        self.main_star_id: int | None = None
+        self.main_star_type: str = ''
+        self.coordinates: list[float, float, float] = [0.0, 0.0, 0.0]
+        self.location_name: str = ''
+        self.location_id: str = ''
+        self.location_state: str = ''
+        self.planet_radius: float = 0.0
+        self.planet_latitude: float | None = None
+        self.planet_longitude: float | None = None
+        self.scan_latitude: list[float] = []
+        self.scan_longitude: list[float] = []
+        self.current_scan: str = ''
+        self.starsystem: str = ''
+
+        # EDSM vars
+        self.edsm_session = None
+        self.edsm_bodies = None
+        self.fetched_edsm = False
 
 
-def plugin_start():
-    # App isn't initialised at this point so can't do anything interesting
+this = This()
+
+
+# Compatibility fallback
+def plugin_start3(plugin_dir) -> str:
     return 'BioScan'
 
 
@@ -195,18 +201,18 @@ def parse_config() -> None:
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
 
 
-def log(*args):
+def log(*args) -> None:
     if this.debug_logging_enabled.get():
         logger.debug(args)
 
 
-def edsm_fetch():
+def edsm_fetch() -> None:
     thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.starsystem,))
     thread.daemon = True
     thread.start()
 
 
-def edsm_worker(system_name):
+def edsm_worker(system_name: str) -> None:
     if not this.edsm_session:
         this.edsm_session = requests.Session()
 
@@ -215,13 +221,13 @@ def edsm_worker(system_name):
                                   timeout=10)
         r.raise_for_status()
         this.edsm_bodies = r.json() or {}
-    except:
+    except requests.exceptions.RequestException:
         this.edsm_bodies = None
 
     this.frame.event_generate('<<BioScanEDSMData>>', when='tail')
 
 
-def edsm_data(event):
+def edsm_data(event: tk.Event) -> None:
     if this.edsm_bodies is None:
         return
 
@@ -258,7 +264,7 @@ def edsm_data(event):
     update_display()
 
 
-def scan_label(scans: int):
+def scan_label(scans: int) -> str:
     match scans:
         case 0:
             return "Located"
@@ -426,11 +432,11 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                     found = False
                     if this.starsystem in planetary_nebulae:
                         found = True
-                    for sector in nebula_sectors:
+                    for sector in nebulae_sectors:
                         if this.starsystem.startswith(sector):
                             found = True
                             break
-                    for system, coords in nebula_coords.items():
+                    for system, coords in nebulae_coords.items():
                         distance = math.sqrt((coords[0]-this.coordinates[0])**2
                                              + (coords[1]-this.coordinates[1])**2
                                              + (coords[2]-this.coordinates[2])**2)

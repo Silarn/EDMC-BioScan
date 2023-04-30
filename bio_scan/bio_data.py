@@ -369,7 +369,7 @@ bio_codex_map = {
 }
 
 
-def get_species_from_codex(name: str):
+def get_species_from_codex(name: str) -> tuple[str, str]:
     for genus, search_set in bio_codex_map.items():
         for search in search_set:
             if name.startswith(search):

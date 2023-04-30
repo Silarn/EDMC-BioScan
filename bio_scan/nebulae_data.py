@@ -1,4 +1,4 @@
-nebula_sectors = [
+nebulae_sectors = [
     "Aquila Dark Region Sector",
     "B133 Sector",
     "B352 Sector",
