@@ -620,7 +620,12 @@ def journal_entry(
             this.location_state = 'surface'
 
         update_display()
-        this.scroll_canvas.yview_moveto(0.0)
+
+        if this.focus_setting.get() == 'On Approach' and ['event'] == 'ApproachBody':
+            this.scroll_canvas.yview_moveto(0.0)
+
+        if this.focus_setting.get() == 'On Surface' and ['event'] in ['Touchdown', 'Liftoff']:
+            this.scroll_canvas.yview_moveto(0.0)
 
     elif entry['event'] == 'LeaveBody':
         this.location_name = ''
