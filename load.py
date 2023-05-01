@@ -235,7 +235,7 @@ def edsm_data(event: tk.Event) -> None:
         bodyname_insystem = get_bodyname(body['name'])
         if body['type'] == 'Star':
             if body['isMainStar']:
-                this.main_star_name = "{}{}".format(
+                this.main_star_type = "{}{}".format(
                     parse_edsm_star_class(body['subType']),
                     body['luminosity']
                 )
