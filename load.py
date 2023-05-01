@@ -621,10 +621,10 @@ def journal_entry(
 
         update_display()
 
-        if this.focus_setting.get() == 'On Approach' and ['event'] == 'ApproachBody':
+        if this.focus_setting.get() == 'On Approach' and entry['event'] == 'ApproachBody':
             this.scroll_canvas.yview_moveto(0.0)
 
-        if this.focus_setting.get() == 'On Surface' and ['event'] in ['Touchdown', 'Liftoff']:
+        if this.focus_setting.get() == 'On Surface' and entry['event'] in ['Touchdown', 'Liftoff']:
             this.scroll_canvas.yview_moveto(0.0)
 
     elif entry['event'] == 'LeaveBody':
