@@ -31,14 +31,13 @@ from bio_scan.format_util import Formatter
 
 logger = get_main_logger()
 
-VERSION = '1.1.2'
-
-
 class This:
     """Holds module globals."""
 
     def __init__(self):
         self.formatter = Formatter()
+
+        self.VERSION = '1.2.0'
 
         # Settings vars
         self.focus_setting: tk.StringVar | None = None
@@ -133,7 +132,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     HyperlinkLabel(frame, text='BioScan', background=nb.Label().cget('background'),
                    url='https://github.com/Silarn/EDMC-BioScan', underline=True) \
         .grid(row=1, padx=x_padding, sticky=tk.W)
-    nb.Label(frame, text = 'Version %s' % VERSION).grid(row=1, column=1, padx=x_padding, sticky=tk.E)
+    nb.Label(frame, text = 'Version %s' % this.VERSION).grid(row=1, column=1, padx=x_padding, sticky=tk.E)
 
     ttk.Separator(frame).grid(row=5, columnspan=2, pady=y_padding*2, sticky=tk.EW)
 
