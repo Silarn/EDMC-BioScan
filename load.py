@@ -59,7 +59,6 @@ class This:
         self.bodies: dict[str, BodyData] = {}
         self.odyssey: bool = False
         self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
-        self.main_star_id: int | None = None
         self.main_star_type: str = ''
         self.coordinates: list[float, float, float] = [0.0, 0.0, 0.0]
         self.location_name: str = ''
@@ -239,7 +238,6 @@ def edsm_data(event: tk.Event) -> None:
                     parse_edsm_star_class(body['subType']),
                     body['luminosity']
                 )
-                this.main_star_id = body['bodyId']
 
         elif body['type'] == 'Planet':
             try:
@@ -479,32 +477,29 @@ def get_bodyname(fullname: str = "") -> str:
 def journal_entry(
         cmdr: str, is_beta: bool, system: str, station: str, entry: dict[str, any], state: dict[str, any]
 ) -> str:
-    this.starsystem = system
-    if entry['event'] == 'Fileheader' or entry['event'] == 'LoadGame':
-        this.odyssey = entry.get('Odyssey', False)
-        this.game_version = semantic_version.Version.coerce(entry.get('gameversion'))
-
-    elif entry['event'] == 'Location':
-        this.coordinates = entry['StarPos']
-
-    elif entry['event'] == 'FSDJump':
-        if 'StarSystem' in entry:
-            this.starsystem = entry['StarSystem']
-        this.main_star_id = entry['BodyID'] if 'BodyID' in entry else 0
+    system_changed = False
+    if system != this.starsystem:
+        this.starsystem = system
+        system_changed = True
         this.main_star_type = ""
         this.location_name = ""
         this.location_id = -1
         this.location_state = ""
         this.fetched_edsm = False
         this.bodies = {}
-        this.coordinates = entry['StarPos']
-        update_display()
         this.scroll_canvas.yview_moveto(0.0)
+
+    if entry['event'] == 'Fileheader' or entry['event'] == 'LoadGame':
+        this.odyssey = entry.get('Odyssey', False)
+        this.game_version = semantic_version.Version.coerce(entry.get('gameversion'))
+
+    elif entry['event'] in ['Location', 'FSDJump']:
+        this.coordinates = entry['StarPos']
 
     elif entry['event'] == 'Scan':
         bodyname_insystem = get_bodyname(entry['BodyName'])
         if 'StarType' in entry:
-            if entry['BodyID'] == this.main_star_id or entry['BodyID'] == 0:
+            if entry['DistanceFromArrivalLS'] == 0.0:
                 this.main_star_type = "{}{}".format(entry['StarType'], entry['Luminosity'])
         if 'PlanetClass' in entry:
             if bodyname_insystem not in this.bodies:
@@ -636,6 +631,9 @@ def journal_entry(
 
         update_display()
         this.scroll_canvas.yview_moveto(0.0)
+
+    if system_changed:
+        update_display()
 
     return ''  # No error
 
