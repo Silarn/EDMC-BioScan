@@ -7,6 +7,7 @@ import sys
 import threading
 import tkinter as tk
 from tkinter import ttk
+from typing import Mapping, MutableMapping
 from urllib.parse import quote
 
 import requests
@@ -92,29 +93,29 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     this.label = tk.Label(this.frame)
     this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
     this.scroll_canvas = tk.Canvas(this.frame, height=80, highlightthickness=0)
-    this.scrollbar = ttk.Scrollbar(this.frame, orient="vertical", command=this.scroll_canvas.yview)
+    this.scrollbar = ttk.Scrollbar(this.frame, orient='vertical', command=this.scroll_canvas.yview)
     this.scrollable_frame = ttk.Frame(this.scroll_canvas)
     this.scrollable_frame.bind(
-        "<Configure>",
+        '<Configure>',
         lambda e: this.scroll_canvas.configure(
-            scrollregion=this.scroll_canvas.bbox("all")
+            scrollregion=this.scroll_canvas.bbox('all')
         )
     )
-    this.scroll_canvas.bind("<Enter>", bind_mousewheel)
-    this.scroll_canvas.bind("<Leave>", unbind_mousewheel)
-    this.scroll_canvas.create_window((0, 0), window=this.scrollable_frame, anchor="nw")
+    this.scroll_canvas.bind('<Enter>', bind_mousewheel)
+    this.scroll_canvas.bind('<Leave>', unbind_mousewheel)
+    this.scroll_canvas.create_window((0, 0), window=this.scrollable_frame, anchor='nw')
     this.scroll_canvas.configure(yscrollcommand=this.scrollbar.set)
     this.values_label = ttk.Label(this.scrollable_frame)
-    this.values_label.pack(fill="both", side="left")
+    this.values_label.pack(fill='both', side='left')
     this.scroll_canvas.grid(row=1, column=0, sticky=tk.EW)
     this.scroll_canvas.grid_rowconfigure(1, weight=0)
     this.frame.grid_columnconfigure(0, weight=1)
     this.scrollbar.grid(row=1, column=1, sticky=tk.NSEW)
     this.total_label = tk.Label(this.frame)
     this.total_label.grid(row=2, column=0, columnspan=2, sticky=tk.N)
-    this.edsm_button = tk.Label(this.frame, text='Fetch EDSM Data', fg="white", cursor="hand2")
+    this.edsm_button = tk.Label(this.frame, text='Fetch EDSM Data', fg='white', cursor='hand2')
     this.edsm_button.grid(row=3, columnspan=2, sticky=tk.EW)
-    this.edsm_button.bind("<Button-1>", lambda e: edsm_fetch())
+    this.edsm_button.bind('<Button-1>', lambda e: edsm_fetch())
     update_display()
     theme.register(this.values_label)
     return this.frame
@@ -138,12 +139,12 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
 
     nb.Label(
         frame,
-        text="Focus Body Signals:",
+        text='Focus Body Signals:',
     ).grid(row=10, padx=x_padding, sticky=tk.W)
     focus_options = [
-        "Never",
-        "On Approach",
-        "On Surface",
+        'Never',
+        'On Approach',
+        'On Surface',
     ]
     nb.OptionMenu(
         frame,
@@ -160,11 +161,11 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
 
     nb.Label(
         frame,
-        text="Display Signal Summary:"
+        text='Display Signal Summary:'
     ).grid(row=10, column=1, sticky=tk.W)
     signal_options = [
-        "Always",
-        "In Flight",
+        'Always',
+        'In Flight',
     ]
     nb.OptionMenu(
         frame,
@@ -194,8 +195,8 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
 
 
 def parse_config() -> None:
-    this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default="On Approach"))
-    this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default="Always"))
+    this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
+    this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default='Always'))
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
 
 
@@ -233,7 +234,7 @@ def edsm_data(event: tk.Event) -> None:
         bodyname_insystem = get_bodyname(body['name'])
         if body['type'] == 'Star':
             if body['isMainStar']:
-                this.main_star_type = "{}{}".format(
+                this.main_star_type = '{}{}'.format(
                     parse_edsm_star_class(body['subType']),
                     body['luminosity']
                 )
@@ -247,10 +248,10 @@ def edsm_data(event: tk.Event) -> None:
                 this.bodies[bodyname_insystem].set_distance(body['distanceToArrival'])
                 this.bodies[bodyname_insystem].set_id(body['bodyId'])
                 this.bodies[bodyname_insystem].set_atmosphere(map_edsm_atmosphere(body['atmosphereType']))
-                if body['volcanismType'] == "No volcanism":
-                    volcanism = ""
+                if body['volcanismType'] == 'No volcanism':
+                    volcanism = ''
                 else:
-                    volcanism = body['volcanismType'].lower().capitalize() + " volcanism"
+                    volcanism = body['volcanismType'].lower().capitalize() + ' volcanism'
                 this.bodies[bodyname_insystem].set_volcanism(volcanism)
                 this.bodies[bodyname_insystem].set_gravity(body['gravity'])
                 this.bodies[bodyname_insystem].set_temp(body['surfaceTemperature'])
@@ -264,49 +265,49 @@ def edsm_data(event: tk.Event) -> None:
 def scan_label(scans: int) -> str:
     match scans:
         case 0:
-            return "Located"
+            return 'Located'
         case 1:
-            return "Logged"
+            return 'Logged'
         case 2:
-            return "Sampled"
+            return 'Sampled'
         case 3:
-            return "Analysed"
+            return 'Analysed'
 
 
 def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
     possible_species = set()
     eliminated_species = set()
-    log("Running checks for {}:".format(bio_genus[genus]["name"]))
+    log('Running checks for {}:'.format(bio_genus[genus]['name']))
     for species, reqs in bio_types[genus].items():
         possible_species.add(species)
         log(species)
         if reqs[2] is not None:
-            if reqs[2] == "Any" and body.get_atmosphere() in ["", "None"]:
-                log("Eliminated for no atmos")
+            if reqs[2] == 'Any' and body.get_atmosphere() in ['', 'None']:
+                log('Eliminated for no atmos')
                 eliminated_species.add(species)
                 continue
             elif body.get_atmosphere() not in reqs[2]:
-                log("Eliminated for atmos")
+                log('Eliminated for atmos')
                 eliminated_species.add(species)
                 continue
         if reqs[3] is not None:
             if body.get_gravity() / 9.80665 > reqs[3]:
-                log("Eliminated for grav")
+                log('Eliminated for grav')
                 eliminated_species.add(species)
                 continue
         if reqs[4] is not None:
             if body.get_temp() > reqs[4]:
-                log("Eliminated for high heat")
+                log('Eliminated for high heat')
                 eliminated_species.add(species)
                 continue
         if reqs[5] is not None:
             if body.get_temp() < reqs[5]:
-                log("Eliminated for low heat")
+                log('Eliminated for low heat')
                 eliminated_species.add(species)
                 continue
         if reqs[6] is not None:
-            if reqs[6] == "Any" and body.get_volcanism() == "":
-                log("Eliminated for no volcanism")
+            if reqs[6] == 'Any' and body.get_volcanism() == '':
+                log('Eliminated for no volcanism')
                 eliminated_species.add(species)
                 continue
             else:
@@ -315,12 +316,12 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                     if body.get_volcanism().find(volc_type) != -1:
                         found = True
                 if not found:
-                    log("Eliminated for volcanism")
+                    log('Eliminated for volcanism')
                     eliminated_species.add(species)
                     continue
         if reqs[7] is not None:
             if body.get_type() not in reqs[7]:
-                log("Eliminated for body type")
+                log('Eliminated for body type')
                 eliminated_species.add(species)
                 continue
         if reqs[8] is not None:
@@ -329,10 +330,10 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                 for region in reqs[8]:
                     region_id = findRegion(*this.coordinates)
                     if region_id is not None:
-                        log("Current region: {} - {}".format(region_id[0], region_id[1]))
-                        if region.startswith("!"):
+                        log('Current region: {} - {}'.format(region_id[0], region_id[1]))
+                        if region.startswith('!'):
                             if region_id[0] in region_map[region[1:]]:
-                                log("Eliminated by region")
+                                log('Eliminated by region')
                                 eliminated_species.add(species)
                                 continue
                         else:
@@ -340,7 +341,7 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                             if region_id[0] in region_map[region]:
                                 found = True
                 if not found and found is not None:
-                    log("Eliminated by region")
+                    log('Eliminated by region')
                     eliminated_species.add(species)
                     continue
         if reqs[9] is not None:
@@ -355,7 +356,7 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                             found = True
                             break
                     if not found:
-                        log("Eliminated for not being in a guardian sector")
+                        log('Eliminated for not being in a guardian sector')
                         eliminated_species.add(species)
                 case 'guardian+life':
                     found = False
@@ -364,66 +365,66 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                             found = True
                             break
                     if not found:
-                        log("Eliminated for not being in a guardian sector")
+                        log('Eliminated for not being in a guardian sector')
                         eliminated_species.add(species)
                     if not body_check(this.bodies):
-                        log("Eliminated for missing body type(s)")
+                        log('Eliminated for missing body type(s)')
                         eliminated_species.add(species)
                 case 'life':
                     if not body_check(this.bodies):
-                        log("Eliminated for missing body type(s)")
+                        log('Eliminated for missing body type(s)')
                         eliminated_species.add(species)
                 case 'A+life':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] != 'A':
-                            log("Eliminated for star type")
+                            log('Eliminated for star type')
                             eliminated_species.add(species)
                             continue
                     if not body_check(this.bodies):
-                        log("Eliminated for missing body type(s)")
+                        log('Eliminated for missing body type(s)')
                         eliminated_species.add(species)
                 case 'AV':
                     if len(this.main_star_type) > 0:
                         if not this.main_star_type.startswith('A') and not this.main_star_type.startswith('N'):
-                            log("Eliminated for star type")
+                            log('Eliminated for star type')
                             eliminated_species.add(species)
                             continue
                         elif this.main_star_type.startswith('AVI'):
-                            log("Eliminated for star type")
+                            log('Eliminated for star type')
                             eliminated_species.add(species)
                 case 'A':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] != 'A':
-                            log("Eliminated for star type")
+                            log('Eliminated for star type')
                             eliminated_species.add(species)
                 case 'B':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] != 'B':
-                            log("Eliminated for star type")
+                            log('Eliminated for star type')
                             eliminated_species.add(species)
                 case 'AB':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] not in ['A', 'B']:
-                            log("Eliminated for star type")
+                            log('Eliminated for star type')
                             eliminated_species.add(species)
                 case 'O':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] != 'O':
-                            log("Eliminated for star type")
+                            log('Eliminated for star type')
                             eliminated_species.add(species)
                 case 'AFGKMSS':
                     if len(this.main_star_type) > 0:
                         if this.main_star_type[0] not in ['A', 'F', 'G', 'K', 'S'] and \
-                                not this.main_star_type.startswith("MS"):
-                            log("Eliminated for star type")
+                                not this.main_star_type.startswith('MS'):
+                            log('Eliminated for star type')
                             eliminated_species.add(species)
                             continue
                         if body.get_distance() < 12000.0:
-                            log("Eliminated for distance")
+                            log('Eliminated for distance')
                             eliminated_species.add(species)
                             continue
                         if not body_check(this.bodies, True):
-                            log("Eliminated for missing body type(s)")
+                            log('Eliminated for missing body type(s)')
                             eliminated_species.add(species)
                 case 'nebula':
                     found = False
@@ -437,12 +438,12 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                         distance = math.sqrt((coords[0]-this.coordinates[0])**2
                                              + (coords[1]-this.coordinates[1])**2
                                              + (coords[2]-this.coordinates[2])**2)
-                        log("Distance to {0} from {1}: {2:n} ly".format(system, this.starsystem, distance))
+                        log('Distance to {0} from {1}: {2:n} ly'.format(system, this.starsystem, distance))
                         if distance < 100.0:
                             found = True
                             break
                     if not found:
-                        log("Eliminated for lack of nebula")
+                        log('Eliminated for lack of nebula')
                         eliminated_species.add(species)
 
     final_species = possible_species - eliminated_species
@@ -451,8 +452,8 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
     if len(sorted_species) == 1:
         return bio_types[genus][sorted_species[0]][0], bio_types[genus][sorted_species[0]][1], bio_types[genus][sorted_species[0]][1]
     if len(sorted_species) > 0:
-        return bio_genus[genus]["name"], bio_types[genus][sorted_species[0]][1], bio_types[genus][sorted_species[-1]][1]
-    return "", 0, 0
+        return bio_genus[genus]['name'], bio_types[genus][sorted_species[0]][1], bio_types[genus][sorted_species[-1]][1]
+    return '', 0, 0
 
 
 def get_possible_values(body: BodyData) -> dict[str, tuple]:
@@ -465,7 +466,7 @@ def get_possible_values(body: BodyData) -> dict[str, tuple]:
     return dict(sorted(possible_genus.items(), key=lambda gen_v: gen_v[0]))
 
 
-def get_bodyname(fullname: str = "") -> str:
+def get_bodyname(fullname: str = '') -> str:
     if fullname.startswith(this.starsystem + ' '):
         bodyname = fullname[len(this.starsystem + ' '):]
     else:
@@ -474,23 +475,21 @@ def get_bodyname(fullname: str = "") -> str:
 
 
 def journal_entry(
-        cmdr: str, is_beta: bool, system: str, station: str, entry: dict[str, any], state: dict[str, any]
+        cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, any], state: MutableMapping[str, any]
 ) -> str:
     system_changed = False
+    this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
+    this.odyssey = state.get('Odyssey', False)
     if system != this.starsystem:
         this.starsystem = system
         system_changed = True
-        this.main_star_type = ""
-        this.location_name = ""
+        this.main_star_type = ''
+        this.location_name = ''
         this.location_id = -1
-        this.location_state = ""
+        this.location_state = ''
         this.fetched_edsm = False
         this.bodies = {}
         this.scroll_canvas.yview_moveto(0.0)
-
-    if entry['event'] == 'Fileheader' or entry['event'] == 'LoadGame':
-        this.odyssey = entry.get('Odyssey', False)
-        this.game_version = semantic_version.Version.coerce(entry.get('gameversion'))
 
     elif entry['event'] in ['Location', 'FSDJump']:
         this.coordinates = entry['StarPos']
@@ -499,7 +498,7 @@ def journal_entry(
         bodyname_insystem = get_bodyname(entry['BodyName'])
         if 'StarType' in entry:
             if entry['DistanceFromArrivalLS'] == 0.0:
-                this.main_star_type = "{}{}".format(entry['StarType'], entry['Luminosity'])
+                this.main_star_type = '{}{}'.format(entry['StarType'], entry['Luminosity'])
         if 'PlanetClass' in entry:
             if bodyname_insystem not in this.bodies:
                 body_data = BodyData(bodyname_insystem)
@@ -566,7 +565,7 @@ def journal_entry(
 
         if target_body is not None:
             this.bodies[target_body].set_flora(entry['Genus'], entry['Species'], scan_level)
-            if this.current_scan != "" and this.current_scan != entry['Genus']:
+            if this.current_scan != '' and this.current_scan != entry['Genus']:
                 species = this.bodies[target_body].get_flora(this.current_scan)[0]
                 this.bodies[target_body].set_flora(this.current_scan, species, 0)
                 this.scan_latitude.clear()
@@ -580,13 +579,13 @@ def journal_entry(
             case _:
                 this.scan_latitude.clear()
                 this.scan_longitude.clear()
-                this.current_scan = ""
+                this.current_scan = ''
 
         update_display()
 
     elif entry['event'] == 'CodexEntry' and \
             entry['BodyID'] == this.location_id and \
-            entry['Category'] == "$Codex_Category_Biology;":
+            entry['Category'] == '$Codex_Category_Biology;':
         target_body = None
         for name, body in this.bodies.items():
             if body.get_id() == entry['BodyID']:
@@ -594,8 +593,8 @@ def journal_entry(
                 break
 
         if target_body is not None:
-            genus, species = get_species_from_codex(entry["Name"])
-            if genus is not "" and species is not "":
+            genus, species = get_species_from_codex(entry['Name'])
+            if genus is not '' and species is not '':
                 this.bodies[target_body].add_flora(genus, species)
 
         update_display()
@@ -603,10 +602,10 @@ def journal_entry(
     elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff', 'Embark', 'Disembark']:
         if entry['event'] in ['Liftoff', 'Touchdown'] and entry['PlayerControlled'] is False:
             return ''
-        body_name = get_bodyname(entry["Body"])
+        body_name = get_bodyname(entry['Body'])
         if body_name in this.bodies:
             this.location_name = body_name
-            this.location_id = entry["BodyID"]
+            this.location_id = entry['BodyID']
 
         if entry['event'] in ['ApproachBody', 'Liftoff']:
             this.location_state = 'approach'
@@ -638,7 +637,7 @@ def journal_entry(
 
 
 def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
-    if "PlanetRadius" in entry and entry['PlanetRadius'] > 0:
+    if 'PlanetRadius' in entry and entry['PlanetRadius'] > 0:
         this.planet_latitude = entry['Latitude']
         this.planet_longitude = entry['Longitude']
         this.planet_altitude = entry['Altitude'] if 'Altitidue' in entry else 0
@@ -649,7 +648,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         this.planet_altitude = 0
         this.planet_radius = 0
 
-    if this.location_name != "" and this.current_scan != "":
+    if this.location_name != '' and this.current_scan != '':
         update_display()
 
     return ''
@@ -671,13 +670,55 @@ def get_distance() -> float | None:
     return None
 
 
+def get_bodies_summary(bodies: dict[str, BodyData], focused: bool = False) -> tuple[str, int]:
+    detail_text = ''
+    value_sum = 0
+    for name, body in bodies.items():
+        if not focused:
+            detail_text += '{}:\n'.format(name)
+        if len(body.get_flora()) > 0:
+            count = 0
+            for genus, data in body.get_flora().items():
+                count += 1
+                if data[1] == 3:
+                    value_sum += bio_types[genus][data[0]][1]
+                if data[0] != '':
+                    detail_text += '{} ({}): {}{}\n'.format(
+                        bio_types[genus][data[0]][0],
+                        scan_label(data[1]),
+                        this.formatter.format_credits(bio_types[genus][data[0]][1]),
+                        u' 🗸' if data[1] == 3 else ''
+                    )
+                else:
+                    bio_name, min_val, max_val = value_estimate(body, genus)
+                    detail_text += '{} (Not located): {}\n'.format(
+                        bio_name,
+                        this.formatter.format_credit_range(min_val, max_val))
+                if len(body.get_flora()) == count:
+                    detail_text += '\n'
+
+        else:
+            types = get_possible_values(body)
+            detail_text += '{} Signals - Possible Types:\n'.format(body.get_bio_signals())
+            count = 0
+            for bio_name, values in types.items():
+                count += 1
+                detail_text += '{}: {}\n'.format(
+                    bio_name,
+                    this.formatter.format_credit_range(values[0], values[1])
+                )
+                if len(types) == count:
+                    detail_text += '\n'
+
+    return detail_text, value_sum
+
+
 def update_display() -> None:
-    if this.fetched_edsm or this.starsystem == "":
+    if this.fetched_edsm or this.starsystem == '':
         this.edsm_button.grid_remove()
     else:
         this.edsm_button.grid()
 
-    detail_text = ""
     bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.bodies.items())).items(),
                         key=lambda item: item[1].get_id()))
     exobio_body_names = [
@@ -686,65 +727,12 @@ def update_display() -> None:
         in bio_bodies.items()
     ]
 
-    total_value = 0
-    if (this.location_name != "" and this.location_name in bio_bodies) and this.focus_setting.get() != "Never" and \
+    if (this.location_name != '' and this.location_name in bio_bodies) and this.focus_setting.get() != 'Never' and \
             ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
              or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
-        count = 0
-        for genus, data in bio_bodies[this.location_name].get_flora().items():
-            count += 1
-            if data[1] == 3:
-                total_value += bio_types[genus][data[0]][1]
-            if data[0] != "":
-                detail_text += "{} ({}): {}{}\n".format(
-                    bio_types[genus][data[0]][0],
-                    scan_label(data[1]),
-                    this.formatter.format_credits(bio_types[genus][data[0]][1]),
-                    u' 🗸' if data[1] == 3 else ''
-                )
-            else:
-                name, min_val, max_val = value_estimate(bio_bodies[this.location_name], genus)
-                detail_text += "{} (Not located): {}\n".format(name,
-                                                               this.formatter.format_credit_range(min_val, max_val))
-            if len(bio_bodies[this.location_name].get_flora()) == count:
-                detail_text += "\n"
-
+        detail_text, total_value = get_bodies_summary({this.location_name: this.bodies[this.location_name]}, True)
     else:
-        for name, body in bio_bodies.items():
-            detail_text += "{}:\n".format(name)
-            if len(body.get_flora()) > 0:
-                count = 0
-                for genus, data in body.get_flora().items():
-                    count += 1
-                    if data[1] == 3:
-                        total_value += bio_types[genus][data[0]][1]
-                    if data[0] != "":
-                        detail_text += "{} ({}): {}{}\n".format(
-                            bio_types[genus][data[0]][0],
-                            scan_label(data[1]),
-                            this.formatter.format_credits(bio_types[genus][data[0]][1]),
-                            u' 🗸' if data[1] == 3 else ''
-                        )
-                    else:
-                        bio_name, min_val, max_val = value_estimate(body, genus)
-                        detail_text += "{} (Not located): {}\n".format(
-                            bio_name,
-                            this.formatter.format_credit_range(min_val, max_val))
-                    if len(body.get_flora()) == count:
-                        detail_text += "\n"
-
-            else:
-                types = get_possible_values(body)
-                detail_text += "{} Signals - Possible Types:\n".format(body.get_bio_signals())
-                count = 0
-                for bio_name, values in types.items():
-                    count += 1
-                    detail_text += "{}: {}\n".format(
-                        bio_name,
-                        this.formatter.format_credit_range(values[0], values[1])
-                    )
-                    if len(types) == count:
-                        detail_text += "\n"
+        detail_text, total_value = get_bodies_summary(bio_bodies)
 
     if len(bio_bodies) > 0:
         this.scroll_canvas.grid()
@@ -752,7 +740,7 @@ def update_display() -> None:
         this.total_label.grid()
         text = 'BioScan Estimates:\n'
 
-        if this.signal_setting.get() == "Always" or this.location_state != "surface":
+        if this.signal_setting.get() == 'Always' or this.location_state != 'surface':
             while True:
                 exo_list = exobio_body_names[:5]
                 exobio_body_names = exobio_body_names[5:]
@@ -762,7 +750,7 @@ def update_display() -> None:
                 else:
                     text += '\n'
 
-        if (this.location_name != "" and this.location_name in bio_bodies) and this.focus_setting.get() != "Never" and \
+        if (this.location_name != '' and this.location_name in bio_bodies) and this.focus_setting.get() != 'Never' and \
                 ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
                  or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
             if text[-1] != '\n':
@@ -777,22 +765,22 @@ def update_display() -> None:
             for genus, data in this.bodies[this.location_name].get_flora().items():
                 if 0 < data[1] < 3:
                     distance = get_distance()
-                    distance_format = "{:.2f}".format(distance) if distance is not None else "unk"
+                    distance_format = '{:.2f}'.format(distance) if distance is not None else 'unk'
                     distance = distance if distance is not None else 0
-                    text += "\nIn Progress: {} - {} ({}/3) [{}]".format(
+                    text += '\nIn Progress: {} - {} ({}/3) [{}]'.format(
                         bio_types[genus][data[0]][0],
                         scan_label(data[1]),
                         data[1],
-                        "{}/{}m".format(
+                        '{}/{}m'.format(
                             distance_format
-                            if distance < bio_genus[genus]["distance"]
-                            else "> {}".format(bio_genus[genus]["distance"]),
-                            bio_genus[genus]["distance"]
+                            if distance < bio_genus[genus]['distance']
+                            else '> {}'.format(bio_genus[genus]['distance']),
+                            bio_genus[genus]['distance']
                         )
                     )
                     break
 
-        this.total_label['text'] = "Analysed System Samples:\n{} | FF: {}".format(
+        this.total_label['text'] = 'Analysed System Samples:\n{} | FF: {}'.format(
             this.formatter.format_credits(total_value),
             this.formatter.format_credits((total_value * 5)))
     else:
@@ -800,7 +788,7 @@ def update_display() -> None:
         this.scrollbar.grid_remove()
         this.total_label.grid_remove()
         text = 'BioScan: No Signals Found'
-        this.total_label['text'] = ""
+        this.total_label['text'] = ''
 
     this.label['text'] = text
     this.values_label['text'] = detail_text
@@ -814,7 +802,7 @@ def update_display() -> None:
 
 
 def bind_mousewheel(event: tk.Event) -> None:
-    if sys.platform in ("linux", "cygwin", "msys"):
+    if sys.platform in ('linux', 'cygwin', 'msys'):
         this.scroll_canvas.bind_all('<Button-4>', on_mousewheel)
         this.scroll_canvas.bind_all('<Button-5>', on_mousewheel)
     else:
@@ -822,7 +810,7 @@ def bind_mousewheel(event: tk.Event) -> None:
 
 
 def unbind_mousewheel(event: tk.Event) -> None:
-    if sys.platform in ("linux", "cygwin", "msys"):
+    if sys.platform in ('linux', 'cygwin', 'msys'):
         this.scroll_canvas.unbind_all('<Button-4>')
         this.scroll_canvas.unbind_all('<Button-5>')
     else:
@@ -837,6 +825,6 @@ def on_mousewheel(event: tk.Event) -> None:
     if event.num == 5 or event.delta == -120:
         scroll = 1
     if shift:
-        this.scroll_canvas.xview_scroll(scroll, "units")
+        this.scroll_canvas.xview_scroll(scroll, 'units')
     else:
-        this.scroll_canvas.yview_scroll(scroll, "units")
+        this.scroll_canvas.yview_scroll(scroll, 'units')
