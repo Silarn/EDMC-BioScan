@@ -642,7 +642,9 @@ def journal_entry(
 
 def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     status = StatusFlags(entry['Flags'])
-    status2 = StatusFlags2(entry['Flags2'])
+    status2 = StatusFlags2(0)
+    if 'Flags2' in entry:
+        status2 = StatusFlags2(entry['Flags2'])
     refresh = False
 
     current_state = this.location_state
