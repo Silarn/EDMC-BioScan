@@ -4,3 +4,7 @@
 *.pyo
 *.zip
 .idea
+
+# Release prep
+EDMC-BioScan/
+/*.zip
