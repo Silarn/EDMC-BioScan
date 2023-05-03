@@ -17,6 +17,7 @@ import math
 import myNotebook as nb
 from bio_scan.nebula_coordinates import nebulae_coords
 from bio_scan.nebulae_data import planetary_nebulae, nebulae_sectors
+from bio_scan.status_flags import StatusFlags2, StatusFlags
 from ttkHyperlinkLabel import HyperlinkLabel
 
 from config import config
@@ -474,22 +475,27 @@ def get_bodyname(fullname: str = '') -> str:
     return bodyname
 
 
+def reset() -> None:
+    this.starsystem = ''
+    this.main_star_type = ''
+    this.location_name = ''
+    this.location_id = -1
+    this.location_state = ''
+    this.fetched_edsm = False
+    this.bodies = {}
+    this.scroll_canvas.yview_moveto(0.0)
+
+
 def journal_entry(
         cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, any], state: MutableMapping[str, any]
 ) -> str:
     system_changed = False
     this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
     this.odyssey = state.get('Odyssey', False)
-    if system != this.starsystem:
-        this.starsystem = system
+    if system and system != this.starsystem:
+        reset()
         system_changed = True
-        this.main_star_type = ''
-        this.location_name = ''
-        this.location_id = -1
-        this.location_state = ''
-        this.fetched_edsm = False
-        this.bodies = {}
-        this.scroll_canvas.yview_moveto(0.0)
+        this.starsystem = system
 
     elif entry['event'] in ['Location', 'FSDJump']:
         this.coordinates = entry['StarPos']
@@ -599,7 +605,7 @@ def journal_entry(
 
         update_display()
 
-    elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff', 'Embark', 'Disembark']:
+    elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff']:
         if entry['event'] in ['Liftoff', 'Touchdown'] and entry['PlayerControlled'] is False:
             return ''
         body_name = get_bodyname(entry['Body'])
@@ -624,8 +630,6 @@ def journal_entry(
         this.location_name = ''
         this.location_id = -1
         this.location_state = ''
-        this.planet_latitude = None
-        this.planet_longitude = None
 
         update_display()
         this.scroll_canvas.yview_moveto(0.0)
@@ -637,18 +641,47 @@ def journal_entry(
 
 
 def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
-    if 'PlanetRadius' in entry and entry['PlanetRadius'] > 0:
+    status = StatusFlags(entry['Flags'])
+    status2 = StatusFlags2(entry['Flags2'])
+    refresh = False
+
+    current_state = this.location_state
+    this.location_state = ''
+    if StatusFlags.HAVE_LATLONG in status:
+        if StatusFlags.IN_SHIP in status:
+            if StatusFlags.LANDED in status:
+                this.location_state = 'surface'
+            else:
+                this.location_state = 'approach'
+        elif StatusFlags.IN_SRV in status or StatusFlags.LANDED in status:
+            this.location_state = 'surface'
+        elif StatusFlags2.ON_FOOT in status2 and StatusFlags2.PLANET_ON_FOOT in status2 \
+                and StatusFlags2.SOCIAL_ON_FOOT not in status2 and StatusFlags2.STATION_ON_FOOT not in status2:
+            this.location_state = 'surface'
+
+    if current_state != this.location_state:
+        refresh = True
+
+    if StatusFlags.HAVE_LATLONG in status:
+        if StatusFlags.HAVE_ALTITUDE in status:
+            this.planet_altitude = entry['Altitude'] if 'Altitidue' in entry else 0
         this.planet_latitude = entry['Latitude']
         this.planet_longitude = entry['Longitude']
-        this.planet_altitude = entry['Altitude'] if 'Altitidue' in entry else 0
         this.planet_radius = entry['PlanetRadius']
+        if this.location_name != '' and this.current_scan != '':
+            refresh = True
     else:
         this.planet_latitude = None
         this.planet_longitude = None
         this.planet_altitude = 0
         this.planet_radius = 0
 
-    if this.location_name != '' and this.current_scan != '':
+    if StatusFlags.FSD_JUMP_IN_PROGRESS in status and StatusFlags.FSD_CHARGING not in status \
+            and StatusFlags.SUPERCRUISE not in status and not this.starsystem:
+        reset()
+        refresh = True
+
+    if refresh:
         update_display()
 
     return ''
