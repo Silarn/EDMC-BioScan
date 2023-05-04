@@ -678,11 +678,6 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         this.planet_altitude = 0
         this.planet_radius = 0
 
-    if StatusFlags.FSD_JUMP_IN_PROGRESS in status and StatusFlags.FSD_CHARGING not in status \
-            and StatusFlags.SUPERCRUISE not in status and not this.starsystem:
-        reset()
-        refresh = True
-
     if refresh:
         update_display()
 
@@ -791,10 +786,10 @@ def update_display() -> None:
             if text[-1] != '\n':
                 text += '\n'
             complete = len(dict(filter(lambda x: x[1][1] == 3, bio_bodies[this.location_name].get_flora().items())))
-            text += '{} - {} [{:.2f}G] - {}/{} Analysed'.format(
+            text += '{} - {} [{}G] - {}/{} Analysed'.format(
                 bio_bodies[this.location_name].get_name(),
                 bio_bodies[this.location_name].get_type(),
-                bio_bodies[this.location_name].get_gravity() / 9.80665,
+                '{:.2f}'.format(bio_bodies[this.location_name].get_gravity() / 9.80665).rstrip('0').rstrip('.'),
                 complete, len(bio_bodies[this.location_name].get_flora())
             )
             for genus, data in this.bodies[this.location_name].get_flora().items():
