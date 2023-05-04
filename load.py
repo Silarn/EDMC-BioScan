@@ -3,35 +3,41 @@
 # Source: https://github.com/Silarn/EDMC-BioScan
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
 
+# Core imports
 import sys
 import threading
-import tkinter as tk
-from tkinter import ttk
 from typing import Mapping, MutableMapping
 from urllib.parse import quote
-
 import requests
 import semantic_version
 import math
 
-import myNotebook as nb
+# TKinter imports
+import tkinter as tk
+from tkinter import ttk
+
+# Local imports
 from bio_scan.nebula_coordinates import nebulae_coords
 from bio_scan.nebulae_data import planetary_nebulae, nebulae_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
-from ttkHyperlinkLabel import HyperlinkLabel
-
-from config import config
-from theme import theme
-from EDMCLogging import get_main_logger
-
-from RegionMap import findRegion
-
 from bio_scan.body_data import BodyData, get_body_shorthand, body_check, parse_edsm_star_class, \
     map_edsm_type, map_edsm_atmosphere
 from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex, region_map, guardian_sectors
 from bio_scan.format_util import Formatter
 
+# EDMC imports
+from config import config
+from theme import theme
+from EDMCLogging import get_main_logger
+import myNotebook as nb
+from ttkHyperlinkLabel import HyperlinkLabel
+
+# 3rd Party
+from RegionMap import findRegion
+
+
 logger = get_main_logger()
+
 
 class This:
     """Holds module globals."""
@@ -84,10 +90,14 @@ this = This()
 
 # Compatibility fallback
 def plugin_start3(plugin_dir) -> str:
+    """ EDMC start hook """
+
     return 'BioScan'
 
 
 def plugin_app(parent: tk.Frame) -> tk.Frame:
+    """ EDMC initialization """
+
     parse_config()
     this.frame = tk.Frame(parent)
     this.frame.bind('<<BioScanEDSMData>>', edsm_data)
@@ -123,6 +133,8 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
 
 
 def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
+    """ EDMC settings pane hook """
+
     x_padding = 10
     x_button_padding = 12
     y_padding = 2
@@ -189,6 +201,8 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
 
 
 def prefs_changed(cmdr: str, is_beta: bool) -> None:
+    """ EDMC settings changed hook """
+
     config.set('bioscan_focus', this.focus_setting.get())
     config.set('bioscan_signal', this.signal_setting.get())
     config.set('bioscan_debugging', this.debug_logging_enabled.get())
@@ -196,23 +210,31 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
 
 
 def parse_config() -> None:
+    """ Load saved settings vars """
+
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
     this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default='Always'))
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
 
 
 def log(*args) -> None:
+    """ Debug logger helper function """
+
     if this.debug_logging_enabled.get():
         logger.debug(args)
 
 
 def edsm_fetch() -> None:
+    """ EDSM system data fetch thread initialization """
+
     thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.starsystem,))
     thread.daemon = True
     thread.start()
 
 
 def edsm_worker(system_name: str) -> None:
+    """ Fetch system data from EDSM on a threaded function """
+
     if not this.edsm_session:
         this.edsm_session = requests.Session()
 
@@ -228,11 +250,13 @@ def edsm_worker(system_name: str) -> None:
 
 
 def edsm_data(event: tk.Event) -> None:
+    """ Handle data retrieved from EDSM """
+
     if this.edsm_bodies is None:
         return
 
     for body in this.edsm_bodies.get('bodies', []):
-        bodyname_insystem = get_bodyname(body['name'])
+        body_short_name = get_body_name(body['name'])
         if body['type'] == 'Star':
             if body['isMainStar']:
                 this.main_star_type = '{}{}'.format(
@@ -242,20 +266,20 @@ def edsm_data(event: tk.Event) -> None:
 
         elif body['type'] == 'Planet':
             try:
-                if bodyname_insystem not in this.bodies:
-                    this.bodies[bodyname_insystem] = BodyData(bodyname_insystem)
+                if body_short_name not in this.bodies:
+                    this.bodies[body_short_name] = BodyData(body_short_name)
                 planet_type = map_edsm_type(body['subType'])
-                this.bodies[bodyname_insystem].set_type(planet_type)
-                this.bodies[bodyname_insystem].set_distance(body['distanceToArrival'])
-                this.bodies[bodyname_insystem].set_id(body['bodyId'])
-                this.bodies[bodyname_insystem].set_atmosphere(map_edsm_atmosphere(body['atmosphereType']))
+                this.bodies[body_short_name].set_type(planet_type)
+                this.bodies[body_short_name].set_distance(body['distanceToArrival'])
+                this.bodies[body_short_name].set_id(body['bodyId'])
+                this.bodies[body_short_name].set_atmosphere(map_edsm_atmosphere(body['atmosphereType']))
                 if body['volcanismType'] == 'No volcanism':
                     volcanism = ''
                 else:
                     volcanism = body['volcanismType'].lower().capitalize() + ' volcanism'
-                this.bodies[bodyname_insystem].set_volcanism(volcanism)
-                this.bodies[bodyname_insystem].set_gravity(body['gravity'])
-                this.bodies[bodyname_insystem].set_temp(body['surfaceTemperature'])
+                this.bodies[body_short_name].set_volcanism(volcanism)
+                this.bodies[body_short_name].set_gravity(body['gravity'])
+                this.bodies[body_short_name].set_temp(body['surfaceTemperature'])
 
             except Exception as e:
                 logger.error(e)
@@ -264,6 +288,8 @@ def edsm_data(event: tk.Event) -> None:
 
 
 def scan_label(scans: int) -> str:
+    """ Return the label for the scan stage """
+
     match scans:
         case 0:
             return 'Located'
@@ -276,6 +302,9 @@ def scan_label(scans: int) -> str:
 
 
 def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
+    """ Main function to make species determinations from body data.
+    Returns the display name and the minimum and maximum values """
+
     possible_species = set()
     eliminated_species = set()
     log('Running checks for {}:'.format(bio_genus[genus]['name']))
@@ -448,16 +477,22 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                         eliminated_species.add(species)
 
     final_species = possible_species - eliminated_species
-    sorted_species = sorted(final_species, key=lambda species: bio_types[genus][species][1])
+    sorted_species = sorted(final_species, key=lambda target_species: bio_types[genus][target_species][1])
 
     if len(sorted_species) == 1:
-        return bio_types[genus][sorted_species[0]][0], bio_types[genus][sorted_species[0]][1], bio_types[genus][sorted_species[0]][1]
+        return bio_types[genus][sorted_species[0]][0], \
+            bio_types[genus][sorted_species[0]][1], \
+            bio_types[genus][sorted_species[0]][1]
     if len(sorted_species) > 0:
-        return bio_genus[genus]['name'], bio_types[genus][sorted_species[0]][1], bio_types[genus][sorted_species[-1]][1]
+        return bio_genus[genus]['name'], \
+            bio_types[genus][sorted_species[0]][1], \
+            bio_types[genus][sorted_species[-1]][1]
     return '', 0, 0
 
 
 def get_possible_values(body: BodyData) -> dict[str, tuple]:
+    """ For unmapped planets, run through every genus and make species determinations """
+
     possible_genus = {}
     for genus, species_reqs in bio_types.items():
         name, min_potential_value, max_potential_value = value_estimate(body, genus)
@@ -467,15 +502,20 @@ def get_possible_values(body: BodyData) -> dict[str, tuple]:
     return dict(sorted(possible_genus.items(), key=lambda gen_v: gen_v[0]))
 
 
-def get_bodyname(fullname: str = '') -> str:
+def get_body_name(fullname: str = '') -> str:
+    """ Remove the base system name from the body name if the body has a unique identifier.
+    Usually only the main star has the same name as the system in one-star systems. """
+
     if fullname.startswith(this.starsystem + ' '):
-        bodyname = fullname[len(this.starsystem + ' '):]
+        body_name = fullname[len(this.starsystem + ' '):]
     else:
-        bodyname = fullname
-    return bodyname
+        body_name = fullname
+    return body_name
 
 
 def reset() -> None:
+    """ Reset system data when location changes """
+
     this.starsystem = ''
     this.main_star_type = ''
     this.location_name = ''
@@ -489,6 +529,8 @@ def reset() -> None:
 def journal_entry(
         cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, any], state: MutableMapping[str, any]
 ) -> str:
+    """ EDMC journal entry hook. Primary journal data handler. """
+
     system_changed = False
     this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
     this.odyssey = state.get('Odyssey', False)
@@ -501,15 +543,15 @@ def journal_entry(
         this.coordinates = entry['StarPos']
 
     elif entry['event'] == 'Scan':
-        bodyname_insystem = get_bodyname(entry['BodyName'])
+        body_short_name = get_body_name(entry['BodyName'])
         if 'StarType' in entry:
             if entry['DistanceFromArrivalLS'] == 0.0:
                 this.main_star_type = '{}{}'.format(entry['StarType'], entry['Luminosity'])
         if 'PlanetClass' in entry:
-            if bodyname_insystem not in this.bodies:
-                body_data = BodyData(bodyname_insystem)
+            if body_short_name not in this.bodies:
+                body_data = BodyData(body_short_name)
             else:
-                body_data = this.bodies[bodyname_insystem]
+                body_data = this.bodies[body_short_name]
             body_data.set_distance(float(entry['DistanceFromArrivalLS'])).set_type(entry['PlanetClass']) \
                 .set_id(entry['BodyID']).set_gravity(entry['SurfaceGravity']) \
                 .set_temp(entry['SurfaceTemperature']).set_volcanism(entry['Volcanism'])
@@ -517,27 +559,27 @@ def journal_entry(
             if 'AtmosphereType' in entry:
                 body_data.set_atmosphere(entry['AtmosphereType'])
 
-            this.bodies[bodyname_insystem] = body_data
+            this.bodies[body_short_name] = body_data
 
             update_display()
 
     elif entry['event'] == 'FSSBodySignals':
-        bodyname_insystem = get_bodyname(entry['BodyName'])
-        if bodyname_insystem not in this.bodies:
-            this.bodies[bodyname_insystem] = BodyData(bodyname_insystem)
+        body_short_name = get_body_name(entry['BodyName'])
+        if body_short_name not in this.bodies:
+            this.bodies[body_short_name] = BodyData(body_short_name)
         for signal in entry['Signals']:
             if signal['Type'] == '$SAA_SignalType_Biological;':
-                this.bodies[bodyname_insystem].set_bio_signals(signal['Count'])
+                this.bodies[body_short_name].set_bio_signals(signal['Count'])
 
         update_display()
 
     elif entry['event'] == 'SAASignalsFound':
-        bodyname_insystem = get_bodyname(entry['BodyName'])
+        body_short_name = get_body_name(entry['BodyName'])
 
-        if bodyname_insystem not in this.bodies:
-            body_data = BodyData(bodyname_insystem).set_id(entry['BodyID'])
+        if body_short_name not in this.bodies:
+            body_data = BodyData(body_short_name).set_id(entry['BodyID'])
         else:
-            body_data = this.bodies[bodyname_insystem].set_id(entry['BodyID'])
+            body_data = this.bodies[body_short_name].set_id(entry['BodyID'])
 
         # Add bio signal number just in case
         for signal in entry['Signals']:
@@ -549,7 +591,7 @@ def journal_entry(
             for genus in entry['Genuses']:
                 if body_data.get_flora(genus['Genus']) is None:
                     body_data.add_flora(genus['Genus'])
-        this.bodies[bodyname_insystem] = body_data
+        this.bodies[body_short_name] = body_data
 
         update_display()
 
@@ -608,7 +650,7 @@ def journal_entry(
     elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff']:
         if entry['event'] in ['Liftoff', 'Touchdown'] and entry['PlayerControlled'] is False:
             return ''
-        body_name = get_bodyname(entry['Body'])
+        body_name = get_body_name(entry['Body'])
         if body_name in this.bodies:
             this.location_name = body_name
             this.location_id = entry['BodyID']
@@ -641,6 +683,8 @@ def journal_entry(
 
 
 def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
+    """ EDMC dashboard entry hook. Parses updates to the Status.json. """
+
     status = StatusFlags(entry['Flags'])
     status2 = StatusFlags2(0)
     if 'Flags2' in entry:
@@ -685,15 +729,20 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
 
 
 def get_distance() -> float | None:
+    """ Use the haversine formula to do distance calculations against your scan locations
+    and return the shortest distance. """
+
     distance_list = []
-    if this.planet_latitude is not None and this.planet_latitude is not None:
+    if this.planet_latitude is not None and this.planet_longitude is not None:
         if len(this.scan_latitude) == len(this.scan_longitude) and len(this.scan_latitude) > 0:
             for i, _ in enumerate(this.scan_latitude):
                 phi_1 = math.radians(this.planet_latitude)
                 phi_2 = math.radians(this.scan_latitude[i])
                 delta_phi = math.radians(this.scan_latitude[i] - this.planet_latitude)
                 delta_lambda = math.radians(this.scan_longitude[i] - this.planet_longitude)
-                a = math.sin(delta_phi / 2.0) ** 2 + math.cos(phi_1) * math.cos(phi_2) * math.sin(delta_lambda / 2.0) ** 2
+                a = math.sin(delta_phi / 2.0) ** 2 + \
+                    math.cos(phi_1) * math.cos(phi_2) * \
+                    math.sin(delta_lambda / 2.0) ** 2
                 c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
                 distance_list.append(this.planet_radius * c)
             return min(distance_list)
@@ -701,6 +750,8 @@ def get_distance() -> float | None:
 
 
 def get_bodies_summary(bodies: dict[str, BodyData], focused: bool = False) -> tuple[str, int]:
+    """ Get body genus estimate display text for the scroll pane """
+
     detail_text = ''
     value_sum = 0
     for name, body in bodies.items():
@@ -744,6 +795,8 @@ def get_bodies_summary(bodies: dict[str, BodyData], focused: bool = False) -> tu
 
 
 def update_display() -> None:
+    """ Primary display update function. This is run whenever we get an event that would change the display state. """
+
     if this.fetched_edsm or this.starsystem == '':
         this.edsm_button.grid_remove()
     else:
@@ -832,6 +885,8 @@ def update_display() -> None:
 
 
 def bind_mousewheel(event: tk.Event) -> None:
+    """ Scroll pane mousewheel bind on mouseover """
+
     if sys.platform in ('linux', 'cygwin', 'msys'):
         this.scroll_canvas.bind_all('<Button-4>', on_mousewheel)
         this.scroll_canvas.bind_all('<Button-5>', on_mousewheel)
@@ -840,6 +895,8 @@ def bind_mousewheel(event: tk.Event) -> None:
 
 
 def unbind_mousewheel(event: tk.Event) -> None:
+    """ Scroll pane mousewheel unbind on mouseout """
+
     if sys.platform in ('linux', 'cygwin', 'msys'):
         this.scroll_canvas.unbind_all('<Button-4>')
         this.scroll_canvas.unbind_all('<Button-5>')
@@ -848,6 +905,8 @@ def unbind_mousewheel(event: tk.Event) -> None:
 
 
 def on_mousewheel(event: tk.Event) -> None:
+    """ Scroll pane mousewheel event handler """
+
     shift = (event.state & 0x1) != 0
     scroll = 0
     if event.num == 4 or event.delta == 120:
