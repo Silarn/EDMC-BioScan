@@ -6,6 +6,7 @@
 # Core imports
 import sys
 import threading
+from traceback import print_exc
 from typing import Mapping, MutableMapping
 from urllib.parse import quote
 import requests
@@ -45,7 +46,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = '1.2.5'
+        self.VERSION = semantic_version.Version('1.2.6')
 
         # Settings vars
         self.focus_setting: tk.StringVar | None = None
@@ -127,6 +128,12 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     this.edsm_button = tk.Label(this.frame, text='Fetch EDSM Data', fg='white', cursor='hand2')
     this.edsm_button.grid(row=3, columnspan=2, sticky=tk.EW)
     this.edsm_button.bind('<Button-1>', lambda e: edsm_fetch())
+    update = version_check()
+    if update != '':
+        text = 'Version {} is now available'.format(update)
+        url = 'https://github.com/Silarn/EDMC-BioScan/releases/tag/v{}'.format(update)
+        this.update_button = HyperlinkLabel(this.frame, text=text, url=url)
+        this.update_button.grid(row=4, columnspan=2, sticky=tk.N)
     update_display()
     theme.register(this.values_label)
     return this.frame
@@ -215,6 +222,22 @@ def parse_config() -> None:
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
     this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default='Always'))
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
+
+
+def version_check():
+    try:
+        req = requests.get(url='https://api.github.com/repos/Silarn/EDMC-BioScan/releases/latest')
+        data = req.json()
+        if req.status_code != requests.codes.ok:
+            raise requests.RequestException
+    except requests.RequestException | requests.JSONDecodeError:
+        print_exc()
+        return ''
+
+    version = semantic_version.Version(data['tag_name'][1:])
+    if version > this.VERSION:
+        return str(version)
+    return ''
 
 
 def log(*args) -> None:
