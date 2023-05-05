@@ -45,7 +45,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = '1.2.0'
+        self.VERSION = '1.2.5'
 
         # Settings vars
         self.focus_setting: tk.StringVar | None = None
