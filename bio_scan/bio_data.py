@@ -27,8 +27,8 @@ bio_types = {
     "$Codex_Ent_Aleoids_Genus_Name;": {
         "$Codex_Ent_Aleoids_01_Name;": ("Aleoida Arcus", 7252500, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 180.0, 175.0, None, ["Rocky body", "High metal content body"], None, None),
         "$Codex_Ent_Aleoids_02_Name;": ("Aleoida Coronamus ", 6284600, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 190.0, 180.0, None, ["Rocky body", "High metal content body"], None, None),
-        "$Codex_Ent_Aleoids_03_Name;": ("Aleoida Spica", 3385200, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["!scutum-centaurus"], None),
-        "$Codex_Ent_Aleoids_04_Name;": ("Aleoida Laminiae", 3385200, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["scutum-centaurus"], None),
+        "$Codex_Ent_Aleoids_03_Name;": ("Aleoida Spica", 3385200, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["scutum-centaurus"], None),
+        "$Codex_Ent_Aleoids_04_Name;": ("Aleoida Laminiae", 3385200, ["Ammonia"], 0.275, None, None, None, ["Rocky body", "High metal content body"], ["!scutum-centaurus"], None),
         "$Codex_Ent_Aleoids_05_Name;": ("Aleoida Gravis", 12934900, ["CarbonDioxide", "CarbonDioxideRich"], 0.275, 195.0, 190.0, None, ["Rocky body", "High metal content body"], None, None)
     },
     "$Codex_Ent_Bacterial_Genus_Name;": {
