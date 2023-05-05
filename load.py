@@ -62,6 +62,7 @@ class This:
         self.values_label: tk.Label | None = None
         self.total_label: tk.Label | None = None
         self.edsm_button: tk.Label | None = None
+        self.edsm_failed: tk.Label | None = None
 
         # Plugin state data
         self.bodies: dict[str, BodyData] = {}
@@ -128,6 +129,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     this.edsm_button = tk.Label(this.frame, text='Fetch EDSM Data', fg='white', cursor='hand2')
     this.edsm_button.grid(row=3, columnspan=2, sticky=tk.EW)
     this.edsm_button.bind('<Button-1>', lambda e: edsm_fetch())
+    this.edsm_failed = tk.Label(this.frame, text='No EDSM Data Found')
     update = version_check()
     if update != '':
         text = 'Version {} is now available'.format(update)
@@ -277,6 +279,9 @@ def edsm_data(event: tk.Event) -> None:
 
     if this.edsm_bodies is None:
         return
+
+    if len(this.edsm_bodies.get('bodies', [])) == 0:
+        this.edsm_failed.grid(row=3, columnspan=2, sticky=tk.EW)
 
     for body in this.edsm_bodies.get('bodies', []):
         body_short_name = get_body_name(body['name'])
@@ -831,6 +836,7 @@ def update_display() -> None:
         this.edsm_button.grid_remove()
     else:
         this.edsm_button.grid()
+        this.edsm_failed.grid_remove()
 
     bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.bodies.items())).items(),
                         key=lambda item: item[1].get_id()))
