@@ -685,6 +685,13 @@ def journal_entry(
 def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     """ EDMC dashboard entry hook. Parses updates to the Status.json. """
 
+    if 'BodyName' in entry:
+        body_name = get_body_name(entry['BodyName'])
+        if this.location_name == '' and body_name != this.starsystem:
+            this.location_name = body_name
+        if this.location_id == -1 and body_name in this.bodies:
+            this.location_id = this.bodies[body_name].get_id()
+
     status = StatusFlags(entry['Flags'])
     status2 = StatusFlags2(0)
     if 'Flags2' in entry:
