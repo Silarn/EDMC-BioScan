@@ -791,6 +791,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     if 'Flags2' in entry:
         status2 = StatusFlags2(entry['Flags2'])
     refresh = False
+    scroll = False
 
     current_state = this.location_state
     this.location_state = ''
@@ -807,6 +808,10 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
             this.location_state = 'surface'
 
     if current_state != this.location_state:
+        if (this.focus_setting.get() == 'On Approach' and this.location_state == 'approach') or \
+                (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface') or \
+                (this.focus_setting.get() != 'Never' and this.location_state == ''):
+            scroll = True
         refresh = True
 
     if StatusFlags.HAVE_LATLONG in status:
@@ -825,6 +830,8 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
 
     if refresh:
         update_display()
+    if scroll:
+        this.scroll_canvas.yview_moveto(0.0)
 
     return ''
 
