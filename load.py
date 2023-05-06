@@ -21,8 +21,8 @@ from tkinter import ttk
 from bio_scan.nebula_coordinates import nebulae_coords
 from bio_scan.nebulae_data import planetary_nebulae, nebulae_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
-from bio_scan.body_data import BodyData, get_body_shorthand, body_check, parse_edsm_star_class, \
-    map_edsm_type, map_edsm_atmosphere
+from bio_scan.body_data import PlanetData, get_body_shorthand, body_check, parse_edsm_star_class, \
+    map_edsm_type, map_edsm_atmosphere, StarData
 from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex, region_map, guardian_sectors
 from bio_scan.format_util import Formatter
 
@@ -65,10 +65,12 @@ class This:
         self.edsm_failed: tk.Label | None = None
 
         # Plugin state data
-        self.bodies: dict[str, BodyData] = {}
+        self.planets: dict[str, PlanetData] = {}
+        self.stars: dict[int, StarData] = {}
         self.odyssey: bool = False
         self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
         self.main_star_type: str = ''
+        self.main_star_luminosity: str = ''
         self.coordinates: list[float, float, float] = [0.0, 0.0, 0.0]
         self.location_name: str = ''
         self.location_id: str = ''
@@ -226,7 +228,7 @@ def parse_config() -> None:
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
 
 
-def version_check():
+def version_check() -> str:
     try:
         req = requests.get(url='https://api.github.com/repos/Silarn/EDMC-BioScan/releases/latest')
         data = req.json()
@@ -287,27 +289,32 @@ def edsm_data(event: tk.Event) -> None:
         body_short_name = get_body_name(body['name'])
         if body['type'] == 'Star':
             if body['isMainStar']:
-                this.main_star_type = '{}{}'.format(
-                    parse_edsm_star_class(body['subType']),
-                    body['luminosity']
-                )
+                if body['spectralClass']:
+                    this.main_star_type = body['spectralClass'][:-1]
+                else:
+                    this.main_star_type = parse_edsm_star_class(body['subType'])
+                this.main_star_luminosity = body['luminosity']
 
         elif body['type'] == 'Planet':
             try:
-                if body_short_name not in this.bodies:
-                    this.bodies[body_short_name] = BodyData(body_short_name)
+                if body_short_name not in this.planets:
+                    this.planets[body_short_name] = PlanetData(body_short_name)
                 planet_type = map_edsm_type(body['subType'])
-                this.bodies[body_short_name].set_type(planet_type)
-                this.bodies[body_short_name].set_distance(body['distanceToArrival'])
-                this.bodies[body_short_name].set_id(body['bodyId'])
-                this.bodies[body_short_name].set_atmosphere(map_edsm_atmosphere(body['atmosphereType']))
+                this.planets[body_short_name].set_type(planet_type)
+                this.planets[body_short_name].set_distance(body['distanceToArrival'])
+                this.planets[body_short_name].set_id(body['bodyId'])
+                this.planets[body_short_name].set_atmosphere(map_edsm_atmosphere(body['atmosphereType']))
                 if body['volcanismType'] == 'No volcanism':
                     volcanism = ''
                 else:
                     volcanism = body['volcanismType'].lower().capitalize() + ' volcanism'
-                this.bodies[body_short_name].set_volcanism(volcanism)
-                this.bodies[body_short_name].set_gravity(body['gravity'])
-                this.bodies[body_short_name].set_temp(body['surfaceTemperature'])
+                this.planets[body_short_name].set_volcanism(volcanism)
+                this.planets[body_short_name].set_gravity(body['gravity'])
+                this.planets[body_short_name].set_temp(body['surfaceTemperature'])
+
+                if 'materials' in body:
+                    for material in body['materials']:  # type: str
+                        this.planets[body_short_name].add_material(material.lower())
 
             except Exception as e:
                 logger.error(e)
@@ -329,7 +336,7 @@ def scan_label(scans: int) -> str:
             return 'Analysed'
 
 
-def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
+def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int]:
     """ Main function to make species determinations from body data.
     Returns the display name and the minimum and maximum values """
 
@@ -425,55 +432,54 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                     if not found:
                         log('Eliminated for not being in a guardian sector')
                         eliminated_species.add(species)
-                    if not body_check(this.bodies):
+                    if not body_check(this.planets):
                         log('Eliminated for missing body type(s)')
                         eliminated_species.add(species)
                 case 'life':
-                    if not body_check(this.bodies):
+                    if not body_check(this.planets):
                         log('Eliminated for missing body type(s)')
                         eliminated_species.add(species)
                 case 'A+life':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type[0] != 'A':
+                        if this.main_star_type != 'A':
                             log('Eliminated for star type')
                             eliminated_species.add(species)
                             continue
-                    if not body_check(this.bodies):
+                    if not body_check(this.planets):
                         log('Eliminated for missing body type(s)')
                         eliminated_species.add(species)
                 case 'AV':
                     if len(this.main_star_type) > 0:
-                        if not this.main_star_type.startswith('A') and not this.main_star_type.startswith('N'):
+                        if this.main_star_type not in ['A', 'N']:
                             log('Eliminated for star type')
                             eliminated_species.add(species)
                             continue
-                        elif this.main_star_type.startswith('AVI'):
-                            log('Eliminated for star type')
+                        elif this.main_star_type == 'A' and this.main_star_luminosity.startswith('VI'):
+                            log('Eliminated for star luminosity')
                             eliminated_species.add(species)
                 case 'A':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type[0] != 'A':
+                        if this.main_star_type != 'A':
                             log('Eliminated for star type')
                             eliminated_species.add(species)
                 case 'B':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type[0] != 'B':
+                        if this.main_star_type != 'B':
                             log('Eliminated for star type')
                             eliminated_species.add(species)
                 case 'AB':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type[0] not in ['A', 'B']:
+                        if this.main_star_type not in ['A', 'B']:
                             log('Eliminated for star type')
                             eliminated_species.add(species)
                 case 'O':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type[0] != 'O':
+                        if this.main_star_type != 'O':
                             log('Eliminated for star type')
                             eliminated_species.add(species)
                 case 'AFGKMSS':
                     if len(this.main_star_type) > 0:
-                        if this.main_star_type[0] not in ['A', 'F', 'G', 'K', 'S'] and \
-                                not this.main_star_type.startswith('MS'):
+                        if this.main_star_type not in ['A', 'F', 'G', 'K', 'S', 'MS']:
                             log('Eliminated for star type')
                             eliminated_species.add(species)
                             continue
@@ -481,7 +487,7 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                             log('Eliminated for distance')
                             eliminated_species.add(species)
                             continue
-                        if not body_check(this.bodies, True):
+                        if not body_check(this.planets, True):
                             log('Eliminated for missing body type(s)')
                             eliminated_species.add(species)
                 case 'nebula':
@@ -504,21 +510,58 @@ def value_estimate(body: BodyData, genus: str) -> tuple[str, int, int]:
                         log('Eliminated for lack of nebula')
                         eliminated_species.add(species)
 
+    possible_species = possible_species - eliminated_species
+    eliminated_species.clear()
+
+    color = ''
+    if 'colors' in bio_genus[genus]:
+        if 'species' in bio_genus[genus]['colors']:
+            for species in possible_species:
+                if 'star' in bio_genus[genus]['colors']['species'][species]:
+                    for star_type in bio_genus[genus]['colors']['species'][species]['star']:
+                        if body.get_parent_star() == -1:
+                            continue
+                        if this.stars[body.get_parent_star()].get_type() == star_type:
+                            color = bio_genus[genus]['colors']['species'][species]['star'][star_type]
+                            eliminated_species = possible_species - {species}
+                            break
+                elif 'element' in bio_genus[genus]['colors']['species'][species]:
+                    for element in bio_genus[genus]['colors']['species'][species]['element']:
+                        if element in body.get_materials():
+                            color = bio_genus[genus]['colors']['species'][species]['element'][element]
+                            eliminated_species = possible_species - {species}
+                            break
+
+                if color != '':
+                    break
+                else:
+                    eliminated_species.add(species)
+        else:
+            for star_type in bio_genus[genus]['colors']['star']:
+                if body.get_parent_star() == -1:
+                    continue
+                if this.stars[body.get_parent_star()].get_type() == star_type:
+                    color = bio_genus[genus]['colors']['star'][star_type]
+                    break
+            if color == '':
+                possible_species.clear()
+
     final_species = possible_species - eliminated_species
+
     sorted_species = sorted(final_species, key=lambda target_species: bio_types[genus][target_species][1])
 
     if len(sorted_species) == 1:
-        return bio_types[genus][sorted_species[0]][0], \
+        return '{}{}'.format(bio_types[genus][sorted_species[0]][0], f' - {color}' if color else ''), \
             bio_types[genus][sorted_species[0]][1], \
             bio_types[genus][sorted_species[0]][1]
     if len(sorted_species) > 0:
-        return bio_genus[genus]['name'], \
+        return '{}{}'.format(bio_genus[genus]['name'], f' - {color}' if color else ''), \
             bio_types[genus][sorted_species[0]][1], \
             bio_types[genus][sorted_species[-1]][1]
     return '', 0, 0
 
 
-def get_possible_values(body: BodyData) -> dict[str, tuple]:
+def get_possible_values(body: PlanetData) -> dict[str, tuple]:
     """ For unmapped planets, run through every genus and make species determinations """
 
     possible_genus = {}
@@ -546,11 +589,13 @@ def reset() -> None:
 
     this.starsystem = ''
     this.main_star_type = ''
+    this.main_star_luminosity = ''
     this.location_name = ''
     this.location_id = -1
     this.location_state = ''
     this.fetched_edsm = False
-    this.bodies = {}
+    this.planets = {}
+    this.stars = {}
     this.scroll_canvas.yview_moveto(0.0)
 
 
@@ -574,40 +619,61 @@ def journal_entry(
         body_short_name = get_body_name(entry['BodyName'])
         if 'StarType' in entry:
             if entry['DistanceFromArrivalLS'] == 0.0:
-                this.main_star_type = '{}{}'.format(entry['StarType'], entry['Luminosity'])
-        if 'PlanetClass' in entry:
-            if body_short_name not in this.bodies:
-                body_data = BodyData(body_short_name)
+                this.main_star_type = entry['StarType']
+                this.main_star_luminosity = entry['Luminosity']
+
+            if entry['BodyID'] not in this.stars:
+                star_data = StarData(body_short_name, entry['BodyID'])
             else:
-                body_data = this.bodies[body_short_name]
+                star_data = this.stars[entry['BodyID']]
+
+            star_data.set_type(entry['StarType'])
+            star_data.set_luminosity(entry['Luminosity'])
+
+            this.stars[entry['BodyID']] = star_data
+
+        if 'PlanetClass' in entry:
+            if body_short_name not in this.planets:
+                body_data = PlanetData(body_short_name)
+            else:
+                body_data = this.planets[body_short_name]
             body_data.set_distance(float(entry['DistanceFromArrivalLS'])).set_type(entry['PlanetClass']) \
                 .set_id(entry['BodyID']).set_gravity(entry['SurfaceGravity']) \
                 .set_temp(entry['SurfaceTemperature']).set_volcanism(entry['Volcanism'])
 
+            for body in entry['Parents']:
+                if 'Star' in body:
+                    body_data.set_parent_star(body['Star'])
+                    break
+
+            if 'Materials' in entry:
+                for material in entry['Materials']:
+                    body_data.add_material(material['Name'])
+
             if 'AtmosphereType' in entry:
                 body_data.set_atmosphere(entry['AtmosphereType'])
 
-            this.bodies[body_short_name] = body_data
+            this.planets[body_short_name] = body_data
 
             update_display()
 
     elif entry['event'] == 'FSSBodySignals':
         body_short_name = get_body_name(entry['BodyName'])
-        if body_short_name not in this.bodies:
-            this.bodies[body_short_name] = BodyData(body_short_name)
+        if body_short_name not in this.planets:
+            this.planets[body_short_name] = PlanetData(body_short_name)
         for signal in entry['Signals']:
             if signal['Type'] == '$SAA_SignalType_Biological;':
-                this.bodies[body_short_name].set_bio_signals(signal['Count'])
+                this.planets[body_short_name].set_bio_signals(signal['Count'])
 
         update_display()
 
     elif entry['event'] == 'SAASignalsFound':
         body_short_name = get_body_name(entry['BodyName'])
 
-        if body_short_name not in this.bodies:
-            body_data = BodyData(body_short_name).set_id(entry['BodyID'])
+        if body_short_name not in this.planets:
+            body_data = PlanetData(body_short_name).set_id(entry['BodyID'])
         else:
-            body_data = this.bodies[body_short_name].set_id(entry['BodyID'])
+            body_data = this.planets[body_short_name].set_id(entry['BodyID'])
 
         # Add bio signal number just in case
         for signal in entry['Signals']:
@@ -619,13 +685,13 @@ def journal_entry(
             for genus in entry['Genuses']:
                 if body_data.get_flora(genus['Genus']) is None:
                     body_data.add_flora(genus['Genus'])
-        this.bodies[body_short_name] = body_data
+        this.planets[body_short_name] = body_data
 
         update_display()
 
     elif entry['event'] == 'ScanOrganic':
         target_body = None
-        for name, body in this.bodies.items():
+        for name, body in this.planets.items():
             if body.get_id() == entry['Body']:
                 target_body = name
                 break
@@ -640,10 +706,10 @@ def journal_entry(
                 scan_level = 3
 
         if target_body is not None:
-            this.bodies[target_body].set_flora(entry['Genus'], entry['Species'], scan_level)
+            this.planets[target_body].set_flora_species_scan(entry['Genus'], entry['Species'], scan_level)
             if this.current_scan != '' and this.current_scan != entry['Genus']:
-                species = this.bodies[target_body].get_flora(this.current_scan)[0]
-                this.bodies[target_body].set_flora(this.current_scan, species, 0)
+                species = this.planets[target_body].get_flora(this.current_scan)[0]
+                this.planets[target_body].set_flora_species_scan(this.current_scan, species, 0)
                 this.scan_latitude.clear()
                 this.scan_longitude.clear()
             this.current_scan = entry['Genus']
@@ -663,15 +729,15 @@ def journal_entry(
             entry['BodyID'] == this.location_id and \
             entry['Category'] == '$Codex_Category_Biology;':
         target_body = None
-        for name, body in this.bodies.items():
+        for name, body in this.planets.items():
             if body.get_id() == entry['BodyID']:
                 target_body = name
                 break
 
         if target_body is not None:
-            genus, species = get_species_from_codex(entry['Name'])
+            genus, species, color = get_species_from_codex(entry['Name'])
             if genus is not '' and species is not '':
-                this.bodies[target_body].add_flora(genus, species)
+                this.planets[target_body].add_flora(genus, species, color)
 
         update_display()
 
@@ -679,7 +745,7 @@ def journal_entry(
         if entry['event'] in ['Liftoff', 'Touchdown'] and entry['PlayerControlled'] is False:
             return ''
         body_name = get_body_name(entry['Body'])
-        if body_name in this.bodies:
+        if body_name in this.planets:
             this.location_name = body_name
             this.location_id = entry['BodyID']
 
@@ -717,8 +783,8 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         body_name = get_body_name(entry['BodyName'])
         if this.location_name == '' and body_name != this.starsystem:
             this.location_name = body_name
-        if this.location_id == -1 and body_name in this.bodies:
-            this.location_id = this.bodies[body_name].get_id()
+        if this.location_id == -1 and body_name in this.planets:
+            this.location_id = this.planets[body_name].get_id()
 
     status = StatusFlags(entry['Flags'])
     status2 = StatusFlags2(0)
@@ -784,7 +850,7 @@ def get_distance() -> float | None:
     return None
 
 
-def get_bodies_summary(bodies: dict[str, BodyData], focused: bool = False) -> tuple[str, int]:
+def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> tuple[str, int]:
     """ Get body genus estimate display text for the scroll pane """
 
     detail_text = ''
@@ -799,8 +865,9 @@ def get_bodies_summary(bodies: dict[str, BodyData], focused: bool = False) -> tu
                 if data[1] == 3:
                     value_sum += bio_types[genus][data[0]][1]
                 if data[0] != '':
-                    detail_text += '{} ({}): {}{}\n'.format(
+                    detail_text += '{}{} ({}): {}{}\n'.format(
                         bio_types[genus][data[0]][0],
+                        f' - {data[2]}' if data[2] else '',
                         scan_label(data[1]),
                         this.formatter.format_credits(bio_types[genus][data[0]][1]),
                         u' 🗸' if data[1] == 3 else ''
@@ -838,8 +905,8 @@ def update_display() -> None:
         this.edsm_button.grid()
         this.edsm_failed.grid_remove()
 
-    bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.bodies.items())).items(),
-                        key=lambda item: item[1].get_id()))
+    bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.planets.items())).items(),
+                             key=lambda item: item[1].get_id()))
     exobio_body_names = [
         '%s%s: %d' % (body_name, get_body_shorthand(body_data.get_type()), body_data.get_bio_signals())
         for body_name, body_data
@@ -849,7 +916,7 @@ def update_display() -> None:
     if (this.location_name != '' and this.location_name in bio_bodies) and this.focus_setting.get() != 'Never' and \
             ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
              or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
-        detail_text, total_value = get_bodies_summary({this.location_name: this.bodies[this.location_name]}, True)
+        detail_text, total_value = get_bodies_summary({this.location_name: this.planets[this.location_name]}, True)
     else:
         detail_text, total_value = get_bodies_summary(bio_bodies)
 
@@ -881,7 +948,7 @@ def update_display() -> None:
                 '{:.2f}'.format(bio_bodies[this.location_name].get_gravity() / 9.80665).rstrip('0').rstrip('.'),
                 complete, len(bio_bodies[this.location_name].get_flora())
             )
-            for genus, data in this.bodies[this.location_name].get_flora().items():
+            for genus, data in this.planets[this.location_name].get_flora().items():
                 if 0 < data[1] < 3:
                     distance = get_distance()
                     distance_format = '{:.2f}'.format(distance) if distance is not None else 'unk'
