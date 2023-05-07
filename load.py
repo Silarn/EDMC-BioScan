@@ -55,6 +55,7 @@ class This:
         # Settings vars
         self.focus_setting: tk.StringVar | None = None
         self.signal_setting: tk.StringVar | None = None
+        self.focus_breakdown: tk.BooleanVar | None = None
         self.debug_logging_enabled: tk.BooleanVar | None = None
 
         # GUI Objects
@@ -186,6 +187,11 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
                   'On Surface: Show only local signals when on surface',
              justify=tk.LEFT) \
         .grid(row=12, padx=x_padding, column=0, sticky=tk.NW)
+    nb.Checkbutton(
+        frame,
+        text='Show complete breakdown of genera with multiple matches',
+        variable=this.focus_breakdown
+    ).grid(row=13, column=0, padx=x_button_padding, sticky=tk.W)
 
     nb.Label(
         frame,
@@ -219,6 +225,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     """ EDMC settings changed hook """
 
     config.set('bioscan_focus', this.focus_setting.get())
+    config.set('bioscan_focus_breakdown', this.focus_breakdown.get())
     config.set('bioscan_signal', this.signal_setting.get())
     config.set('bioscan_debugging', this.debug_logging_enabled.get())
     update_display()
@@ -228,6 +235,7 @@ def parse_config() -> None:
     """ Load saved settings vars """
 
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
+    this.focus_breakdown = tk.BooleanVar(value=config.get_bool(key='bioscan_focus_breakdown', default=False))
     this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default='Always'))
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
 
@@ -340,7 +348,7 @@ def scan_label(scans: int) -> str:
             return 'Analysed'
 
 
-def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int]:
+def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tuple[str, str, int]]]:
     """ Main function to make species determinations from body data.
     Returns the display name and the minimum and maximum values """
 
@@ -526,10 +534,12 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int]:
                             continue
                         if this.stars[body.get_parent_star()].get_type() == star_type:
                             possible_species[species] = bio_genus[genus]['colors']['species'][species]['star'][star_type]
+                            break
                 elif 'element' in bio_genus[genus]['colors']['species'][species]:
                     for element in bio_genus[genus]['colors']['species'][species]['element']:
                         if element in body.get_materials():
                             possible_species[species] = bio_genus[genus]['colors']['species'][species]['element'][element]
+                            break
 
                 if possible_species[species] == '':
                     eliminated_species.add(species)
@@ -560,25 +570,30 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int]:
         return '{}{}'.format(
             bio_types[genus][sorted_species[0][0]][0], f' - {sorted_species[0][1]}' if sorted_species[0][1] else ''), \
             bio_types[genus][sorted_species[0][0]][1], \
-            bio_types[genus][sorted_species[0][0]][1]
+            bio_types[genus][sorted_species[0][0]][1], \
+            []
     if len(sorted_species) > 0:
         color = ''
+        localized_species = [
+            (bio_types[genus][info[0]][0], info[1], bio_types[genus][info[0]][1]) for info in sorted_species
+        ]
         if sorted_species[0][1] == sorted_species[-1][1]:
             color = sorted_species[0][1]
         return '{}{}'.format(bio_genus[genus]['name'], f' - {color}' if color else ''), \
             bio_types[genus][sorted_species[0][0]][1], \
-            bio_types[genus][sorted_species[-1][0]][1]
-    return '', 0, 0
+            bio_types[genus][sorted_species[-1][0]][1], \
+            localized_species
+    return '', 0, 0, []
 
 
-def get_possible_values(body: PlanetData) -> dict[str, tuple]:
+def get_possible_values(body: PlanetData) -> dict[str, tuple[int, int, list[tuple[str, str, int]]]]:
     """ For unmapped planets, run through every genus and make species determinations """
 
     possible_genus = {}
     for genus, species_reqs in bio_types.items():
-        name, min_potential_value, max_potential_value = value_estimate(body, genus)
+        name, min_potential_value, max_potential_value, all_species = value_estimate(body, genus)
         if min_potential_value != 0:
-            possible_genus[name] = (min_potential_value, max_potential_value)
+            possible_genus[name] = (min_potential_value, max_potential_value, all_species)
 
     return dict(sorted(possible_genus.items(), key=lambda gen_v: gen_v[0]))
 
@@ -890,10 +905,17 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         u' 🗸' if data[1] == 3 else ''
                     )
                 else:
-                    bio_name, min_val, max_val = value_estimate(body, genus)
+                    bio_name, min_val, max_val, all_species = value_estimate(body, genus)
                     detail_text += '{} (Not located): {}\n'.format(
                         bio_name,
                         this.formatter.format_credit_range(min_val, max_val))
+                    if this.focus_breakdown.get():
+                        for species in all_species:
+                            detail_text += '  {}{} - {}\n'.format(
+                                species[0],
+                                f' - {species[1]}' if species[1] else '',
+                                this.formatter.format_credits(species[2])
+                            )
                 if len(body.get_flora()) == count:
                     detail_text += '\n'
 
@@ -907,6 +929,13 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     bio_name,
                     this.formatter.format_credit_range(values[0], values[1])
                 )
+                if this.focus_breakdown.get():
+                    for species in values[2]:
+                        detail_text += '  {}{}{}\n'.format(
+                            species[0],
+                            f' - {species[1]}' if species[1] else '',
+                            this.formatter.format_credits(species[2])
+                        )
                 if len(types) == count:
                     detail_text += '\n'
 
