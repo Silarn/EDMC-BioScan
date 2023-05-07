@@ -50,7 +50,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('1.2.6')
+        self.VERSION = semantic_version.Version('1.5.0')
 
         # Settings vars
         self.focus_setting: tk.StringVar | None = None
