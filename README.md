@@ -50,7 +50,7 @@ As of version 1.5, BioScan now incorporates color requirements into the calculat
 possible species on a planet and is useful if you're trying to find missing entries in your codex.
 
 ## Requirements
-* EDMC version 5 and above
+* [EDMC] version 5.7 and above
 
 ## Installation
 * Download the [latest release]
