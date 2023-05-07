@@ -911,7 +911,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         this.formatter.format_credit_range(min_val, max_val))
                     if this.focus_breakdown.get():
                         for species in all_species:
-                            detail_text += '  {}{} - {}\n'.format(
+                            detail_text += '  {}{}: {}\n'.format(
                                 species[0],
                                 f' - {species[1]}' if species[1] else '',
                                 this.formatter.format_credits(species[2])
@@ -931,7 +931,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 )
                 if this.focus_breakdown.get():
                     for species in values[2]:
-                        detail_text += '  {}{}{}\n'.format(
+                        detail_text += '  {}{}: {}\n'.format(
                             species[0],
                             f' - {species[1]}' if species[1] else '',
                             this.formatter.format_credits(species[2])
