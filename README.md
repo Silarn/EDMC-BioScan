@@ -18,6 +18,9 @@ indicate the scan progress.
 
 Once fully analysed, the total system value (and possible first footfall value) will be shown at the bottom of the pane.
 
+As of version 1.5, you can now choose to display a complete breakdown of the qualifying species in a genus if there's
+more than one match. This defaults off as it can take up even more display space.
+
 ### Navigation
 
 The top of the pane will track all relevant bodies in the system, including a shorthand for the body type and the number
@@ -41,6 +44,10 @@ info from previously mapped planets, though you may need to travel to them to tr
 
 So if you were in the middle of scanning samples on a planet, fetching data from EDSM should get you the species list
 again. However, your scan progress will be lost so completed species will display as unscanned.
+
+### Version 1.5+: Color Calculations
+As of version 1.5, BioScan now incorporates color requirements into the calculations. This helps to further refine
+possible species on a planet and is useful if you're trying to find missing entries in your codex.
 
 ## Requirements
 * EDMC version 5 and above
@@ -66,12 +73,7 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 ## Roadmap
 
 * Refinements to species requirements
-* ~~Currently implementing a system to detect the presence of a nebula~~
-* ~~Track when near a planet and focus the data view for that planet~~
-* ~~Add settings for visibility and display options~~
-* ~~Add info about sample distance requirements~~
-* ~~Possibly utilize EDSM data to fill in missing data (revisiting a system)~~
-* ~~Investigate plausibility of getting species from codex scans (Ship / SRV)~~
+* Implement a cache system so we don't have to run the calculations every time the display is updated
 
 ## License
 
