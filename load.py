@@ -18,12 +18,16 @@ import tkinter as tk
 from tkinter import ttk
 
 # Local imports
-from bio_scan.nebula_coordinates import nebulae_coords
-from bio_scan.nebulae_data import planetary_nebulae, nebulae_sectors
+from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
+from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
-from bio_scan.body_data import PlanetData, get_body_shorthand, body_check, parse_edsm_star_class, \
-    map_edsm_type, map_edsm_atmosphere, StarData
-from bio_scan.bio_data import bio_genus, bio_types, get_species_from_codex, region_map, guardian_sectors
+from bio_scan.body_data.struct import PlanetData, StarData
+from bio_scan.body_data.util import get_body_shorthand, body_check
+from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
+from bio_scan.bio_data.codex import get_species_from_codex
+from bio_scan.bio_data.genus import data as bio_genus
+from bio_scan.bio_data.regions import region_map, guardian_sectors
+from bio_scan.bio_data.species import rules as bio_types
 from bio_scan.format_util import Formatter
 
 # EDMC imports
@@ -34,7 +38,7 @@ import myNotebook as nb
 from ttkHyperlinkLabel import HyperlinkLabel
 
 # 3rd Party
-from RegionMap import findRegion
+from bio_scan.RegionMap import findRegion
 
 
 logger = get_main_logger()
@@ -494,11 +498,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int]:
                     found = False
                     if this.starsystem in planetary_nebulae:
                         found = True
-                    for sector in nebulae_sectors:
+                    for sector in nebula_sectors:
                         if this.starsystem.startswith(sector):
                             found = True
                             break
-                    for system, coords in nebulae_coords.items():
+                    for system, coords in nebula_coords.items():
                         distance = math.sqrt((coords[0]-this.coordinates[0])**2
                                              + (coords[1]-this.coordinates[1])**2
                                              + (coords[2]-this.coordinates[2])**2)
