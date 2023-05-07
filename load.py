@@ -344,11 +344,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int]:
     """ Main function to make species determinations from body data.
     Returns the display name and the minimum and maximum values """
 
-    possible_species = set()
+    possible_species: dict[str, str] = {}
     eliminated_species = set()
     log('Running checks for {}:'.format(bio_genus[genus]['name']))
     for species, reqs in bio_types[genus].items():
-        possible_species.add(species)
+        possible_species[species] = ''
         log(species)
         if reqs[2] is not None:
             if reqs[2] == 'Any' and body.get_atmosphere() in ['', 'None']:
@@ -514,10 +514,9 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int]:
                         log('Eliminated for lack of nebula')
                         eliminated_species.add(species)
 
-    possible_species = possible_species - eliminated_species
-    eliminated_species.clear()
+    for species in eliminated_species:
+        possible_species.pop(species, None)
 
-    color = ''
     if 'colors' in bio_genus[genus]:
         if 'species' in bio_genus[genus]['colors']:
             for species in possible_species:
@@ -526,21 +525,17 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int]:
                         if body.get_parent_star() == -1:
                             continue
                         if this.stars[body.get_parent_star()].get_type() == star_type:
-                            color = bio_genus[genus]['colors']['species'][species]['star'][star_type]
-                            eliminated_species = possible_species - {species}
-                            break
+                            possible_species[species] = bio_genus[genus]['colors']['species'][species]['star'][star_type]
                 elif 'element' in bio_genus[genus]['colors']['species'][species]:
                     for element in bio_genus[genus]['colors']['species'][species]['element']:
                         if element in body.get_materials():
-                            color = bio_genus[genus]['colors']['species'][species]['element'][element]
-                            eliminated_species = possible_species - {species}
-                            break
+                            possible_species[species] = bio_genus[genus]['colors']['species'][species]['element'][element]
 
-                if color != '':
-                    break
-                else:
+                if possible_species[species] == '':
                     eliminated_species.add(species)
+                    log('Eliminated for lack of color')
         else:
+            color = ''
             for star_type in bio_genus[genus]['colors']['star']:
                 if body.get_parent_star() == -1:
                     continue
@@ -549,19 +544,30 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int]:
                     break
             if color == '':
                 possible_species.clear()
+                log('Eliminated genus for lack of color')
+            else:
+                for species in possible_species:
+                    possible_species[species] = color
 
-    final_species = possible_species - eliminated_species
+    final_species: dict[str, str] = {}
+    for species in possible_species:
+        if species not in eliminated_species:
+            final_species[species] = possible_species[species]
 
-    sorted_species = sorted(final_species, key=lambda target_species: bio_types[genus][target_species][1])
+    sorted_species = sorted(final_species.items(), key=lambda target_species: bio_types[genus][target_species[0]][1])
 
     if len(sorted_species) == 1:
-        return '{}{}'.format(bio_types[genus][sorted_species[0]][0], f' - {color}' if color else ''), \
-            bio_types[genus][sorted_species[0]][1], \
-            bio_types[genus][sorted_species[0]][1]
+        return '{}{}'.format(
+            bio_types[genus][sorted_species[0][0]][0], f' - {sorted_species[0][1]}' if sorted_species[0][1] else ''), \
+            bio_types[genus][sorted_species[0][0]][1], \
+            bio_types[genus][sorted_species[0][0]][1]
     if len(sorted_species) > 0:
+        color = ''
+        if sorted_species[0][1] == sorted_species[-1][1]:
+            color = sorted_species[0][1]
         return '{}{}'.format(bio_genus[genus]['name'], f' - {color}' if color else ''), \
-            bio_types[genus][sorted_species[0]][1], \
-            bio_types[genus][sorted_species[-1]][1]
+            bio_types[genus][sorted_species[0][0]][1], \
+            bio_types[genus][sorted_species[-1][0]][1]
     return '', 0, 0
 
 
