@@ -72,8 +72,10 @@ class This:
         # Plugin state data
         self.planets: dict[str, PlanetData] = {}
         self.stars: dict[int, StarData] = {}
-        self.odyssey: bool = False
-        self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
+        self.planet_cache: dict[str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, str, int]]]]]] = {}
+
+        # self.odyssey: bool = False
+        # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
         self.main_star_type: str = ''
         self.main_star_luminosity: str = ''
         self.coordinates: list[float, float, float] = [0.0, 0.0, 0.0]
@@ -349,8 +351,24 @@ def scan_label(scans: int) -> str:
 
 
 def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tuple[str, str, int]]]:
-    """ Main function to make species determinations from body data.
-    Returns the display name and the minimum and maximum values """
+    """
+    Main function to make species determinations from body data.
+    Returns the display name and the minimum and maximum values.
+    Data is cached, and we check a flag to see if we need to recalculate the species.
+
+    :param body: The planet data we're fetching species for
+    :param genus: The genus we're checking for species requirements
+    :return: The display string for the calculated genus/species, the minimum and maximum values, and a
+             list of individual species if there are multiple matches
+    """
+    if body.get_name() in this.planet_cache:
+        if genus in this.planet_cache[body.get_name()] and not this.planet_cache[body.get_name()][genus][0]:
+            return this.planet_cache[body.get_name()][genus][1]
+    else:
+        this.planet_cache[body.get_name()] = {}
+
+    if genus not in this.planet_cache[body.get_name()]:
+        this.planet_cache[body.get_name()][genus] = (True, ('', 0, 0, []))
 
     possible_species: dict[str, str] = {}
     eliminated_species = set()
@@ -567,27 +585,62 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     sorted_species = sorted(final_species.items(), key=lambda target_species: bio_types[genus][target_species[0]][1])
 
     if len(sorted_species) == 1:
-        return '{}{}'.format(
-            bio_types[genus][sorted_species[0][0]][0], f' - {sorted_species[0][1]}' if sorted_species[0][1] else ''), \
-            bio_types[genus][sorted_species[0][0]][1], \
-            bio_types[genus][sorted_species[0][0]][1], \
-            []
-    if len(sorted_species) > 0:
+        this.planet_cache[body.get_name()][genus] = (
+            False,
+            (
+                '{}{}'.format(
+                    bio_types[genus][sorted_species[0][0]][0],
+                    f' - {sorted_species[0][1]}' if sorted_species[0][1] else ''
+                ),
+                bio_types[genus][sorted_species[0][0]][1], bio_types[genus][sorted_species[0][0]][1], []
+            )
+        )
+    elif len(sorted_species) > 0:
         color = ''
         localized_species = [
             (bio_types[genus][info[0]][0], info[1], bio_types[genus][info[0]][1]) for info in sorted_species
         ]
         if sorted_species[0][1] == sorted_species[-1][1]:
             color = sorted_species[0][1]
-        return '{}{}'.format(bio_genus[genus]['name'], f' - {color}' if color else ''), \
-            bio_types[genus][sorted_species[0][0]][1], \
-            bio_types[genus][sorted_species[-1][0]][1], \
-            localized_species
-    return '', 0, 0, []
+        this.planet_cache[body.get_name()][genus] = (
+            False,
+            (
+                '{}{}'.format(bio_genus[genus]['name'], f' - {color}' if color else ''),
+                bio_types[genus][sorted_species[0][0]][1],
+                bio_types[genus][sorted_species[-1][0]][1],
+                localized_species
+            )
+        )
+
+    if this.planet_cache[body.get_name()][genus][0]:
+        this.planet_cache[body.get_name()][genus] = (False, ('', 0, 0, []))
+
+    return this.planet_cache[body.get_name()][genus][1]
+
+
+def reset_cache(planet: str = '') -> None:
+    """
+    Resets the species calculation cache. If genus is passed, resets only that genus.
+
+    :param planet: Optional parameter to reset only a specific genus
+    """
+    if planet and planet in this.planet_cache:
+        for genus in this.planet_cache[planet]:
+            this.planet_cache[planet][genus] = (True, this.planet_cache[planet][genus][1])
+    else:
+        for planet, data in this.planet_cache.items():
+            for genus in data:
+                data[genus] = (True, data[genus][1])
 
 
 def get_possible_values(body: PlanetData) -> dict[str, tuple[int, int, list[tuple[str, str, int]]]]:
-    """ For unmapped planets, run through every genus and make species determinations """
+    """
+    For unmapped planets, run through every genus and make species determinations
+
+    :param body: The planet we're fetching
+    :return: A dictionary of genera mapped to the minimum and maximum values and a list of species if there
+             were multiple matches
+    """
 
     possible_genus = {}
     for genus, species_reqs in bio_types.items():
@@ -599,8 +652,13 @@ def get_possible_values(body: PlanetData) -> dict[str, tuple[int, int, list[tupl
 
 
 def get_body_name(fullname: str = '') -> str:
-    """ Remove the base system name from the body name if the body has a unique identifier.
-    Usually only the main star has the same name as the system in one-star systems. """
+    """
+    Remove the base system name from the body name if the body has a unique identifier.
+    Usually only the main star has the same name as the system in one-star systems.
+
+    :param fullname: The full name of the body including the system name
+    :return: The short name of the body unless it matches the system name
+    """
 
     if fullname.startswith(this.starsystem + ' '):
         body_name = fullname[len(this.starsystem + ' '):]
@@ -610,7 +668,9 @@ def get_body_name(fullname: str = '') -> str:
 
 
 def reset() -> None:
-    """ Reset system data when location changes """
+    """
+    Reset system data when location changes
+    """
 
     this.starsystem = ''
     this.main_star_type = ''
@@ -630,8 +690,8 @@ def journal_entry(
     """ EDMC journal entry hook. Primary journal data handler. """
 
     system_changed = False
-    this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
-    this.odyssey = state.get('Odyssey', False)
+    # this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
+    # this.odyssey = state.get('Odyssey', False)
     if system and system != this.starsystem:
         reset()
         system_changed = True
@@ -657,6 +717,9 @@ def journal_entry(
 
             this.stars[entry['BodyID']] = star_data
 
+            reset_cache()
+            update_display()
+
         if 'PlanetClass' in entry:
             if body_short_name not in this.planets:
                 body_data = PlanetData(body_short_name)
@@ -680,6 +743,7 @@ def journal_entry(
 
             this.planets[body_short_name] = body_data
 
+            reset_cache(body_short_name)
             update_display()
 
     elif entry['event'] == 'FSSBodySignals':
@@ -690,6 +754,7 @@ def journal_entry(
             if signal['Type'] == '$SAA_SignalType_Biological;':
                 this.planets[body_short_name].set_bio_signals(signal['Count'])
 
+        reset_cache(body_short_name)
         update_display()
 
     elif entry['event'] == 'SAASignalsFound':
@@ -712,6 +777,7 @@ def journal_entry(
                     body_data.add_flora(genus['Genus'])
         this.planets[body_short_name] = body_data
 
+        reset_cache(body_short_name)
         update_display()
 
     elif entry['event'] == 'ScanOrganic':
