@@ -38,9 +38,10 @@ another lifeform.
 ### EDSM Integration
 
 Once per system, you can attempt to fetch any data from EDSM. This is helpful if you log out in the middle of scanning a
-system and lose the data from the previous session. Unfortunately, EDSM does not track biological signals, so you will
-have to manually look up signals for planets that haven't been mapped yet. The journals do resend the detailed signal
-info from previously mapped planets, though you may need to travel to them to trigger it.
+system and lose the data from the previous session. Unfortunately, EDSM's API does not currently provide access to
+biological signal info, so you will have to manually look up signals for planets that haven't been mapped yet. The
+journals do resend the detailed signal info from previously mapped planets, though you may need to relog or jump back
+into a system to trigger the journal event.
 
 So if you were in the middle of scanning samples on a planet, fetching data from EDSM should get you the species list
 again. However, your scan progress will be lost so completed species will display as unscanned.
