@@ -743,7 +743,7 @@ def journal_entry(
 
             this.planets[body_short_name] = body_data
 
-            reset_cache(body_short_name)
+            reset_cache()
             update_display()
 
     elif entry['event'] == 'FSSBodySignals':
