@@ -1,8 +1,6 @@
 from bio_scan.bio_data.genus import data as bio_genus
 from bio_scan.bio_data.species import rules as bio_types
 
-# journal_id: (localized name, base value, atmosphere, maximum gravity,
-#              maximum temp, minimum temp, volcanism, planet, extra)
 bio_codex_map = {
     '$Codex_Ent_Aleoids_Genus_Name;': {
         '$Codex_Ent_Aleoids_01_',

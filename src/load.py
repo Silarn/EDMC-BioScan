@@ -260,7 +260,10 @@ def version_check() -> str:
 
 
 def log(*args) -> None:
-    """ Debug logger helper function """
+    """
+    Debug logger helper function. Only writes to log if debug logging is enabled for BioScan.
+    :param args: Arguments to be passed to the EDMC logger
+    """
 
     if this.debug_logging_enabled.get():
         logger.debug(args)
