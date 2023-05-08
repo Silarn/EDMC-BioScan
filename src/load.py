@@ -72,7 +72,7 @@ class This:
         # Plugin state data
         self.planets: dict[str, PlanetData] = {}
         self.stars: dict[int, StarData] = {}
-        self.planet_cache: dict[str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, str, int]]]]]] = {}
+        self.planet_cache: dict[str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
         self.barycenters: dict[int, list[id]] = {}
 
         # self.odyssey: bool = False
@@ -312,31 +312,65 @@ def edsm_data(event: tk.Event) -> None:
                 else:
                     this.main_star_type = parse_edsm_star_class(body['subType'])
                 this.main_star_luminosity = body['luminosity']
+            if body['bodyId'] not in this.stars:
+                star_data = StarData(body_short_name, body['bodyId'])
+            else:
+                star_data = this.stars[body['bodyId']]
+            if body['spectralClass']:
+                star_data.set_type(body['spectralClass'][:-1])
+            else:
+                star_data.set_type(parse_edsm_star_class(body['subType']))
+            star_data.set_luminosity(body['luminosity'])
+            this.stars[body['bodyId']] = star_data
+
+            if body['parents'] and 'Null' in body['parents'][0]:
+                if body['parents'][0]['Null'] not in this.barycenters:
+                    this.barycenters[body['parents'][0]['Null']] = []
+                this.barycenters[body['parents'][0]['Null']].append(body['bodyId'])
 
         elif body['type'] == 'Planet':
             try:
                 if body_short_name not in this.planets:
-                    this.planets[body_short_name] = PlanetData(body_short_name)
+                    planet_data = PlanetData(body_short_name)
+                else:
+                    planet_data = this.planets[body_short_name]
                 planet_type = map_edsm_type(body['subType'])
-                this.planets[body_short_name].set_type(planet_type)
-                this.planets[body_short_name].set_distance(body['distanceToArrival'])
-                this.planets[body_short_name].set_id(body['bodyId'])
-                this.planets[body_short_name].set_atmosphere(map_edsm_atmosphere(body['atmosphereType']))
+                planet_data.set_type(planet_type) \
+                    .set_distance(body['distanceToArrival']) \
+                    .set_id(body['bodyId']) \
+                    .set_atmosphere(map_edsm_atmosphere(body['atmosphereType'])) \
+                    .set_gravity(body['gravity'] * 9.80665) \
+                    .set_temp(body['surfaceTemperature'])
                 if body['volcanismType'] == 'No volcanism':
                     volcanism = ''
                 else:
                     volcanism = body['volcanismType'].lower().capitalize() + ' volcanism'
-                this.planets[body_short_name].set_volcanism(volcanism)
-                this.planets[body_short_name].set_gravity(body['gravity'])
-                this.planets[body_short_name].set_temp(body['surfaceTemperature'])
+                planet_data.set_volcanism(volcanism)
+
+                if body['parents']:
+                    for parent in body['parents']:
+                        if 'Null' in parent:
+                            if parent['Null'] in this.barycenters:
+                                barycenter_stars: list[StarData] = []
+                                for star in this.barycenters[parent['Null']]:
+                                    barycenter_stars.append(this.stars[star])
+                                sorted_stars = sorted(barycenter_stars, key=lambda item: item.get_id())
+                                for star in sorted_stars:
+                                    planet_data.add_parent_star(star.get_id())
+                        elif 'Star' in parent:
+                            planet_data.add_parent_star(parent['Star'])
+                            break
 
                 if 'materials' in body:
                     for material in body['materials']:  # type: str
-                        this.planets[body_short_name].add_material(material.lower())
+                        planet_data.add_material(material.lower())
+
+                this.planets[body_short_name] = planet_data
 
             except Exception as e:
                 logger.error(e)
     this.fetched_edsm = True
+    reset_cache()
     update_display()
 
 
@@ -354,7 +388,7 @@ def scan_label(scans: int) -> str:
             return 'Analysed'
 
 
-def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tuple[str, str, int]]]:
+def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tuple[str, list[str], int]]]:
     """
     Main function to make species determinations from body data.
     Returns the display name and the minimum and maximum values.
@@ -374,18 +408,18 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     if genus not in this.planet_cache[body.get_name()]:
         this.planet_cache[body.get_name()][genus] = (True, ('', 0, 0, []))
 
-    possible_species: dict[str, str] = {}
+    possible_species: dict[str, list[str]] = {}
     eliminated_species = set()
     log('Running checks for {}:'.format(bio_genus[genus]['name']))
     for species, reqs in bio_types[genus].items():
-        possible_species[species] = ''
+        possible_species[species] = []
         log(species)
         if reqs[2] is not None:
             if reqs[2] == 'Any' and body.get_atmosphere() in ['', 'None']:
                 log('Eliminated for no atmos')
                 eliminated_species.add(species)
                 continue
-            elif body.get_atmosphere() not in reqs[2]:
+            elif reqs[2] != 'Any' and body.get_atmosphere() not in reqs[2]:
                 log('Eliminated for atmos')
                 eliminated_species.add(species)
                 continue
@@ -409,7 +443,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                 log('Eliminated for no volcanism')
                 eliminated_species.add(species)
                 continue
-            else:
+            elif reqs[6] != 'Any':
                 found = False
                 for volc_type in reqs[6]:
                     if body.get_volcanism().find(volc_type) != -1:
@@ -552,16 +586,14 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             for species in possible_species:
                 if 'star' in bio_genus[genus]['colors']['species'][species]:
                     for star_type in bio_genus[genus]['colors']['species'][species]['star']:
-                        if body.get_parent_star() == -1:
-                            continue
-                        if this.stars[body.get_parent_star()].get_type() == star_type:
-                            possible_species[species] = bio_genus[genus]['colors']['species'][species]['star'][star_type]
-                            break
+                        for star in body.get_parent_stars():
+                            if this.stars[star].get_type() == star_type:
+                                possible_species[species].append(bio_genus[genus]['colors']['species'][species]['star'][star_type])
+                                break
                 elif 'element' in bio_genus[genus]['colors']['species'][species]:
                     for element in bio_genus[genus]['colors']['species'][species]['element']:
                         if element in body.get_materials():
-                            possible_species[species] = bio_genus[genus]['colors']['species'][species]['element'][element]
-                            break
+                            possible_species[species].append(bio_genus[genus]['colors']['species'][species]['element'][element])
 
                 if possible_species[species] == '':
                     eliminated_species.add(species)
@@ -569,19 +601,18 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         else:
             color = ''
             for star_type in bio_genus[genus]['colors']['star']:
-                if body.get_parent_star() == -1:
-                    continue
-                if this.stars[body.get_parent_star()].get_type() == star_type:
-                    color = bio_genus[genus]['colors']['star'][star_type]
-                    break
+                for star in body.get_parent_stars():
+                    if this.stars[star].get_type() == star_type:
+                        color = bio_genus[genus]['colors']['star'][star_type]
+                        break
             if color == '':
                 possible_species.clear()
                 log('Eliminated genus for lack of color')
             else:
                 for species in possible_species:
-                    possible_species[species] = color
+                    possible_species[species].append(color)
 
-    final_species: dict[str, str] = {}
+    final_species: dict[str, list[str]] = {}
     for species in possible_species:
         if species not in eliminated_species:
             final_species[species] = possible_species[species]
@@ -589,14 +620,21 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     sorted_species = sorted(final_species.items(), key=lambda target_species: bio_types[genus][target_species[0]][1])
 
     if len(sorted_species) == 1:
+        localized_species: list[tuple[str, list[str], int]] = []
+        if len(sorted_species[0][1]) > 1:
+            localized_species = [
+                (bio_types[genus][sorted_species[0][0]][0],
+                 sorted_species[0][1],
+                 bio_types[genus][sorted_species[0][0]][1])
+            ]
         this.planet_cache[body.get_name()][genus] = (
             False,
             (
                 '{}{}'.format(
                     bio_types[genus][sorted_species[0][0]][0],
-                    f' - {sorted_species[0][1]}' if sorted_species[0][1] else ''
+                    f' - {sorted_species[0][1][0]}' if len(sorted_species[0][1]) == 1 else ''
                 ),
-                bio_types[genus][sorted_species[0][0]][1], bio_types[genus][sorted_species[0][0]][1], []
+                bio_types[genus][sorted_species[0][0]][1], bio_types[genus][sorted_species[0][0]][1], localized_species
             )
         )
     elif len(sorted_species) > 0:
@@ -604,8 +642,19 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         localized_species = [
             (bio_types[genus][info[0]][0], info[1], bio_types[genus][info[0]][1]) for info in sorted_species
         ]
-        if sorted_species[0][1] == sorted_species[-1][1]:
-            color = sorted_species[0][1]
+        for _, colors in sorted_species:
+            if len(colors) > 1:
+                color = ''
+                break
+            if len(colors) == 1:
+                if color and colors[0] != color:
+                    color = ''
+                    break
+                if not color:
+                    color = colors[0]
+        if len(sorted_species[0][1]) == 1:
+            if sorted_species[0][1][0] == sorted_species[-1][1]:
+                color = sorted_species[0][1]
         this.planet_cache[body.get_name()][genus] = (
             False,
             (
@@ -637,7 +686,7 @@ def reset_cache(planet: str = '') -> None:
                 data[genus] = (True, data[genus][1])
 
 
-def get_possible_values(body: PlanetData) -> dict[str, tuple[int, int, list[tuple[str, str, int]]]]:
+def get_possible_values(body: PlanetData) -> dict[str, tuple[int, int, list[tuple[str, list[str], int]]]]:
     """
     For unmapped planets, run through every genus and make species determinations
 
@@ -746,12 +795,10 @@ def journal_entry(
                         for star in this.barycenters[body['Null']]:
                             barycenter_stars.append(this.stars[star])
                         sorted_stars = sorted(barycenter_stars, key=lambda item: item.get_id())
-                        if len(sorted_stars):
-                            body_data.set_parent_star(sorted_stars[0].get_id())
-                            break
+                        for star in sorted_stars:
+                            body_data.add_parent_star(star.get_id())
                 elif 'Star' in body:
-                    body_data.set_parent_star(body['Star'])
-                    break
+                    body_data.add_parent_star(body['Star'])
 
             if 'Materials' in entry:
                 for material in entry['Materials']:
@@ -1001,7 +1048,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         for species in all_species:
                             detail_text += '  {}{}: {}\n'.format(
                                 species[0],
-                                f' - {species[1]}' if species[1] else '',
+                                ' - {}'.format(', '.join(species[1])) if species[1] else '',
                                 this.formatter.format_credits(species[2])
                             )
                 if len(body.get_flora()) == count:
@@ -1021,7 +1068,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     for species in values[2]:
                         detail_text += '  {}{}: {}\n'.format(
                             species[0],
-                            f' - {species[1]}' if species[1] else '',
+                            ' - {}'.format(', '.join(species[1])) if species[1] else '',
                             this.formatter.format_credits(species[2])
                         )
                 if len(types) == count:
