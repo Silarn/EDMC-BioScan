@@ -577,6 +577,16 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     if not found:
                         log('Eliminated for lack of nebula')
                         eliminated_species.add(species)
+                case 'tela':
+                    if body.get_atmosphere() not in ['Water', 'WaterRich']:
+                        found = False
+                        for volc_type in ['helium', 'iron', 'silicate', 'ammonia']:
+                            if body.get_volcanism().find(volc_type) != -1:
+                                found = True
+                        if not found:
+                            log('Eliminated for volcanism')
+                            eliminated_species.add(species)
+                            continue
 
     for species in eliminated_species:
         possible_species.pop(species, None)

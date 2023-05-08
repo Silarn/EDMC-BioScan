@@ -14,7 +14,7 @@ rules: dict[str, dict[str, tuple[str, int, set[str], float, float, float, str, s
         '$Codex_Ent_Bacterial_04_Name;': ('Bacterium Acies', 1000000, ['Neon', 'NeonRich'], None, None, None, None, ['Icy body', 'Rocky body'], None, None),
         '$Codex_Ent_Bacterial_05_Name;': ('Bacterium Vesicula', 1000000, ['Argon', 'ArgonRich'], None, None, None, None, ['Icy body', 'Rocky body', 'Rocky ice body'], None, None),
         '$Codex_Ent_Bacterial_06_Name;': ('Bacterium Alcyoneum', 1658500, ['Ammonia'], None, None, None, None, ['Rocky body', 'High metal content body'], None, None),
-        '$Codex_Ent_Bacterial_07_Name;': ('Bacterium Tela', 1949000, 'Any', None, None, None, ['helium', 'iron', 'silicate', 'ammonia'], None, None, None),
+        '$Codex_Ent_Bacterial_07_Name;': ('Bacterium Tela', 1949000, 'Any', None, None, None, None, None, None, 'tela'),
         '$Codex_Ent_Bacterial_08_Name;': ('Bacterium Informem', 8418000, ['Nitrogen'], None, None, None, None, None, None, None),
         '$Codex_Ent_Bacterial_09_Name;': ('Bacterium Volu', 7774700, ['Oxygen'], None, None, None, None, ['Icy body', 'Rocky ice body', 'High metal content body'], None, None),
         '$Codex_Ent_Bacterial_10_Name;': ('Bacterium Bullaris', 1152500, ['Methane', 'MethaneRich'], None, None, None, None, ['Icy body', 'Rocky body', 'High metal content boy'], None, None),
