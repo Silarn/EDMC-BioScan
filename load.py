@@ -73,6 +73,7 @@ class This:
         self.planets: dict[str, PlanetData] = {}
         self.stars: dict[int, StarData] = {}
         self.planet_cache: dict[str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, str, int]]]]]] = {}
+        self.barycenters: dict[int, list[id]] = {}
 
         # self.odyssey: bool = False
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
@@ -680,7 +681,9 @@ def reset() -> None:
     this.location_state = ''
     this.fetched_edsm = False
     this.planets = {}
+    this.planet_cache = {}
     this.stars = {}
+    this.barycenters = {}
     this.scroll_canvas.yview_moveto(0.0)
 
 
@@ -717,6 +720,10 @@ def journal_entry(
 
             this.stars[entry['BodyID']] = star_data
 
+            if 'Parents' in entry:
+                if 'Null' in entry['Parents'][0] and entry['Parents'][0]['Null'] in this.barycenters:
+                    this.barycenters[entry['Parents'][0]['Null']].append(entry['BodyID'])
+
             reset_cache()
             update_display()
 
@@ -730,7 +737,16 @@ def journal_entry(
                 .set_temp(entry['SurfaceTemperature']).set_volcanism(entry['Volcanism'])
 
             for body in entry['Parents']:
-                if 'Star' in body:
+                if 'Null' in body:
+                    if body['Null'] in this.barycenters:
+                        barycenter_stars: list[StarData] = []
+                        for star in this.barycenters[body['Null']]:
+                            barycenter_stars.append(this.stars[star])
+                        sorted_stars = sorted(barycenter_stars, key=lambda item: item.get_id())
+                        if len(sorted_stars):
+                            body_data.set_parent_star(sorted_stars[0].get_id())
+                            break
+                elif 'Star' in body:
                     body_data.set_parent_star(body['Star'])
                     break
 
@@ -745,6 +761,9 @@ def journal_entry(
 
             reset_cache()
             update_display()
+
+    elif entry['event'] == 'ScanBaryCentre':
+        this.barycenters[entry['BodyID']] = []
 
     elif entry['event'] == 'FSSBodySignals':
         body_short_name = get_body_name(entry['BodyName'])
