@@ -56,10 +56,10 @@ rules: dict[str, dict[str, tuple[str, int, set[str], float, float, float, str, s
         '$Codex_Ent_Fonticulus_06_Name;': ('Fonticulua Digitos', 1804100, ['Methane', 'MethaneRich'], 0.275, None, None, None, ['Icy body', 'Rocky ice body'], None, None),
     },
     '$Codex_Ent_Fumerolas_Genus_Name;': {  # Alongside fumerole geologic signals
-        '$Codex_Ent_Fumerolas_01_Name;': ('Fumerola Carbosis', 6284600, None, 0.275, None, None, ['carbon', 'methane'], None, None, None),
-        '$Codex_Ent_Fumerolas_02_Name;': ('Fumerola Extremus', 16202800, None, 0.275, None, None, ['silicate', 'iron', 'rocky'], None, None, None),
-        '$Codex_Ent_Fumerolas_03_Name;': ('Fumerola Nitris', 7500900, None, 0.275, None, None, ['nitrogen', 'ammonia'], None, None, None),
-        '$Codex_Ent_Fumerolas_04_Name;': ('Fumerola Aquatis', 6284600, None, 0.275, None, None, ['water'], None, None, None),
+        '$Codex_Ent_Fumerolas_01_Name;': ('Fumerola Carbosis', 6284600, 'Any', 0.275, None, None, ['carbon', 'methane'], None, None, None),
+        '$Codex_Ent_Fumerolas_02_Name;': ('Fumerola Extremus', 16202800, 'Any', 0.275, None, None, ['silicate', 'iron', 'rocky'], None, None, None),
+        '$Codex_Ent_Fumerolas_03_Name;': ('Fumerola Nitris', 7500900, 'Any', 0.275, None, None, ['nitrogen', 'ammonia'], None, None, None),
+        '$Codex_Ent_Fumerolas_04_Name;': ('Fumerola Aquatis', 6284600, 'Any', 0.275, None, None, ['water'], None, None, None),
     },
     '$Codex_Ent_Fungoids_Genus_Name;': {
         '$Codex_Ent_Fungoids_01_Name;': ('Fungoida Setisis', 1670100, ['Ammonia', 'Methane', 'MethaneRich'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], None, None),  # 'Methane', 'MethaneRich', ?
@@ -103,14 +103,14 @@ rules: dict[str, dict[str, tuple[str, int, set[str], float, float, float, str, s
         '$Codex_Ent_Shrubs_07_Name;': ('Frutexa Collum', 1639800, ['SulphurDioxide'], 0.275, None, None, None, ['Rocky body'], None, None),
     },
     '$Codex_Ent_Sphere_Name;': {
-        '$Codex_Ent_Sphere_Name;': ('Luteolum Anemone', 1499900, None, None, 440.0, 200.0, 'Any', ['Rocky body'], None, 'B'),
-        '$Codex_Ent_SphereABCD_01_Name;': ('Croceum Anemone', 1499900, None, None, 440.0, 200.0, 'Any', ['Rocky body'], None, 'AB'),
-        '$Codex_Ent_SphereABCD_02_Name;': ('Puniceum Anemone', 1499900, None, None, 860.0, 65.0, 'Any', ['Icy body', 'Rocky ice body'], None, 'O'),
-        '$Codex_Ent_SphereABCD_03_Name;': ('Roseum Anemone', 1499900, None, None, 440.0, 200.0, 'Any', ['Rocky body'], None, 'B'),
-        '$Codex_Ent_SphereEFGH_01_Name;': ('Rubeum Bioluminescent Anemone', 1499900, None, None, None, 160.0, 'Any', ['Metal rich body', 'High metal content body'], None, 'AB'),
-        '$Codex_Ent_SphereEFGH_02_Name;': ('Prasinum Bioluminescent Anemone', 1499900, None, None, None, None, 'Any', ['Metal rich body', 'Rocky body', 'High metal content body'], None, 'O'),
-        '$Codex_Ent_SphereEFGH_03_Name;': ('Roseum Bioluminescent Anemone', 1499900, None, None, None, 200.0, 'Any', ['Metal rich body', 'High metal content body'], None, 'B'),
-        '$Codex_Ent_SphereEFGH_Name;': ('Blatteum Bioluminescent Anemone', 1499900, None, None, None, 220.0, 'Any', ['Metal rich body', 'High metal content body'], None, 'B'),
+        '$Codex_Ent_Sphere_Name;': ('Luteolum Anemone', 1499900, ['None'], None, 440.0, 200.0, 'Any', ['Rocky body'], None, 'B'),
+        '$Codex_Ent_SphereABCD_01_Name;': ('Croceum Anemone', 1499900, ['None'], None, 440.0, 200.0, 'Any', ['Rocky body'], None, 'AB'),
+        '$Codex_Ent_SphereABCD_02_Name;': ('Puniceum Anemone', 1499900, ['None'], None, 860.0, 65.0, 'Any', ['Icy body', 'Rocky ice body'], None, 'O'),
+        '$Codex_Ent_SphereABCD_03_Name;': ('Roseum Anemone', 1499900, ['None'], None, 440.0, 200.0, 'Any', ['Rocky body'], None, 'B'),
+        '$Codex_Ent_SphereEFGH_01_Name;': ('Rubeum Bioluminescent Anemone', 1499900, ['None'], None, None, 160.0, 'Any', ['Metal rich body', 'High metal content body'], None, 'AB'),
+        '$Codex_Ent_SphereEFGH_02_Name;': ('Prasinum Bioluminescent Anemone', 1499900, ['None'], None, None, None, 'Any', ['Metal rich body', 'Rocky body', 'High metal content body'], None, 'O'),
+        '$Codex_Ent_SphereEFGH_03_Name;': ('Roseum Bioluminescent Anemone', 1499900, ['None'], None, None, 200.0, 'Any', ['Metal rich body', 'High metal content body'], None, 'B'),
+        '$Codex_Ent_SphereEFGH_Name;': ('Blatteum Bioluminescent Anemone', 1499900, ['None'], None, None, 220.0, 'Any', ['Metal rich body', 'High metal content body'], None, 'B'),
     },
     '$Codex_Ent_Stratum_Genus_Name;': {
         '$Codex_Ent_Stratum_01_Name;': ('Stratum Excutitus', 2448900, ['CarbonDioxide', 'CarbonDioxideRich', 'SulphurDioxide'], None, 190.0, 165.0, None, ['Rocky body'], ['orion-cygnus'], None),
@@ -123,7 +123,7 @@ rules: dict[str, dict[str, tuple[str, int, set[str], float, float, float, str, s
         '$Codex_Ent_Stratum_08_Name;': ('Stratum Frigus', 2637500, ['CarbonDioxide', 'CarbonDioxideRich', 'SulphurDioxide'], None, None, 190.0, None, ['Rocky body'], ['perseus'], None),
     },
     '$Codex_Ent_Tube_Name;': {
-        '$Codex_Ent_Tube_Name;': ('Roseum Sinuous Tubers', 111300, ['None'], None, 500.0, 200.0, 'silicate magme', None, ['core'], None),
+        '$Codex_Ent_Tube_Name;': ('Roseum Sinuous Tubers', 111300, ['None'], None, 500.0, 200.0, 'silicate magma', None, ['core'], None),
         '$Codex_Ent_TubeABCD_01_Name;': ('Prasinum Sinuous Tubers', 1514500, ['None'], None, 500.0, 200.0, 'Any', ['Metal rich body', 'High metal content body'], ['core'], None),
         '$Codex_Ent_TubeABCD_02_Name;': ('Albidum Sinuous Tubers', 111300, ['None'], None, 500.0, 200.0, 'Any', ['Rocky body'], ['core'], None),
         '$Codex_Ent_TubeABCD_03_Name;': ('Caeruleum Sinuous Tubers', 1514500, ['None'], None, 500.0, 200.0, 'Any', ['Rocky body'], ['core'], None),
