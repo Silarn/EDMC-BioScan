@@ -368,7 +368,7 @@ def edsm_data(event: tk.Event) -> None:
                 this.planets[body_short_name] = planet_data
 
             except Exception as e:
-                logger.error(e)
+                logger.debug('Error while parsing EDSM', exc_info=e)
     this.fetched_edsm = True
     reset_cache()
     update_display()
