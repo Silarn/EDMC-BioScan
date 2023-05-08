@@ -22,7 +22,7 @@ from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
 from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.body_data.struct import PlanetData, StarData
-from bio_scan.body_data.util import get_body_shorthand, body_check
+from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
 from bio_scan.bio_data.codex import get_species_from_codex
 from bio_scan.bio_data.genus import data as bio_genus
@@ -1042,7 +1042,12 @@ def update_display() -> None:
     bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.planets.items())).items(),
                              key=lambda item: item[1].get_id()))
     exobio_body_names = [
-        '%s%s: %d' % (body_name, get_body_shorthand(body_data.get_type()), body_data.get_bio_signals())
+        '{}{}{}: {}'.format(
+            body_name,
+            get_body_shorthand(body_data.get_type()),
+            get_gravity_warning(body_data.get_gravity()),
+            body_data.get_bio_signals()
+        )
         for body_name, body_data
         in bio_bodies.items()
     ]
