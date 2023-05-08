@@ -33,7 +33,7 @@ from bio_scan.format_util import Formatter
 # EDMC imports
 from config import config
 from theme import theme
-from EDMCLogging import get_main_logger
+from EDMCLogging import get_plugin_logger
 import myNotebook as nb
 from ttkHyperlinkLabel import HyperlinkLabel
 
@@ -41,7 +41,7 @@ from ttkHyperlinkLabel import HyperlinkLabel
 from bio_scan.RegionMap import findRegion
 
 
-logger = get_main_logger()
+logger = get_plugin_logger('BioScan')
 
 
 class This:
