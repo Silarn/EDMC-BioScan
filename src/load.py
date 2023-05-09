@@ -616,6 +616,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     if this.stars[star].get_type() == star_type:
                         color = bio_genus[genus]['colors']['star'][star_type]
                         break
+                if color != '':
+                    break
             if color == '':
                 possible_species.clear()
                 log('Eliminated genus for lack of color')
