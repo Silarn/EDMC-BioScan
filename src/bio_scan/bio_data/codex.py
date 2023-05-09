@@ -194,7 +194,7 @@ bio_color_suffix_map = {
 }
 
 
-def get_species_from_codex(name: str) -> tuple[str, str, str]:
+def parse_variant(name: str) -> tuple[str, str, str]:
     for genus, search_set in bio_codex_map.items():
         for search in search_set:
             if name.startswith(search):

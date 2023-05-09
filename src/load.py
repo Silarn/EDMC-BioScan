@@ -24,7 +24,7 @@ from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.body_data.struct import PlanetData, StarData
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
-from bio_scan.bio_data.codex import get_species_from_codex
+from bio_scan.bio_data.codex import parse_variant
 from bio_scan.bio_data.genus import data as bio_genus
 from bio_scan.bio_data.regions import region_map, guardian_sectors
 from bio_scan.bio_data.species import rules as bio_types
@@ -47,7 +47,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('1.5.5')
+        self.VERSION = semantic_version.Version('1.5.6')
         self.NAME = 'BioScan'
 
         # Settings vars
@@ -735,7 +735,6 @@ def reset() -> None:
     Reset system data when location changes
     """
 
-    this.starsystem = ''
     this.main_star_type = ''
     this.main_star_luminosity = ''
     this.location_name = ''
@@ -762,7 +761,11 @@ def journal_entry(
         system_changed = True
         this.starsystem = system
 
-    elif entry['event'] in ['Location', 'FSDJump']:
+    elif entry['event'] in ['Location', 'FSDJump', 'CarrierJump']:
+        if entry['event'] == 'CarrierJump':  # Until EDMC can parse CarrierJump, we need to handle the system updates
+            reset()
+            this.starsystem = entry['StarSystem']
+            system_changed = True
         this.coordinates = entry['StarPos']
 
     elif entry['event'] == 'Scan':
@@ -885,6 +888,10 @@ def journal_entry(
                 this.scan_longitude.clear()
             this.current_scan = entry['Genus']
 
+            if 'Variant' in entry:
+                _, _, color = parse_variant(entry['Variant'])
+                this.planets[target_body].set_flora_color(entry['Genus'], color)
+
         match scan_level:
             case 1 | 2:
                 if this.planet_latitude and this.planet_longitude:
@@ -907,7 +914,7 @@ def journal_entry(
                 break
 
         if target_body is not None:
-            genus, species, color = get_species_from_codex(entry['Name'])
+            genus, species, color = parse_variant(entry['Name'])
             if genus is not '' and species is not '':
                 this.planets[target_body].add_flora(genus, species, color)
 
