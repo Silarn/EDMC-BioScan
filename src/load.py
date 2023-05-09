@@ -41,16 +41,14 @@ from ttkHyperlinkLabel import HyperlinkLabel
 from bio_scan.RegionMap import findRegion
 
 
-logger = get_plugin_logger('BioScan')
-
-
 class This:
     """Holds module globals."""
 
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('1.5.0')
+        self.VERSION = semantic_version.Version('1.5.5')
+        self.NAME = 'BioScan'
 
         # Settings vars
         self.focus_setting: tk.StringVar | None = None
@@ -98,13 +96,14 @@ class This:
 
 
 this = This()
+logger = get_plugin_logger(this.NAME)
 
 
 # Compatibility fallback
 def plugin_start3(plugin_dir) -> str:
     """ EDMC start hook """
 
-    return 'BioScan'
+    return this.NAME
 
 
 def plugin_app(parent: tk.Frame) -> tk.Frame:
@@ -162,7 +161,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     frame.columnconfigure(1, weight=1)
     frame.rowconfigure(20, weight=1)
 
-    HyperlinkLabel(frame, text='BioScan', background=nb.Label().cget('background'),
+    HyperlinkLabel(frame, text=this.NAME, background=nb.Label().cget('background'),
                    url='https://github.com/Silarn/EDMC-BioScan', underline=True) \
         .grid(row=1, padx=x_padding, sticky=tk.W)
     nb.Label(frame, text = 'Version %s' % this.VERSION).grid(row=1, column=1, padx=x_padding, sticky=tk.E)
