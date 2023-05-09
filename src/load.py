@@ -612,6 +612,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             color = ''
             for star_type in bio_genus[genus]['colors']['star']:
                 for star in body.get_parent_stars():
+                    log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
                     if this.stars[star].get_type() == star_type:
                         color = bio_genus[genus]['colors']['star'][star_type]
                         break
@@ -786,8 +787,11 @@ def journal_entry(
             this.stars[entry['BodyID']] = star_data
 
             if 'Parents' in entry:
-                if 'Null' in entry['Parents'][0] and entry['Parents'][0]['Null'] in this.barycenters:
-                    this.barycenters[entry['Parents'][0]['Null']].append(entry['BodyID'])
+                if 'Null' in entry['Parents'][0]:
+                    if entry['Parents'][0]['Null'] in this.barycenters:
+                        this.barycenters[entry['Parents'][0]['Null']].append(entry['BodyID'])
+                    else:
+                        this.barycenters[entry['Parents'][0]['Null']] = [entry['BodyID']]
 
             reset_cache()
             update_display()
