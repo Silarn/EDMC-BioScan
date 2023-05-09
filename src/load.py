@@ -604,8 +604,9 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     for element in bio_genus[genus]['colors']['species'][species]['element']:
                         if element in body.get_materials():
                             possible_species[species].append(bio_genus[genus]['colors']['species'][species]['element'][element])
+                            break
 
-                if possible_species[species] == '':
+                if not possible_species[species]:
                     eliminated_species.add(species)
                     log('Eliminated for lack of color')
         else:
@@ -807,7 +808,7 @@ def journal_entry(
                         sorted_stars = sorted(barycenter_stars, key=lambda item: item.get_id())
                         for star in sorted_stars:
                             body_data.add_parent_star(star.get_id())
-                elif 'Star' in body:
+                if 'Star' in body:
                     body_data.add_parent_star(body['Star'])
 
             if 'Materials' in entry:
@@ -878,16 +879,18 @@ def journal_entry(
         if target_body is not None:
             this.planets[target_body].set_flora_species_scan(entry['Genus'], entry['Species'], scan_level)
             if this.current_scan != '' and this.current_scan != entry['Genus']:
-                species = this.planets[target_body].get_flora(this.current_scan)[0]
-                this.planets[target_body].set_flora_species_scan(this.current_scan, species, 0)
+                species = this.planets[target_body].get_flora(this.current_scan)
+                if species:
+                    this.planets[target_body].set_flora_species_scan(this.current_scan, species[0], 0)
                 this.scan_latitude.clear()
                 this.scan_longitude.clear()
             this.current_scan = entry['Genus']
 
         match scan_level:
             case 1 | 2:
-                this.scan_latitude.append(this.planet_latitude)
-                this.scan_longitude.append(this.planet_longitude)
+                if this.planet_latitude and this.planet_longitude:
+                    this.scan_latitude.append(this.planet_latitude)
+                    this.scan_longitude.append(this.planet_longitude)
             case _:
                 this.scan_latitude.clear()
                 this.scan_longitude.clear()
