@@ -24,10 +24,10 @@ rules: dict[str, dict[str, tuple[str, int, set[str], float, float, float, str, s
     },
     '$Codex_Ent_Cactoid_Genus_Name;': {
         '$Codex_Ent_Cactoid_01_Name;': ('Cactoida Cortexum', 3667600, ['CarbonDioxide', 'CarbonDioxideRich'], 0.275, 195.0, 180.0, None, ['Rocky body', 'High metal content body'], ['orion-cygnus'], None),
-        '$Codex_Ent_Cactoid_02_Name;': ('Cactoida Lapis', 2483600, ['Ammonia'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], ['scutum-centaurus', 'sagittarius-carina'], None),
+        '$Codex_Ent_Cactoid_02_Name;': ('Cactoida Lapis', 2483600, ['Ammonia'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], ['sagittarius-carina'], None),
         '$Codex_Ent_Cactoid_03_Name;': ('Cactoida Vermis', 16202800, ['Water', 'WaterRich'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], None, None),
         '$Codex_Ent_Cactoid_04_Name;': ('Cactoida Pullulanta', 3667600, ['CarbonDioxide', 'CarbonDioxideRich'], 0.275, 195.0, 180.0, None, ['Rocky body', 'High metal content body'], ['perseus'], None),
-        '$Codex_Ent_Cactoid_05_Name;': ('Cactoida Peperatis', 2483600, ['Ammonia'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], ['outer'], None),
+        '$Codex_Ent_Cactoid_05_Name;': ('Cactoida Peperatis', 2483600, ['Ammonia'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], ['scutum-centaurus'], None),
     },
     '$Codex_Ent_Clypeus_Genus_Name;': {
         '$Codex_Ent_Clypeus_01_Name;': ('Clypeus Lacrimam', 8418000, ['CarbonDioxide', 'CarbonDioxideRich', 'Water', 'WaterRich'], 0.275, None, 190.0, None, ['Rocky body'], None, None),
