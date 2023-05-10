@@ -35,9 +35,9 @@ rules: dict[str, dict[str, tuple[str, int, set[str], float, float, float, str, s
         '$Codex_Ent_Clypeus_03_Name;': ('Clypeus Speculumi', 16202800, ['CarbonDioxide', 'CarbonDioxideRich', 'Water', 'WaterRich'], 0.275, None, 190.0, None, ['Rocky body'], None, '2500ls'),
     },
     '$Codex_Ent_Conchas_Genus_Name;': {
-        '$Codex_Ent_Conchas_01_Name;': ('Concha Renibus', 4572400, ['CarbonDioxide', 'CarbonDioxideRich', 'Water', 'WaterRich'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], None, None),
+        '$Codex_Ent_Conchas_01_Name;': ('Concha Renibus', 4572400, ['CarbonDioxide', 'CarbonDioxideRich', 'Water', 'WaterRich'], 0.275, 195.0, 180.0, None, ['Rocky body', 'High metal content body'], None, None),
         '$Codex_Ent_Conchas_02_Name;': ('Concha Aureolas', 7774700, ['Ammonia'], 0.275, None, None, None, ['Rocky body'], None, None),
-        '$Codex_Ent_Conchas_03_Name;': ('Concha Labiata', 2352400, ['CarbonDioxide', 'CarbonDioxideRich'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], None, None),
+        '$Codex_Ent_Conchas_03_Name;': ('Concha Labiata', 2352400, ['CarbonDioxide', 'CarbonDioxideRich'], 0.275, 190.0, None, None, ['Rocky body', 'High metal content body'], None, None),
         '$Codex_Ent_Conchas_04_Name;': ('Concha Biconcavis', 16777215, ['Nitrogen'], 0.275, None, None, None, ['Rocky body'], None, None),
     },
     '$Codex_Ent_Cone_Name;': {  # No atmos, near center of nebula
@@ -63,9 +63,9 @@ rules: dict[str, dict[str, tuple[str, int, set[str], float, float, float, str, s
     },
     '$Codex_Ent_Fungoids_Genus_Name;': {
         '$Codex_Ent_Fungoids_01_Name;': ('Fungoida Setisis', 1670100, ['Ammonia', 'Methane', 'MethaneRich'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], None, None),  # 'Methane', 'MethaneRich', ?
-        '$Codex_Ent_Fungoids_02_Name;': ('Fungoida Stabitis', 2680300, ['CarbonDioxide', 'CarbonDioxideRich', 'Water', 'WaterRich'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], ['orion-cygnus'], None),
+        '$Codex_Ent_Fungoids_02_Name;': ('Fungoida Stabitis', 2680300, ['CarbonDioxide', 'CarbonDioxideRich', 'Water', 'WaterRich'], 0.275, 195.0, 180.0, None, ['Rocky body', 'High metal content body'], ['orion-cygnus'], None),
         '$Codex_Ent_Fungoids_03_Name;': ('Fungoida Bullarum', 3703200, ['Argon', 'ArgonRich'], 0.275, None, None, None, ['Rocky ice body'], None, None),
-        '$Codex_Ent_Fungoids_04_Name;': ('Fungoida Gelata', 3330300, ['CarbonDioxide', 'CarbonDioxideRich', 'Water', 'WaterRich'], 0.275, None, None, None, ['Rocky body', 'High metal content body'], ['!orion-cygnus'], None, None),
+        '$Codex_Ent_Fungoids_04_Name;': ('Fungoida Gelata', 3330300, ['CarbonDioxide', 'CarbonDioxideRich', 'Water', 'WaterRich'], 0.275, 195.0, 180.0, None, ['Rocky body', 'High metal content body'], ['!orion-cygnus'], None, None),
     },
     '$Codex_Ent_Ground_Struct_Ice_Name;': {  # No atmos, A F G K M S star, < 273K, with Earth, Ammonia, Giant w/life, Water giant, >12kLs
         '$Codex_Ent_Ground_Struct_Ice_Name;': ('Crystalline Shards', 1628800, ['None'], None, 273.0, None, None, None, None, 'AFGKMSS'),
