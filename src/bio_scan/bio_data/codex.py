@@ -198,7 +198,7 @@ def parse_variant(name: str) -> tuple[str, str, str]:
     for genus, search_set in bio_codex_map.items():
         for search in search_set:
             if name.startswith(search):
-                for species, _ in bio_types[genus].items():
+                for species in bio_types[genus]:
                     if species.startswith(search):
                         color_type = name.split(search)[1].split('_Name')[0]
                         color = ''

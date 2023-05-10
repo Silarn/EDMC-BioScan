@@ -571,7 +571,9 @@ data: MutableMapping = {
                 '$Codex_Ent_Stratum_04_Name;': {
                     'star': {
                         'A': 'Emerald',
-                        'F': 'Emerald'
+                        'N': 'Emerald',
+                        'T': 'Emerald',
+                        'F': 'Emerald'  # Here to get color from base ID
                     }
                 },
                 '$Codex_Ent_Stratum_05_Name;': {
