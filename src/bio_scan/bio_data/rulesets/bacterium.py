@@ -9,6 +9,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'min_gravity': 0.039,
                     'max_gravity': 0.605,
+                    'max_temperature': 400.0,
+                    'min_temperature': 145.0,
                     'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
                     'body_type': ['Rocky body', 'High metal content body']
                 }
@@ -21,6 +23,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'min_gravity': 0.4,
                     'max_gravity': 0.55,
+                    'max_temperature': 21.0,
+                    'min_temperature': 20.0,
                     'atmosphere': ['Helium'],
                     'body_type': ['Icy body']
                 }

@@ -416,7 +416,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         count = 0
         for ruleset in data['rulesets']:
             count += 1
-            log('Ruleset {count}')
+            log(f'Ruleset {count}')
             eliminated = False
             for type, value in ruleset.items():
                 match type:
@@ -456,6 +456,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             eliminated = True
                             stop = True
                     case 'volcanism':
+                        log(f'Compare {value} to {body.get_volcanism()}')
                         if value == 'Any' and body.get_volcanism() == '':
                             log('Eliminated for no volcanism')
                             eliminated = True
