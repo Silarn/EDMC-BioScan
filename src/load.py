@@ -434,7 +434,12 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 stop = True
                     case 'max_gravity':
                         if body.get_gravity() / 9.80665 > value:
-                            log('Eliminated for grav')
+                            log('Eliminated for high grav')
+                            eliminated = True
+                            stop = True
+                    case 'min_gravity':
+                        if body.get_gravity() / 9.80665 < value:
+                            log('Eliminated for low grav')
                             eliminated = True
                             stop = True
                     case 'max_temperature':
