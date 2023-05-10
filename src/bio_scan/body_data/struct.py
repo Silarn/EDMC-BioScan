@@ -9,6 +9,7 @@ class PlanetData:
         self._type: str = ''
         self._id: int = -1
         self._atmosphere: str = ''
+        self._gasses: dict[str, float] = {}
         self._volcanism: str = ''
         self._distance: float = 0.0
         self._gravity: float = 0.0
@@ -42,6 +43,15 @@ class PlanetData:
     def set_atmosphere(self, value: str) -> Self:
         self._atmosphere = value
         return self
+
+    def add_gas(self, gas: str, percent: float) -> Self:
+        self._gasses[gas] = percent
+        return self
+
+    def get_gas(self, gas: str) -> float:
+        if gas in self._gasses:
+            return self._gasses[gas]
+        return 0.0
 
     def get_volcanism(self) -> str:
         return self._volcanism

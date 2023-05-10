@@ -21,32 +21,44 @@ from bio_scan.bio_data.rulesets.tussock import catalog as tussock
 _mound_shard_amphora: dict[str, dict[str, Mapping]] = {
     '$Codex_Ent_Cone_Name;': {  # No atmos, near center of nebula
         '$Codex_Ent_Cone_Name;': {
-            'Name': 'Bark Mound',
+            'name': 'Bark Mound',
             'value': 1471900,
-            'atmosphere': ['None'],
-            'volcanism': 'Any',
-            'special': 'nebula'
+            'rulesets': [
+                {
+                    'atmosphere': ['None'],
+                    'volcanism': 'Any',
+                    'special': 'nebula'
+                }
+            ]
         }
     },
     '$Codex_Ent_Ground_Struct_Ice_Name;': {
         '$Codex_Ent_Ground_Struct_Ice_Name;': {
             'name': 'Crystalline Shards',
             'value': 1628800,
-            'atmosphere': ['None'],
-            'max_temperature': 273.0,
-            'main_star': ['A', 'F', 'G', 'K', 'M', 'S', 'MS'],
-            'life_plus': True
+            'rulesets': [
+                {
+                     'atmosphere': ['None'],
+                     'max_temperature': 273.0,
+                     'main_star': ['A', 'F', 'G', 'K', 'M', 'S', 'MS'],
+                     'life_plus': True
+                }
+            ]
         }
     },
     '$Codex_Ent_Vents_Name;': {
         '$Codex_Ent_Vents_Name;': {
             'name': 'Amphora Plant',
-            'values': 3626400,
-            'atmosphere': ['None'],
-            'volcanism': 'Any',
-            'body_type': ['Metal rich body'],
-            'main_star': 'A',
-            'life': True
+            'value': 3626400,
+            'rulesets': [
+                {
+                    'atmosphere': ['None'],
+                    'volcanism': 'Any',
+                    'body_type': ['Metal rich body'],
+                    'main_star': 'A',
+                    'life': True
+                }
+            ]
         }
     },
 }

@@ -408,145 +408,165 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         this.planet_cache[body.get_name()][genus] = (True, ('', 0, 0, []))
 
     possible_species: dict[str, set[str]] = {}
-    eliminated_species = set()
+    log(f'System: {this.starsystem} - Body: {body.get_name()}')
     log('Running checks for {}:'.format(bio_genus[genus]['name']))
     for species, data in bio_types[genus].items():
-        possible_species[species] = set()
         log(species)
-        for type, value in data['rulesets'].items():
-            match type:
-                case 'atmosphere':
-                    if value == 'Any' and body.get_atmosphere() in ['', 'None']:
-                        log('Eliminated for no atmos')
-                        eliminated_species.add(species)
-                        break
-                    elif value != 'Any' and body.get_atmosphere() not in value:
-                        log('Eliminated for atmos')
-                        eliminated_species.add(species)
-                        break
-                case 'max_gravity':
-                    if body.get_gravity() / 9.80665 > value:
-                        log('Eliminated for grav')
-                        eliminated_species.add(species)
-                        break
-                case 'max_temperature':
-                    if body.get_temp() >= value:
-                        log('Eliminated for high heat')
-                        eliminated_species.add(species)
-                        break
-                case 'min_temperature':
-                    if body.get_temp() < value:
-                        log('Eliminated for low heat')
-                        eliminated_species.add(species)
-                        break
-                case 'volcanism':
-                    if value == 'Any' and body.get_volcanism() == '':
-                        log('Eliminated for no volcanism')
-                        eliminated_species.add(species)
-                        break
-                    elif value != 'Any':
-                        found = False
-                        for volc_type in value:
-                            if body.get_volcanism().find(volc_type) != -1:
-                                found = True
-                        if not found:
-                            log('Eliminated for volcanism')
-                            eliminated_species.add(species)
-                            break
-                case 'body_type':
-                    if body.get_type() not in value:
-                        log('Eliminated for body type')
-                        eliminated_species.add(species)
-                        break
-                case 'regions':
-                    if this.coordinates is not None:
-                        found = False
-                        for region in value:
+        stop = False
+        for ruleset in data['rulesets']:
+            eliminated = False
+            for type, value in ruleset.items():
+                match type:
+                    case 'atmosphere':
+                        if value == 'Any' and body.get_atmosphere() in ['', 'None']:
+                            log('Eliminated for no atmos')
+                            eliminated = True
+                            stop = True
+                        elif value != 'Any' and body.get_atmosphere() not in value:
+                            log(f'Eliminated for atmos ({body.get_atmosphere()} in {value})')
+                            eliminated = True
+                            stop = True
+                    case 'atmosphere_component':
+                        for gas, percent in value.items():
+                            if body.get_gas(gas) < percent:
+                                log('Eliminated for lack of gas in atmosphere')
+                                eliminated = True
+                                stop = True
+                    case 'max_gravity':
+                        if body.get_gravity() / 9.80665 > value:
+                            log('Eliminated for grav')
+                            eliminated = True
+                            stop = True
+                    case 'max_temperature':
+                        if body.get_temp() >= value:
+                            log('Eliminated for high heat')
+                            eliminated = True
+                            stop = True
+                    case 'min_temperature':
+                        if body.get_temp() < value:
+                            log('Eliminated for low heat')
+                            eliminated = True
+                            stop = True
+                    case 'volcanism':
+                        if value == 'Any' and body.get_volcanism() == '':
+                            log('Eliminated for no volcanism')
+                            eliminated = True
+                            stop = True
+                        elif value != 'Any':
+                            found = False
+                            for volc_type in value:
+                                if body.get_volcanism().find(volc_type) != -1:
+                                    found = True
+                            if not found:
+                                log('Eliminated for volcanism')
+                                eliminated = True
+                                stop = True
+                    case 'body_type':
+                        if body.get_type() not in value:
+                            log('Eliminated for body type')
+                            eliminated = True
+                            stop = True
+                    case 'regions':
+                        if this.coordinates is not None:
                             region_id = findRegion(*this.coordinates)
+                            log('Current region: {} - {}'.format(region_id[0], region_id[1]))
                             if region_id is not None:
-                                log('Current region: {} - {}'.format(region_id[0], region_id[1]))
-                                if region.startswith('!'):
-                                    if region_id[0] in region_map[region[1:]]:
-                                        found = False
-                                        break
-                                else:
-                                    if region_id[0] in region_map[region]:
-                                        found = True
+                                for region in value:
+                                    if region.startswith('!'):
+                                        log(f'Region ({region[1:]}) map: {region_map[region[1:]]}')
+                                        if region_id[0] in region_map[region[1:]]:
+                                            log('Eliminated by region')
+                                            eliminated = True
+                                            stop = True
+                                            break
+
+                                if not stop:
+                                    found = False
+                                    for region in value:
+                                        if not region.startswith('!'):
+                                            log(f'Region ({region}): {region_map[region]}')
+                                            if region_id[0] in region_map[region]:
+                                                found = True
+
+                                    if not found:
+                                        log('Eliminated by region')
+                                        eliminated = True
+                                        stop = True
+
+                    case 'guardian':
+                        found = False
+                        for sector in guardian_sectors:
+                            if this.starsystem.startswith(sector):
+                                found = True
+                                stop = True
                         if not found:
-                            log('Eliminated by region')
-                            eliminated_species.add(species)
-                            break
-                case 'guardian':
-                    found = False
-                    for sector in guardian_sectors:
-                        if this.starsystem.startswith(sector):
-                            found = True
-                            break
-                    if not found:
-                        log('Eliminated for not being in a guardian sector')
-                        eliminated_species.add(species)
-                        break
-                case 'life':
-                    if not body_check(this.planets):
-                        log('Eliminated for missing body type(s)')
-                        eliminated_species.add(species)
-                        break
-                case 'life_plus':
-                    if not body_check(this.planets, True):
-                        log('Eliminated for missing body type(s)')
-                        eliminated_species.add(species)
-                        break
-                case 'main_star':
-                    if isinstance(value, list):
-                        if isinstance(value[0], tuple):
-                            if this.main_star_type == value[0]:
-                                match = False
-                                for flag in ['', 'a', 'b', 'ab']:
-                                    if value[1] + flag == this.main_star_luminosity:
-                                        match = True
-                                        break
-                                if not match:
-                                    log('Eliminated for star type')
-                                    eliminated_species.add(species)
-                                    break
+                            log('Eliminated for not being in a guardian sector')
+                            eliminated = True
+                            stop = True
+                    case 'life':
+                        if not body_check(this.planets):
+                            log('Eliminated for missing body type(s)')
+                            eliminated = True
+                            stop = True
+                    case 'life_plus':
+                        if not body_check(this.planets, True):
+                            log('Eliminated for missing body type(s)')
+                            eliminated = True
+                            stop = True
+                    case 'main_star':
+                        if isinstance(value, list):
+                            if isinstance(value[0], tuple):
+                                if this.main_star_type == value[0]:
+                                    match = False
+                                    for flag in ['', 'a', 'b', 'ab']:
+                                        if value[1] + flag == this.main_star_luminosity:
+                                            match = True
+                                            stop = True
+                                    if not match:
+                                        log('Eliminated for star type')
+                                        eliminated = True
+                                        stop = True
+                            else:
+                                for star_type in value:
+                                    if this.main_star_type != value:
+                                        log('Eliminated for star type')
+                                        eliminated = True
+                                        stop = True
                         else:
-                            for star_type in value:
-                                if this.main_star_type != value:
-                                    log('Eliminated for star type')
-                                    eliminated_species.add(species)
-                                    break
-                    else:
-                        if this.main_star_type != value:
-                            log('Eliminated for star type')
-                            eliminated_species.add(species)
-                            break
-                case 'nebula':
-                    found = False
-                    if this.starsystem in planetary_nebulae:
-                        found = True
-                    for sector in nebula_sectors:
-                        if this.starsystem.startswith(sector):
+                            if this.main_star_type != value:
+                                log('Eliminated for star type')
+                                eliminated = True
+                                stop = True
+                    case 'nebula':
+                        found = False
+                        if this.starsystem in planetary_nebulae:
                             found = True
-                            break
-                    for system, coords in nebula_coords.items():
-                        distance = math.sqrt((coords[0]-this.coordinates[0])**2
-                                             + (coords[1]-this.coordinates[1])**2
-                                             + (coords[2]-this.coordinates[2])**2)
-                        log('Distance to {0} from {1}: {2:n} ly'.format(system, this.starsystem, distance))
-                        if distance < 100.0:
-                            found = True
-                            break
-                    if not found:
-                        log('Eliminated for lack of nebula')
-                        eliminated_species.add(species)
-                        break
-                case 'distance':
-                    if body.get_distance() < value:
-                        eliminated_species.add(species)
+                        for sector in nebula_sectors:
+                            if this.starsystem.startswith(sector):
+                                found = True
+                                stop = True
+                        for system, coords in nebula_coords.items():
+                            distance = math.sqrt((coords[0]-this.coordinates[0])**2
+                                                 + (coords[1]-this.coordinates[1])**2
+                                                 + (coords[2]-this.coordinates[2])**2)
+                            log('Distance to {0} from {1}: {2:n} ly'.format(system, this.starsystem, distance))
+                            if distance < 100.0:
+                                found = True
+                                stop = True
+                        if not found:
+                            log('Eliminated for lack of nebula')
+                            eliminated = True
+                            stop = True
+                    case 'distance':
+                        if body.get_distance() < value:
+                            eliminated = True
+                            stop = True
+                if stop:
+                    break
+            if not eliminated:
+                possible_species[species] = set()
 
-    for species in eliminated_species:
-        possible_species.pop(species, None)
-
+    eliminated_species: set[str] = set()
     if 'colors' in bio_genus[genus]:
         if 'species' in bio_genus[genus]['colors']:
             for species in possible_species:
@@ -784,6 +804,10 @@ def journal_entry(
             if 'AtmosphereType' in entry:
                 body_data.set_atmosphere(entry['AtmosphereType'])
 
+            if 'AtmosphereComposition' in entry:
+                for gas in entry['AtmosphereComposition']:
+                    body_data.add_gas(gas['Name'], gas['Percent'])
+
             this.planets[body_short_name] = body_data
 
             reset_cache()
@@ -1013,7 +1037,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             for genus, data in body.get_flora().items():
                 count += 1
                 if data[1] == 3:
-                    value_sum += bio_types[genus][data[0]][1]
+                    value_sum += bio_types[genus][data[0]]['value']
                 if data[0] != '':
                     detail_text += '{}{} ({}): {}{}\n'.format(
                         bio_types[genus][data[0]]['name'],

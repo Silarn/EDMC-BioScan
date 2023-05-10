@@ -131,8 +131,12 @@ catalog: dict[str, dict[str, Mapping]] = {
         '$Codex_Ent_Bacterial_13_Name;': {
             'name': 'Bacterium Verrata',
             'value': 3897000,
-            'atmosphere': 'Any',
-            'volcanism': ['water']
+            'rulesets': [
+                {
+                    'atmosphere': 'Any',
+                    'volcanism': ['water']
+                }
+            ]
         }
     }
 }
