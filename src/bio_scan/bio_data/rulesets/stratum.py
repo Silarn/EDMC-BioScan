@@ -32,6 +32,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['CarbonDioxide'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.585,
+                    'min_temperature': 165.0,
                     'max_temperature': 381.0,
                     'body_type': ['Rocky body']
                 },
@@ -39,6 +40,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Ammonia'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.585,
+                    'min_temperature': 165.0,
                     'max_temperature': 177.0,
                     'body_type': ['Rocky body']
                 }
