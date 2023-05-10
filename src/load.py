@@ -407,11 +407,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     if genus not in this.planet_cache[body.get_name()]:
         this.planet_cache[body.get_name()][genus] = (True, ('', 0, 0, []))
 
-    possible_species: dict[str, list[str]] = {}
+    possible_species: dict[str, set[str]] = {}
     eliminated_species = set()
     log('Running checks for {}:'.format(bio_genus[genus]['name']))
     for species, reqs in bio_types[genus].items():
-        possible_species[species] = []
+        possible_species[species] = set()
         log(species)
         if reqs[2] is not None:
             if reqs[2] == 'Any' and body.get_atmosphere() in ['', 'None']:
@@ -597,40 +597,39 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     for star_type in bio_genus[genus]['colors']['species'][species]['star']:
                         for star in body.get_parent_stars():
                             if this.stars[star].get_type() == star_type:
-                                possible_species[species].append(bio_genus[genus]['colors']['species'][species]['star'][star_type])
-                                break
+                                possible_species[species].add(bio_genus[genus]['colors']['species'][species]['star'][star_type])
                 elif 'element' in bio_genus[genus]['colors']['species'][species]:
                     for element in bio_genus[genus]['colors']['species'][species]['element']:
                         if element in body.get_materials():
-                            possible_species[species].append(bio_genus[genus]['colors']['species'][species]['element'][element])
-                            break
+                            possible_species[species].add(bio_genus[genus]['colors']['species'][species]['element'][element])
 
                 if not possible_species[species]:
                     eliminated_species.add(species)
                     log('Eliminated for lack of color')
         else:
-            color = ''
+            found_colors: set[str] = set()
             for star_type in bio_genus[genus]['colors']['star']:
                 for star in body.get_parent_stars():
                     log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
                     if this.stars[star].get_type() == star_type:
-                        color = bio_genus[genus]['colors']['star'][star_type]
+                        found_colors.add(bio_genus[genus]['colors']['star'][star_type])
                         break
-                if color != '':
-                    break
-            if color == '':
+            if not found_colors:
                 possible_species.clear()
                 log('Eliminated genus for lack of color')
             else:
                 for species in possible_species:
-                    possible_species[species].append(color)
+                    possible_species[species] = possible_species[species].union(found_colors)
 
     final_species: dict[str, list[str]] = {}
     for species in possible_species:
         if species not in eliminated_species:
-            final_species[species] = possible_species[species]
+            final_species[species] = sorted(possible_species[species])
 
-    sorted_species = sorted(final_species.items(), key=lambda target_species: bio_types[genus][target_species[0]][1])
+    sorted_species: list[tuple[str, list[str]]] = sorted(
+        final_species.items(),
+        key=lambda target_species: bio_types[genus][target_species[0]][1]
+    )
 
     if len(sorted_species) == 1:
         localized_species: list[tuple[str, list[str], int]] = []
@@ -665,9 +664,6 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     break
                 if not color:
                     color = colors[0]
-        if len(sorted_species[0][1]) == 1:
-            if sorted_species[0][1][0] == sorted_species[-1][1]:
-                color = sorted_species[0][1]
         this.planet_cache[body.get_name()][genus] = (
             False,
             (
