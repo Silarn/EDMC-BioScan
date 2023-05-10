@@ -126,7 +126,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['SulphurDioxide'],
                     'min_gravity': 0.045,
                     'max_gravity': 0.607,
-                    'max_temperature': 50.0,
+                    'max_temperature': 450.0,
                     'min_temperature': 165.0,
                     'body_type': ['High metal content body']
                 },

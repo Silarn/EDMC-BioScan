@@ -413,7 +413,10 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     for species, data in bio_types[genus].items():
         log(species)
         stop = False
+        count = 0
         for ruleset in data['rulesets']:
+            count += 1
+            log('Ruleset {count}')
             eliminated = False
             for type, value in ruleset.items():
                 match type:
@@ -457,7 +460,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             log('Eliminated for no volcanism')
                             eliminated = True
                             stop = True
-                        elif value != 'Any':
+                        elif value == 'None' and body.get_volcanism() != '':
+                            log('Eliminated for volcanism')
+                            eliminated = True
+                            stop = True
+                        elif value not in ['Any', 'None']:
                             found = False
                             for volc_type in value:
                                 if body.get_volcanism().find(volc_type) != -1:
