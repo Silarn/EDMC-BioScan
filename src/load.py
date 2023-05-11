@@ -47,7 +47,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('1.5.6')
+        self.VERSION = semantic_version.Version('1.6.0')
         self.NAME = 'BioScan'
 
         # Settings vars
@@ -245,6 +245,11 @@ def parse_config() -> None:
 
 
 def version_check() -> str:
+    """
+    Parse latest GitHub release version
+    :return: The latest version string if it's newer than ours
+    """
+
     try:
         req = requests.get(url='https://api.github.com/repos/Silarn/EDMC-BioScan/releases/latest')
         data = req.json()
@@ -360,6 +365,11 @@ def edsm_data(event: tk.Event) -> None:
 
 
 def add_edsm_star(body: dict) -> None:
+    """
+    Add a parent star from EDSM API data
+
+    :param body: The EDSM body data (JSON)
+    """
     body_short_name = get_body_name(body['name'])
     if body['bodyId'] not in this.main_stars:
         star_data = StarData(body_short_name, body['bodyId'])
@@ -398,6 +408,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     :return: The display string for the calculated genus/species, the minimum and maximum values, and a
              list of individual species if there are multiple matches
     """
+
     if body.get_name() in this.planet_cache:
         if genus in this.planet_cache[body.get_name()] and not this.planet_cache[body.get_name()][genus][0]:
             return this.planet_cache[body.get_name()][genus][1]
@@ -717,6 +728,7 @@ def reset_cache(planet: str = '') -> None:
 
     :param planet: Optional parameter to reset only a specific genus
     """
+
     if planet and planet in this.planet_cache:
         for genus in this.planet_cache[planet]:
             this.planet_cache[planet][genus] = (True, this.planet_cache[planet][genus][1])
@@ -778,6 +790,12 @@ def reset() -> None:
 
 
 def add_star(entry: Mapping[str, any]):
+    """
+    Add main star data from journal event
+
+    :param entry: The journal event dict (must be a Scan event with star data)
+    """
+
     body_short_name = get_body_name(entry['BodyName'])
 
     if entry['BodyID'] not in this.main_stars:
