@@ -489,7 +489,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             if region_id is not None:
                                 for region in value:
                                     if region.startswith('!'):
-                                        log(f'Region ({region[1:]}) map: {region_map[region[1:]]}')
+                                        log(f'Not in region ({region[1:]}) map: {region_map[region[1:]]}')
                                         if region_id[0] in region_map[region[1:]]:
                                             log('Eliminated by region')
                                             eliminated = True
@@ -498,13 +498,15 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
 
                                 if not stop:
                                     found = False
+                                    count = 0
                                     for region in value:
                                         if not region.startswith('!'):
-                                            log(f'Region ({region}): {region_map[region]}')
+                                            count += 1
+                                            log(f'In region ({region}): {region_map[region]}')
                                             if region_id[0] in region_map[region]:
                                                 found = True
 
-                                    if not found:
+                                    if not found and count > 0:
                                         log('Eliminated by region')
                                         eliminated = True
                                         stop = True
@@ -765,12 +767,14 @@ def journal_entry(
         system_changed = True
         this.starsystem = system
 
-    elif entry['event'] in ['Location', 'FSDJump', 'CarrierJump']:
+    log(f'Event {entry["event"]}')
+    if entry['event'] in ['Location', 'FSDJump', 'CarrierJump']:
         if entry['event'] == 'CarrierJump':  # Until EDMC can parse CarrierJump, we need to handle the system updates
             reset()
             this.starsystem = entry['StarSystem']
             system_changed = True
         this.coordinates = entry['StarPos']
+        log(f'Coords are x:{this.coordinates[0]}, z:{this.coordinates[1]}, y:{this.coordinates[2]}')
 
     elif entry['event'] == 'Scan':
         body_short_name = get_body_name(entry['BodyName'])
@@ -946,11 +950,11 @@ def journal_entry(
 
         update_display()
 
-        if this.focus_setting.get() == 'On Approach' and entry['event'] == 'ApproachBody':
-            this.scroll_canvas.yview_moveto(0.0)
-
-        if this.focus_setting.get() == 'On Surface' and entry['event'] in ['Touchdown', 'Liftoff']:
-            this.scroll_canvas.yview_moveto(0.0)
+        # if this.focus_setting.get() == 'On Approach' and entry['event'] == 'ApproachBody':
+        #     this.scroll_canvas.yview_moveto(0.0)
+        #
+        # if this.focus_setting.get() == 'On Surface' and entry['event'] in ['Touchdown', 'Liftoff']:
+        #     this.scroll_canvas.yview_moveto(0.0)
 
     elif entry['event'] == 'LeaveBody':
         this.location_name = ''
