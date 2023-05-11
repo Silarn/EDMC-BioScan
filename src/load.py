@@ -412,14 +412,14 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     log('Running checks for {}:'.format(bio_genus[genus]['name']))
     for species, data in bio_types[genus].items():
         log(species)
-        stop = False
         count = 0
         for ruleset in data['rulesets']:
             count += 1
             log(f'Ruleset {count}')
             eliminated = False
-            for type, value in ruleset.items():
-                match type:
+            for rule_type, value in ruleset.items():
+                stop = False
+                match rule_type:
                     case 'atmosphere':
                         if value == 'Any' and body.get_atmosphere() in ['', 'None']:
                             log('Eliminated for no atmos')
