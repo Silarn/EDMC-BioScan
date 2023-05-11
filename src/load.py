@@ -2,7 +2,7 @@
 # BioScan plugin for EDMC
 # Source: https://github.com/Silarn/EDMC-BioScan
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
-
+import re
 # Core imports
 import sys
 import threading
@@ -69,9 +69,8 @@ class This:
 
         # Plugin state data
         self.planets: dict[str, PlanetData] = {}
-        self.stars: dict[int, StarData] = {}
+        self.main_stars: dict[str, StarData] = {}
         self.planet_cache: dict[str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
-        self.barycenters: dict[int, list[id]] = {}
 
         # self.odyssey: bool = False
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
@@ -314,21 +313,12 @@ def edsm_data(event: tk.Event) -> None:
                 else:
                     this.main_star_type = parse_edsm_star_class(body['subType'])
                 this.main_star_luminosity = body['luminosity']
-            if body['bodyId'] not in this.stars:
-                star_data = StarData(body_short_name, body['bodyId'])
-            else:
-                star_data = this.stars[body['bodyId']]
-            if body['spectralClass']:
-                star_data.set_type(body['spectralClass'][:-1])
-            else:
-                star_data.set_type(parse_edsm_star_class(body['subType']))
-            star_data.set_luminosity(body['luminosity'])
-            this.stars[body['bodyId']] = star_data
 
-            if body['parents'] and 'Null' in body['parents'][0]:
-                if body['parents'][0]['Null'] not in this.barycenters:
-                    this.barycenters[body['parents'][0]['Null']] = []
-                this.barycenters[body['parents'][0]['Null']].append(body['bodyId'])
+            if body_short_name == body['name']:
+                add_edsm_star(body)
+            else:
+                if re.search('^[A-Z]$', body_short_name):
+                    add_edsm_star(body)
 
         elif body['type'] == 'Planet':
             try:
@@ -349,19 +339,12 @@ def edsm_data(event: tk.Event) -> None:
                     volcanism = body['volcanismType'].lower().capitalize() + ' volcanism'
                 planet_data.set_volcanism(volcanism)
 
-                if body['parents']:
-                    for parent in body['parents']:
-                        if 'Null' in parent:
-                            if parent['Null'] in this.barycenters:
-                                barycenter_stars: list[StarData] = []
-                                for star in this.barycenters[parent['Null']]:
-                                    barycenter_stars.append(this.stars[star])
-                                sorted_stars = sorted(barycenter_stars, key=lambda item: item.get_id())
-                                for star in sorted_stars:
-                                    planet_data.add_parent_star(star.get_id())
-                        elif 'Star' in parent:
-                            planet_data.add_parent_star(parent['Star'])
-                            break
+                star_search = re.search('^([A-Z])+ .+$', body_short_name)
+                if star_search:
+                    for star in star_search.group(1):
+                        planet_data.add_parent_star(star)
+                else:
+                    planet_data.add_parent_star(this.starsystem)
 
                 if 'materials' in body:
                     for material in body['materials']:  # type: str
@@ -374,6 +357,20 @@ def edsm_data(event: tk.Event) -> None:
     this.fetched_edsm = True
     reset_cache()
     update_display()
+
+
+def add_edsm_star(body: dict) -> None:
+    body_short_name = get_body_name(body['name'])
+    if body['bodyId'] not in this.main_stars:
+        star_data = StarData(body_short_name, body['bodyId'])
+    else:
+        star_data = this.main_stars[body['bodyId']]
+    if body['spectralClass']:
+        star_data.set_type(body['spectralClass'][:-1])
+    else:
+        star_data.set_type(parse_edsm_star_class(body['subType']))
+    star_data.set_luminosity(body['luminosity'])
+    this.main_stars[body['bodyId']] = star_data
 
 
 def scan_label(scans: int) -> str:
@@ -465,16 +462,16 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             eliminated = True
                             stop = True
                         elif value == 'None' and body.get_volcanism() != '':
-                            log('Eliminated for volcanism')
+                            log('Eliminated for any volcanism')
                             eliminated = True
                             stop = True
-                        elif value not in ['Any', 'None']:
+                        elif isinstance(value, list):
                             found = False
                             for volc_type in value:
                                 if body.get_volcanism().find(volc_type) != -1:
                                     found = True
                             if not found:
-                                log('Eliminated for volcanism')
+                                log('Eliminated for missing volcanism')
                                 eliminated = True
                                 stop = True
                     case 'body_type':
@@ -596,9 +593,23 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         if 'species' in bio_genus[genus]['colors']:
             for species in possible_species:
                 if 'star' in bio_genus[genus]['colors']['species'][species]:
-                    for star in sorted(body.get_parent_stars()):
+                    for star in sorted(body.get_parent_stars(), key=lambda star_name: this.main_stars[star_name].get_id()):
                         for star_type in bio_genus[genus]['colors']['species'][species]['star']:
-                            if star_check(star_type, this.stars[star].get_type()):
+                            try:
+                                if star_check(star_type, this.main_stars[star].get_type()):
+                                    possible_species[species].add(bio_genus[genus]['colors']['species'][species]['star'][star_type])
+                                    break
+                            except KeyError:
+                                log('Star (%s) not in main stars' % star)
+                        if possible_species[species]:
+                            break
+                    if possible_species[species]:
+                        continue
+                    for star_name, star_data in this.main_stars.items():
+                        if star_name in body.get_parent_stars():
+                            continue
+                        for star_type in bio_genus[genus]['colors']['species'][species]['star']:
+                            if star_check(star_type, star_data.get_type()):
                                 possible_species[species].add(bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                 break
                         if possible_species[species]:
@@ -613,14 +624,27 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     log('Eliminated for lack of color')
         else:
             found_color = ''
-            for star in sorted(body.get_parent_stars()):
+            for star in sorted(body.get_parent_stars(), key=lambda star_name: this.main_stars[star_name].get_id()):
                 for star_type in bio_genus[genus]['colors']['star']:
-                    log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
-                    if star_check(star_type, this.stars[star].get_type()):
-                        found_color = bio_genus[genus]['colors']['star'][star_type]
-                        break
+                    try:
+                        log('Checking star type %s against %s' % (star_type, this.main_stars[star].get_type()))
+                        if star_check(star_type, this.main_stars[star].get_type()):
+                            found_color = bio_genus[genus]['colors']['star'][star_type]
+                            break
+                    except KeyError:
+                        log('Star (%s) not in main stars' % star)
                 if found_color:
                     break
+            if not found_color:
+                for star_name, star_data in this.main_stars.items():
+                    if star_name in body.get_parent_stars():
+                        continue
+                    for star_type in bio_genus[genus]['colors']['star']:
+                        if star_check(star_type, star_data.get_type()):
+                            found_color = bio_genus[genus]['colors']['star'][star_type]
+                            break
+                    if found_color:
+                        break
             if not found_color:
                 possible_species.clear()
                 log('Eliminated genus for lack of color')
@@ -749,9 +773,22 @@ def reset() -> None:
     this.fetched_edsm = False
     this.planets = {}
     this.planet_cache = {}
-    this.stars = {}
-    this.barycenters = {}
+    this.main_stars = {}
     this.scroll_canvas.yview_moveto(0.0)
+
+
+def add_star(entry: Mapping[str, any]):
+    body_short_name = get_body_name(entry['BodyName'])
+
+    if entry['BodyID'] not in this.main_stars:
+        star_data = StarData(body_short_name, entry['BodyID'])
+    else:
+        star_data = this.main_stars[entry['BodyID']]
+
+    star_data.set_type(entry['StarType'])
+    star_data.set_luminosity(entry['Luminosity'])
+
+    this.main_stars[body_short_name] = star_data
 
 
 def journal_entry(
@@ -783,22 +820,11 @@ def journal_entry(
                 this.main_star_type = entry['StarType']
                 this.main_star_luminosity = entry['Luminosity']
 
-            if entry['BodyID'] not in this.stars:
-                star_data = StarData(body_short_name, entry['BodyID'])
+            if body_short_name == entry['BodyName']:
+                add_star(entry)
             else:
-                star_data = this.stars[entry['BodyID']]
-
-            star_data.set_type(entry['StarType'])
-            star_data.set_luminosity(entry['Luminosity'])
-
-            this.stars[entry['BodyID']] = star_data
-
-            if 'Parents' in entry:
-                if 'Null' in entry['Parents'][0]:
-                    if entry['Parents'][0]['Null'] in this.barycenters:
-                        this.barycenters[entry['Parents'][0]['Null']].append(entry['BodyID'])
-                    else:
-                        this.barycenters[entry['Parents'][0]['Null']] = [entry['BodyID']]
+                if re.search('^[A-Z]$', body_short_name):
+                    add_star(entry)
 
             reset_cache()
             update_display()
@@ -812,17 +838,12 @@ def journal_entry(
                 .set_id(entry['BodyID']).set_gravity(entry['SurfaceGravity']) \
                 .set_temp(entry['SurfaceTemperature']).set_volcanism(entry['Volcanism'])
 
-            for body in entry['Parents']:
-                if 'Null' in body:
-                    if body['Null'] in this.barycenters:
-                        barycenter_stars: list[StarData] = []
-                        for star in this.barycenters[body['Null']]:
-                            barycenter_stars.append(this.stars[star])
-                        sorted_stars = sorted(barycenter_stars, key=lambda item: item.get_id())
-                        for star in sorted_stars:
-                            body_data.add_parent_star(star.get_id())
-                if 'Star' in body:
-                    body_data.add_parent_star(body['Star'])
+            star_search = re.search('^([A-Z])+ .+$', body_short_name)
+            if star_search:
+                for star in star_search.group(1):
+                    body_data.add_parent_star(star)
+            else:
+                body_data.add_parent_star(this.starsystem)
 
             if 'Materials' in entry:
                 for material in entry['Materials']:
@@ -839,9 +860,6 @@ def journal_entry(
 
             reset_cache()
             update_display()
-
-    elif entry['event'] == 'ScanBaryCentre':
-        this.barycenters[entry['BodyID']] = []
 
     elif entry['event'] == 'FSSBodySignals':
         body_short_name = get_body_name(entry['BodyName'])

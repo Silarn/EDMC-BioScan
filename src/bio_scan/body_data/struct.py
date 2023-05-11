@@ -14,7 +14,7 @@ class PlanetData:
         self._distance: float = 0.0
         self._gravity: float = 0.0
         self._temp: float = 0.0
-        self._parent_stars: list[int] = []
+        self._parent_stars: list[str] = []
         self._bio_signals: int = 0
         self._flora: dict[str, tuple[str, int, str]] = {}
         self._materials: set[str] = set()
@@ -88,10 +88,10 @@ class PlanetData:
         self._bio_signals = value
         return self
 
-    def get_parent_stars(self) -> list[int]:
+    def get_parent_stars(self) -> list[str]:
         return self._parent_stars
 
-    def add_parent_star(self, value: int) -> Self:
+    def add_parent_star(self, value: str) -> Self:
         self._parent_stars.append(value)
         return self
 
