@@ -77,13 +77,14 @@ class This:
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
         self.main_star_type: str = ''
         self.main_star_luminosity: str = ''
-        self.coordinates: list[float, float, float] = [0.0, 0.0, 0.0]
+        self.coordinates: list[float, float, float] | None = None
         self.location_name: str = ''
         self.location_id: str = ''
         self.location_state: str = ''
         self.planet_radius: float = 0.0
         self.planet_latitude: float | None = None
         self.planet_longitude: float | None = None
+        self.planet_altitude: float = 10000.0
         self.scan_latitude: list[float] = []
         self.scan_longitude: list[float] = []
         self.current_scan: str = ''
@@ -175,6 +176,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     focus_options = [
         'Never',
         'On Approach',
+        'Near Surface',
         'On Surface',
     ]
     nb.OptionMenu(
@@ -186,6 +188,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     nb.Label(frame,
              text='Never: Never filter signal details\n' +
                   'On Approach: Show only local signals on approach\n' +
+                  'Near Surface: Show signals under 5km altitiude\n' +
                   'On Surface: Show only local signals when on surface',
              justify=tk.LEFT) \
         .grid(row=12, padx=x_padding, column=0, sticky=tk.NW)
@@ -1002,8 +1005,15 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         refresh = True
 
     if StatusFlags.HAVE_LATLONG in status:
-        if StatusFlags.HAVE_ALTITUDE in status:
-            this.planet_altitude = entry['Altitude'] if 'Altitidue' in entry else 0
+        if 'Altitude' in entry:
+            if this.focus_setting.get() == 'Near Surface' and \
+                    (this.planet_altitude > 5000.0 > entry['Altitude'] or
+                     this.planet_altitude < 5000.0 < entry['Altitude']):
+                scroll = True
+                refresh = True
+            this.planet_altitude = entry['Altitude']
+        else:
+            this.planet_altitude = 0
         this.planet_latitude = entry['Latitude']
         this.planet_longitude = entry['Longitude']
         this.planet_radius = entry['PlanetRadius']
@@ -1012,7 +1022,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     else:
         this.planet_latitude = None
         this.planet_longitude = None
-        this.planet_altitude = 0
+        this.planet_altitude = 0 if this.location_state == 'surface' else 10000
         this.planet_radius = 0
 
     if refresh:
@@ -1128,7 +1138,9 @@ def update_display() -> None:
 
     if (this.location_name != '' and this.location_name in bio_bodies) and this.focus_setting.get() != 'Never' and \
             ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
-             or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
+             or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')
+             or (this.focus_setting.get() == 'Near Surface' and this.location_state in ['approach', 'surface']
+                 and this.planet_altitude < 5000.0)):
         detail_text, total_value = get_bodies_summary({this.location_name: this.planets[this.location_name]}, True)
     else:
         detail_text, total_value = get_bodies_summary(bio_bodies)
@@ -1151,7 +1163,9 @@ def update_display() -> None:
 
         if (this.location_name != '' and this.location_name in bio_bodies) and this.focus_setting.get() != 'Never' and \
                 ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
-                 or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')):
+                 or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')
+                 or (this.focus_setting.get() == 'Near Surface' and this.location_state in ['approach', 'surface']
+                     and this.planet_altitude < 5000.0)):
             if text[-1] != '\n':
                 text += '\n'
             complete = len(dict(filter(lambda x: x[1][1] == 3, bio_bodies[this.location_name].get_flora().items())))
