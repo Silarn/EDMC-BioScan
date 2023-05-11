@@ -8,9 +8,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Neon', 'NeonRich', 'Argon', 'ArgonRich'],
+                    'min_gravity': 0.025,
                     'max_gravity': 0.275,
                     'body_type': ['Icy body'],
-                    'special': 'AV'
+                    'main_star': ['A', 'B', 'N', 'D', 'H']
                 }
             ],
         },
@@ -20,6 +21,7 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Neon', 'NeonRich', 'Argon', 'ArgonRich'],
+                    'min_gravity': 0.025,
                     'max_gravity': 0.275,
                     'body_type': ['Icy body'],
                     'nebula': True
