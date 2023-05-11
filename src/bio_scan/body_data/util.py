@@ -44,3 +44,8 @@ def get_gravity_warning(gravity: float) -> str:
         return ' ^G^'
     return ''
 
+
+def star_check(star_query: str, star_type: str) -> bool:
+    if star_query in ['D', 'C', 'W']:
+        return star_type.startswith(star_query)
+    return star_type == star_query

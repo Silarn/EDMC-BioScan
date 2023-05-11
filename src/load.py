@@ -22,7 +22,7 @@ from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
 from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.body_data.struct import PlanetData, StarData
-from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning
+from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
 from bio_scan.bio_data.codex import parse_variant
 from bio_scan.bio_data.genus import data as bio_genus
@@ -529,24 +529,31 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     case 'main_star':
                         if isinstance(value, list):
                             if isinstance(value[0], tuple):
-                                if this.main_star_type == value[0]:
-                                    match = False
-                                    for flag in ['', 'a', 'b', 'ab']:
-                                        if value[1] + flag == this.main_star_luminosity:
-                                            match = True
-                                            stop = True
-                                    if not match:
-                                        log('Eliminated for star type')
-                                        eliminated = True
-                                        stop = True
+                                match = False
+                                for star_info in value:
+                                    if star_check(star_info[0], this.main_star_type):
+                                        for flag in ['', 'a', 'b', 'ab']:
+                                            if value[1] + flag == this.main_star_luminosity:
+                                                match = True
+                                                break
+                                        if match:
+                                            break
+                                if not match:
+                                    log('Eliminated for star type')
+                                    eliminated = True
+                                    stop = True
                             else:
+                                match = False
                                 for star_type in value:
-                                    if this.main_star_type != value:
-                                        log('Eliminated for star type')
-                                        eliminated = True
-                                        stop = True
+                                    if star_check(star_type, this.main_star_type):
+                                        match = True
+                                        break
+                                if not match:
+                                    log('Eliminated for star type')
+                                    eliminated = True
+                                    stop = True
                         else:
-                            if this.main_star_type != value:
+                            if not star_check(value, this.main_star_type):
                                 log('Eliminated for star type')
                                 eliminated = True
                                 stop = True
@@ -584,9 +591,9 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         if 'species' in bio_genus[genus]['colors']:
             for species in possible_species:
                 if 'star' in bio_genus[genus]['colors']['species'][species]:
-                    for star in body.get_parent_stars():
+                    for star in sorted(body.get_parent_stars()):
                         for star_type in bio_genus[genus]['colors']['species'][species]['star']:
-                            if this.stars[star].get_type() == star_type:
+                            if star_check(star_type, this.stars[star].get_type()):
                                 possible_species[species].add(bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                 break
                         if possible_species[species]:
@@ -601,10 +608,10 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     log('Eliminated for lack of color')
         else:
             found_color = ''
-            for star in body.get_parent_stars():
+            for star in sorted(body.get_parent_stars()):
                 for star_type in bio_genus[genus]['colors']['star']:
                     log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
-                    if this.stars[star].get_type() == star_type:
+                    if star_check(star_type, this.stars[star].get_type()):
                         found_color = bio_genus[genus]['colors']['star'][star_type]
                         break
                 if found_color:
