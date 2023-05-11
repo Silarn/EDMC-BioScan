@@ -41,8 +41,34 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 3330300,
             'rulesets': [
                 {
-                    'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich', 'Water', 'WaterRich'],
+                    'atmosphere': ['Ammonia'],
                     'max_gravity': 0.275,
+                    'max_temperature': 180.0,
+                    'min_temperature': 160.0,
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                    'regions': ['!orion-cygnus-core']
+                },
+                {
+                    'atmosphere': ['Methane'],
+                    'max_gravity': 0.275,
+                    'max_temperature': 110.0,
+                    'min_temperature': 80.0,
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                    'regions': ['!orion-cygnus-core']
+                },
+                {
+                    'atmosphere': ['CarbonDioxide'],
+                    'max_gravity': 0.275,
+                    'max_temperature': 196.0,
+                    'min_temperature': 180.0,
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                    'regions': ['!orion-cygnus-core']
+                },
+                {
+                    'atmosphere': ['Water'],
+                    'max_gravity': 0.275,
+                    'max_temperature': 395.0,
+                    'min_temperature': 455.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'regions': ['!orion-cygnus-core']
                 }

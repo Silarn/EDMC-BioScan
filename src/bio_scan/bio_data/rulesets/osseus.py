@@ -22,6 +22,7 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Ammonia', 'Argon', 'Methane'],
+                    'volcanism': 'Any',
                     'max_gravity': 0.275,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body']
                 },
@@ -29,7 +30,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Water', 'WaterRich'],
                     'max_gravity': 0.275,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
-                    'volcanism': 'Any'
                 }
             ],
         },

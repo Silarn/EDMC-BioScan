@@ -35,8 +35,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Ammonia'],
                     'max_gravity': 0.275,
-                    'max_temperature': 190.0,
-                    'min_temperature': 180.0,
+                    'max_temperature': 177.0,
+                    'min_temperature': 170.0,
                     'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['scutum-centaurus']
                 }
@@ -49,8 +49,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Ammonia'],
                     'max_gravity': 0.275,
-                    'max_temperature': 190.0,
-                    'min_temperature': 180.0,
+                    'max_temperature': 177.0,
+                    'min_temperature': 152.0,
                     'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['!scutum-centaurus']
                 }
@@ -63,7 +63,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
                     'max_gravity': 0.275,
-                    'max_temperature': 195.0,
+                    'max_temperature': 196.0,
                     'min_temperature': 190.0,
                     'body_type': ['Rocky body', 'High metal content body']
                 }
