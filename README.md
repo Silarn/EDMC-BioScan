@@ -18,17 +18,20 @@ indicate the scan progress.
 
 Once fully analysed, the total system value (and possible first footfall value) will be shown at the bottom of the pane.
 
-As of version 1.5, you can now choose to display a complete breakdown of the qualifying species in a genus if there's
-more than one match. This defaults off as it can take up even more display space.
+As of version 1.5, you can now choose to display a complete breakdown of the qualifying species or color variants in a
+genus if there are multiple. This defaults off to reduce necessary display space.
 
 ### Navigation
 
 The top of the pane will track all relevant bodies in the system, including a shorthand for the body type and the number
-of signals detected there. This can help you quickly determine a DSS target.
+of signals detected there. This can help you quickly determine a DSS target. There are additional indicators for high
+gravity (^G^) and extreme gravity (!G!) planets. High gravity is currently considered 1G or greater. Extreme gravity
+is 2.7G or greater which makes it impossible to go on foot.
 
 BioScan will track your movements and show just the relevant species data if you are currently located at a body of
-interest, to help reduce clutter and scrolling. After you initiate a scan, you will get a display of the required sample
-distance and your current minimum distance to a previous sample, which is updated in real time.
+interest, to help reduce clutter and scrolling. It will also give you the gravity of the planet to help you guage your
+landing. After you initiate a scan, you will get a display of the required sample distance and your current minimum
+distance to a previous sample, which is updated in real time.
 
 It will reset your scan progress if the previous scan wasn't completed and you start a different species. It can also
 track scans with the composition scanner and will lock in the final species of the genus without requiring
@@ -40,10 +43,10 @@ another lifeform.
 Once per system, you can attempt to fetch any data from EDSM. This is helpful if you log out in the middle of scanning a
 system and lose the data from the previous session. Unfortunately, EDSM's API does not currently provide access to
 biological signal info, so you will have to manually look up signals for planets that haven't been mapped yet. The
-journals do resend the detailed signal info from previously mapped planets, though you may need to relog or jump back
-into a system to trigger the journal event.
+journals do resend the detailed signal info from previously mapped planets, though you may need to relog or revisit the
+planet to trigger the journal event.
 
-So if you were in the middle of scanning samples on a planet, fetching data from EDSM should get you the species list
+If you were in the middle of scanning samples on a planet, fetching data from EDSM should get you the species list
 again. However, your scan progress will be lost so completed species will display as unscanned.
 
 ### Version 1.5+: Color Calculations
@@ -64,7 +67,7 @@ possible species on a planet and is useful if you're trying to find missing entr
 Conversion of system coordinates to regions thanks to klightspeed's [EliteDangerousRegionMap].
 
 Species calculations are based on various sources, primarily the 
-[Deep Space Network](https://ed-dsn.net/) and the
+[Deep Space Network] and the
 [Codex NSP and Bio requirements spreadsheet][Bio req spreadsheet].
 
 Nebula locations pulled from the [Catalog of Galactic Nebulae] (thanks marx and contributors)
@@ -73,8 +76,9 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 
 ## Roadmap
 
-* Refinements to species requirements
-* Implement a cache system so we don't have to run the calculations every time the display is updated
+* Refinements to species requirements?
+* Save historical data which we can parse when revisiting a system / planet
+* Missing codex entry support
 
 ## License
 
@@ -83,10 +87,11 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 
 [EDMC]: https://github.com/EDCD/EDMarketConnector/wiki
-[BioScan]: https://github.com/Silarn/EDMC-BioScan
-[latest release]: https://github.com/Silarn/EDMC-BioScan/releases/latest
-[GPLv2]: http://www.gnu.org/licenses/gpl-2.0.html
+[EDSM]: https://www.edsm.net/
+[Deep Space Network]: https://ed-dsn.net/
 [Bio req spreadsheet]: https://docs.google.com/spreadsheets/d/1nV_UD_0kIxkWAHhAqvf62ILHpbYzdZpJ53CqPHn3qlA/
 [EliteDangerousRegionMap]: https://github.com/klightspeed/EliteDangerousRegionMap/
 [Catalog of Galactic Nebulae]: https://forums.frontier.co.uk/threads/catalogue-of-galactic-nebulae-submit-your-planetary-nebulae.511743/
-[EDSM]: https://www.edsm.net/
+[BioScan]: https://github.com/Silarn/EDMC-BioScan
+[latest release]: https://github.com/Silarn/EDMC-BioScan/releases/latest
+[GPLv2]: http://www.gnu.org/licenses/gpl-2.0.html
