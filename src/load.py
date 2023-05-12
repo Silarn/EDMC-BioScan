@@ -371,7 +371,7 @@ def add_edsm_star(body: dict) -> None:
     :param body: The EDSM body data (JSON)
     """
     body_short_name = get_body_name(body['name'])
-    if body['bodyId'] not in this.main_stars:
+    if body_short_name not in this.main_stars:
         star_data = StarData(body_short_name, body['bodyId'])
     else:
         star_data = this.main_stars[body['bodyId']]
@@ -380,7 +380,7 @@ def add_edsm_star(body: dict) -> None:
     else:
         star_data.set_type(parse_edsm_star_class(body['subType']))
     star_data.set_luminosity(body['luminosity'])
-    this.main_stars[body['bodyId']] = star_data
+    this.main_stars[body_short_name] = star_data
 
 
 def scan_label(scans: int) -> str:
@@ -604,27 +604,27 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         if 'species' in bio_genus[genus]['colors']:
             for species in possible_species:
                 if 'star' in bio_genus[genus]['colors']['species'][species]:
-                    for star in sorted(body.get_parent_stars(), key=lambda star_name: this.main_stars[star_name].get_id()):
-                        for star_type in bio_genus[genus]['colors']['species'][species]['star']:
-                            try:
+                    try:
+                        for star in sorted(body.get_parent_stars(), key=lambda star_name: this.main_stars[star_name].get_id()):
+                            for star_type in bio_genus[genus]['colors']['species'][species]['star']:
                                 if star_check(star_type, this.main_stars[star].get_type()):
                                     possible_species[species].add(bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                     break
-                            except KeyError:
-                                log('Star (%s) not in main stars' % star)
-                        if possible_species[species]:
-                            break
-                    if possible_species[species]:
-                        continue
-                    for star_name, star_data in sorted(this.main_stars.items(), key=lambda star_info: star_info[1].get_id()):
-                        if star_name in body.get_parent_stars():
-                            continue
-                        for star_type in bio_genus[genus]['colors']['species'][species]['star']:
-                            if star_check(star_type, star_data.get_type()):
-                                possible_species[species].add(bio_genus[genus]['colors']['species'][species]['star'][star_type])
+                            if possible_species[species]:
                                 break
                         if possible_species[species]:
-                            break
+                            continue
+                        for star_name, star_data in sorted(this.main_stars.items(), key=lambda star_info: star_info[1].get_id()):
+                            if star_name in body.get_parent_stars():
+                                continue
+                            for star_type in bio_genus[genus]['colors']['species'][species]['star']:
+                                if star_check(star_type, star_data.get_type()):
+                                    possible_species[species].add(bio_genus[genus]['colors']['species'][species]['star'][star_type])
+                                    break
+                            if possible_species[species]:
+                                break
+                    except KeyError:
+                        log('Star (%s) not in main stars' % star)
                 elif 'element' in bio_genus[genus]['colors']['species'][species]:
                     for element in bio_genus[genus]['colors']['species'][species]['element']:
                         if element in body.get_materials():
@@ -635,27 +635,27 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     log('Eliminated for lack of color')
         else:
             found_color = ''
-            for star in sorted(body.get_parent_stars(), key=lambda star_name: this.main_stars[star_name].get_id()):
-                for star_type in bio_genus[genus]['colors']['star']:
-                    try:
+            try:
+                for star in sorted(body.get_parent_stars(), key=lambda star_name: this.main_stars[star_name].get_id()):
+                    for star_type in bio_genus[genus]['colors']['star']:
                         log('Checking star type %s against %s' % (star_type, this.main_stars[star].get_type()))
                         if star_check(star_type, this.main_stars[star].get_type()):
                             found_color = bio_genus[genus]['colors']['star'][star_type]
                             break
-                    except KeyError:
-                        log('Star (%s) not in main stars' % star)
-                if found_color:
-                    break
-            if not found_color:
-                for star_name, star_data in sorted(this.main_stars.items(), key=lambda star_info: star_info[1].get_id()):
-                    if star_name in body.get_parent_stars():
-                        continue
-                    for star_type in bio_genus[genus]['colors']['star']:
-                        if star_check(star_type, star_data.get_type()):
-                            found_color = bio_genus[genus]['colors']['star'][star_type]
-                            break
                     if found_color:
                         break
+                if not found_color:
+                    for star_name, star_data in sorted(this.main_stars.items(), key=lambda star_info: star_info[1].get_id()):
+                        if star_name in body.get_parent_stars():
+                            continue
+                        for star_type in bio_genus[genus]['colors']['star']:
+                            if star_check(star_type, star_data.get_type()):
+                                found_color = bio_genus[genus]['colors']['star'][star_type]
+                                break
+                        if found_color:
+                            break
+            except KeyError:
+                log('Star (%s) not in main stars' % star)
             if not found_color:
                 possible_species.clear()
                 log('Eliminated genus for lack of color')
