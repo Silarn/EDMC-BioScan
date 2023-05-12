@@ -344,7 +344,7 @@ def edsm_data(event: tk.Event) -> None:
                     volcanism = body['volcanismType'].lower().capitalize() + ' volcanism'
                 planet_data.set_volcanism(volcanism)
 
-                star_search = re.search('^([A-Z])+ .+$', body_short_name)
+                star_search = re.search('^([A-Z]+) .+$', body_short_name)
                 if star_search:
                     for star in star_search.group(1):
                         planet_data.add_parent_star(star)
@@ -616,7 +616,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             break
                     if possible_species[species]:
                         continue
-                    for star_name, star_data in this.main_stars.items():
+                    for star_name, star_data in sorted(this.main_stars.items(), key=lambda star_info: star_info[1].get_id()):
                         if star_name in body.get_parent_stars():
                             continue
                         for star_type in bio_genus[genus]['colors']['species'][species]['star']:
@@ -647,7 +647,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                 if found_color:
                     break
             if not found_color:
-                for star_name, star_data in this.main_stars.items():
+                for star_name, star_data in sorted(this.main_stars.items(), key=lambda star_info: star_info[1].get_id()):
                     if star_name in body.get_parent_stars():
                         continue
                     for star_type in bio_genus[genus]['colors']['star']:
@@ -856,7 +856,7 @@ def journal_entry(
                 .set_id(entry['BodyID']).set_gravity(entry['SurfaceGravity']) \
                 .set_temp(entry['SurfaceTemperature']).set_volcanism(entry['Volcanism'])
 
-            star_search = re.search('^([A-Z])+ .+$', body_short_name)
+            star_search = re.search('^([A-Z]+) .+$', body_short_name)
             if star_search:
                 for star in star_search.group(1):
                     body_data.add_parent_star(star)
