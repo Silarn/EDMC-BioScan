@@ -7,10 +7,28 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 12934900,
             'rulesets': [
                 {
-                    'atmosphere': ['SulphurDioxide', 'Oxygen', 'CarbonDioxide'],
+                    'atmosphere': ['SulphurDioxide'],
                     'atmosphere_component': {'SulphurDioxide': 1.05},
                     'max_gravity': 0.275,
-                    'body_type': ['Icy body', 'Rocky ice body', 'Rocky body']
+                    'min_gravity': 0.043,
+                    'min_temperature': 132.0,
+                    'max_temperature': 272.0
+                },
+                {
+                    'atmosphere': ['CarbonDioxide'],
+                    'atmosphere_component': {'SulphurDioxide': 1.05},
+                    'max_gravity': 0.275,
+                    'min_gravity': 0.043,
+                    'min_temperature': 151.0,
+                    'max_temperature': 195.0
+                },
+                {
+                    'atmosphere': ['Oxygen'],
+                    'atmosphere_component': {'SulphurDioxide': 1.05},
+                    'max_gravity': 0.275,
+                    'min_gravity': 0.043,
+                    'min_temperature': 151.0,
+                    'max_temperature': 175.0
                 }
             ],
         },
@@ -22,7 +40,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['SulphurDioxide', 'Oxygen', 'CarbonDioxide'],
                     'atmosphere_component': {'SulphurDioxide': 1.05},
                     'max_gravity': 0.275,
-                    'body_type': ['Icy body', 'Rocky body', 'High metal content body']
+                    'min_gravity': 0.043
                 }
             ],
         },
@@ -34,6 +52,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['SulphurDioxide', 'Oxygen', 'CarbonDioxide'],
                     'atmosphere_component': {'SulphurDioxide': 1.05},
                     'max_gravity': 0.275,
+                    'min_gravity': 0.043,
                     'body_type': ['Icy body', 'Rocky ice body']
                 }
             ],

@@ -20,7 +20,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Methane'],
                     'max_gravity': 0.275,
-                    'min_gravity': 0.041,
+                    'min_gravity': 0.0405,
                     'max_temperature': 100.0,
                     'min_temperature': 80.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
@@ -29,7 +29,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Water'],
                     'max_gravity': 0.275,
-                    'min_gravity': 0.041,
+                    'min_gravity': 0.0405,
                     'max_temperature': 452.0,
                     'min_temperature': 395.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
@@ -38,7 +38,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxide'],
                     'max_gravity': 0.275,
-                    'min_gravity': 0.041,
+                    'min_gravity': 0.0405,
                     'max_temperature': 196.0,
                     'min_temperature': 180.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
