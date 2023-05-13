@@ -670,7 +670,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
 
     sorted_species: list[tuple[str, list[str]]] = sorted(
         final_species.items(),
-        key=lambda target_species: bio_types[genus][target_species[0]]['name']
+        key=lambda target_species: bio_types[genus][target_species[0]]['value']
     )
 
     if len(sorted_species) == 1:
@@ -748,12 +748,12 @@ def get_possible_values(body: PlanetData) -> dict[str, tuple[int, int, list[tupl
     """
 
     possible_genus = {}
-    for genus in bio_types:
+    for genus in sorted(bio_types):
         name, min_potential_value, max_potential_value, all_species = value_estimate(body, genus)
         if min_potential_value != 0:
             possible_genus[name] = (min_potential_value, max_potential_value, all_species)
 
-    return dict(sorted(possible_genus.items(), key=lambda gen_v: gen_v[0]))
+    return possible_genus
 
 
 def get_body_name(fullname: str = '') -> str:
@@ -1104,7 +1104,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             detail_text += '{}:\n'.format(name)
         if len(body.get_flora()) > 0:
             count = 0
-            for genus, data in body.get_flora().items():
+            for genus, data in sorted(body.get_flora().items(), key=lambda item: bio_genus[item[0]]['name']):
                 count += 1
                 if data[1] == 3:
                     value_sum += bio_types[genus][data[0]]['value']
