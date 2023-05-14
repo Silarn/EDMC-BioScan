@@ -546,7 +546,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 for star_info in value:
                                     if star_check(star_info[0], this.main_star_type):
                                         for flag in ['', 'a', 'b', 'ab']:
-                                            if value[1] + flag == this.main_star_luminosity:
+                                            if star_info[1] + flag == this.main_star_luminosity:
                                                 match = True
                                                 break
                                         if match:
