@@ -738,7 +738,7 @@ def reset_cache(planet: str = '') -> None:
                 data[genus] = (True, data[genus][1])
 
 
-def get_possible_values(body: PlanetData) -> dict[str, tuple[int, int, list[tuple[str, list[str], int]]]]:
+def get_possible_values(body: PlanetData) -> list[tuple[str, tuple[int, int, list[tuple[str, list[str], int]]]]]:
     """
     For unmapped planets, run through every genus and make species determinations
 
@@ -747,11 +747,11 @@ def get_possible_values(body: PlanetData) -> dict[str, tuple[int, int, list[tupl
              were multiple matches
     """
 
-    possible_genus: list[tuple[int, int, list]] = []
+    possible_genus: list[tuple[str, tuple[int, int, list]]] = []
     for genus in sorted(bio_types, key=lambda item: bio_genus[item]['name']):
         name, min_potential_value, max_potential_value, all_species = value_estimate(body, genus)
         if min_potential_value != 0:
-            possible_genus[name] = (min_potential_value, max_potential_value, all_species)
+            possible_genus.append((name, (min_potential_value, max_potential_value, all_species)))
 
     return possible_genus
 
@@ -1135,7 +1135,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             types = get_possible_values(body)
             detail_text += '{} Signals - Possible Types:\n'.format(body.get_bio_signals())
             count = 0
-            for bio_name, values in types.items():
+            for bio_name, values in types:
                 count += 1
                 detail_text += '{}: {}\n'.format(
                     bio_name,
