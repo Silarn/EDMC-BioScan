@@ -747,8 +747,8 @@ def get_possible_values(body: PlanetData) -> dict[str, tuple[int, int, list[tupl
              were multiple matches
     """
 
-    possible_genus = {}
-    for genus in sorted(bio_types):
+    possible_genus: list[tuple[int, int, list]] = []
+    for genus in sorted(bio_types, key=lambda item: bio_genus[item]['name']):
         name, min_potential_value, max_potential_value, all_species = value_estimate(body, genus)
         if min_potential_value != 0:
             possible_genus[name] = (min_potential_value, max_potential_value, all_species)
