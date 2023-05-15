@@ -4,13 +4,13 @@ catalog: dict[str, dict[str, Mapping]] = {
     '$Codex_Ent_Tube_Name;': {
         '$Codex_Ent_Tube_Name;': {
             'name': 'Roseum Sinuous Tubers',
-            'value': 111300,
+            'value': 1514500,
             'rulesets': [
                 {
                     'atmosphere': ['None'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'volcanism': ['silicate magma'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['core']
                 }
             ],
@@ -23,22 +23,20 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['None'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'volcanism': 'Any',
-                    'body_type': ['Metal rich body', 'High metal content body'],
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'regions': ['core']
                 }
             ],
         },
         '$Codex_Ent_TubeABCD_02_Name;': {
             'name': 'Albidum Sinuous Tubers',
-            'value': 111300,
+            'value': 1514500,
             'rulesets': [
                 {
                     'atmosphere': ['None'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'volcanism': 'Any',
-                    'body_type': ['Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['core']
                 }
             ],
@@ -51,7 +49,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['None'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'volcanism': 'Any',
                     'body_type': ['Rocky body'],
                     'regions': ['core']
                 }
@@ -59,41 +56,38 @@ catalog: dict[str, dict[str, Mapping]] = {
         },
         '$Codex_Ent_TubeEFGH_01_Name;': {
             'name': 'Lindigoticum Sinuous Tubers',
-            'value': 3425600,
+            'value': 1514500,
             'rulesets': [
                 {
                     'atmosphere': ['None'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'volcanism': 'Any',
-                    'body_type': ['Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['core']
                 }
             ],
         },
         '$Codex_Ent_TubeEFGH_02_Name;': {
             'name': 'Violaceum Sinuous Tubers',
-            'value': 3425600,
+            'value': 1514500,
             'rulesets': [
                 {
                     'atmosphere': ['None'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'volcanism': 'Any',
-                    'body_type': ['Metal rich body', 'High metal content body', 'Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['core']
                 }
             ],
         },
         '$Codex_Ent_TubeEFGH_03_Name;': {
             'name': 'Viride Sinuous Tubers',
-            'value': 3425600,
+            'value': 1514500,
             'rulesets': [
                 {
                     'atmosphere': ['None'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'volcanism': 'Any',
                     'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['core']
                 }
@@ -101,14 +95,13 @@ catalog: dict[str, dict[str, Mapping]] = {
         },
         '$Codex_Ent_TubeEFGH_Name;': {
             'name': 'Blatteum Sinuous Tubers',
-            'value': 3425600,
+            'value': 1514500,
             'rulesets': [
                 {
                     'atmosphere': ['None'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'volcanism': 'Any',
-                    'body_type': ['Metal rich body', 'High metal content body', 'Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['core']
                 }
             ],

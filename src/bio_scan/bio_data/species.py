@@ -26,7 +26,6 @@ _mound_shard_amphora: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
-                    'volcanism': 'Any',
                     'special': 'nebula'
                 }
             ]
@@ -40,7 +39,7 @@ _mound_shard_amphora: dict[str, dict[str, Mapping]] = {
                 {
                      'atmosphere': ['None'],
                      'max_temperature': 273.0,
-                     'main_star': ['A', 'F', 'G', 'K', 'M', 'S', 'MS'],
+                     'main_star': ['A', 'B', 'F', 'G', 'K', 'N', 'H'],
                      'life_plus': True
                 }
             ]
@@ -49,11 +48,13 @@ _mound_shard_amphora: dict[str, dict[str, Mapping]] = {
     '$Codex_Ent_Vents_Name;': {
         '$Codex_Ent_Vents_Name;': {
             'name': 'Amphora Plant',
-            'value': 3626400,
+            'value': 1628800,
             'rulesets': [
                 {
                     'atmosphere': ['None'],
-                    'volcanism': 'Any',
+                    'min_temperature': 1000.0,
+                    'max_temperature': 1750.0,
+                    'volcanism': ['metallic', 'rocky', 'silicate'],
                     'body_type': ['Metal rich body'],
                     'main_star': 'A',
                     'life': True
