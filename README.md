@@ -16,7 +16,7 @@ After you've mapped a planet with biological signals, it will then pare down the
 And finally, once you've started to scan each species it will display the final type and value of the sample as well as
 indicate the scan progress.
 
-Once fully analysed, the total system value (and possible first footfall value) will be shown at the bottom of the pane.
+Once fully analysed, the total system value (and possible first find value) will be shown at the bottom of the pane.
 
 As of version 1.5, you can now choose to display a complete breakdown of the qualifying species or color variants in a
 genus if there are multiple. This defaults off to reduce necessary display space.
