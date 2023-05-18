@@ -16,7 +16,7 @@ class PlanetData:
         self._temp: float = 0.0
         self._parent_stars: list[str] = []
         self._bio_signals: int = 0
-        self._flora: dict[str, tuple[str, int, str]] = {}
+        self._flora: dict[str, dict[str, any]] = {}
         self._materials: set[str] = set()
         self._mapped: bool = False
 
@@ -95,7 +95,7 @@ class PlanetData:
         self._parent_stars.append(value)
         return self
 
-    def get_flora(self, genus: str = None) -> dict[str, tuple[str, int, str]] | tuple[str, int, str] | None:
+    def get_flora(self, genus: str = None) -> dict[str, dict[str, any]] | dict[str, any] | None:
         if genus:
             if genus in self._flora:
                 return self._flora[genus]
@@ -104,25 +104,41 @@ class PlanetData:
         return self._flora
 
     def add_flora(self, genus: str, species: str = '', color: str = '') -> Self:
-        scan = 0
-        if genus in self._flora:
-            scan = self._flora[genus][1]
-        self._flora[genus] = (species, scan, color)
+        data = self._flora.get(genus, {})
+        data['species'] = species
+        data['color'] = color
+        self._flora[genus] = data
         return self
 
     def set_flora_species_scan(self, genus: str, species: str, scan: int) -> Self:
-        if genus in self._flora:
-            self._flora[genus] = (species, scan, self._flora[genus][2])
-        else:
-            self._flora[genus] = (species, scan, '')
+        data = self._flora.get(genus, {})
+        data['species'] = species
+        data['scan'] = scan
+        if scan == 3:
+            data.pop('waypoints', None)
+        self._flora[genus] = data
         return self
 
     def set_flora_color(self, genus: str, color: str) -> Self:
-        if genus in self._flora:
-            self._flora[genus] = (self._flora[genus][0], self._flora[genus][1], color)
-        else:
-            self._flora[genus] = ('', 0, color)
+        data = self._flora.get(genus, {})
+        data['color'] = color
+        self._flora[genus] = data
         return self
+
+    def add_flora_waypoint(self, genus: str, lat_long: tuple[float, float]) -> Self:
+        data = self._flora.get(genus, {})
+        if data.get('scan', 0) != 3:
+            waypoints: list[tuple[float, float]] = data.get('waypoints', [])
+            waypoints.append(lat_long)
+            data['waypoints'] = waypoints
+            self._flora[genus] = data
+        return self
+
+    def has_waypoint(self) -> bool:
+        for _, data in self._flora.items():
+            if 'waypoints' in data:
+                return True
+        return False
 
     def get_materials(self) -> set[str]:
         return self._materials

@@ -28,10 +28,10 @@ class Formatter:
 
         return s
 
-    def format_credits(self, credits: float, space: bool = True) -> str:
+    def format_credits(self, credit_amount: float, space: bool = True) -> str:
         if self.shorten:
-            return self.format_unit(credits, 'Cr', space)
-        return locale.format_string('%d Cr', credits, grouping=True, monetary=True)
+            return self.format_unit(credit_amount, 'Cr', space)
+        return locale.format_string('%d Cr', credit_amount, grouping=True, monetary=True)
 
     def format_credit_range(self, min_value: float, max_value: float, space: bool = True) -> str:
         if min_value != max_value:
