@@ -54,6 +54,7 @@ class This:
         self.focus_setting: tk.StringVar | None = None
         self.signal_setting: tk.StringVar | None = None
         self.focus_breakdown: tk.BooleanVar | None = None
+        self.waypoints_enabled: tk.BooleanVar | None = None
         self.debug_logging_enabled: tk.BooleanVar | None = None
 
         # GUI Objects
@@ -70,7 +71,8 @@ class This:
         # Plugin state data
         self.planets: dict[str, PlanetData] = {}
         self.main_stars: dict[str, StarData] = {}
-        self.planet_cache: dict[str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
+        self.planet_cache: dict[
+            str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
 
         # self.odyssey: bool = False
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
@@ -165,9 +167,9 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     HyperlinkLabel(frame, text=this.NAME, background=nb.Label().cget('background'),
                    url='https://github.com/Silarn/EDMC-BioScan', underline=True) \
         .grid(row=1, padx=x_padding, sticky=tk.W)
-    nb.Label(frame, text = 'Version %s' % this.VERSION).grid(row=1, column=1, padx=x_padding, sticky=tk.E)
+    nb.Label(frame, text='Version %s' % this.VERSION).grid(row=1, column=1, padx=x_padding, sticky=tk.E)
 
-    ttk.Separator(frame).grid(row=5, columnspan=2, pady=y_padding*2, sticky=tk.EW)
+    ttk.Separator(frame).grid(row=5, columnspan=2, pady=y_padding * 2, sticky=tk.EW)
 
     nb.Label(
         frame,
@@ -217,6 +219,11 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
                   'In Flight: Show the signal summary in flight only',
              justify=tk.LEFT) \
         .grid(row=12, column=1, sticky=tk.NW)
+    nb.Checkbutton(
+        frame,
+        text='Enable species waypoints with the comp. scanner',
+        variable=this.waypoints_enabled
+    ).grid(row=13, column=1, sticky=tk.W)
 
     nb.Checkbutton(
         frame,
@@ -232,6 +239,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_focus', this.focus_setting.get())
     config.set('bioscan_focus_breakdown', this.focus_breakdown.get())
     config.set('bioscan_signal', this.signal_setting.get())
+    config.set('bioscan_waypoints', this.waypoints_enabled.get())
     config.set('bioscan_debugging', this.debug_logging_enabled.get())
     update_display()
 
@@ -242,6 +250,7 @@ def parse_config() -> None:
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
     this.focus_breakdown = tk.BooleanVar(value=config.get_bool(key='bioscan_focus_breakdown', default=False))
     this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default='Always'))
+    this.waypoints_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_waypoints', default=True))
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
 
 
@@ -580,9 +589,9 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 found = True
                                 stop = True
                         for system, coords in nebula_coords.items():
-                            distance = math.sqrt((coords[0]-this.coordinates[0])**2
-                                                 + (coords[1]-this.coordinates[1])**2
-                                                 + (coords[2]-this.coordinates[2])**2)
+                            distance = math.sqrt((coords[0] - this.coordinates[0]) ** 2
+                                                 + (coords[1] - this.coordinates[1]) ** 2
+                                                 + (coords[2] - this.coordinates[2]) ** 2)
                             log('Distance to {0} from {1}: {2:n} ly'.format(system, this.starsystem, distance))
                             if distance < 100.0:
                                 found = True
@@ -606,10 +615,12 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             for species in possible_species:
                 if 'star' in bio_genus[genus]['colors']['species'][species]:
                     try:
-                        for star in sorted(body.get_parent_stars(), key=lambda star_name: this.main_stars[star_name].get_id()):
+                        for star in sorted(body.get_parent_stars(),
+                                           key=lambda star_name: this.main_stars[star_name].get_id()):
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
                                 if star_check(star_type, this.main_stars[star].get_type()):
-                                    possible_species[species].add(bio_genus[genus]['colors']['species'][species]['star'][star_type])
+                                    possible_species[species].add(
+                                        bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                     break
                             if possible_species[species]:
                                 break
@@ -620,7 +631,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 continue
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
                                 if star_check(star_type, star_data.get_type()):
-                                    possible_species[species].add(bio_genus[genus]['colors']['species'][species]['star'][star_type])
+                                    possible_species[species].add(
+                                        bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                     break
                             if possible_species[species]:
                                 break
@@ -629,7 +641,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                 elif 'element' in bio_genus[genus]['colors']['species'][species]:
                     for element in bio_genus[genus]['colors']['species'][species]['element']:
                         if element in body.get_materials():
-                            possible_species[species].add(bio_genus[genus]['colors']['species'][species]['element'][element])
+                            possible_species[species].add(
+                                bio_genus[genus]['colors']['species'][species]['element'][element])
 
                 if not possible_species[species]:
                     eliminated_species.add(species)
@@ -689,7 +702,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     bio_types[genus][sorted_species[0][0]]['name'],
                     f' - {sorted_species[0][1][0]}' if len(sorted_species[0][1]) == 1 else ''
                 ),
-                bio_types[genus][sorted_species[0][0]]['value'], bio_types[genus][sorted_species[0][0]]['value'], localized_species
+                bio_types[genus][sorted_species[0][0]]['value'], bio_types[genus][sorted_species[0][0]]['value'],
+                localized_species
             )
         )
     elif len(sorted_species) > 0:
@@ -1079,6 +1093,12 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
 
 
 def calc_bearing(lat_long: tuple[float, float]) -> float:
+    """
+    Get the bearing angle from your current position to the target position using lat/long coordinates.
+
+    :param lat_long: The target lat/long coordinates.
+    :return: The bearing angle (from 0-359)
+    """
     lat_long2 = (this.planet_latitude, this.planet_longitude)
     phi_1 = math.radians(lat_long2[0])
     phi_2 = math.radians(lat_long[0])
@@ -1091,6 +1111,13 @@ def calc_bearing(lat_long: tuple[float, float]) -> float:
 
 
 def calc_distance(lat_long: tuple[float, float], lat_long2: tuple[float, float] | None = None) -> float:
+    """
+    Use the haversine formula to get the distance between two points of latitude/longitude.
+
+    :param lat_long: The lat/long coordinates of the first (target) position.
+    :param lat_long2: Optional. The lat/long coordinates of the second position. Defaults to the current position.
+    :return: The calculated distance.
+    """
     lat_long2 = lat_long2 if lat_long2 else (this.planet_latitude, this.planet_longitude)
     phi_1 = math.radians(lat_long2[0])
     phi_2 = math.radians(lat_long[0])
@@ -1104,8 +1131,12 @@ def calc_distance(lat_long: tuple[float, float], lat_long2: tuple[float, float] 
 
 
 def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
-    """ Use the haversine formula to do distance calculations against your scan locations
-    and return the shortest distance. """
+    """
+    Get the shortest distance to a scan location for the currently-in-progress species.
+
+    :param lat_long: The lat/long coordinates to consider for the distance. Defaults to the current location.
+    :return: The minimum distance or None if we don't have active scan info.
+    """
 
     distance_list = []
     if this.planet_latitude is not None and this.planet_longitude is not None:
@@ -1118,25 +1149,22 @@ def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
 
 def get_nearest(genus: str, waypoints: list[tuple[float, float]]) -> str:
     """
-    Check logged waypoints and return the nearest one outside the required sample range.
+    Check logged waypoints and return the nearest one that's not within a previous sample radius.
 
     :param genus: The genus ID
-    :param waypoints: The list of logged waypoints
-    :return: String with distance and bearing to nearest qualifying waypoint or empty
+    :param waypoints: The list of logged waypoints as lat/long
+    :return: String with the distance and bearing to the nearest qualifying waypoint. If none is found, return an
+             empty string.
     """
 
     if this.planet_heading and this.planet_latitude and this.planet_longitude:
-        logger.debug(f'For {bio_genus[genus]["name"]}, checking waypoints: {waypoints}')
         distances: list[tuple[float, float]] = []
         for lat, long in waypoints:
             min_distance = get_distance((lat, long))
-            logger.debug(f'Min distance is: {min_distance}')
             if not min_distance or min_distance > bio_genus[genus]['distance']:
                 distance = calc_distance((lat, long))
                 bearing = calc_bearing((lat, long))
                 distances.append((distance, bearing))
-
-        logger.debug(f'Found waypoints: {distances}')
 
         if len(distances):
             distance, bearing = sorted(distances, key=lambda item: item[0])[0]
@@ -1178,7 +1206,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         this.formatter.format_credits(bio_types[genus][species]['value']),
                         u' 🗸' if scan == 3 else '',
                         f'\n  Nearest Known Location: {get_nearest(genus, waypoints)}'
-                        if focused and this.current_scan == '' and len(waypoints) else '',
+                        if (this.waypoints_enabled.get() and focused
+                            and this.current_scan == '' and waypoints)
+                        else ''
                     )
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
@@ -1227,7 +1257,8 @@ def update_display() -> None:
         this.edsm_button.grid()
         this.edsm_failed.grid_remove()
 
-    bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0, this.planets.items())).items(),
+    bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0,
+                                         this.planets.items())).items(),
                              key=lambda item: item[1].get_id()))
     exobio_body_names = [
         '{}{}{}: {}'.format(
@@ -1272,7 +1303,8 @@ def update_display() -> None:
                      and this.planet_altitude < 5000.0)):
             if text[-1] != '\n':
                 text += '\n'
-            complete = len(dict(filter(lambda x: x[1].get('scan', 0) == 3, bio_bodies[this.location_name].get_flora().items())))
+            complete = len(
+                dict(filter(lambda x: x[1].get('scan', 0) == 3, bio_bodies[this.location_name].get_flora().items())))
             text += '{} - {} [{}G] - {}/{} Analysed'.format(
                 bio_bodies[this.location_name].get_name(),
                 bio_bodies[this.location_name].get_type(),
@@ -1297,7 +1329,8 @@ def update_display() -> None:
                             else '> {}'.format(bio_genus[genus]['distance']),
                             bio_genus[genus]['distance']
                         ),
-                        f'\nNearest Known Location: {get_nearest(genus, waypoints)}' if len(waypoints) else '',
+                        f'\nNearest Known Location: {get_nearest(genus, waypoints)}'
+                        if (waypoints and this.waypoints_enabled.get()) else ''
                     )
                     break
 
