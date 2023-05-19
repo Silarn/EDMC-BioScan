@@ -1172,10 +1172,10 @@ def get_nearest(genus: str, waypoints: list[tuple[float, float]]) -> str:
             bearing_diff = abs(bearing - this.planet_heading) % 360
             bearing_diff = 360 - bearing_diff if bearing_diff > 180 else bearing_diff
             bearing_diff = bearing_diff if (this.planet_heading + bearing_diff) % 360 == bearing else bearing_diff * -1
-            return '{}° ({}{}), {}'.format(int(bearing),
-                                           '+' if bearing_diff >= 0 else '',
-                                           int(bearing_diff),
-                                           distance_formatted)
+            return '{}° ({}{}°), {}'.format(int(bearing),
+                                            '-> ' if bearing_diff >= 0 else '<- ',
+                                            int(abs(bearing_diff)),
+                                            distance_formatted)
 
     return ''
 
@@ -1199,16 +1199,15 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 if data.get('scan', 0) == 3:
                     value_sum += bio_types[genus][species]['value']
                 if species != '':
+                    waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
+                                                                 and this.current_scan == '' and waypoints) else ''
                     detail_text += '{}{} ({}): {}{}{}\n'.format(
                         bio_types[genus][species]['name'],
                         f' - {color}' if color else '',
                         scan_label(scan),
                         this.formatter.format_credits(bio_types[genus][species]['value']),
                         u' 🗸' if scan == 3 else '',
-                        f'\n  Nearest Known Location: {get_nearest(genus, waypoints)}'
-                        if (this.waypoints_enabled.get() and focused
-                            and this.current_scan == '' and waypoints)
-                        else ''
+                        f'\n  Nearest Saved Waypoint: {waypoint}' if waypoint else ''
                     )
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
@@ -1319,6 +1318,7 @@ def update_display() -> None:
                     distance = get_distance()
                     distance_format = '{:.2f}'.format(distance) if distance is not None else 'unk'
                     distance = distance if distance is not None else 0
+                    waypoint = get_nearest(genus, waypoints) if (waypoints and this.waypoints_enabled.get()) else ''
                     text += '\nIn Progress: {} - {} ({}/3) [{}]{}'.format(
                         bio_types[genus][species]['name'],
                         scan_label(scan),
@@ -1329,8 +1329,7 @@ def update_display() -> None:
                             else '> {}'.format(bio_genus[genus]['distance']),
                             bio_genus[genus]['distance']
                         ),
-                        f'\nNearest Known Location: {get_nearest(genus, waypoints)}'
-                        if (waypoints and this.waypoints_enabled.get()) else ''
+                        f'\nNearest Saved Waypoint: {waypoint}' if waypoint else ''
                     )
                     break
 
