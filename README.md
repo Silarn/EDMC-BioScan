@@ -38,6 +38,17 @@ track scans with the composition scanner and will lock in the final species of t
 you to scan biologicals one at a time. In this way you can lock in a species and value while competing the analysis of
 another lifeform.
 
+#### Version 1.7+: Waypoints
+
+Scans with the comp. scanner will now log waypoints for any incomplete species. If you have an active scan, the nearest
+waypoint for that species will display below the progress indicator. Waypoints within the minimum distance of previous
+samples are excluded from the list. When you have no active scan, any remaining species will display the nearest
+waypoint in the detailed species list scrollbox.
+
+The waypoint indicator will display the distance to the waypoint, the compass heading toward that waypoint, and an
+indicator for the direction and degrees to turn to face that heading. Note that waypoints will log your current location,
+so for best results make the scan as close to the target species as possible.
+
 ### EDSM Integration
 
 Once per system, you can attempt to fetch any data from EDSM. This is helpful if you log out in the middle of scanning a
