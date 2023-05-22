@@ -144,8 +144,8 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     this.edsm_failed = tk.Label(this.frame, text='No EDSM Data Found')
     update = version_check()
     if update != '':
-        text = 'Version {} is now available'.format(update)
-        url = 'https://github.com/Silarn/EDMC-BioScan/releases/tag/v{}'.format(update)
+        text = f'Version {update} is now available'
+        url = f'https://github.com/Silarn/EDMC-BioScan/releases/tag/v{update}'
         this.update_button = HyperlinkLabel(this.frame, text=text, url=url)
         this.update_button.grid(row=4, columnspan=2, sticky=tk.N)
     update_display()
@@ -190,7 +190,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     nb.Label(frame,
              text='Never: Never filter signal details\n' +
                   'On Approach: Show only local signals on approach\n' +
-                  'Near Surface: Show signals under 5km altitiude\n' +
+                  'Near Surface: Show signals under 5km altitude\n' +
                   'On Surface: Show only local signals when on surface',
              justify=tk.LEFT) \
         .grid(row=12, padx=x_padding, column=0, sticky=tk.NW)
@@ -430,7 +430,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
 
     possible_species: dict[str, set[str]] = {}
     log(f'System: {this.starsystem} - Body: {body.get_name()}')
-    log('Running checks for {}:'.format(bio_genus[genus]['name']))
+    log(f'Running checks for {bio_genus[genus]["name"]}:')
     for species, data in bio_types[genus].items():
         log(species)
         count = 0
@@ -503,7 +503,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     case 'regions':
                         if this.coordinates is not None:
                             region_id = findRegion(*this.coordinates)
-                            log('Current region: {} - {}'.format(region_id[0], region_id[1]))
+                            log(f'Current region: {region_id[0]} - {region_id[1]}')
                             if region_id is not None:
                                 for region in value:
                                     if region.startswith('!'):
@@ -592,7 +592,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             distance = math.sqrt((coords[0] - this.coordinates[0]) ** 2
                                                  + (coords[1] - this.coordinates[1]) ** 2
                                                  + (coords[2] - this.coordinates[2]) ** 2)
-                            log('Distance to {0} from {1}: {2:n} ly'.format(system, this.starsystem, distance))
+                            log(f'Distance to {system} from {this.starsystem}: {distance:d} ly')
                             if distance < 100.0:
                                 found = True
                                 stop = True
@@ -1075,8 +1075,11 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         this.planet_longitude = entry['Longitude']
         this.planet_radius = entry['PlanetRadius']
         this.planet_heading = entry['Heading'] if 'Heading' in entry else None
-        if this.location_name != '' and (this.current_scan != '' or this.planets[this.location_name].has_waypoint()):
-            refresh = True
+        try:
+            if this.location_name != '' and (this.current_scan != '' or this.planets[this.location_name].has_waypoint()):
+                refresh = True
+        except KeyError:
+            log(f"Current location ({this.location_name}) has no planet data")
     else:
         this.planet_latitude = None
         this.planet_longitude = None
@@ -1187,7 +1190,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
     value_sum = 0
     for name, body in bodies.items():
         if not focused:
-            detail_text += '{}:\n'.format(name)
+            detail_text += f'{name}:\n'
         if len(body.get_flora()) > 0:
             count = 0
             for genus, data in sorted(body.get_flora().items(), key=lambda item: bio_genus[item[0]]['name']):
@@ -1226,7 +1229,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
 
         else:
             types = get_possible_values(body)
-            detail_text += '{} Signals - Possible Types:\n'.format(body.get_bio_signals())
+            detail_text += f'{body.get_bio_signals()} Signals - Possible Types:\n'
             count = 0
             for bio_name, values in types:
                 count += 1
@@ -1316,7 +1319,7 @@ def update_display() -> None:
                 waypoints: list[tuple[float, float]] = data.get('waypoints', [])
                 if 0 < scan < 3:
                     distance = get_distance()
-                    distance_format = '{:.2f}'.format(distance) if distance is not None else 'unk'
+                    distance_format = f'{distance:.2f}' if distance is not None else 'unk'
                     distance = distance if distance is not None else 0
                     waypoint = get_nearest(genus, waypoints) if (waypoints and this.waypoints_enabled.get()) else ''
                     text += '\nIn Progress: {} - {} ({}/3) [{}]{}'.format(
@@ -1326,7 +1329,7 @@ def update_display() -> None:
                         '{}/{}m'.format(
                             distance_format
                             if distance < bio_genus[genus]['distance']
-                            else '> {}'.format(bio_genus[genus]['distance']),
+                            else f'> {bio_genus[genus]["distance"]}',
                             bio_genus[genus]['distance']
                         ),
                         f'\nNearest Saved Waypoint: {waypoint}' if waypoint else ''
