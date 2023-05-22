@@ -592,7 +592,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             distance = math.sqrt((coords[0] - this.coordinates[0]) ** 2
                                                  + (coords[1] - this.coordinates[1]) ** 2
                                                  + (coords[2] - this.coordinates[2]) ** 2)
-                            log(f'Distance to {system} from {this.starsystem}: {distance:d} ly')
+                            log(f'Distance to {system} from {this.starsystem}: {distance:n} ly')
                             if distance < 100.0:
                                 found = True
                                 stop = True
