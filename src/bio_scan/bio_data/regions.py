@@ -17,4 +17,5 @@ guardian_sectors: list[str] = [
     'Col 173 Sector',
     'Vela Dark Region',
     'IC 2391 Sector',
+    'NGC 2451A Sector'
 ]
