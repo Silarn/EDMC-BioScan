@@ -85,8 +85,8 @@ bio_codex_map = {
         '$Codex_Ent_Recepta_02_',
         '$Codex_Ent_Recepta_03_',
     },
-    '$Codex_Ent_Seed_Name;': {
-        '$Codex_Ent_Seed',
+    '$Codex_Ent_Brancae_Name;': {
+        '$Codex_Ent_Seed_',
         '$Codex_Ent_SeedABCD_01_',
         '$Codex_Ent_SeedABCD_02_',
         '$Codex_Ent_SeedABCD_03_',

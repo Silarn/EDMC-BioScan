@@ -1,7 +1,7 @@
 from typing import Mapping
 
 catalog: dict[str, dict[str, Mapping]] = {
-    '$Codex_Ent_Seed_Name;': {
+    '$Codex_Ent_Brancae_Name;': {
         '$Codex_Ent_Seed_Name;': {
             'name': 'Roseum Brain Tree',
             'value': 1593700,

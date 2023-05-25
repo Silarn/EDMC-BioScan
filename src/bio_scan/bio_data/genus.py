@@ -500,7 +500,7 @@ data: MutableMapping = {
             }
         }
     },
-    '$Codex_Ent_Seed_Name;': {'name': 'Brain Tree', 'distance': 100},
+    '$Codex_Ent_Brancae_Name;': {'name': 'Brain Tree', 'distance': 100},
     '$Codex_Ent_Shrubs_Genus_Name;': {
         'name': 'Frutexa',
         'distance': 150,
