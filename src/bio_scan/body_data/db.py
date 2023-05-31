@@ -7,7 +7,7 @@ class Base(DeclarativeBase):
     pass
 
 
-class CommanderData(Base):
+class Commander(Base):
     __tablename__ = "commanders"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -37,24 +37,22 @@ class Planet(Base):
     system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'))
     planet: Mapped[list['System']] = relationship(back_populates='planets')
     name: Mapped[str] = mapped_column(String(32))
-    type: Mapped[Optional[str]] = mapped_column(String(32))
-    body_id: Mapped[Optional[int]]
-    atmosphere: Mapped[Optional[str]] = mapped_column(String(32))
+    type: Mapped[str] = mapped_column(String(32), default='')
+    body_id: Mapped[int] = mapped_column(default='')
+    atmosphere: Mapped[str] = mapped_column(String(32), default='')
     gasses: Mapped[list['PlanetGas']] = relationship(
         back_populates='gas', cascade='all, delete-orphan'
     )
-    volcanism: Mapped[Optional[str]] = mapped_column(String(32))
-    distance: Mapped[Optional[float]]
-    gravity: Mapped[Optional[float]]
-    temp: Mapped[Optional[float]]
-    parent_stars: Mapped[list['PlanetParentStar']] = relationship(
-        back_populates='star', cascade='all, delete-orphan'
-    )
+    volcanism: Mapped[str] = mapped_column(String(32), default='')
+    distance: Mapped[float] = mapped_column(default=0.0)
+    gravity: Mapped[float] = mapped_column(default=0.0)
+    temp: Mapped[float] = mapped_column(default=0.0)
+    parent_stars: Mapped[str] = mapped_column(default='')
     bio_signals: Mapped[int] = mapped_column(default=0)
     floras: Mapped[list['PlanetFlora']] = relationship(
         back_populates='flora', cascade='all, delete-orphan'
     )
-    materials: Mapped[Optional[str]]
+    materials: Mapped[str] = mapped_column(default='')
     mapped: Mapped[bool] = mapped_column(default=False)
 
 
@@ -67,15 +65,8 @@ class PlanetGas(Base):
     gas_name: Mapped[str]
     percent: Mapped[float]
 
-
-class PlanetParentStar(Base):
-    __tablename__ = 'planet_parent_stars'
-
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    planet_id: Mapped[int] = mapped_column(ForeignKey('planets.id'))
-    star_id: Mapped[int] = mapped_column(ForeignKey('stars.id'))
-    star: Mapped['Planet'] = relationship(back_populates='parent_stars')
-    priority: Mapped[int]
+    def __repr__(self) -> str:
+        return f'PlanetGas(gas_name={self.gas_name!r}, percent={self.percent!r})'
 
 
 class PlanetFlora(Base):
@@ -84,10 +75,11 @@ class PlanetFlora(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     planet_id: Mapped[int] = mapped_column(ForeignKey('planets.id'))
     flora: Mapped['Planet'] = relationship(back_populates='floras')
+    scans: Mapped[list['FloraScans']] = relationship(back_populates='scan', cascade='all, delete-orphan')
+    waypoints: Mapped[list['Waypoint']] = relationship(back_populates='waypoint', cascade='all, delete-orphan')
     genus: Mapped[str]
-    species: Mapped[Optional[str]]
-    colors: Mapped[Optional[str]]
-    scans: Mapped[int] = mapped_column(default=0)
+    species: Mapped[str] = mapped_column(default='')
+    color: Mapped[str] = mapped_column(default='')
     __table_args__ = (UniqueConstraint("planet_id", "genus", name="_planet_genus_constraint"),
                       )
 
@@ -98,9 +90,21 @@ class FloraScans(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     commander_id: Mapped[int] = mapped_column(ForeignKey('commanders.id'))
     flora_id: Mapped[int] = mapped_column(ForeignKey('planet_flora.id'))
+    scan: Mapped['PlanetFlora'] = relationship(back_populates='scans')
     count: Mapped[int] = mapped_column(default=0)
     __table_args__ = (UniqueConstraint('commander_id', 'flora_id', name='_cmdr_flora_constraint'),
                       )
+
+
+class Waypoint(Base):
+    __tablename__ = 'flora_waypoints'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    commander_id: Mapped[int] = mapped_column(ForeignKey('commanders.id'))
+    flora_id: Mapped[int] = mapped_column(ForeignKey('planet_flora.id'))
+    waypoint: Mapped['PlanetFlora'] = relationship(back_populates='waypoints')
+    latitude: Mapped[float]
+    longitude: Mapped[float]
 
 
 class Star(Base):
@@ -111,6 +115,6 @@ class Star(Base):
     system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'))
     star: Mapped[list['System']] = relationship(back_populates='stars')
     name: Mapped[str]
-    type: Mapped[str] = mapped_column(default='')
     body_id: Mapped[int]
+    type: Mapped[str] = mapped_column(default='')
     luminosity: Mapped[str] = mapped_column(default='')

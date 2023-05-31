@@ -7,7 +7,7 @@ import re
 import sys
 import threading
 from traceback import print_exc
-from typing import Mapping, MutableMapping
+from typing import Mapping, MutableMapping, Optional
 from urllib.parse import quote
 import requests
 import semantic_version
@@ -17,11 +17,12 @@ import math
 import tkinter as tk
 from tkinter import ttk
 
+import sqlalchemy
 # Local imports
 from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
 from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
-from bio_scan.body_data.struct import PlanetData, StarData
+from bio_scan.body_data.struct import PlanetData, StarData, load_planets, load_stars
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
 from bio_scan.bio_data.codex import parse_variant
@@ -29,6 +30,10 @@ from bio_scan.bio_data.genus import data as bio_genus
 from bio_scan.bio_data.regions import region_map, guardian_sectors
 from bio_scan.bio_data.species import rules as bio_types
 from bio_scan.format_util import Formatter
+
+from sqlalchemy import create_engine, select
+from sqlalchemy.orm import Session
+from bio_scan.body_data.db import Base as DBBase, Commander, PlanetFlora, FloraScans, Waypoint
 
 # EDMC imports
 from config import config
@@ -51,50 +56,55 @@ class This:
         self.NAME = 'BioScan'
 
         # Settings vars
-        self.focus_setting: tk.StringVar | None = None
-        self.signal_setting: tk.StringVar | None = None
-        self.focus_breakdown: tk.BooleanVar | None = None
-        self.waypoints_enabled: tk.BooleanVar | None = None
-        self.debug_logging_enabled: tk.BooleanVar | None = None
+        self.focus_setting: Optional[tk.StringVar] = None
+        self.signal_setting: Optional[tk.StringVar] = None
+        self.focus_breakdown: Optional[tk.BooleanVar] = None
+        self.waypoints_enabled: Optional[tk.BooleanVar] = None
+        self.debug_logging_enabled: Optional[tk.BooleanVar] = None
 
         # GUI Objects
-        self.frame: tk.Frame | None = None
-        self.scroll_canvas: tk.Canvas | None = None
-        self.scrollbar: ttk.Scrollbar | None = None
-        self.scrollable_frame: ttk.Frame | None = None
-        self.label: tk.Label | None = None
-        self.values_label: tk.Label | None = None
-        self.total_label: tk.Label | None = None
-        self.edsm_button: tk.Label | None = None
-        self.edsm_failed: tk.Label | None = None
+        self.frame: Optional[tk.Frame] = None
+        self.scroll_canvas: Optional[tk.Canvas] = None
+        self.scrollbar: Optional[ttk.Scrollbar] = None
+        self.scrollable_frame: Optional[ttk.Frame] = None
+        self.label: Optional[tk.Label] = None
+        self.values_label: Optional[tk.Label] = None
+        self.total_label: Optional[tk.Label] = None
+        self.edsm_button: Optional[tk.Label] = None
+        self.edsm_failed: Optional[tk.Label] = None
+        self.update_button: Optional[HyperlinkLabel] = None
 
         # Plugin state data
+        self.commander: Optional[Commander] = None
         self.planets: dict[str, PlanetData] = {}
         self.main_stars: dict[str, StarData] = {}
         self.planet_cache: dict[
             str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
+        self.sql_engine: Optional[sqlalchemy.Engine] = None
+        self.sql_session: Optional[Session] = None
 
         # self.odyssey: bool = False
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
         self.main_star_type: str = ''
         self.main_star_luminosity: str = ''
-        self.coordinates: list[float, float, float] | None = None
+        self.coordinates: Optional[list[float, float, float]] = None
         self.location_name: str = ''
         self.location_id: str = ''
         self.location_state: str = ''
         self.planet_radius: float = 0.0
-        self.planet_latitude: float | None = None
-        self.planet_longitude: float | None = None
+        self.planet_latitude: Optional[float] = None
+        self.planet_longitude: Optional[float] = None
         self.planet_altitude: float = 10000.0
-        self.planet_heading: int | None = None
+        self.planet_heading: Optional[int] = None
         self.scan_latitude: list[float] = []
         self.scan_longitude: list[float] = []
         self.current_scan: str = ''
         self.starsystem: str = ''
 
         # EDSM vars
-        self.edsm_session = None
-        self.edsm_bodies = None
+        self.edsm_thread: Optional[threading.Thread] = None
+        self.edsm_session: Optional[str] = None
+        self.edsm_bodies: Optional[Mapping] = None
         self.fetched_edsm = False
 
 
@@ -102,10 +112,12 @@ this = This()
 logger = get_plugin_logger(this.NAME)
 
 
-# Compatibility fallback
-def plugin_start3(plugin_dir) -> str:
+def plugin_start3(plugin_dir: str) -> str:
     """ EDMC start hook """
-
+    engine_path = config.app_dir_path / 'bioscan.db'
+    this.sql_engine = create_engine(f"sqlite:///{engine_path}")
+    DBBase.metadata.create_all(this.sql_engine)
+    this.sql_session = Session(this.sql_engine)
     return this.NAME
 
 
@@ -275,6 +287,14 @@ def version_check() -> str:
     return ''
 
 
+def plugin_stop() -> None:
+    if this.edsm_thread:
+        this.edsm_thread.join()
+    this.sql_session.commit()
+    this.sql_session.close()
+    this.sql_engine.dispose()
+
+
 def log(*args) -> None:
     """
     Debug logger helper function. Only writes to log if debug logging is enabled for BioScan.
@@ -288,9 +308,9 @@ def log(*args) -> None:
 def edsm_fetch() -> None:
     """ EDSM system data fetch thread initialization """
 
-    thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.starsystem,))
-    thread.daemon = True
-    thread.start()
+    this.edsm_thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.starsystem,))
+    this.edsm_thread.daemon = True
+    this.edsm_thread.start()
 
 
 def edsm_worker(system_name: str) -> None:
@@ -338,7 +358,7 @@ def edsm_data(event: tk.Event) -> None:
         elif body['type'] == 'Planet':
             try:
                 if body_short_name not in this.planets:
-                    planet_data = PlanetData(body_short_name)
+                    planet_data = PlanetData.from_journal(this.starsystem, body_short_name, this.sql_session)
                 else:
                     planet_data = this.planets[body_short_name]
                 planet_type = map_edsm_type(body['subType'])
@@ -365,11 +385,16 @@ def edsm_data(event: tk.Event) -> None:
                     for material in body['materials']:  # type: str
                         planet_data.add_material(material.lower())
 
+                atmosphere_composition: dict[str, float] = body.get('atmosphereComposition', {})
+                for gas, percent in atmosphere_composition.items():
+                    planet_data.add_gas(gas, percent)
+
                 this.planets[body_short_name] = planet_data
 
             except Exception as e:
                 logger.debug('Error while parsing EDSM', exc_info=e)
     this.fetched_edsm = True
+    this.sql_session.commit()
     reset_cache()
     update_display()
 
@@ -380,17 +405,20 @@ def add_edsm_star(body: dict) -> None:
 
     :param body: The EDSM body data (JSON)
     """
-    body_short_name = get_body_name(body['name'])
-    if body_short_name not in this.main_stars:
-        star_data = StarData(body_short_name, body['bodyId'])
-    else:
-        star_data = this.main_stars[body['bodyId']]
-    if body['spectralClass']:
-        star_data.set_type(body['spectralClass'][:-1])
-    else:
-        star_data.set_type(parse_edsm_star_class(body['subType']))
-    star_data.set_luminosity(body['luminosity'])
-    this.main_stars[body_short_name] = star_data
+    try:
+        body_short_name = get_body_name(body['name'])
+        if body_short_name not in this.main_stars:
+            star_data = StarData.from_journal(this.starsystem, body_short_name, body['bodyId'], this.sql_session)
+        else:
+            star_data = this.main_stars[body['bodyId']]
+        if body['spectralClass']:
+            star_data.set_type(body['spectralClass'][:-1])
+        else:
+            star_data.set_type(parse_edsm_star_class(body['subType']))
+        star_data.set_luminosity(body['luminosity'])
+        this.main_stars[body_short_name] = star_data
+    except Exception as e:
+        logger.debug('Error while parsing EDSM', exc_info=e)
 
 
 def scan_label(scans: int) -> str:
@@ -814,12 +842,14 @@ def add_star(entry: Mapping[str, any]):
     body_short_name = get_body_name(entry['BodyName'])
 
     if entry['BodyID'] not in this.main_stars:
-        star_data = StarData(body_short_name, entry['BodyID'])
+        star_data = StarData.from_journal(this.starsystem, body_short_name, entry['BodyID'], this.sql_session)
     else:
         star_data = this.main_stars[entry['BodyID']]
 
     star_data.set_type(entry['StarType'])
     star_data.set_luminosity(entry['Luminosity'])
+
+    this.sql_session.commit()
 
     this.main_stars[body_short_name] = star_data
 
@@ -833,9 +863,21 @@ def journal_entry(
     # this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
     # this.odyssey = state.get('Odyssey', False)
     if system and system != this.starsystem:
+        this.sql_session.commit()
         reset()
         system_changed = True
         this.starsystem = system
+        this.planets = load_planets(system, this.sql_session)
+        this.main_stars = load_stars(system, this.sql_session)
+
+    if cmdr and not this.commander:
+        stmt = select(Commander).where(Commander.name == cmdr)
+        result = this.sql_session.scalars(stmt)
+        this.commander = result.first()
+        if not this.commander:
+            this.commander = Commander(name=cmdr)
+            this.sql_session.add(this.commander)
+            this.sql_session.commit()
 
     log(f'Event {entry["event"]}')
     if entry['event'] in ['Location', 'FSDJump', 'CarrierJump']:
@@ -864,7 +906,7 @@ def journal_entry(
 
         if 'PlanetClass' in entry:
             if body_short_name not in this.planets:
-                body_data = PlanetData(body_short_name)
+                body_data = PlanetData.from_journal(this.starsystem, body_short_name, this.sql_session)
             else:
                 body_data = this.planets[body_short_name]
             body_data.set_distance(float(entry['DistanceFromArrivalLS'])).set_type(entry['PlanetClass']) \
@@ -889,6 +931,8 @@ def journal_entry(
                 for gas in entry['AtmosphereComposition']:
                     body_data.add_gas(gas['Name'], gas['Percent'])
 
+            this.sql_session.commit()
+
             this.planets[body_short_name] = body_data
 
             reset_cache()
@@ -897,7 +941,7 @@ def journal_entry(
     elif entry['event'] == 'FSSBodySignals':
         body_short_name = get_body_name(entry['BodyName'])
         if body_short_name not in this.planets:
-            this.planets[body_short_name] = PlanetData(body_short_name)
+            this.planets[body_short_name] = PlanetData.from_journal(this.starsystem, body_short_name, this.sql_session)
         for signal in entry['Signals']:
             if signal['Type'] == '$SAA_SignalType_Biological;':
                 this.planets[body_short_name].set_bio_signals(signal['Count'])
@@ -909,7 +953,7 @@ def journal_entry(
         body_short_name = get_body_name(entry['BodyName'])
 
         if body_short_name not in this.planets:
-            body_data = PlanetData(body_short_name).set_id(entry['BodyID'])
+            body_data = PlanetData.from_journal(this.starsystem, body_short_name, this.sql_session).set_id(entry['BodyID'])
         else:
             body_data = this.planets[body_short_name].set_id(entry['BodyID'])
 
@@ -945,11 +989,15 @@ def journal_entry(
                 scan_level = 3
 
         if target_body is not None:
-            this.planets[target_body].set_flora_species_scan(entry['Genus'], entry['Species'], scan_level)
+            this.planets[target_body].set_flora_species_scan(
+                entry['Genus'], entry['Species'], scan_level, this.commander.id
+            )
             if this.current_scan != '' and this.current_scan != entry['Genus']:
-                data: dict[str, any] = this.planets[target_body].get_flora(this.current_scan)
+                data: PlanetFlora = this.planets[target_body].get_flora(this.current_scan)
                 if data:
-                    this.planets[target_body].set_flora_species_scan(this.current_scan, data['species'], 0)
+                    this.planets[target_body].set_flora_species_scan(
+                        this.current_scan, data.species, 0, this.commander.id
+                    )
                 this.scan_latitude.clear()
                 this.scan_longitude.clear()
             this.current_scan = entry['Genus']
@@ -983,8 +1031,9 @@ def journal_entry(
             genus, species, color = parse_variant(entry['Name'])
             if genus is not '' and species is not '':
                 this.planets[target_body].add_flora(genus, species, color)
-                if this.planets[target_body].get_flora(genus).get('scan', 0) != 3:
-                    this.planets[target_body].add_flora_waypoint(genus, (this.planet_latitude, this.planet_longitude))
+                this.planets[target_body].add_flora_waypoint(
+                    genus, (this.planet_latitude, this.planet_longitude), this.commander.id
+                )
 
         update_display()
 
@@ -1076,7 +1125,8 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         this.planet_radius = entry['PlanetRadius']
         this.planet_heading = entry['Heading'] if 'Heading' in entry else None
         try:
-            if this.location_name != '' and (this.current_scan != '' or this.planets[this.location_name].has_waypoint()):
+            if this.location_name != '' and (this.current_scan != ''
+                                             or this.planets[this.location_name].has_waypoint(this.commander.id)):
                 refresh = True
         except KeyError:
             log(f"Current location ({this.location_name}) has no planet data")
@@ -1150,7 +1200,7 @@ def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
     return None
 
 
-def get_nearest(genus: str, waypoints: list[tuple[float, float]]) -> str:
+def get_nearest(genus: str, waypoints: list[Waypoint]) -> str:
     """
     Check logged waypoints and return the nearest one that's not within a previous sample radius.
 
@@ -1162,11 +1212,11 @@ def get_nearest(genus: str, waypoints: list[tuple[float, float]]) -> str:
 
     if this.planet_heading and this.planet_latitude and this.planet_longitude:
         distances: list[tuple[float, float]] = []
-        for lat, long in waypoints:
-            min_distance = get_distance((lat, long))
+        for waypoint in waypoints:
+            min_distance = get_distance((waypoint.latitude, waypoint.longitude))
             if not min_distance or min_distance > bio_genus[genus]['distance']:
-                distance = calc_distance((lat, long))
-                bearing = calc_bearing((lat, long))
+                distance = calc_distance((waypoint.latitude, waypoint.longitude))
+                bearing = calc_bearing((waypoint.latitude, waypoint.longitude))
                 distances.append((distance, bearing))
 
         if len(distances):
@@ -1193,13 +1243,14 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             detail_text += f'{name}:\n'
         if len(body.get_flora()) > 0:
             count = 0
-            for genus, data in sorted(body.get_flora().items(), key=lambda item: bio_genus[item[0]]['name']):
+            for flora in sorted(body.get_flora(), key=lambda item: bio_genus[item.genus]['name']):
                 count += 1
-                species: str = data.get('species', '')
-                scan: int = data.get('scan', 0)
-                color: str = data.get('color', '')
-                waypoints: list[tuple[float, float]] = data.get('waypoints', [])
-                if data.get('scan', 0) == 3:
+                genus: str = flora.genus
+                species: str = flora.species
+                scan: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
+                color: str = flora.color
+                waypoints: list[Waypoint] = list(filter(lambda item: item.commander_id == this.commander.id, flora.waypoints))
+                if scan and scan[0].count == 3:
                     value_sum += bio_types[genus][species]['value']
                 if species != '':
                     waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
@@ -1207,7 +1258,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     detail_text += '{}{} ({}): {}{}{}\n'.format(
                         bio_types[genus][species]['name'],
                         f' - {color}' if color else '',
-                        scan_label(scan),
+                        scan_label(scan[0].count if scan else 0),
                         this.formatter.format_credits(bio_types[genus][species]['value']),
                         u' 🗸' if scan == 3 else '',
                         f'\n  Nearest Saved Waypoint: {waypoint}' if waypoint else ''
@@ -1259,9 +1310,17 @@ def update_display() -> None:
         this.edsm_button.grid()
         this.edsm_failed.grid_remove()
 
-    bio_bodies = dict(sorted(dict(filter(lambda fitem: fitem[1].get_bio_signals() > 0 or len(fitem[1].get_flora()) > 0,
-                                         this.planets.items())).items(),
-                             key=lambda item: item[1].get_id()))
+    bio_bodies = dict(
+        sorted(
+            dict(
+                filter(
+                    lambda item: item[1].get_bio_signals() > 0 or len(item[1].get_flora()) > 0,
+                    this.planets.items()
+                )
+            ).items(),
+            key=lambda item: item[1].get_id()
+        )
+    )
     exobio_body_names = [
         '{}{}{}: {}'.format(
             body_name,
@@ -1305,18 +1364,24 @@ def update_display() -> None:
                      and this.planet_altitude < 5000.0)):
             if text[-1] != '\n':
                 text += '\n'
-            complete = len(
-                dict(filter(lambda x: x[1].get('scan', 0) == 3, bio_bodies[this.location_name].get_flora().items())))
+            complete = 0
+            floras = bio_bodies[this.location_name].get_flora()
+            for flora in floras:
+                for scan in filter(lambda item: item.commander_id == this.commander.id, flora.scans):  # type: FloraScans
+                    if scan.count == 3:
+                        complete += 1
             text += '{} - {} [{}G] - {}/{} Analysed'.format(
                 bio_bodies[this.location_name].get_name(),
                 bio_bodies[this.location_name].get_type(),
                 '{:.2f}'.format(bio_bodies[this.location_name].get_gravity() / 9.80665).rstrip('0').rstrip('.'),
                 complete, len(bio_bodies[this.location_name].get_flora())
             )
-            for genus, data in this.planets[this.location_name].get_flora().items():
-                species: str = data.get('species', '')
-                scan: int = data.get('scan', 0)
-                waypoints: list[tuple[float, float]] = data.get('waypoints', [])
+            for flora in this.planets[this.location_name].get_flora():
+                genus: str = flora.genus
+                species: str = flora.species
+                scan_list: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
+                scan: int = scan_list[0].count if scan_list else 0
+                waypoints: list[Waypoint] = list(filter(lambda item: item.commander_id == this.commander.id, flora.waypoints))
                 if 0 < scan < 3:
                     distance = get_distance()
                     distance_format = f'{distance:.2f}' if distance is not None else 'unk'
