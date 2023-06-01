@@ -103,8 +103,9 @@ class Waypoint(Base):
     commander_id: Mapped[int] = mapped_column(ForeignKey('commanders.id'))
     flora_id: Mapped[int] = mapped_column(ForeignKey('planet_flora.id'))
     waypoint: Mapped['PlanetFlora'] = relationship(back_populates='waypoints')
-    latitude: Mapped[float]
-    longitude: Mapped[float]
+    type: Mapped[str] = mapped_column(nullable=False, default='tag')
+    latitude: Mapped[float] = mapped_column(nullable=False)
+    longitude: Mapped[float] = mapped_column(nullable=False)
 
 
 class Star(Base):

@@ -159,7 +159,7 @@ class PlanetData:
         self.commit()
         return self
 
-    def add_flora_waypoint(self, genus: str, lat_long: tuple[float, float], commander: int) -> Self:
+    def add_flora_waypoint(self, genus: str, lat_long: tuple[float, float], commander: int, scan: bool = False) -> Self:
         flora = self.get_flora(genus)
         if flora:
             scans: FloraScans = self._session.scalar(
@@ -171,13 +171,18 @@ class PlanetData:
                 waypoint.commander_id = commander
                 waypoint.latitude = lat_long[0]
                 waypoint.longitude = lat_long[1]
+                if scan:
+                    waypoint.type = 'scan'
                 self._session.add(waypoint)
                 self.commit()
         return self
 
     def has_waypoint(self, commander: id) -> bool:
         for flora in self._data.floras:  # type: PlanetFlora
-            stmt = select(Waypoint).where(Waypoint.flora_id == flora.id).where(Waypoint.commander_id == commander)
+            stmt = select(Waypoint) \
+                .where(Waypoint.flora_id == flora.id) \
+                .where(Waypoint.commander_id == commander) \
+                .where(Waypoint.type == 'tag')
             if self._session.scalars(stmt):
                 return True
         return False

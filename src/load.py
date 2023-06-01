@@ -31,7 +31,7 @@ from bio_scan.bio_data.regions import region_map, guardian_sectors
 from bio_scan.bio_data.species import rules as bio_types
 from bio_scan.format_util import Formatter
 
-from sqlalchemy import create_engine, select
+from sqlalchemy import create_engine, select, delete
 from sqlalchemy.orm import Session
 from bio_scan.body_data.db import Base as DBBase, Commander, PlanetFlora, FloraScans, Waypoint
 
@@ -96,8 +96,6 @@ class This:
         self.planet_longitude: Optional[float] = None
         self.planet_altitude: float = 10000.0
         self.planet_heading: Optional[int] = None
-        self.scan_latitude: list[float] = []
-        self.scan_longitude: list[float] = []
         self.current_scan: str = ''
         self.starsystem: str = ''
 
@@ -998,23 +996,27 @@ def journal_entry(
                     this.planets[target_body].set_flora_species_scan(
                         this.current_scan, data.species, 0, this.commander.id
                     )
-                this.scan_latitude.clear()
-                this.scan_longitude.clear()
+                    stmt = delete(Waypoint).where(Waypoint.commander_id == this.commander.id) \
+                        .where(Waypoint.flora_id == data.id) \
+                        .where(Waypoint.type == 'scan')
+                    this.sql_session.execute(stmt)
             this.current_scan = entry['Genus']
 
             if 'Variant' in entry:
                 _, _, color = parse_variant(entry['Variant'])
                 this.planets[target_body].set_flora_color(entry['Genus'], color)
 
-        match scan_level:
-            case 1 | 2:
-                if this.planet_latitude and this.planet_longitude:
-                    this.scan_latitude.append(this.planet_latitude)
-                    this.scan_longitude.append(this.planet_longitude)
-            case _:
-                this.scan_latitude.clear()
-                this.scan_longitude.clear()
-                this.current_scan = ''
+            match scan_level:
+                case 1 | 2:
+                    if this.planet_latitude and this.planet_longitude:
+                        this.planets[target_body].add_flora_waypoint(
+                            entry['Genus'],
+                            (this.planet_latitude, this.planet_longitude),
+                            this.commander.id,
+                            scan=True
+                        )
+                case _:
+                    this.current_scan = ''
 
         update_display()
 
@@ -1193,9 +1195,11 @@ def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
 
     distance_list = []
     if this.planet_latitude is not None and this.planet_longitude is not None:
-        if len(this.scan_latitude) == len(this.scan_longitude) and len(this.scan_latitude) > 0:
-            for i, _ in enumerate(this.scan_latitude):
-                distance_list.append(calc_distance((this.scan_latitude[i], this.scan_longitude[i]), lat_long))
+        if this.location_name and this.current_scan:
+            waypoints: list[Waypoint] = this.planets[this.location_name].get_flora(this.current_scan).waypoints
+            waypoints = list(filter(lambda item: item.type == 'scan' and item.commander_id == this.commander.id, waypoints))
+            for waypoint in waypoints:
+                distance_list.append(calc_distance((waypoint.latitude, waypoint.longitude), lat_long))
             return min(distance_list)
     return None
 
@@ -1249,7 +1253,12 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 species: str = flora.species
                 scan: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
                 color: str = flora.color
-                waypoints: list[Waypoint] = list(filter(lambda item: item.commander_id == this.commander.id, flora.waypoints))
+                waypoints: list[Waypoint] = list(
+                    filter(
+                        lambda item: item.commander_id == this.commander.id and item.type == 'tag',
+                        flora.waypoints
+                    )
+                )
                 if scan and scan[0].count == 3:
                     value_sum += bio_types[genus][species]['value']
                 if species != '':
@@ -1381,8 +1390,15 @@ def update_display() -> None:
                 species: str = flora.species
                 scan_list: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
                 scan: int = scan_list[0].count if scan_list else 0
-                waypoints: list[Waypoint] = list(filter(lambda item: item.commander_id == this.commander.id, flora.waypoints))
+                waypoints: list[Waypoint] = list(
+                    filter(
+                        lambda item: item.commander_id == this.commander.id and item.type == 'tag',
+                        flora.waypoints
+                    )
+                )
                 if 0 < scan < 3:
+                    if not this.current_scan:
+                        this.current_scan = genus
                     distance = get_distance()
                     distance_format = f'{distance:.2f}' if distance is not None else 'unk'
                     distance = distance if distance is not None else 0
