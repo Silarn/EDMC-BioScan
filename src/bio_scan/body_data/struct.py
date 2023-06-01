@@ -1,189 +1,289 @@
-from typing import Self
+from typing import Self, Optional
+
+from sqlalchemy.orm import Session
+from sqlalchemy import select, delete
+from bio_scan.body_data.db import Planet, System, PlanetFlora, PlanetGas, Waypoint, FloraScans, Star
 
 
 class PlanetData:
     """ Holds all attributes, getters, and setters for planet data. """
 
-    def __init__(self, name):
-        self._name: str = name
-        self._type: str = ''
-        self._id: int = -1
-        self._atmosphere: str = ''
-        self._gasses: dict[str, float] = {}
-        self._volcanism: str = ''
-        self._distance: float = 0.0
-        self._gravity: float = 0.0
-        self._temp: float = 0.0
-        self._parent_stars: list[str] = []
-        self._bio_signals: int = 0
-        self._flora: dict[str, dict[str, any]] = {}
-        self._materials: set[str] = set()
-        self._mapped: bool = False
+    def __init__(self, system: System, data: Planet, session: Session):
+        self._session = session
+        self._system = system
+        self._data = data
+
+    @classmethod
+    def from_journal(cls, system_name: str, name: str, session: Session):
+        system: System = session.scalar(select(System).where(System.name == system_name))
+        if not system:
+            system = System(name=system_name)
+            session.add(system)
+            session.commit()
+
+        data: Planet = session.scalars(
+            select(Planet).where(Planet.name == name).where(Planet.system_id == system.id)
+        ).first()
+        if not data:
+            data = Planet(name=name, system_id=system.id)
+            session.add(data)
+
+        session.commit()
+        return cls(system, data, session)
 
     def get_name(self) -> str:
-        return self._name
+        return self._data.name
 
     def get_type(self) -> str:
-        return self._type
+        return self._data.type
 
     def set_type(self, value: str) -> Self:
-        self._type = value
+        self._data.type = value
         return self
 
     def get_id(self) -> int:
-        return self._id
+        return self._data.body_id
 
     def set_id(self, value: int) -> Self:
-        self._id = value
+        self._data.body_id = value
         return self
 
     def get_atmosphere(self) -> str:
-        return self._atmosphere
+        return self._data.atmosphere
 
     def set_atmosphere(self, value: str) -> Self:
-        self._atmosphere = value
+        self._data.atmosphere = value
         return self
 
     def add_gas(self, gas: str, percent: float) -> Self:
-        self._gasses[gas] = percent
+        self._data.gasses.append(PlanetGas(gas_name=gas, percent=percent))
         return self
 
     def get_gas(self, gas: str) -> float:
-        if gas in self._gasses:
-            return self._gasses[gas]
+        for gas_data in self._data.gasses:  # type: PlanetGas
+            if gas_data.gas_name == gas:
+                return gas_data.percent
         return 0.0
 
     def get_volcanism(self) -> str:
-        return self._volcanism
+        return self._data.volcanism
 
     def set_volcanism(self, value: int) -> Self:
-        self._volcanism = value
+        self._data.volcanism = value
         return self
 
     def get_distance(self) -> float:
-        return self._distance
+        return self._data.distance
 
     def set_distance(self, value: float) -> Self:
-        self._distance = value
+        self._data.distance = value
         return self
 
     def get_gravity(self) -> float:
-        return self._gravity
+        return self._data.gravity
 
     def set_gravity(self, value: float) -> Self:
-        self._gravity = value
+        self._data.gravity = value
         return self
 
     def get_temp(self) -> float:
-        return self._temp
+        return self._data.temp
 
     def set_temp(self, value: float) -> Self:
-        self._temp = value
+        self._data.temp = value
         return self
 
     def get_bio_signals(self) -> int:
-        return self._bio_signals
+        return self._data.bio_signals
 
     def set_bio_signals(self, value: int) -> Self:
-        self._bio_signals = value
+        self._data.bio_signals = value
         return self
 
     def get_parent_stars(self) -> list[str]:
-        return self._parent_stars
+        if self._data.parent_stars:
+            return self._data.parent_stars.split(',')
+        return []
 
     def add_parent_star(self, value: str) -> Self:
-        self._parent_stars.append(value)
+        if self._data.parent_stars:
+            stars: list[str] = []
+            stars += self._data.parent_stars.split(',')
+            stars.append(value)
+            stars = [*set(stars)]
+            self._data.parent_stars = ','.join(stars)
+        else:
+            self._data.parent_stars = value
         return self
 
-    def get_flora(self, genus: str = None) -> dict[str, dict[str, any]] | dict[str, any] | None:
+    def get_flora(self, genus: str = None, create: bool = False) -> list[PlanetFlora] | PlanetFlora | None:
         if genus:
-            if genus in self._flora:
-                return self._flora[genus]
+            for flora in self._data.floras:  # type: PlanetFlora
+                if flora.genus == genus:
+                    return flora
             else:
+                if create:
+                    new_flora = PlanetFlora(genus=genus)
+                    self._data.floras.append(new_flora)
+                    self.commit()
+                    return new_flora
                 return None
-        return self._flora
+        return self._data.floras
 
     def add_flora(self, genus: str, species: str = '', color: str = '') -> Self:
-        data = self._flora.get(genus, {})
-        data['species'] = species
-        data['color'] = color
-        self._flora[genus] = data
+        flora = self.get_flora(genus, create=True)
+        flora.species = species
+        flora.color = color
+        self.commit()
         return self
 
-    def set_flora_species_scan(self, genus: str, species: str, scan: int) -> Self:
-        data = self._flora.get(genus, {})
-        data['species'] = species
-        data['scan'] = scan
+    def set_flora_species_scan(self, genus: str, species: str, scan: int, commander: int) -> Self:
+        flora = self.get_flora(genus, create=True)
+        flora.species = species
+        stmt = select(FloraScans).where(FloraScans.flora_id == flora.id).where(FloraScans.commander_id == commander)
+        scan_data: Optional[FloraScans] = self._session.scalar(stmt)
+        if not scan_data:
+            scan_data = FloraScans(flora_id=flora.id, commander_id=commander)
+            self._session.add(scan_data)
+            self.commit()
+        scan_data.count = scan
         if scan == 3:
-            data.pop('waypoints', None)
-        self._flora[genus] = data
+            stmt = delete(Waypoint).where(Waypoint.commander_id == commander).where(Waypoint.flora_id == flora.id)
+            self._session.execute(stmt)
+        self.commit()
         return self
 
     def set_flora_color(self, genus: str, color: str) -> Self:
-        data = self._flora.get(genus, {})
-        data['color'] = color
-        self._flora[genus] = data
+        flora = self.get_flora(genus, create=True)
+        flora.color = color
+        self.commit()
         return self
 
-    def add_flora_waypoint(self, genus: str, lat_long: tuple[float, float]) -> Self:
-        data = self._flora.get(genus, {})
-        if data.get('scan', 0) != 3:
-            waypoints: list[tuple[float, float]] = data.get('waypoints', [])
-            waypoints.append(lat_long)
-            data['waypoints'] = waypoints
-            self._flora[genus] = data
+    def add_flora_waypoint(self, genus: str, lat_long: tuple[float, float], commander: int, scan: bool = False) -> Self:
+        flora = self.get_flora(genus)
+        if flora:
+            scans: FloraScans = self._session.scalar(
+                select(FloraScans).where(FloraScans.flora_id == flora.id).where(FloraScans.commander_id == commander)
+            )
+            if not scans or scans.count != 3:
+                waypoint = Waypoint()
+                waypoint.flora_id = flora.id
+                waypoint.commander_id = commander
+                waypoint.latitude = lat_long[0]
+                waypoint.longitude = lat_long[1]
+                if scan:
+                    waypoint.type = 'scan'
+                self._session.add(waypoint)
+                self.commit()
         return self
 
-    def has_waypoint(self) -> bool:
-        for _, data in self._flora.items():
-            if 'waypoints' in data:
+    def has_waypoint(self, commander: id) -> bool:
+        for flora in self._data.floras:  # type: PlanetFlora
+            stmt = select(Waypoint) \
+                .where(Waypoint.flora_id == flora.id) \
+                .where(Waypoint.commander_id == commander) \
+                .where(Waypoint.type == 'tag')
+            if self._session.scalars(stmt):
                 return True
         return False
 
     def get_materials(self) -> set[str]:
-        return self._materials
+        if self._data.materials:
+            return set(self._data.materials.split(','))
+        return set()
 
     def add_material(self, material: str) -> Self:
-        self._materials.add(material)
+        materials = self.get_materials()
+        materials.add(material)
+        self._data.materials = ','.join(materials)
+        self.commit()
         return self
 
     def clear_flora(self) -> Self:
-        self._flora = {}
+        delete(PlanetFlora).where(PlanetFlora.planet_id == self._data.id)
         return self
 
     def is_mapped(self) -> bool:
-        return self._mapped
+        return self._data.mapped
 
     def set_mapped(self, value: bool) -> Self:
-        self._mapped = value
+        self._data.mapped = value
         return self
+
+    def commit(self) -> None:
+        self._session.commit()
 
 
 class StarData:
     """ Holds all attributes, getters, and setters for star data. """
 
-    def __init__(self, name, star_id):
-        self._name: str = name
-        self._type: str = ''
-        self._id: int = star_id
-        self._luminosity: str = ''
+    def __init__(self, system, data, session):
+        self._session = session
+        self._system = system
+        self._data = data
+
+    @classmethod
+    def from_journal(cls, system_name: str, name: str, body_id: int, session: Session):
+        session: Session = session
+
+        system: System = session.scalar(select(System).where(System.name == system_name))
+        if not system:
+            system = System(name=system_name)
+            session.add(system)
+            session.commit()
+
+        data: Star = session.scalar(
+            select(Star).where(Star.name == name).where(Star.system_id == system.id)
+        )
+        if not data:
+            data = Star()
+            data.name = name
+            data.system_id = system.id
+            data.body_id = body_id
+            session.add(data)
+        session.commit()
+
+        return cls(system, data, session)
 
     def get_name(self) -> str:
-        return self._name
+        return self._data.name
 
     def get_id(self) -> int:
-        return self._id
+        return self._data.body_id
 
     def get_type(self) -> str:
-        return self._type
+        return self._data.type
 
     def set_type(self, value: str) -> Self:
-        self._type = value
+        self._data.type = value
         return self
 
     def get_luminosity(self):
-        return self._luminosity
+        return self._data.luminosity
 
     def set_luminosity(self, value: str) -> Self:
-        self._luminosity = value
+        self._data.luminosity = value
         return self
+
+    def commit(self) -> None:
+        self._session.commit()
+
+
+def load_planets(system_name: str, session: Session) -> dict[str, PlanetData]:
+    system = session.scalar(select(System).where(System.name == system_name))
+    planet_data: dict[str, PlanetData] = {}
+    if system:
+        planets = session.scalars(select(Planet).where(Planet.system_id == system.id))
+        for planet in planets:  # type: Planet
+            planet_data[planet.name] = PlanetData(system, planet, session)
+    return planet_data
+
+
+def load_stars(system_name: str, session: Session) -> dict[str, StarData]:
+    system = session.scalar(select(System).where(System.name == system_name))
+    star_data: dict[str, StarData] = {}
+    if system:
+        stars = session.scalars(select(Star).where(Star.system_id == system.id))
+        for star in stars:  # type: Star
+            star_data[star.name] = StarData(system, star, session)
+    return star_data
