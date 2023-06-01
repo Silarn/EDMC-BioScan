@@ -33,7 +33,7 @@ from bio_scan.format_util import Formatter
 
 from sqlalchemy import create_engine, select, delete
 from sqlalchemy.orm import Session
-from bio_scan.body_data.db import Base as DBBase, Commander, PlanetFlora, FloraScans, Waypoint
+from bio_scan.body_data.db import Base as DBBase, Commander, PlanetFlora, FloraScans, Waypoint, migrate
 
 # EDMC imports
 from config import config
@@ -116,6 +116,7 @@ def plugin_start3(plugin_dir: str) -> str:
     this.sql_engine = create_engine(f"sqlite:///{engine_path}")
     DBBase.metadata.create_all(this.sql_engine)
     this.sql_session = Session(this.sql_engine)
+    migrate(this.sql_session)
     return this.NAME
 
 

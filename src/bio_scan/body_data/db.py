@@ -1,6 +1,12 @@
-from typing import Optional
-from sqlalchemy import ForeignKey, String, UniqueConstraint
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+"""
+The database structure models and helper functions for BioScan data
+"""
+
+from sqlalchemy import ForeignKey, String, UniqueConstraint, select
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+
+
+db_version: int = 1
 
 
 class Base(DeclarativeBase):
@@ -8,10 +14,17 @@ class Base(DeclarativeBase):
 
 
 class Commander(Base):
-    __tablename__ = "commanders"
+    __tablename__ = 'commanders'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(22), unique=True)
+    
+    
+class Metadata(Base):
+    __tablename__ = 'metadata'
+
+    key: Mapped[str] = mapped_column(nullable=False, unique=True)
+    value: Mapped[str] = mapped_column(nullable=False, default='')
 
 
 class System(Base):
@@ -21,16 +34,16 @@ class System(Base):
     name: Mapped[str] = mapped_column(String(64), unique=True)
     
     planets: Mapped[list['Planet']] = relationship(
-        back_populates="planet", cascade="all, delete-orphan"
+        back_populates='planet', cascade='all, delete-orphan'
     )
 
     stars: Mapped[list['Star']] = relationship(
-        back_populates="star", cascade="all, delete-orphan"
+        back_populates='star', cascade='all, delete-orphan'
     )
 
 
 class Planet(Base):
-    """ Model for planet data """
+    ''' Model for planet data '''
     __tablename__ = 'planets'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -80,7 +93,7 @@ class PlanetFlora(Base):
     genus: Mapped[str]
     species: Mapped[str] = mapped_column(default='')
     color: Mapped[str] = mapped_column(default='')
-    __table_args__ = (UniqueConstraint("planet_id", "genus", name="_planet_genus_constraint"),
+    __table_args__ = (UniqueConstraint('planet_id', 'genus', name='_planet_genus_constraint'),
                       )
 
 
@@ -111,7 +124,7 @@ class Waypoint(Base):
 class Star(Base):
     __tablename__ = 'stars'
 
-    """ Holds all attributes, getters, and setters for star data. """
+    ''' Holds all attributes, getters, and setters for star data. '''
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'))
     star: Mapped[list['System']] = relationship(back_populates='stars')
@@ -119,3 +132,22 @@ class Star(Base):
     body_id: Mapped[int]
     type: Mapped[str] = mapped_column(default='')
     luminosity: Mapped[str] = mapped_column(default='')
+
+
+def migrate(session: Session) -> None:
+    """
+    Database migration function. Checks existing DB version, runs any necessary migrations, and sets the new version
+    in the metadata.
+
+    :param session: DB connection session object
+    """
+
+    version = session.scalar(select(Metadata).where(Metadata.key == 'version'))
+    if version:  # If the database version is set, perform migrations
+        pass  # DB upgrades will go here
+    else:  # If there is no version, we can simply assume this is a fresh install and set the current DB version
+        version = Metadata(key='version')
+        session.add(version)
+    if version.value != db_version:
+        version.value = db_version
+    session.commit()
