@@ -23,7 +23,7 @@ class Commander(Base):
 class Metadata(Base):
     __tablename__ = 'metadata'
 
-    key: Mapped[str] = mapped_column(nullable=False, unique=True)
+    key: Mapped[str] = mapped_column(nullable=False, primary_key=True)
     value: Mapped[str] = mapped_column(nullable=False, default='')
 
 
