@@ -52,7 +52,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('1.7.0')
+        self.VERSION = semantic_version.Version('2.0.0-rc1')
         self.NAME = 'BioScan'
 
         # Settings vars
