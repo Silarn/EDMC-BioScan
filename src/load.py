@@ -17,7 +17,6 @@ import math
 import tkinter as tk
 from tkinter import ttk
 
-import sqlalchemy
 # Local imports
 from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
 from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors

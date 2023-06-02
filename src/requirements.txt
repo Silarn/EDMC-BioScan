@@ -1,0 +1,2 @@
+# In addition to the default EDMarketConnector requirements
+SQLAlchemy==2.0.15
