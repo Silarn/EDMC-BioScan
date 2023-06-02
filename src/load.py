@@ -113,7 +113,7 @@ logger = get_plugin_logger(this.NAME)
 def plugin_start3(plugin_dir: str) -> str:
     """ EDMC start hook """
     engine_path = config.app_dir_path / 'bioscan.db'
-    this.sql_engine = create_engine(f"sqlite:///{engine_path}")
+    this.sql_engine = create_engine(f'sqlite:///{engine_path}')
     DBBase.metadata.create_all(this.sql_engine)
     this.sql_session = Session(this.sql_engine)
     migrate(this.sql_session)

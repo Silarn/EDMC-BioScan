@@ -21,9 +21,7 @@ class PlanetData:
             session.add(system)
             session.commit()
 
-        data: Planet = session.scalars(
-            select(Planet).where(Planet.name == name).where(Planet.system_id == system.id)
-        ).first()
+        data: Planet = session.scalar(select(Planet).where(Planet.name == name).where(Planet.system_id == system.id))
         if not data:
             data = Planet(name=name, system_id=system.id)
             session.add(data)
