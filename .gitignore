@@ -4,6 +4,7 @@
 *.pyo
 *.zip
 .idea
+venv
 
 # Release prep
 EDMC-BioScan/
