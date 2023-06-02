@@ -114,6 +114,7 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 
 * Refinements to species requirements?
 * Missing codex entry support
+* Historic journal parsing
 * Expanded settings
 * EDMCOverlay support?
 
