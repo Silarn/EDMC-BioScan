@@ -1,5 +1,11 @@
+import re
+
+from sqlalchemy import select
+from sqlalchemy.orm import Session
+
 from bio_scan.bio_data.genus import data as bio_genus
 from bio_scan.bio_data.species import rules as bio_types
+from bio_scan.body_data.db import CodexScans
 
 bio_codex_map = {
     '$Codex_Ent_Aleoids_Genus_Name;': {
@@ -220,3 +226,50 @@ def parse_variant(name: str) -> tuple[str, str, str]:
 
                         return genus, species, color
     return '', '', ''
+
+
+def set_codex(session: Session, commander: int, biological: str, region: int) -> None:
+    if region is None:
+        return
+
+    entry: CodexScans = session.scalar(select(CodexScans).where(CodexScans.commander_id == commander)
+                                       .where(CodexScans.biological == biological).where(CodexScans.region == region))
+    if not entry:
+        entry = CodexScans(commander_id=commander, biological=biological, region=region, count=0)
+        session.add(entry)
+
+    entry.count += 1
+
+    session.commit()
+
+
+def check_codex(session: Session, commander: int, region: int, genus: str, species: str, variant: str = '') -> bool:
+    biological = species
+    if variant:
+        if 'colors' in bio_genus[genus]:
+            variant_data = bio_genus[genus]['colors']
+            code = ''
+            color_data = []
+            if 'species' in variant_data:
+                if 'star' in variant_data['species'][species]:
+                    color_data = variant_data['species'][species]['star']
+                elif 'element' in variant_data['species'][species]:
+                    color_data = variant_data['species'][species]['element']
+            else:
+                color_data = variant_data['star']
+            for key, color in color_data.items():  # type: str, str
+                if color == variant:
+                    code = key.capitalize()
+                    break
+
+            if code:
+                match = re.match('^(.*)_Name;$', species)
+                if match:
+                    biological = f'{match.group(1)}_{code}_Name;'
+
+    entry: CodexScans = session.scalar(select(CodexScans).where(CodexScans.commander_id == commander)
+                                       .where(CodexScans.region == region).where(CodexScans.biological == biological))
+
+    if entry:
+        return True
+    return False

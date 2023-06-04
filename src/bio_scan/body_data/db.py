@@ -2,11 +2,11 @@
 The database structure models and helper functions for BioScan data
 """
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint, select
+from sqlalchemy import ForeignKey, String, UniqueConstraint, select, Column, Float, Engine, text, SmallInteger
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
 
 
-db_version: int = 1
+db_version: int = 2
 
 
 class Base(DeclarativeBase):
@@ -28,10 +28,15 @@ class Metadata(Base):
 
 
 class System(Base):
+    """ DB model for system data """
     __tablename__ = 'systems'
     
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(64), unique=True)
+    x: Mapped[float]
+    y: Mapped[float]
+    z: Mapped[float]
+    region: Mapped[int] = mapped_column(SmallInteger)
     
     planets: Mapped[list['Planet']] = relationship(
         back_populates='planet', cascade='all, delete-orphan'
@@ -43,7 +48,7 @@ class System(Base):
 
 
 class Planet(Base):
-    ''' Model for planet data '''
+    """ DB model for planet data """
     __tablename__ = 'planets'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
@@ -122,9 +127,9 @@ class Waypoint(Base):
 
 
 class Star(Base):
+    """ DB model for star data """
     __tablename__ = 'stars'
 
-    ''' Holds all attributes, getters, and setters for star data. '''
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'))
     star: Mapped[list['System']] = relationship(back_populates='stars')
@@ -134,17 +139,40 @@ class Star(Base):
     luminosity: Mapped[str] = mapped_column(default='')
 
 
-def migrate(session: Session) -> None:
+class CodexScans(Base):
+    __tablename__ = 'codex_scans'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    commander_id: Mapped[int] = mapped_column(ForeignKey('commanders.id'))
+    region: Mapped[int] = mapped_column(SmallInteger, nullable=False)
+    biological: Mapped[str] = mapped_column(nullable=False, default='')
+    count: Mapped[int] = mapped_column(nullable=False, default=0)
+    __table_args__ = (UniqueConstraint('commander_id', 'region', 'biological', name='_cmdr_bio_region_constraint'), )
+
+
+def add_column(engine: Engine, session: Session, table_name: str, column: Column):
+    column_name = column.compile(dialect=engine.dialect)
+    column_type = column.type.compile(engine.dialect)
+    statement = text(f'ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}')
+    session.execute(statement)
+
+
+def migrate(engine: Engine, session: Session) -> None:
     """
     Database migration function. Checks existing DB version, runs any necessary migrations, and sets the new version
     in the metadata.
 
+    :param engine: DB connection engine object
     :param session: DB connection session object
     """
 
-    version = session.scalar(select(Metadata).where(Metadata.key == 'version'))
+    version: Metadata = session.scalar(select(Metadata).where(Metadata.key == 'version'))
     if version:  # If the database version is set, perform migrations
-        pass  # DB upgrades will go here
+        if int(version.value) < 2:
+            add_column(engine, session, 'systems', Column('x', Float()))
+            add_column(engine, session, 'systems', Column('y', Float()))
+            add_column(engine, session, 'systems', Column('z', Float()))
+            add_column(engine, session, 'systems', Column('region', SmallInteger()))
     else:  # If there is no version, we can simply assume this is a fresh install and set the current DB version
         version = Metadata(key='version')
         session.add(version)

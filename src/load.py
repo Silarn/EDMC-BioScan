@@ -24,15 +24,15 @@ from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.body_data.struct import PlanetData, StarData, load_planets, load_stars
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
-from bio_scan.bio_data.codex import parse_variant
+from bio_scan.bio_data.codex import parse_variant, set_codex, check_codex
 from bio_scan.bio_data.genus import data as bio_genus
 from bio_scan.bio_data.regions import region_map, guardian_sectors
 from bio_scan.bio_data.species import rules as bio_types
 from bio_scan.format_util import Formatter
 
-from sqlalchemy import create_engine, select, delete
+from sqlalchemy import Engine, create_engine, select, delete
 from sqlalchemy.orm import Session
-from bio_scan.body_data.db import Base as DBBase, Commander, PlanetFlora, FloraScans, Waypoint, migrate
+from bio_scan.body_data.db import Base as DBBase, Commander, PlanetFlora, FloraScans, Waypoint, migrate, System
 
 # EDMC imports
 from config import config
@@ -43,6 +43,7 @@ from ttkHyperlinkLabel import HyperlinkLabel
 
 # 3rd Party
 from bio_scan.RegionMap import findRegion
+from bio_scan.RegionMapData import regions as galaxy_regions
 
 
 class This:
@@ -79,14 +80,13 @@ class This:
         self.main_stars: dict[str, StarData] = {}
         self.planet_cache: dict[
             str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
-        self.sql_engine: Optional[sqlalchemy.Engine] = None
+        self.sql_engine: Optional[Engine] = None
         self.sql_session: Optional[Session] = None
 
         # self.odyssey: bool = False
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
         self.main_star_type: str = ''
         self.main_star_luminosity: str = ''
-        self.coordinates: Optional[list[float, float, float]] = None
         self.location_name: str = ''
         self.location_id: str = ''
         self.location_state: str = ''
@@ -96,7 +96,7 @@ class This:
         self.planet_altitude: float = 10000.0
         self.planet_heading: Optional[int] = None
         self.current_scan: str = ''
-        self.starsystem: str = ''
+        self.system: Optional[System] = None
 
         # EDSM vars
         self.edsm_thread: Optional[threading.Thread] = None
@@ -115,7 +115,7 @@ def plugin_start3(plugin_dir: str) -> str:
     this.sql_engine = create_engine(f'sqlite:///{engine_path}')
     DBBase.metadata.create_all(this.sql_engine)
     this.sql_session = Session(this.sql_engine)
-    migrate(this.sql_session)
+    migrate(this.sql_engine, this.sql_session)
     return this.NAME
 
 
@@ -306,7 +306,7 @@ def log(*args) -> None:
 def edsm_fetch() -> None:
     """ EDSM system data fetch thread initialization """
 
-    this.edsm_thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.starsystem,))
+    this.edsm_thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.system.name,))
     this.edsm_thread.daemon = True
     this.edsm_thread.start()
 
@@ -356,7 +356,7 @@ def edsm_data(event: tk.Event) -> None:
         elif body['type'] == 'Planet':
             try:
                 if body_short_name not in this.planets:
-                    planet_data = PlanetData.from_journal(this.starsystem, body_short_name, this.sql_session)
+                    planet_data = PlanetData.from_journal(this.system, body_short_name, this.sql_session)
                 else:
                     planet_data = this.planets[body_short_name]
                 planet_type = map_edsm_type(body['subType'])
@@ -377,7 +377,7 @@ def edsm_data(event: tk.Event) -> None:
                     for star in star_search.group(1):
                         planet_data.add_parent_star(star)
                 else:
-                    planet_data.add_parent_star(this.starsystem)
+                    planet_data.add_parent_star(this.system)
 
                 if 'materials' in body:
                     for material in body['materials']:  # type: str
@@ -406,7 +406,7 @@ def add_edsm_star(body: dict) -> None:
     try:
         body_short_name = get_body_name(body['name'])
         if body_short_name not in this.main_stars:
-            star_data = StarData.from_journal(this.starsystem, body_short_name, body['bodyId'], this.sql_session)
+            star_data = StarData.from_journal(this.system, body_short_name, body['bodyId'], this.sql_session)
         else:
             star_data = this.main_stars[body['bodyId']]
         if body['spectralClass']:
@@ -455,7 +455,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         this.planet_cache[body.get_name()][genus] = (True, ('', 0, 0, []))
 
     possible_species: dict[str, set[str]] = {}
-    log(f'System: {this.starsystem} - Body: {body.get_name()}')
+    log(f'System: {this.system.name} - Body: {body.get_name()}')
     log(f'Running checks for {bio_genus[genus]["name"]}:')
     for species, data in bio_types[genus].items():
         log(species)
@@ -527,14 +527,13 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             eliminated = True
                             stop = True
                     case 'regions':
-                        if this.coordinates is not None:
-                            region_id = findRegion(*this.coordinates)
-                            log(f'Current region: {region_id[0]} - {region_id[1]}')
-                            if region_id is not None:
+                        if this.system.region is not None:
+                            log(f'Current region: {this.system.region} - {galaxy_regions[this.system.region]}')
+                            if this.system.region is not None:
                                 for region in value:
                                     if region.startswith('!'):
                                         log(f'Not in region ({region[1:]}) map: {region_map[region[1:]]}')
-                                        if region_id[0] in region_map[region[1:]]:
+                                        if this.system.region in region_map[region[1:]]:
                                             log('Eliminated by region')
                                             eliminated = True
                                             stop = True
@@ -547,7 +546,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                         if not region.startswith('!'):
                                             count += 1
                                             log(f'In region ({region}): {region_map[region]}')
-                                            if region_id[0] in region_map[region]:
+                                            if this.system.region in region_map[region]:
                                                 found = True
 
                                     if not found and count > 0:
@@ -558,7 +557,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     case 'guardian':
                         found = False
                         for sector in guardian_sectors:
-                            if this.starsystem.startswith(sector):
+                            if this.system.name.startswith(sector):
                                 found = True
                                 stop = True
                         if not found:
@@ -607,18 +606,21 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 eliminated = True
                                 stop = True
                     case 'nebula':
+                        if not this.system.x:
+                            log('Missing system coordinates')
+                            continue
                         found = False
-                        if this.starsystem in planetary_nebulae:
+                        if this.system.name in planetary_nebulae:
                             found = True
                         for sector in nebula_sectors:
-                            if this.starsystem.startswith(sector):
+                            if this.system.name.startswith(sector):
                                 found = True
                                 stop = True
                         for system, coords in nebula_coords.items():
-                            distance = math.sqrt((coords[0] - this.coordinates[0]) ** 2
-                                                 + (coords[1] - this.coordinates[1]) ** 2
-                                                 + (coords[2] - this.coordinates[2]) ** 2)
-                            log(f'Distance to {system} from {this.starsystem}: {distance:n} ly')
+                            distance = math.sqrt((coords[0] - this.system.x) ** 2
+                                                 + (coords[1] - this.system.y) ** 2
+                                                 + (coords[2] - this.system.z) ** 2)
+                            log(f'Distance to {system} from {this.system.name}: {distance:n} ly')
                             if distance < 100.0:
                                 found = True
                                 stop = True
@@ -642,7 +644,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                 if 'star' in bio_genus[genus]['colors']['species'][species]:
                     try:
                         for star in sorted(body.get_parent_stars(),
-                                           key=lambda star_name: this.main_stars[star_name].get_id()):
+                                           key=lambda item: this.main_stars[item].get_id()):
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
                                 if star_check(star_type, this.main_stars[star].get_type()):
                                     possible_species[species].add(
@@ -715,6 +717,14 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
 
     if len(sorted_species) == 1:
         localized_species: list[tuple[str, list[str], int]] = []
+        codex = False
+        if sorted_species[0][1]:
+            for color in sorted_species[0][1]:
+                if not check_codex(this.sql_session, this.commander.id, this.system.region, genus, sorted_species[0][0], color):
+                    codex = True
+                    break
+        else:
+            codex = not check_codex(this.sql_session, this.commander.id, this.system.region, genus, sorted_species[0][0])
         if len(sorted_species[0][1]) > 1:
             localized_species = [
                 (bio_types[genus][sorted_species[0][0]]['name'],
@@ -724,7 +734,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         this.planet_cache[body.get_name()][genus] = (
             False,
             (
-                '{}{}'.format(
+                '{}{}{}'.format(
+                    '\N{open book} ' if codex else '',
                     bio_types[genus][sorted_species[0][0]]['name'],
                     f' - {sorted_species[0][1][0]}' if len(sorted_species[0][1]) == 1 else ''
                 ),
@@ -734,10 +745,19 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         )
     elif len(sorted_species) > 0:
         color = ''
+        codex = False
         localized_species = [
             (bio_types[genus][info[0]]['name'], info[1], bio_types[genus][info[0]]['value']) for info in sorted_species
         ]
-        for _, colors in sorted_species:
+        for species, colors in sorted_species:
+            if not codex:
+                if colors:
+                    for color in colors:
+                        if not check_codex(this.sql_session, this.commander.id, this.system.region, genus, species, color):
+                            codex = True
+                            break
+                else:
+                    codex = not check_codex(this.sql_session, this.commander.id, this.system.region, genus, species)
             if len(colors) > 1:
                 color = ''
                 break
@@ -750,7 +770,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         this.planet_cache[body.get_name()][genus] = (
             False,
             (
-                '{}{}'.format(bio_genus[genus]['name'], f' - {color}' if color else ''),
+                '{}{}{}'.format(
+                    '\N{open book} ' if codex else '',
+                    bio_genus[genus]['name'],
+                    f' - {color}' if color else ''
+                ),
                 bio_types[genus][sorted_species[0][0]]['value'],
                 bio_types[genus][sorted_species[-1][0]]['value'],
                 localized_species
@@ -806,8 +830,8 @@ def get_body_name(fullname: str = '') -> str:
     :return: The short name of the body unless it matches the system name
     """
 
-    if fullname.startswith(this.starsystem + ' '):
-        body_name = fullname[len(this.starsystem + ' '):]
+    if fullname.startswith(this.system.name + ' '):
+        body_name = fullname[len(this.system.name + ' '):]
     else:
         body_name = fullname
     return body_name
@@ -840,7 +864,7 @@ def add_star(entry: Mapping[str, any]):
     body_short_name = get_body_name(entry['BodyName'])
 
     if entry['BodyID'] not in this.main_stars:
-        star_data = StarData.from_journal(this.starsystem, body_short_name, entry['BodyID'], this.sql_session)
+        star_data = StarData.from_journal(this.system, body_short_name, entry['BodyID'], this.sql_session)
     else:
         star_data = this.main_stars[entry['BodyID']]
 
@@ -860,11 +884,15 @@ def journal_entry(
     system_changed = False
     # this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
     # this.odyssey = state.get('Odyssey', False)
-    if system and system != this.starsystem:
+    if system and (not this.system or system != this.system.name):
         this.sql_session.commit()
         reset()
         system_changed = True
-        this.starsystem = system
+        this.system = this.sql_session.scalar(select(System).where(System.name == system))
+        if not this.system:
+            this.system = System(name=system)
+            this.sql_session.add(this.system)
+            this.sql_session.commit()
         this.planets = load_planets(system, this.sql_session)
         this.main_stars = load_stars(system, this.sql_session)
 
@@ -881,10 +909,15 @@ def journal_entry(
     if entry['event'] in ['Location', 'FSDJump', 'CarrierJump']:
         if entry['event'] == 'CarrierJump':  # Until EDMC can parse CarrierJump, we need to handle the system updates
             reset()
-            this.starsystem = entry['StarSystem']
+            this.system.name = entry['StarSystem']
             system_changed = True
-        this.coordinates = entry['StarPos']
-        log(f'Coords are x:{this.coordinates[0]}, z:{this.coordinates[1]}, y:{this.coordinates[2]}')
+        this.system.x = entry['StarPos'][0]
+        this.system.y = entry['StarPos'][1]
+        this.system.z = entry['StarPos'][2]
+        sector = findRegion(this.system.x, this.system.y, this.system.z)
+        this.system.region = sector[0] if sector is not None else None
+        this.sql_session.commit()
+        log(f'Coords are x:{this.system.x}, y:{this.system.y}, z:{this.system.z}')
 
     elif entry['event'] == 'Scan':
         body_short_name = get_body_name(entry['BodyName'])
@@ -904,7 +937,7 @@ def journal_entry(
 
         if 'PlanetClass' in entry:
             if body_short_name not in this.planets:
-                body_data = PlanetData.from_journal(this.starsystem, body_short_name, this.sql_session)
+                body_data = PlanetData.from_journal(this.system, body_short_name, this.sql_session)
             else:
                 body_data = this.planets[body_short_name]
             body_data.set_distance(float(entry['DistanceFromArrivalLS'])).set_type(entry['PlanetClass']) \
@@ -916,7 +949,7 @@ def journal_entry(
                 for star in star_search.group(1):
                     body_data.add_parent_star(star)
             else:
-                body_data.add_parent_star(this.starsystem)
+                body_data.add_parent_star(this.system.name)
 
             if 'Materials' in entry:
                 for material in entry['Materials']:
@@ -939,7 +972,7 @@ def journal_entry(
     elif entry['event'] == 'FSSBodySignals':
         body_short_name = get_body_name(entry['BodyName'])
         if body_short_name not in this.planets:
-            this.planets[body_short_name] = PlanetData.from_journal(this.starsystem, body_short_name, this.sql_session)
+            this.planets[body_short_name] = PlanetData.from_journal(this.system, body_short_name, this.sql_session)
         for signal in entry['Signals']:
             if signal['Type'] == '$SAA_SignalType_Biological;':
                 this.planets[body_short_name].set_bio_signals(signal['Count'])
@@ -951,7 +984,7 @@ def journal_entry(
         body_short_name = get_body_name(entry['BodyName'])
 
         if body_short_name not in this.planets:
-            body_data = PlanetData.from_journal(this.starsystem, body_short_name, this.sql_session).set_id(entry['BodyID'])
+            body_data = PlanetData.from_journal(this.system, body_short_name, this.sql_session).set_id(entry['BodyID'])
         else:
             body_data = this.planets[body_short_name].set_id(entry['BodyID'])
 
@@ -1037,6 +1070,8 @@ def journal_entry(
                     genus, (this.planet_latitude, this.planet_longitude), this.commander.id
                 )
 
+            set_codex(this.sql_session, this.commander.id, entry['Name'], this.system.region)
+
         update_display()
 
     elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff']:
@@ -1079,7 +1114,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
 
     if 'BodyName' in entry:
         body_name = get_body_name(entry['BodyName'])
-        if this.location_name == '' and body_name != this.starsystem:
+        if this.location_name == '' and body_name != this.system.name:
             this.location_name = body_name
         if this.location_id == -1 and body_name in this.planets:
             this.location_id = this.planets[body_name].get_id()
@@ -1264,7 +1299,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 if species != '':
                     waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
                                                                  and this.current_scan == '' and waypoints) else ''
-                    detail_text += '{}{} ({}): {}{}{}\n'.format(
+                    detail_text += '{}{}{} ({}): {}{}{}\n'.format(
+                        '\N{open book} ' if not check_codex(this.sql_session, this.commander.id,
+                                                            this.system.region, genus, species, color) else '',
                         bio_types[genus][species]['name'],
                         f' - {color}' if color else '',
                         scan_label(scan[0].count if scan else 0),
@@ -1313,7 +1350,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
 def update_display() -> None:
     """ Primary display update function. This is run whenever we get an event that would change the display state. """
 
-    if this.fetched_edsm or this.starsystem == '':
+    if this.fetched_edsm or not this.system:
         this.edsm_button.grid_remove()
     else:
         this.edsm_button.grid()

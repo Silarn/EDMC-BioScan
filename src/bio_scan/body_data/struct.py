@@ -14,13 +14,7 @@ class PlanetData:
         self._data = data
 
     @classmethod
-    def from_journal(cls, system_name: str, name: str, session: Session):
-        system: System = session.scalar(select(System).where(System.name == system_name))
-        if not system:
-            system = System(name=system_name)
-            session.add(system)
-            session.commit()
-
+    def from_journal(cls, system: System, name: str, session: Session):
         data: Planet = session.scalar(select(Planet).where(Planet.name == name).where(Planet.system_id == system.id))
         if not data:
             data = Planet(name=name, system_id=system.id)
@@ -221,14 +215,8 @@ class StarData:
         self._data = data
 
     @classmethod
-    def from_journal(cls, system_name: str, name: str, body_id: int, session: Session):
+    def from_journal(cls, system: System, name: str, body_id: int, session: Session):
         session: Session = session
-
-        system: System = session.scalar(select(System).where(System.name == system_name))
-        if not system:
-            system = System(name=system_name)
-            session.add(system)
-            session.commit()
 
         data: Star = session.scalar(
             select(Star).where(Star.name == name).where(Star.system_id == system.id)
