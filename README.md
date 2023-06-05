@@ -93,7 +93,7 @@ have to manually look up signals if that data was not previously logged.
 * Start or restart EDMC to register the plugin and run any necessary database migrations
 
 ### Python Native Execution
-* Download the [latest release] zip file for native python
+* Download and extract the [latest release] zip file for native python into the EDMC `plugins` directory
 * Run `pip install -r requirements.txt` within the plugin directory to install SQLAlchemy
   * Ensure the correct `pip` is used for Python 3.11
 * Start or restart EDMC to register the plugin and run any necessary database migrations
