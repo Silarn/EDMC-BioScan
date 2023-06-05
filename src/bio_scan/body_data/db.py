@@ -146,7 +146,6 @@ class CodexScans(Base):
     commander_id: Mapped[int] = mapped_column(ForeignKey('commanders.id'))
     region: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     biological: Mapped[str] = mapped_column(nullable=False, default='')
-    count: Mapped[int] = mapped_column(nullable=False, default=0)
     __table_args__ = (UniqueConstraint('commander_id', 'region', 'biological', name='_cmdr_bio_region_constraint'), )
 
 

@@ -237,10 +237,7 @@ def set_codex(session: Session, commander: int, biological: str, region: int) ->
     if not entry:
         entry = CodexScans(commander_id=commander, biological=biological, region=region, count=0)
         session.add(entry)
-
-    entry.count += 1
-
-    session.commit()
+        session.commit()
 
 
 def check_codex(session: Session, commander: int, region: int, genus: str, species: str, variant: str = '') -> bool:

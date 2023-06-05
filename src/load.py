@@ -735,7 +735,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             False,
             (
                 '{}{}{}'.format(
-                    '\N{open book} ' if codex else '',
+                    '\N{memo} ' if codex else '',
                     bio_types[genus][sorted_species[0][0]]['name'],
                     f' - {sorted_species[0][1][0]}' if len(sorted_species[0][1]) == 1 else ''
                 ),
@@ -771,7 +771,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             False,
             (
                 '{}{}{}'.format(
-                    '\N{open book} ' if codex else '',
+                    '\N{memo} ' if codex else '',
                     bio_genus[genus]['name'],
                     f' - {color}' if color else ''
                 ),
@@ -1300,7 +1300,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
                                                                  and this.current_scan == '' and waypoints) else ''
                     detail_text += '{}{}{} ({}): {}{}{}\n'.format(
-                        '\N{open book} ' if not check_codex(this.sql_session, this.commander.id,
+                        '\N{memo} ' if not check_codex(this.sql_session, this.commander.id,
                                                             this.system.region, genus, species, color) else '',
                         bio_types[genus][species]['name'],
                         f' - {color}' if color else '',
