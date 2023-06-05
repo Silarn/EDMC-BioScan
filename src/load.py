@@ -6,6 +6,9 @@ import re
 # Core imports
 import sys
 import threading
+from os import listdir
+from os.path import expanduser, getctime
+from pathlib import Path
 from traceback import print_exc
 from typing import Mapping, MutableMapping, Optional
 from urllib.parse import quote
@@ -17,6 +20,7 @@ import math
 import tkinter as tk
 from tkinter import ttk
 
+from bio_scan.journal_parse import parse_journal
 # Local imports
 from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
 from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
@@ -45,6 +49,8 @@ from ttkHyperlinkLabel import HyperlinkLabel
 from bio_scan.RegionMap import findRegion
 from bio_scan.RegionMapData import regions as galaxy_regions
 
+JOURNAL_REGEX = re.compile(r'^Journal(Alpha|Beta)?\.[0-9]{2,4}(-)?[0-9]{2}(-)?[0-9]{2}(T)?[0-9]{2}[0-9]{2}[0-9]{2}'
+                             r'\.[0-9]{2}\.log$')
 
 class This:
     """Holds module globals."""
@@ -73,6 +79,7 @@ class This:
         self.edsm_button: Optional[tk.Label] = None
         self.edsm_failed: Optional[tk.Label] = None
         self.update_button: Optional[HyperlinkLabel] = None
+        self.journal_button: Optional[nb.Button] = None
 
         # Plugin state data
         self.commander: Optional[Commander] = None
@@ -82,6 +89,8 @@ class This:
             str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
         self.sql_engine: Optional[Engine] = None
         self.sql_session: Optional[Session] = None
+        self.parsing_journals: bool = False
+        self.journal_progress: float = 0.0
 
         # self.odyssey: bool = False
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
@@ -125,6 +134,9 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     parse_config()
     this.frame = tk.Frame(parent)
     this.frame.bind('<<BioScanEDSMData>>', edsm_data)
+    this.frame.bind('<<bioscan_journal_start>>', journal_start)
+    this.frame.bind('<<bioscan_journal_progress>>', journal_update)
+    this.frame.bind('<<bioscan_journal_finish>>', journal_end)
     this.label = tk.Label(this.frame)
     this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
     this.scroll_canvas = tk.Canvas(this.frame, height=80, highlightthickness=0)
@@ -235,6 +247,9 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         variable=this.waypoints_enabled
     ).grid(row=13, column=1, sticky=tk.W)
 
+    this.journal_button = nb.Button(frame, text='Parse Journals', command=parse_journals) \
+        .grid(row=20, column=0, padx=x_padding, sticky=tk.SW)
+
     nb.Checkbutton(
         frame,
         text='Enable Debug Logging',
@@ -303,6 +318,65 @@ def log(*args) -> None:
         logger.debug(args)
 
 
+def parse_journals() -> None:
+    this.journal_thread = threading.Thread(target=journal_worker, name='Journal worker')
+    this.journal_thread.daemon = True
+    this.journal_thread.start()
+
+
+def journal_worker() -> None:
+    journal_dir = config.get_str('journaldir')
+    journal_dir = journal_dir if journal_dir else config.default_journal_dir
+
+    journal_dir = expanduser(journal_dir)
+
+    if journal_dir == '':
+        return
+
+    this.parsing_journals = True
+    this.frame.event_generate("<<bioscan_journal_start>>")
+
+    try:
+        journal_files: list[Path] = [Path(journal_dir) / str(x) for x in listdir(journal_dir) if JOURNAL_REGEX.search(x)]
+        logger.debug(f'Journal files: {journal_files}')
+        if journal_files:
+            journal_files = sorted(journal_files, key=getctime)
+            count = 0
+            for journal in journal_files:
+                this.journal_progress = count/len(journal_files)
+                this.frame.event_generate("<<bioscan_journal_progress>>")
+                count += 1
+                result = parse_journal(journal, this.sql_session)
+                if not result:
+                    this.parsing_journals = False
+                    this.frame.event_generate("<<bioscan_journal_finish>>")
+                    break
+
+    except Exception as ex:
+        logger.debug('Journal parsing failed', exc_info=ex)
+
+    this.parsing_journals = False
+    this.frame.event_generate("<<bioscan_journal_finish>>")
+
+
+def journal_start() -> None:
+    this.edsm_button.grid_remove()
+    this.total_label.grid_remove()
+    this.values_label.grid_remove()
+    this.journal_button['text'] = 'Parsing Journals'
+    this.journal_button['state'] = 'disabled'
+
+
+def journal_update() -> None:
+    this.label['text'] = f'BioScan: Parsing Journals ({this.journal_progress:.0%})'
+
+
+def journal_end() -> None:
+    this.total_label.grid()
+    this.values_label.grid()
+    this.journal_button['text'] = 'Journals Parsed'
+
+
 def edsm_fetch() -> None:
     """ EDSM system data fetch thread initialization """
 
@@ -356,13 +430,13 @@ def edsm_data(event: tk.Event) -> None:
         elif body['type'] == 'Planet':
             try:
                 if body_short_name not in this.planets:
-                    planet_data = PlanetData.from_journal(this.system, body_short_name, this.sql_session)
+                    planet_data = PlanetData.from_journal(this.system, body_short_name,
+                                                          body['bodyId'], this.sql_session)
                 else:
                     planet_data = this.planets[body_short_name]
                 planet_type = map_edsm_type(body['subType'])
                 planet_data.set_type(planet_type) \
                     .set_distance(body['distanceToArrival']) \
-                    .set_id(body['bodyId']) \
                     .set_atmosphere(map_edsm_atmosphere(body['atmosphereType'])) \
                     .set_gravity(body['gravity'] * 9.80665) \
                     .set_temp(body['surfaceTemperature'])
@@ -377,7 +451,7 @@ def edsm_data(event: tk.Event) -> None:
                     for star in star_search.group(1):
                         planet_data.add_parent_star(star)
                 else:
-                    planet_data.add_parent_star(this.system)
+                    planet_data.add_parent_star(this.system.name)
 
                 if 'materials' in body:
                     for material in body['materials']:  # type: str
@@ -408,7 +482,7 @@ def add_edsm_star(body: dict) -> None:
         if body_short_name not in this.main_stars:
             star_data = StarData.from_journal(this.system, body_short_name, body['bodyId'], this.sql_session)
         else:
-            star_data = this.main_stars[body['bodyId']]
+            star_data = this.main_stars[body_short_name]
         if body['spectralClass']:
             star_data.set_type(body['spectralClass'][:-1])
         else:
@@ -493,11 +567,15 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             eliminated = True
                             stop = True
                     case 'max_temperature':
+                        if not body.get_temp():
+                            continue
                         if body.get_temp() >= value:
                             log('Eliminated for high heat')
                             eliminated = True
                             stop = True
                     case 'min_temperature':
+                        if not body.get_temp():
+                            continue
                         if body.get_temp() < value:
                             log('Eliminated for low heat')
                             eliminated = True
@@ -863,10 +941,10 @@ def add_star(entry: Mapping[str, any]):
 
     body_short_name = get_body_name(entry['BodyName'])
 
-    if entry['BodyID'] not in this.main_stars:
+    if body_short_name not in this.main_stars:
         star_data = StarData.from_journal(this.system, body_short_name, entry['BodyID'], this.sql_session)
     else:
-        star_data = this.main_stars[entry['BodyID']]
+        star_data = this.main_stars[body_short_name]
 
     star_data.set_type(entry['StarType'])
     star_data.set_luminosity(entry['Luminosity'])
@@ -880,7 +958,6 @@ def journal_entry(
         cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, any], state: MutableMapping[str, any]
 ) -> str:
     """ EDMC journal entry hook. Primary journal data handler. """
-
     system_changed = False
     # this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
     # this.odyssey = state.get('Odyssey', False)
@@ -937,12 +1014,12 @@ def journal_entry(
 
         if 'PlanetClass' in entry:
             if body_short_name not in this.planets:
-                body_data = PlanetData.from_journal(this.system, body_short_name, this.sql_session)
+                body_data = PlanetData.from_journal(this.system, body_short_name, entry['BodyID'], this.sql_session)
             else:
                 body_data = this.planets[body_short_name]
             body_data.set_distance(float(entry['DistanceFromArrivalLS'])).set_type(entry['PlanetClass']) \
-                .set_id(entry['BodyID']).set_gravity(entry['SurfaceGravity']) \
-                .set_temp(entry['SurfaceTemperature']).set_volcanism(entry['Volcanism'])
+                .set_gravity(entry['SurfaceGravity']).set_temp(entry.get('SurfaceTemperature', 0)) \
+                .set_volcanism(entry.get('Volcanism', ''))
 
             star_search = re.search('^([A-Z]+) .+$', body_short_name)
             if star_search:
@@ -969,24 +1046,13 @@ def journal_entry(
             reset_cache()
             update_display()
 
-    elif entry['event'] == 'FSSBodySignals':
-        body_short_name = get_body_name(entry['BodyName'])
-        if body_short_name not in this.planets:
-            this.planets[body_short_name] = PlanetData.from_journal(this.system, body_short_name, this.sql_session)
-        for signal in entry['Signals']:
-            if signal['Type'] == '$SAA_SignalType_Biological;':
-                this.planets[body_short_name].set_bio_signals(signal['Count'])
-
-        reset_cache(body_short_name)
-        update_display()
-
-    elif entry['event'] == 'SAASignalsFound':
+    elif entry['event'] in ['FSSBodySignals', 'SAASignalsFound']:
         body_short_name = get_body_name(entry['BodyName'])
 
         if body_short_name not in this.planets:
-            body_data = PlanetData.from_journal(this.system, body_short_name, this.sql_session).set_id(entry['BodyID'])
+            body_data = PlanetData.from_journal(this.system, body_short_name, entry['BodyID'], this.sql_session)
         else:
-            body_data = this.planets[body_short_name].set_id(entry['BodyID'])
+            body_data = this.planets[body_short_name]
 
         # Add bio signal number just in case
         for signal in entry['Signals']:
@@ -998,6 +1064,7 @@ def journal_entry(
             for genus in entry['Genuses']:
                 if body_data.get_flora(genus['Genus']) is None:
                     body_data.add_flora(genus['Genus'])
+
         this.planets[body_short_name] = body_data
 
         reset_cache(body_short_name)
@@ -1053,9 +1120,7 @@ def journal_entry(
 
         update_display()
 
-    elif entry['event'] == 'CodexEntry' and \
-            entry['BodyID'] == this.location_id and \
-            entry['Category'] == '$Codex_Category_Biology;':
+    elif entry['event'] == 'CodexEntry' and entry['Category'] == '$Codex_Category_Biology;':
         target_body = None
         for name, body in this.planets.items():
             if body.get_id() == entry['BodyID']:
@@ -1066,9 +1131,10 @@ def journal_entry(
             genus, species, color = parse_variant(entry['Name'])
             if genus is not '' and species is not '':
                 this.planets[target_body].add_flora(genus, species, color)
-                this.planets[target_body].add_flora_waypoint(
-                    genus, (this.planet_latitude, this.planet_longitude), this.commander.id
-                )
+                if this.location_id == entry['BodyID']:
+                    this.planets[target_body].add_flora_waypoint(
+                        genus, (this.planet_latitude, this.planet_longitude), this.commander.id
+                    )
 
             set_codex(this.sql_session, this.commander.id, entry['Name'], this.system.region)
 
@@ -1349,6 +1415,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
 
 def update_display() -> None:
     """ Primary display update function. This is run whenever we get an event that would change the display state. """
+
+    if this.parsing_journals:
+        return
 
     if this.fetched_edsm or not this.system:
         this.edsm_button.grid_remove()

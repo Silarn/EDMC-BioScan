@@ -1,10 +1,12 @@
 """
 The database structure models and helper functions for BioScan data
 """
+from typing import Optional
 
-from sqlalchemy import ForeignKey, String, UniqueConstraint, select, Column, Float, Engine, text, SmallInteger
+from sqlalchemy import ForeignKey, String, UniqueConstraint, select, Column, Float, Engine, text, SmallInteger, \
+    Table, MetaData
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
-
+from sqlalchemy.sql.ddl import CreateTable
 
 db_version: int = 2
 
@@ -18,8 +20,8 @@ class Commander(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(22), unique=True)
-    
-    
+
+
 class Metadata(Base):
     __tablename__ = 'metadata'
 
@@ -30,14 +32,14 @@ class Metadata(Base):
 class System(Base):
     """ DB model for system data """
     __tablename__ = 'systems'
-    
+
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(64), unique=True)
     x: Mapped[float]
     y: Mapped[float]
     z: Mapped[float]
     region: Mapped[int] = mapped_column(SmallInteger)
-    
+
     planets: Mapped[list['Planet']] = relationship(
         back_populates='planet', cascade='all, delete-orphan'
     )
@@ -56,15 +58,15 @@ class Planet(Base):
     planet: Mapped[list['System']] = relationship(back_populates='planets')
     name: Mapped[str] = mapped_column(String(32))
     type: Mapped[str] = mapped_column(String(32), default='')
-    body_id: Mapped[int] = mapped_column(default='')
+    body_id: Mapped[int]
     atmosphere: Mapped[str] = mapped_column(String(32), default='')
     gasses: Mapped[list['PlanetGas']] = relationship(
         back_populates='gas', cascade='all, delete-orphan'
     )
-    volcanism: Mapped[str] = mapped_column(String(32), default='')
+    volcanism: Mapped[Optional[str]] = mapped_column(String(32))
     distance: Mapped[float] = mapped_column(default=0.0)
     gravity: Mapped[float] = mapped_column(default=0.0)
-    temp: Mapped[float] = mapped_column(default=0.0)
+    temp: Mapped[Optional[float]]
     parent_stars: Mapped[str] = mapped_column(default='')
     bio_signals: Mapped[int] = mapped_column(default=0)
     floras: Mapped[list['PlanetFlora']] = relationship(
@@ -133,8 +135,9 @@ class Star(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     system_id: Mapped[int] = mapped_column(ForeignKey('systems.id'))
     star: Mapped[list['System']] = relationship(back_populates='stars')
-    name: Mapped[str]
-    body_id: Mapped[int]
+    name: Mapped[str] = mapped_column(nullable=False)
+    body_id: Mapped[int] = mapped_column(nullable=False)
+    distance: Mapped[float] = mapped_column(nullable=True)
     type: Mapped[str] = mapped_column(default='')
     luminosity: Mapped[str] = mapped_column(default='')
 
@@ -146,7 +149,31 @@ class CodexScans(Base):
     commander_id: Mapped[int] = mapped_column(ForeignKey('commanders.id'))
     region: Mapped[int] = mapped_column(SmallInteger, nullable=False)
     biological: Mapped[str] = mapped_column(nullable=False, default='')
-    __table_args__ = (UniqueConstraint('commander_id', 'region', 'biological', name='_cmdr_bio_region_constraint'), )
+    __table_args__ = (UniqueConstraint('commander_id', 'region', 'biological', name='_cmdr_bio_region_constraint'),)
+
+
+def modify_table(engine: Engine, session: Session, table: type[Base]):
+    new_table_name = f'{table.__tablename__}_new'
+    session.execute(text(f'PRAGMA foreign_keys=off'))
+    metadata = MetaData()
+    columns: list[Column] = [column.copy() for column in table.__table__.columns.values()]
+    args = []
+    if hasattr(table, '__table_args__'):
+        for arg in table.__table_args__:
+            if type(arg) == UniqueConstraint:
+                args.append(arg.copy())
+            else:
+                args.append(arg)
+    new_table = Table(new_table_name, metadata, *columns, *args)
+    statement = text(str(CreateTable(new_table).compile(engine)))
+    session.execute(statement)
+    statement = text(str(f'INSERT INTO {new_table_name} SELECT * FROM {table.__tablename__}'))
+    session.execute(statement)
+    statement = text(str(f'DROP TABLE {table.__tablename__}'))
+    session.execute(statement)
+    statement = text(str(f'ALTER TABLE {new_table_name} RENAME TO {table.__tablename__}'))
+    session.execute(statement)
+    session.execute(text(f'PRAGMA foreign_keys=on'))
 
 
 def add_column(engine: Engine, session: Session, table_name: str, column: Column):
@@ -172,9 +199,12 @@ def migrate(engine: Engine, session: Session) -> None:
             add_column(engine, session, 'systems', Column('y', Float()))
             add_column(engine, session, 'systems', Column('z', Float()))
             add_column(engine, session, 'systems', Column('region', SmallInteger()))
+            add_column(engine, session, 'stars', Column('distance', Float(), nullable=True))
+            modify_table(engine, session, Star)
+            modify_table(engine, session, Planet)
     else:  # If there is no version, we can simply assume this is a fresh install and set the current DB version
         version = Metadata(key='version')
         session.add(version)
     if version.value != db_version:
         version.value = db_version
-    session.commit()
+    session.close()

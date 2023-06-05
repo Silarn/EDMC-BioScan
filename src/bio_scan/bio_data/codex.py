@@ -235,7 +235,7 @@ def set_codex(session: Session, commander: int, biological: str, region: int) ->
     entry: CodexScans = session.scalar(select(CodexScans).where(CodexScans.commander_id == commander)
                                        .where(CodexScans.biological == biological).where(CodexScans.region == region))
     if not entry:
-        entry = CodexScans(commander_id=commander, biological=biological, region=region, count=0)
+        entry = CodexScans(commander_id=commander, biological=biological, region=region)
         session.add(entry)
         session.commit()
 

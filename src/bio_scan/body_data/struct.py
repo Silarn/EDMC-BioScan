@@ -14,13 +14,12 @@ class PlanetData:
         self._data = data
 
     @classmethod
-    def from_journal(cls, system: System, name: str, session: Session):
+    def from_journal(cls, system: System, name: str, body_id: int, session: Session):
         data: Planet = session.scalar(select(Planet).where(Planet.name == name).where(Planet.system_id == system.id))
         if not data:
-            data = Planet(name=name, system_id=system.id)
+            data = Planet(name=name, body_id=body_id, system_id=system.id)
             session.add(data)
 
-        session.commit()
         return cls(system, data, session)
 
     def get_name(self) -> str:
@@ -60,7 +59,7 @@ class PlanetData:
     def get_volcanism(self) -> str:
         return self._data.volcanism
 
-    def set_volcanism(self, value: int) -> Self:
+    def set_volcanism(self, value: Optional[int]) -> Self:
         self._data.volcanism = value
         return self
 
@@ -78,10 +77,10 @@ class PlanetData:
         self._data.gravity = value
         return self
 
-    def get_temp(self) -> float:
+    def get_temp(self) -> Optional[float]:
         return self._data.temp
 
-    def set_temp(self, value: float) -> Self:
+    def set_temp(self, value: Optional[float]) -> Self:
         self._data.temp = value
         return self
 
@@ -236,6 +235,13 @@ class StarData:
 
     def get_id(self) -> int:
         return self._data.body_id
+
+    def get_distance(self) -> Optional[float]:
+        return self._data.distance
+
+    def set_distance(self, value: float) -> Self:
+        self._data.distance = value
+        return self
 
     def get_type(self) -> str:
         return self._data.type
