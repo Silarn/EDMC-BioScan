@@ -1,7 +1,7 @@
 import re
 
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import scoped_session
 
 from bio_scan.bio_data.genus import data as bio_genus
 from bio_scan.bio_data.species import rules as bio_types
@@ -228,19 +228,21 @@ def parse_variant(name: str) -> tuple[str, str, str]:
     return '', '', ''
 
 
-def set_codex(session: Session, commander: int, biological: str, region: int) -> None:
+def set_codex(session_factory: scoped_session, commander: int, biological: str, region: int) -> None:
     if region is None:
         return
 
+    session = session_factory()
     entry: CodexScans = session.scalar(select(CodexScans).where(CodexScans.commander_id == commander)
                                        .where(CodexScans.biological == biological).where(CodexScans.region == region))
     if not entry:
         entry = CodexScans(commander_id=commander, biological=biological, region=region)
         session.add(entry)
         session.commit()
+    session.close()
 
 
-def check_codex(session: Session, commander: int, region: int, genus: str, species: str, variant: str = '') -> bool:
+def check_codex(session_factory: scoped_session, commander: int, region: int, genus: str, species: str, variant: str = '') -> bool:
     biological = species
     if variant:
         if 'colors' in bio_genus[genus]:
@@ -264,8 +266,10 @@ def check_codex(session: Session, commander: int, region: int, genus: str, speci
                 if match:
                     biological = f'{match.group(1)}_{code}_Name;'
 
+    session = session_factory()
     entry: CodexScans = session.scalar(select(CodexScans).where(CodexScans.commander_id == commander)
                                        .where(CodexScans.region == region).where(CodexScans.biological == biological))
+    session.close()
 
     if entry:
         return True

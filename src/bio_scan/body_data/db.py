@@ -5,10 +5,14 @@ from typing import Optional
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint, select, Column, Float, Engine, text, SmallInteger, \
     Table, MetaData
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship, Session
+from sqlalchemy.dialects.sqlite import insert
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql.ddl import CreateTable
 
+from EDMCLogging import get_plugin_logger
+
 db_version: int = 2
+logger = get_plugin_logger('BioScan')
 
 
 class Base(DeclarativeBase):
@@ -152,9 +156,11 @@ class CodexScans(Base):
     __table_args__ = (UniqueConstraint('commander_id', 'region', 'biological', name='_cmdr_bio_region_constraint'),)
 
 
-def modify_table(engine: Engine, session: Session, table: type[Base]):
+def modify_table(engine: Engine, table: type[Base]):
     new_table_name = f'{table.__tablename__}_new'
-    session.execute(text(f'PRAGMA foreign_keys=off'))
+    connection = engine.connect()
+    connection.execute(text(f'PRAGMA foreign_keys=off'))
+    connection.commit()
     metadata = MetaData()
     columns: list[Column] = [column.copy() for column in table.__table__.columns.values()]
     args = []
@@ -166,45 +172,54 @@ def modify_table(engine: Engine, session: Session, table: type[Base]):
                 args.append(arg)
     new_table = Table(new_table_name, metadata, *columns, *args)
     statement = text(str(CreateTable(new_table).compile(engine)))
-    session.execute(statement)
-    statement = text(str(f'INSERT INTO {new_table_name} SELECT * FROM {table.__tablename__}'))
-    session.execute(statement)
-    statement = text(str(f'DROP TABLE {table.__tablename__}'))
-    session.execute(statement)
-    statement = text(str(f'ALTER TABLE {new_table_name} RENAME TO {table.__tablename__}'))
-    session.execute(statement)
-    session.execute(text(f'PRAGMA foreign_keys=on'))
+    connection.execute(statement)
+    statement = text(f'INSERT INTO `{new_table_name}` SELECT * FROM `{table.__tablename__}`')
+    connection.execute(statement)
+    statement = text(f'DROP TABLE `{table.__tablename__}`')
+    connection.execute(statement)
+    statement = text(f'ALTER TABLE `{new_table_name}` RENAME TO `{table.__tablename__}`')
+    connection.execute(statement)
+    connection.commit()
+    connection.execute(text(f'PRAGMA foreign_keys=on'))
+    connection.commit()
+    connection.close()
 
 
-def add_column(engine: Engine, session: Session, table_name: str, column: Column):
+def add_column(engine: Engine, table_name: str, column: Column):
+    connection = engine.connect()
     column_name = column.compile(dialect=engine.dialect)
     column_type = column.type.compile(engine.dialect)
     statement = text(f'ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}')
-    session.execute(statement)
+    connection.execute(statement)
+    connection.close()
 
 
-def migrate(engine: Engine, session: Session) -> None:
+def migrate(engine: Engine) -> None:
     """
     Database migration function. Checks existing DB version, runs any necessary migrations, and sets the new version
     in the metadata.
 
     :param engine: DB connection engine object
-    :param session: DB connection session object
     """
 
-    version: Metadata = session.scalar(select(Metadata).where(Metadata.key == 'version'))
-    if version:  # If the database version is set, perform migrations
-        if int(version.value) < 2:
-            add_column(engine, session, 'systems', Column('x', Float()))
-            add_column(engine, session, 'systems', Column('y', Float()))
-            add_column(engine, session, 'systems', Column('z', Float()))
-            add_column(engine, session, 'systems', Column('region', SmallInteger()))
-            add_column(engine, session, 'stars', Column('distance', Float(), nullable=True))
-            modify_table(engine, session, Star)
-            modify_table(engine, session, Planet)
-    else:  # If there is no version, we can simply assume this is a fresh install and set the current DB version
-        version = Metadata(key='version')
-        session.add(version)
-    if version.value != db_version:
-        version.value = db_version
-    session.close()
+    connection = engine.connect()
+    version = connection.execute(select(Metadata).where(Metadata.key == 'version')).mappings().first()
+    connection.close()
+    logger.debug(f'Version: {version["value"]}')
+    try:
+        if version:  # If the database version is set, perform migrations
+            if int(version['value']) < 2:
+                add_column(engine, 'systems', Column('x', Float()))
+                add_column(engine, 'systems', Column('y', Float()))
+                add_column(engine, 'systems', Column('z', Float()))
+                add_column(engine, 'systems', Column('region', SmallInteger()))
+                add_column(engine, 'stars', Column('distance', Float(), nullable=True))
+                modify_table(engine, Star)
+                modify_table(engine, Planet)
+    except Exception as ex:
+        logger.debug('Problem during migration', exc_info=ex)
+
+    connection = engine.connect()
+    connection.execute(insert(Metadata).values(key='version', value=db_version)
+                       .on_conflict_do_update(index_elements=['key'], set_=dict(value='db_version')))
+    connection.close()

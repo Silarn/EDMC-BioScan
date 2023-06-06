@@ -3,8 +3,10 @@
 # Source: https://github.com/Silarn/EDMC-BioScan
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
 # Core imports
+import concurrent.futures
 import os.path
-from os import listdir
+from concurrent.futures import Future
+from os import listdir, cpu_count
 from os.path import expanduser, getctime
 from pathlib import Path
 from traceback import print_exc
@@ -36,7 +38,7 @@ from bio_scan.bio_data.species import rules as bio_types
 from bio_scan.format_util import Formatter
 
 from sqlalchemy import Engine, create_engine, select, delete
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker, scoped_session
 from bio_scan.body_data.db import Base as DBBase, Commander, PlanetFlora, FloraScans, Waypoint, migrate, System
 
 # EDMC imports
@@ -90,6 +92,7 @@ class This:
         self.planet_cache: dict[
             str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
         self.sql_engine: Optional[Engine] = None
+        self.sql_session_factory: Optional[scoped_session] = None
         self.sql_session: Optional[Session] = None
         self.journal_thread: Optional[threading.Thread] = None
         self.parsing_journals: bool = False
@@ -128,8 +131,9 @@ def plugin_start3(plugin_dir: str) -> str:
     engine_path = config.app_dir_path / 'bioscan.db'
     this.sql_engine = create_engine(f'sqlite:///{engine_path}')
     DBBase.metadata.create_all(this.sql_engine)
-    this.sql_session = Session(this.sql_engine)
-    migrate(this.sql_engine, this.sql_session)
+    migrate(this.sql_engine)
+    this.sql_session_factory = scoped_session(sessionmaker(bind=this.sql_engine))
+    this.sql_session = this.sql_session_factory()
     return this.NAME
 
 
@@ -314,7 +318,7 @@ def plugin_stop() -> None:
         this.total_label.grid()
         this.journal_thread.join()
     try:
-        this.sql_session.commit()
+        this.sql_session_factory.close()
         this.sql_engine.dispose()
     except Exception as ex:
         logger.debug('Error during cleanup commit', exc_info=ex)
@@ -366,25 +370,35 @@ def journal_worker() -> None:
 
         if journal_files:
             journal_files = sorted(journal_files, key=getctime)
+            if start_journal:
+                for journal in journal_files.copy():
+                    if journal.name == start_journal:
+                        journal_files = journal_files[journal_files.index(journal):]
+                        break
             count = 0
-            for journal in journal_files:
-                count += 1
-                if this.journal_stop:
-                    this.journal_next = journal.name
-                    this.parsing_journals = False
-                    this.journal_stop = False
-                    this.frame.event_generate('<<bioscan_journal_finish>>')
-                    break
-                if start_journal and journal.name != start_journal:
-                    continue
-                start_journal = ''
-                this.journal_progress = count / len(journal_files)
-                this.frame.event_generate('<<bioscan_journal_progress>>')
-                result = parse_journal(journal, this.sql_session)
-                if not result:
-                    this.parsing_journals = False
-                    this.frame.event_generate('<<bioscan_journal_finish>>')
-                    break
+            with concurrent.futures.ThreadPoolExecutor(max_workers=cpu_count() - 1) as executor:
+                future_journal: dict[Future, Path] = {executor.submit(parse_journal, journal, this.sql_session_factory):
+                                                      journal for journal in journal_files}
+                for future in concurrent.futures.as_completed(future_journal):
+                    count += 1
+                    if this.journal_stop:
+                        this.parsing_journals = False
+                        this.journal_stop = False
+                        executor.shutdown(wait=True, cancel_futures=True)
+                        for key, value in future_journal.items():
+                            if key.done() or key.running():
+                                continue
+                            this.journal_next = value.name
+                            break
+                        this.frame.event_generate('<<bioscan_journal_finish>>')
+                        break
+                    this.journal_progress = count / len(journal_files)
+                    this.frame.event_generate('<<bioscan_journal_progress>>')
+                    if not future.result():
+                        this.parsing_journals = False
+                        executor.shutdown(wait=True, cancel_futures=True)
+                        this.frame.event_generate('<<bioscan_journal_finish>>')
+                        break
 
     except Exception as ex:
         logger.debug('Journal parsing failed', exc_info=ex)
@@ -507,7 +521,6 @@ def edsm_data(event: tk.Event) -> None:
             except Exception as e:
                 logger.debug('Error while parsing EDSM', exc_info=e)
     this.fetched_edsm = True
-    this.sql_session.commit()
     reset_cache()
     update_display()
 
@@ -839,12 +852,12 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         codex = False
         if sorted_species[0][1]:
             for color in sorted_species[0][1]:
-                if not check_codex(this.sql_session, this.commander.id, this.system.region, genus, sorted_species[0][0],
-                                   color):
+                if not check_codex(this.sql_session_factory, this.commander.id, this.system.region,
+                                   genus, sorted_species[0][0], color):
                     codex = True
                     break
         else:
-            codex = not check_codex(this.sql_session, this.commander.id, this.system.region, genus,
+            codex = not check_codex(this.sql_session_factory, this.commander.id, this.system.region, genus,
                                     sorted_species[0][0])
         if len(sorted_species[0][1]) > 1:
             localized_species = [
@@ -874,12 +887,13 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             if not codex:
                 if colors:
                     for color in colors:
-                        if not check_codex(this.sql_session, this.commander.id, this.system.region, genus, species,
-                                           color):
+                        if not check_codex(this.sql_session_factory, this.commander.id, this.system.region, genus,
+                                           species, color):
                             codex = True
                             break
                 else:
-                    codex = not check_codex(this.sql_session, this.commander.id, this.system.region, genus, species)
+                    codex = not check_codex(this.sql_session_factory, this.commander.id, this.system.region,
+                                            genus, species)
             if len(colors) > 1:
                 color = ''
                 break
@@ -974,6 +988,7 @@ def reset() -> None:
     this.planet_cache = {}
     this.main_stars = {}
     this.scroll_canvas.yview_moveto(0.0)
+    this.sql_session.close()
 
 
 def add_star(entry: Mapping[str, any]):
@@ -993,8 +1008,6 @@ def add_star(entry: Mapping[str, any]):
     star_data.set_type(entry['StarType'])
     star_data.set_luminosity(entry['Luminosity'])
 
-    this.sql_session.commit()
-
     this.main_stars[body_short_name] = star_data
 
 
@@ -1006,16 +1019,16 @@ def journal_entry(
     # this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
     # this.odyssey = state.get('Odyssey', False)
     if system and (not this.system or system != this.system.name):
-        this.sql_session.commit()
         reset()
         system_changed = True
+        this.sql_session = this.sql_session_factory()
         this.system = this.sql_session.scalar(select(System).where(System.name == system))
         if not this.system:
             this.system = System(name=system)
             this.sql_session.add(this.system)
             this.sql_session.commit()
-        this.planets = load_planets(system, this.sql_session)
-        this.main_stars = load_stars(system, this.sql_session)
+        this.planets = load_planets(system, this.sql_session_factory)
+        this.main_stars = load_stars(system, this.sql_session_factory)
 
     if cmdr and not this.commander:
         stmt = select(Commander).where(Commander.name == cmdr)
@@ -1037,7 +1050,10 @@ def journal_entry(
         this.system.z = entry['StarPos'][2]
         sector = findRegion(this.system.x, this.system.y, this.system.z)
         this.system.region = sector[0] if sector is not None else None
-        this.sql_session.commit()
+        session = this.sql_session_factory()
+        session.add(this.system)
+        session.commit()
+        session.close()
         log(f'Coords are x:{this.system.x}, y:{this.system.y}, z:{this.system.z}')
 
     elif entry['event'] == 'Scan':
@@ -1058,7 +1074,8 @@ def journal_entry(
 
         if 'PlanetClass' in entry:
             if body_short_name not in this.planets:
-                body_data = PlanetData.from_journal(this.system, body_short_name, entry['BodyID'], this.sql_session)
+                body_data = PlanetData.from_journal(this.system, body_short_name,
+                                                    entry['BodyID'], this.sql_session)
             else:
                 body_data = this.planets[body_short_name]
             body_data.set_distance(float(entry['DistanceFromArrivalLS'])).set_type(entry['PlanetClass']) \
@@ -1082,8 +1099,6 @@ def journal_entry(
             if 'AtmosphereComposition' in entry:
                 for gas in entry['AtmosphereComposition']:
                     body_data.add_gas(gas['Name'], gas['Percent'])
-
-            this.sql_session.commit()
 
             this.planets[body_short_name] = body_data
 
@@ -1140,10 +1155,13 @@ def journal_entry(
                     this.planets[target_body].set_flora_species_scan(
                         this.current_scan, data.species, 0, this.commander.id
                     )
+                    session = this.sql_session_factory()
                     stmt = delete(Waypoint).where(Waypoint.commander_id == this.commander.id) \
                         .where(Waypoint.flora_id == data.id) \
                         .where(Waypoint.type == 'scan')
-                    this.sql_session.execute(stmt)
+                    session.execute(stmt)
+                    session.commit()
+                    session.close()
             this.current_scan = entry['Genus']
 
             if 'Variant' in entry:
@@ -1180,7 +1198,7 @@ def journal_entry(
                         genus, (this.planet_latitude, this.planet_longitude), this.commander.id
                     )
 
-            set_codex(this.sql_session, this.commander.id, entry['Name'], this.system.region)
+            set_codex(this.sql_session_factory, this.commander.id, entry['Name'], this.system.region)
 
         update_display()
 
@@ -1411,7 +1429,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
                                                                  and this.current_scan == '' and waypoints) else ''
                     detail_text += '{}{}{} ({}): {}{}{}\n'.format(
-                        '\N{memo} ' if not check_codex(this.sql_session, this.commander.id,
+                        '\N{memo} ' if not check_codex(this.sql_session_factory, this.commander.id,
                                                        this.system.region, genus, species, color) else '',
                         bio_types[genus][species]['name'],
                         f' - {color}' if color else '',

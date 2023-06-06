@@ -1,6 +1,6 @@
 from typing import Self, Optional
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, scoped_session
 from sqlalchemy import select, delete
 from bio_scan.body_data.db import Planet, System, PlanetFlora, PlanetGas, Waypoint, FloraScans, Star
 
@@ -9,9 +9,9 @@ class PlanetData:
     """ Holds all attributes, getters, and setters for planet data. """
 
     def __init__(self, system: System, data: Planet, session: Session):
-        self._session = session
-        self._system = system
-        self._data = data
+        self._session: Session = session
+        self._system: System = system
+        self._data: Planet = data
 
     @classmethod
     def from_journal(cls, system: System, name: str, body_id: int, session: Session):
@@ -19,6 +19,7 @@ class PlanetData:
         if not data:
             data = Planet(name=name, body_id=body_id, system_id=system.id)
             session.add(data)
+        session.commit()
 
         return cls(system, data, session)
 
@@ -30,6 +31,7 @@ class PlanetData:
 
     def set_type(self, value: str) -> Self:
         self._data.type = value
+        self.commit()
         return self
 
     def get_id(self) -> int:
@@ -37,6 +39,7 @@ class PlanetData:
 
     def set_id(self, value: int) -> Self:
         self._data.body_id = value
+        self.commit()
         return self
 
     def get_atmosphere(self) -> str:
@@ -44,10 +47,12 @@ class PlanetData:
 
     def set_atmosphere(self, value: str) -> Self:
         self._data.atmosphere = value
+        self.commit()
         return self
 
     def add_gas(self, gas: str, percent: float) -> Self:
         self._data.gasses.append(PlanetGas(gas_name=gas, percent=percent))
+        self.commit()
         return self
 
     def get_gas(self, gas: str) -> float:
@@ -61,6 +66,7 @@ class PlanetData:
 
     def set_volcanism(self, value: Optional[int]) -> Self:
         self._data.volcanism = value
+        self.commit()
         return self
 
     def get_distance(self) -> float:
@@ -68,6 +74,7 @@ class PlanetData:
 
     def set_distance(self, value: float) -> Self:
         self._data.distance = value
+        self.commit()
         return self
 
     def get_gravity(self) -> float:
@@ -75,6 +82,7 @@ class PlanetData:
 
     def set_gravity(self, value: float) -> Self:
         self._data.gravity = value
+        self.commit()
         return self
 
     def get_temp(self) -> Optional[float]:
@@ -82,6 +90,7 @@ class PlanetData:
 
     def set_temp(self, value: Optional[float]) -> Self:
         self._data.temp = value
+        self.commit()
         return self
 
     def get_bio_signals(self) -> int:
@@ -89,6 +98,7 @@ class PlanetData:
 
     def set_bio_signals(self, value: int) -> Self:
         self._data.bio_signals = value
+        self.commit()
         return self
 
     def get_parent_stars(self) -> list[str]:
@@ -105,6 +115,7 @@ class PlanetData:
             self._data.parent_stars = ','.join(stars)
         else:
             self._data.parent_stars = value
+        self.commit()
         return self
 
     def get_flora(self, genus: str = None, create: bool = False) -> list[PlanetFlora] | PlanetFlora | None:
@@ -191,7 +202,8 @@ class PlanetData:
         return self
 
     def clear_flora(self) -> Self:
-        delete(PlanetFlora).where(PlanetFlora.planet_id == self._data.id)
+        self._session.execute(delete(PlanetFlora).where(PlanetFlora.planet_id == self._data.id))
+        self.commit()
         return self
 
     def is_mapped(self) -> bool:
@@ -204,19 +216,20 @@ class PlanetData:
     def commit(self) -> None:
         self._session.commit()
 
+    def __del__(self) -> None:
+        self.commit()
+
 
 class StarData:
     """ Holds all attributes, getters, and setters for star data. """
 
-    def __init__(self, system, data, session):
+    def __init__(self, system: System, data: Star, session: Session):
         self._session = session
         self._system = system
         self._data = data
 
     @classmethod
     def from_journal(cls, system: System, name: str, body_id: int, session: Session):
-        session: Session = session
-
         data: Star = session.scalar(
             select(Star).where(Star.name == name).where(Star.system_id == system.id)
         )
@@ -241,6 +254,7 @@ class StarData:
 
     def set_distance(self, value: float) -> Self:
         self._data.distance = value
+        self.commit()
         return self
 
     def get_type(self) -> str:
@@ -248,6 +262,7 @@ class StarData:
 
     def set_type(self, value: str) -> Self:
         self._data.type = value
+        self.commit()
         return self
 
     def get_luminosity(self):
@@ -255,27 +270,35 @@ class StarData:
 
     def set_luminosity(self, value: str) -> Self:
         self._data.luminosity = value
+        self.commit()
         return self
 
     def commit(self) -> None:
         self._session.commit()
 
+    def __del__(self) -> None:
+        self.commit()
 
-def load_planets(system_name: str, session: Session) -> dict[str, PlanetData]:
+
+def load_planets(system_name: str, session_factory: scoped_session) -> dict[str, PlanetData]:
+    session = session_factory()
     system = session.scalar(select(System).where(System.name == system_name))
     planet_data: dict[str, PlanetData] = {}
     if system:
         planets = session.scalars(select(Planet).where(Planet.system_id == system.id))
         for planet in planets:  # type: Planet
             planet_data[planet.name] = PlanetData(system, planet, session)
+    session.commit()
     return planet_data
 
 
-def load_stars(system_name: str, session: Session) -> dict[str, StarData]:
+def load_stars(system_name: str, session_factory: scoped_session) -> dict[str, StarData]:
+    session = session_factory()
     system = session.scalar(select(System).where(System.name == system_name))
     star_data: dict[str, StarData] = {}
     if system:
         stars = session.scalars(select(Star).where(Star.system_id == system.id))
         for star in stars:  # type: Star
             star_data[star.name] = StarData(system, star, session)
+    session.commit()
     return star_data
