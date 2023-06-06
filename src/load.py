@@ -3,6 +3,7 @@
 # Source: https://github.com/Silarn/EDMC-BioScan
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
 # Core imports
+import os.path
 from os import listdir
 from os.path import expanduser, getctime
 from pathlib import Path
@@ -59,7 +60,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('2.0.0')
+        self.VERSION = semantic_version.Version('2.1.0')
         self.NAME = 'BioScan'
 
         # Settings vars
@@ -93,6 +94,7 @@ class This:
         self.journal_thread: Optional[threading.Thread] = None
         self.parsing_journals: bool = False
         self.journal_stop: bool = False
+        self.journal_next: str = ''
         self.journal_progress: float = 0.0
 
         # self.odyssey: bool = False
@@ -313,7 +315,7 @@ def plugin_stop() -> None:
         this.journal_thread.join()
     try:
         this.sql_session.commit()
-        this.get_session.remove()
+        this.sql_engine.dispose()
     except Exception as ex:
         logger.debug('Error during cleanup commit', exc_info=ex)
     this.sql_engine.dispose()
@@ -349,24 +351,39 @@ def journal_worker() -> None:
         return
 
     this.parsing_journals = True
-    this.frame.event_generate("<<bioscan_journal_start>>")
+    this.frame.event_generate('<<bioscan_journal_start>>')
 
     try:
         journal_files: list[Path] = [Path(journal_dir) / str(x) for x in listdir(journal_dir) if
                                      JOURNAL_REGEX.search(x)]
-        logger.debug(f'Journal files: {journal_files}')
+
+        start_journal = ''
+        if os.path.isfile(config.app_dir_path / 'bioscan.current.journal.txt'):
+            handle = open(config.app_dir_path / 'bioscan.current.journal.txt', 'r')
+            start_journal = handle.read()
+            handle.close()
+            os.remove(config.app_dir_path / 'bioscan.current.journal.txt')
+
         if journal_files:
             journal_files = sorted(journal_files, key=getctime)
             count = 0
             for journal in journal_files:
-                this.journal_progress = count / len(journal_files)
-                this.frame.event_generate("<<bioscan_journal_progress>>")
                 count += 1
-                result = parse_journal(journal, this.sql_session)
-                if not result or this.journal_stop:
+                if this.journal_stop:
+                    this.journal_next = journal.name
                     this.parsing_journals = False
                     this.journal_stop = False
-                    this.frame.event_generate("<<bioscan_journal_finish>>")
+                    this.frame.event_generate('<<bioscan_journal_finish>>')
+                    break
+                if start_journal and journal.name != start_journal:
+                    continue
+                start_journal = ''
+                this.journal_progress = count / len(journal_files)
+                this.frame.event_generate('<<bioscan_journal_progress>>')
+                result = parse_journal(journal, this.sql_session)
+                if not result:
+                    this.parsing_journals = False
+                    this.frame.event_generate('<<bioscan_journal_finish>>')
                     break
 
     except Exception as ex:
@@ -374,7 +391,7 @@ def journal_worker() -> None:
 
     this.parsing_journals = False
     this.journal_stop = False
-    this.frame.event_generate("<<bioscan_journal_finish>>")
+    this.frame.event_generate('<<bioscan_journal_finish>>')
 
 
 def journal_start(event: tk.Event) -> None:
@@ -382,8 +399,6 @@ def journal_start(event: tk.Event) -> None:
     this.total_label.grid_remove()
     this.scroll_canvas.grid_remove()
     this.scrollbar.grid_remove()
-    this.journal_button['text'] = 'Parsing Journals'
-    this.journal_button['state'] = 'disabled'
 
 
 def journal_update(event: tk.Event) -> None:
@@ -394,7 +409,11 @@ def journal_end(event: tk.Event) -> None:
     this.total_label.grid()
     this.scroll_canvas.grid()
     this.scrollbar.grid()
-    this.journal_button['text'] = 'Journals Parsed'
+    if this.journal_next:
+        handle = open(config.app_dir_path / 'bioscan.current.journal.txt', 'w')
+        handle.write(this.journal_next)
+        handle.close()
+        this.journal_next = ''
     update_display()
 
 
