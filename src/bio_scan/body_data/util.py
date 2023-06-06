@@ -1,3 +1,5 @@
+from typing import Optional
+
 from bio_scan.body_data.struct import PlanetData
 
 
@@ -36,12 +38,13 @@ def body_check(bodies: dict[str, PlanetData], extra: bool = False) -> bool:
     return False
 
 
-def get_gravity_warning(gravity: float) -> str:
-    g_gravity = round(gravity / 9.80665, 2)
-    if g_gravity > 2.69:
-        return ' !G!'
-    if g_gravity >= 1.0:
-        return ' ^G^'
+def get_gravity_warning(gravity: Optional[float]) -> str:
+    if gravity:
+        g_gravity = round(gravity / 9.80665, 2)
+        if g_gravity > 2.69:
+            return ' !G!'
+        if g_gravity >= 1.0:
+            return ' ^G^'
     return ''
 
 
