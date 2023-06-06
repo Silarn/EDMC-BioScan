@@ -2,16 +2,16 @@
 # BioScan plugin for EDMC
 # Source: https://github.com/Silarn/EDMC-BioScan
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
-import re
 # Core imports
-import sys
-import threading
 from os import listdir
 from os.path import expanduser, getctime
 from pathlib import Path
 from traceback import print_exc
 from typing import Mapping, MutableMapping, Optional
 from urllib.parse import quote
+import sys
+import threading
+import re
 import requests
 import semantic_version
 import math
@@ -50,7 +50,8 @@ from bio_scan.RegionMap import findRegion
 from bio_scan.RegionMapData import regions as galaxy_regions
 
 JOURNAL_REGEX = re.compile(r'^Journal(Alpha|Beta)?\.[0-9]{2,4}(-)?[0-9]{2}(-)?[0-9]{2}(T)?[0-9]{2}[0-9]{2}[0-9]{2}'
-                             r'\.[0-9]{2}\.log$')
+                           r'\.[0-9]{2}\.log$')
+
 
 class This:
     """Holds module globals."""
@@ -89,7 +90,9 @@ class This:
             str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
         self.sql_engine: Optional[Engine] = None
         self.sql_session: Optional[Session] = None
+        self.journal_thread: Optional[threading.Thread] = None
         self.parsing_journals: bool = False
+        self.journal_stop: bool = False
         self.journal_progress: float = 0.0
 
         # self.odyssey: bool = False
@@ -247,7 +250,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         variable=this.waypoints_enabled
     ).grid(row=13, column=1, sticky=tk.W)
 
-    this.journal_button = nb.Button(frame, text='Parse Journals', command=parse_journals) \
+    this.journal_button = nb.Button(frame, text='Start / Stop Parse Journals', command=parse_journals) \
         .grid(row=20, column=0, padx=x_padding, sticky=tk.SW)
 
     nb.Checkbutton(
@@ -301,10 +304,18 @@ def version_check() -> str:
 
 
 def plugin_stop() -> None:
-    if this.edsm_thread:
+    if this.edsm_thread and this.edsm_thread.is_alive():
         this.edsm_thread.join()
-    this.sql_session.commit()
-    this.sql_session.close()
+    if this.journal_thread and this.journal_thread.is_alive():
+        this.journal_stop = True
+        this.total_label['text'] = 'Waiting for Journal Parsing'
+        this.total_label.grid()
+        this.journal_thread.join()
+    try:
+        this.sql_session.commit()
+        this.get_session.remove()
+    except Exception as ex:
+        logger.debug('Error during cleanup commit', exc_info=ex)
     this.sql_engine.dispose()
 
 
@@ -319,9 +330,13 @@ def log(*args) -> None:
 
 
 def parse_journals() -> None:
-    this.journal_thread = threading.Thread(target=journal_worker, name='Journal worker')
-    this.journal_thread.daemon = True
-    this.journal_thread.start()
+    if not this.parsing_journals:
+        if not this.journal_thread or not this.journal_thread.is_alive():
+            this.journal_thread = threading.Thread(target=journal_worker, name='Journal worker')
+            this.journal_thread.daemon = True
+            this.journal_thread.start()
+    else:
+        this.journal_stop = True
 
 
 def journal_worker() -> None:
@@ -337,18 +352,20 @@ def journal_worker() -> None:
     this.frame.event_generate("<<bioscan_journal_start>>")
 
     try:
-        journal_files: list[Path] = [Path(journal_dir) / str(x) for x in listdir(journal_dir) if JOURNAL_REGEX.search(x)]
+        journal_files: list[Path] = [Path(journal_dir) / str(x) for x in listdir(journal_dir) if
+                                     JOURNAL_REGEX.search(x)]
         logger.debug(f'Journal files: {journal_files}')
         if journal_files:
             journal_files = sorted(journal_files, key=getctime)
             count = 0
             for journal in journal_files:
-                this.journal_progress = count/len(journal_files)
+                this.journal_progress = count / len(journal_files)
                 this.frame.event_generate("<<bioscan_journal_progress>>")
                 count += 1
                 result = parse_journal(journal, this.sql_session)
-                if not result:
+                if not result or this.journal_stop:
                     this.parsing_journals = False
+                    this.journal_stop = False
                     this.frame.event_generate("<<bioscan_journal_finish>>")
                     break
 
@@ -356,33 +373,38 @@ def journal_worker() -> None:
         logger.debug('Journal parsing failed', exc_info=ex)
 
     this.parsing_journals = False
+    this.journal_stop = False
     this.frame.event_generate("<<bioscan_journal_finish>>")
 
 
-def journal_start() -> None:
+def journal_start(event: tk.Event) -> None:
     this.edsm_button.grid_remove()
     this.total_label.grid_remove()
-    this.values_label.grid_remove()
+    this.scroll_canvas.grid_remove()
+    this.scrollbar.grid_remove()
     this.journal_button['text'] = 'Parsing Journals'
     this.journal_button['state'] = 'disabled'
 
 
-def journal_update() -> None:
+def journal_update(event: tk.Event) -> None:
     this.label['text'] = f'BioScan: Parsing Journals ({this.journal_progress:.0%})'
 
 
-def journal_end() -> None:
+def journal_end(event: tk.Event) -> None:
     this.total_label.grid()
-    this.values_label.grid()
+    this.scroll_canvas.grid()
+    this.scrollbar.grid()
     this.journal_button['text'] = 'Journals Parsed'
+    update_display()
 
 
 def edsm_fetch() -> None:
     """ EDSM system data fetch thread initialization """
 
-    this.edsm_thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.system.name,))
-    this.edsm_thread.daemon = True
-    this.edsm_thread.start()
+    if not this.edsm_thread or not this.edsm_thread.is_alive():
+        this.edsm_thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.system.name,))
+        this.edsm_thread.daemon = True
+        this.edsm_thread.start()
 
 
 def edsm_worker(system_name: str) -> None:
@@ -798,11 +820,13 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         codex = False
         if sorted_species[0][1]:
             for color in sorted_species[0][1]:
-                if not check_codex(this.sql_session, this.commander.id, this.system.region, genus, sorted_species[0][0], color):
+                if not check_codex(this.sql_session, this.commander.id, this.system.region, genus, sorted_species[0][0],
+                                   color):
                     codex = True
                     break
         else:
-            codex = not check_codex(this.sql_session, this.commander.id, this.system.region, genus, sorted_species[0][0])
+            codex = not check_codex(this.sql_session, this.commander.id, this.system.region, genus,
+                                    sorted_species[0][0])
         if len(sorted_species[0][1]) > 1:
             localized_species = [
                 (bio_types[genus][sorted_species[0][0]]['name'],
@@ -831,7 +855,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             if not codex:
                 if colors:
                     for color in colors:
-                        if not check_codex(this.sql_session, this.commander.id, this.system.region, genus, species, color):
+                        if not check_codex(this.sql_session, this.commander.id, this.system.region, genus, species,
+                                           color):
                             codex = True
                             break
                 else:
@@ -1120,7 +1145,7 @@ def journal_entry(
 
         update_display()
 
-    elif entry['event'] == 'CodexEntry' and entry['Category'] == '$Codex_Category_Biology;':
+    elif entry['event'] == 'CodexEntry' and entry['Category'] == '$Codex_Category_Biology;' and 'BodyID' in entry:
         target_body = None
         for name, body in this.planets.items():
             if body.get_id() == entry['BodyID']:
@@ -1298,7 +1323,8 @@ def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
     if this.planet_latitude is not None and this.planet_longitude is not None:
         if this.location_name and this.current_scan:
             waypoints: list[Waypoint] = this.planets[this.location_name].get_flora(this.current_scan).waypoints
-            waypoints = list(filter(lambda item: item.type == 'scan' and item.commander_id == this.commander.id, waypoints))
+            waypoints = list(
+                filter(lambda item: item.type == 'scan' and item.commander_id == this.commander.id, waypoints))
             for waypoint in waypoints:
                 distance_list.append(calc_distance((waypoint.latitude, waypoint.longitude), lat_long))
             return min(distance_list)
@@ -1367,7 +1393,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                                                  and this.current_scan == '' and waypoints) else ''
                     detail_text += '{}{}{} ({}): {}{}{}\n'.format(
                         '\N{memo} ' if not check_codex(this.sql_session, this.commander.id,
-                                                            this.system.region, genus, species, color) else '',
+                                                       this.system.region, genus, species, color) else '',
                         bio_types[genus][species]['name'],
                         f' - {color}' if color else '',
                         scan_label(scan[0].count if scan else 0),
@@ -1429,7 +1455,8 @@ def update_display() -> None:
         sorted(
             dict(
                 filter(
-                    lambda item: int(item[1].get_bio_signals()) if item[1].get_bio_signals() else 0 > 0 or len(item[1].get_flora()) > 0,
+                    lambda item: int(item[1].get_bio_signals()) if item[1].get_bio_signals() else 0 > 0 or len(
+                        item[1].get_flora()) > 0,
                     this.planets.items()
                 )
             ).items(),
@@ -1482,7 +1509,8 @@ def update_display() -> None:
             complete = 0
             floras = bio_bodies[this.location_name].get_flora()
             for flora in floras:
-                for scan in filter(lambda item: item.commander_id == this.commander.id, flora.scans):  # type: FloraScans
+                for scan in filter(lambda item: item.commander_id == this.commander.id,
+                                   flora.scans):  # type: FloraScans
                     if scan.count == 3:
                         complete += 1
             text += '{} - {} [{}G] - {}/{} Analysed'.format(
@@ -1494,7 +1522,8 @@ def update_display() -> None:
             for flora in this.planets[this.location_name].get_flora():
                 genus: str = flora.genus
                 species: str = flora.species
-                scan_list: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
+                scan_list: list[FloraScans] = list(
+                    filter(lambda item: item.commander_id == this.commander.id, flora.scans))
                 scan: int = scan_list[0].count if scan_list else 0
                 waypoints: list[Waypoint] = list(
                     filter(

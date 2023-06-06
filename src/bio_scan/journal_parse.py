@@ -84,7 +84,7 @@ def process_entry(entry: MutableMapping[str, Any], session: Session):
         case 'scanorganic':
             add_scan(entry, session)
         case 'codexentry':
-            if entry['Category'] == '$Codex_Category_Biology;':
+            if entry['Category'] == '$Codex_Category_Biology;' and 'BodyID' in entry:
                 target_body = None
                 for name, body in this.active_journal.planets.items():
                     if body.get_id() == entry['BodyID']:
