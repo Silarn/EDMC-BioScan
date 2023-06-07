@@ -274,3 +274,11 @@ def check_codex(session_factory: scoped_session, commander: int, region: int, ge
     if entry:
         return True
     return False
+
+
+def check_codex_from_name(session_factory: scoped_session, commander: int, region: int, name: str, variant: str = '') -> bool:
+    for genus, species_data in bio_types.items():
+        for species_code, data in species_data.items():
+            if data['name'] == name:
+                return check_codex(session_factory, commander, region, genus, species_code, variant)
+    return False
