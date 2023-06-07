@@ -4,7 +4,7 @@ The database structure models and helper functions for BioScan data
 from typing import Optional
 
 from sqlalchemy import ForeignKey, String, UniqueConstraint, select, Column, Float, Engine, text, SmallInteger, \
-    Table, MetaData
+    Table, MetaData, Executable, Result
 from sqlalchemy.dialects.sqlite import insert
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql.ddl import CreateTable
@@ -88,6 +88,7 @@ class PlanetGas(Base):
     gas: Mapped['Planet'] = relationship(back_populates='gasses')
     gas_name: Mapped[str]
     percent: Mapped[float]
+    __table_args__ = (UniqueConstraint('planet_id', 'gas_name', name='_planet_gas_constraint'), )
 
     def __repr__(self) -> str:
         return f'PlanetGas(gas_name={self.gas_name!r}, percent={self.percent!r})'
@@ -164,9 +165,7 @@ class JournalLog(Base):
 
 def modify_table(engine: Engine, table: type[Base]):
     new_table_name = f'{table.__tablename__}_new'
-    connection = engine.connect()
-    connection.execute(text(f'PRAGMA foreign_keys=off'))
-    connection.commit()
+    run_query(engine, 'PRAGMA foreign_keys=off')
     metadata = MetaData()
     columns: list[Column] = [column.copy() for column in table.__table__.columns.values()]
     args = []
@@ -178,26 +177,33 @@ def modify_table(engine: Engine, table: type[Base]):
                 args.append(arg)
     new_table = Table(new_table_name, metadata, *columns, *args)
     statement = text(str(CreateTable(new_table).compile(engine)))
-    connection.execute(statement)
+    run_statement(engine, statement)
     statement = text(f'INSERT INTO `{new_table_name}` SELECT * FROM `{table.__tablename__}`')
-    connection.execute(statement)
+    run_statement(engine, statement)
     statement = text(f'DROP TABLE `{table.__tablename__}`')
-    connection.execute(statement)
+    run_statement(engine, statement)
     statement = text(f'ALTER TABLE `{new_table_name}` RENAME TO `{table.__tablename__}`')
-    connection.execute(statement)
-    connection.commit()
-    connection.execute(text(f'PRAGMA foreign_keys=on'))
-    connection.commit()
-    connection.close()
+    run_statement(engine, statement)
+    run_query(engine, 'PRAGMA foreign_keys=on')
 
 
 def add_column(engine: Engine, table_name: str, column: Column):
-    connection = engine.connect()
     column_name = column.compile(dialect=engine.dialect)
     column_type = column.type.compile(engine.dialect)
     statement = text(f'ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}')
-    connection.execute(statement)
+    run_statement(engine, statement)
+
+
+def run_query(engine: Engine, query: str) -> Result:
+    return run_statement(engine, text(query))
+
+
+def run_statement(engine: Engine, statement: Executable) -> Result:
+    connection = engine.connect()
+    result = connection.execute(statement)
+    connection.commit()
     connection.close()
+    return result
 
 
 def migrate(engine: Engine) -> None:
@@ -208,12 +214,20 @@ def migrate(engine: Engine) -> None:
     :param engine: DB connection engine object
     """
 
-    connection = engine.connect()
-    version = connection.execute(select(Metadata).where(Metadata.key == 'version')).mappings().first()
-    connection.close()
+    version = run_statement(engine, select(Metadata).where(Metadata.key == 'version')).mappings().first()
     try:
         if version:  # If the database version is set, perform migrations
             if int(version['value']) < 2:
+                run_query(engine, '''
+DELETE FROM planet_gasses
+WHERE ROWID IN
+      (
+          SELECT t.ROWID FROM planet_gasses t INNER JOIN (
+              SELECT *, RANK() OVER(PARTITION BY planet_id, gas_name ORDER BY id) rank
+              FROM planet_gasses
+          ) r ON t.id = r.id WHERE r.rank > 1
+      )
+                ''')
                 add_column(engine, 'systems', Column('x', Float(), default=0.0))
                 add_column(engine, 'systems', Column('y', Float(), default=0.0))
                 add_column(engine, 'systems', Column('z', Float(), default=0.0))
@@ -221,10 +235,9 @@ def migrate(engine: Engine) -> None:
                 add_column(engine, 'stars', Column('distance', Float(), nullable=True))
                 modify_table(engine, Star)
                 modify_table(engine, Planet)
+                modify_table(engine, PlanetGas)
     except Exception as ex:
         logger.debug('Problem during migration', exc_info=ex)
 
-    connection = engine.connect()
-    connection.execute(insert(Metadata).values(key='version', value=db_version)
-                       .on_conflict_do_update(index_elements=['key'], set_=dict(value='db_version')))
-    connection.close()
+    run_statement(engine, insert(Metadata).values(key='version', value=db_version)
+                  .on_conflict_do_update(index_elements=['key'], set_=dict(value='db_version')))
