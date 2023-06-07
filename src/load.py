@@ -5,6 +5,7 @@
 # Core imports
 import concurrent.futures
 from concurrent.futures import Future
+from multiprocessing import Manager
 from os import listdir, cpu_count
 from os.path import expanduser, getctime
 from pathlib import Path
@@ -82,7 +83,6 @@ class This:
         self.edsm_button: Optional[tk.Label] = None
         self.edsm_failed: Optional[tk.Label] = None
         self.update_button: Optional[HyperlinkLabel] = None
-        self.journal_button: Optional[nb.Button] = None
 
         # Plugin state data
         self.commander: Optional[Commander] = None
@@ -96,6 +96,7 @@ class This:
         self.journal_thread: Optional[threading.Thread] = None
         self.parsing_journals: bool = False
         self.journal_stop: bool = False
+        self.journal_event: Optional[threading.Event] = None
         self.journal_progress: float = 0.0
 
         # self.odyssey: bool = False
@@ -254,7 +255,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         variable=this.waypoints_enabled
     ).grid(row=13, column=1, sticky=tk.W)
 
-    this.journal_button = nb.Button(frame, text='Start / Stop Parse Journals', command=parse_journals) \
+    nb.Button(frame, text='Start / Stop Parse Journals', command=parse_journals) \
         .grid(row=20, column=0, padx=x_padding, sticky=tk.SW)
 
     nb.Checkbutton(
@@ -308,13 +309,10 @@ def version_check() -> str:
 
 
 def plugin_stop() -> None:
-    if this.edsm_thread and this.edsm_thread.is_alive():
-        this.edsm_thread.join()
     if this.journal_thread and this.journal_thread.is_alive():
         this.journal_stop = True
-        this.total_label['text'] = 'Waiting for Journal Parsing'
-        this.total_label.grid()
-        this.journal_thread.join()
+        if this.journal_event:
+            this.journal_event.set()
     try:
         this.sql_session_factory.close()
         this.sql_session.commit()
@@ -342,6 +340,8 @@ def parse_journals() -> None:
             this.journal_thread.start()
     else:
         this.journal_stop = True
+        if this.journal_event:
+            this.journal_event.set()
 
 
 def journal_worker() -> None:
@@ -363,22 +363,28 @@ def journal_worker() -> None:
         if journal_files:
             journal_files = sorted(journal_files, key=getctime)
             count = 0
-            with concurrent.futures.ThreadPoolExecutor(max_workers=min([cpu_count(), 4])) as executor:
-                future_journal: dict[Future, Path] = {executor.submit(parse_journal, journal, this.sql_session_factory):
-                                                      journal for journal in journal_files}
-                for future in concurrent.futures.as_completed(future_journal):
-                    count += 1
-                    this.journal_progress = count / len(journal_files)
-                    this.frame.event_generate('<<bioscan_journal_progress>>')
-                    if not future.result() or this.journal_stop:
-                        this.parsing_journals = False
-                        executor.shutdown(wait=False, cancel_futures=True)
+            with Manager() as manager:
+                this.journal_event = manager.Event()
+                with concurrent.futures.ThreadPoolExecutor(max_workers=min([cpu_count(), 4])) as executor:
+                    future_journal: dict[Future, Path] = {executor.submit(parse_journal, journal,
+                                                                          this.sql_session_factory, this.journal_event):
+                                                          journal for journal in journal_files}
+                    for future in concurrent.futures.as_completed(future_journal):
+                        count += 1
+                        this.journal_progress = count / len(journal_files)
+                        this.frame.event_generate('<<bioscan_journal_progress>>')
+                        if not future.result() or this.journal_stop:
+                            this.parsing_journals = False
+                            this.journal_event.set()
+                            executor.shutdown(wait=True, cancel_futures=True)
+                            break
 
     except Exception as ex:
         logger.debug('Journal parsing failed', exc_info=ex)
 
     this.parsing_journals = False
     this.journal_stop = False
+    this.journal_event = None
     this.frame.event_generate('<<bioscan_journal_finish>>')
 
 

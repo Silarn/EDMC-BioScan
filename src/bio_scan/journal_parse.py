@@ -1,5 +1,6 @@
 import json
 import re
+from threading import Event
 from pathlib import Path
 from typing import Any, BinaryIO, MutableMapping, Optional
 
@@ -25,13 +26,15 @@ class JournalParse:
         self._cmdr: Optional[Commander] = None
         self._system: Optional[System] = None
 
-    def parse_journal(self) -> bool:
+    def parse_journal(self, event: Event) -> bool:
+        if event.is_set():
+            return False
         found = self._session.scalar(select(JournalLog).where(JournalLog.journal == self._journal.name))
         if not found:
             log: BinaryIO = open(self._journal, 'rb', 0)
             for line in log:
                 result = self.parse_entry(line)
-                if not result:
+                if not result or event.is_set():
                     return False
         else:
             self._session.expunge(found)
@@ -220,5 +223,5 @@ class JournalParse:
             target_body.set_flora_color(entry['Genus'], color)
 
 
-def parse_journal(journal: Path, session_factory: scoped_session) -> bool:
-    return JournalParse(journal, session_factory).parse_journal()
+def parse_journal(journal: Path, session_factory: scoped_session, event: Event) -> bool:
+    return JournalParse(journal, session_factory).parse_journal(event)
