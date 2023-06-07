@@ -28,7 +28,7 @@ from bio_scan.journal_parse import parse_journal
 from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
 from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
-from bio_scan.body_data.struct import PlanetData, StarData, load_planets, load_stars
+from bio_scan.body_data.struct import PlanetData, StarData, load_planets, load_stars, get_main_star
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
 from bio_scan.bio_data.codex import parse_variant, set_codex, check_codex, check_codex_from_name
@@ -1007,8 +1007,12 @@ def journal_entry(
             this.system.z = state['StarPos'][2]
             sector = findRegion(this.system.x, this.system.y, this.system.z)
             this.system.region = sector[0] if sector is not None else None
-        this.planets = load_planets(system, this.sql_session)
-        this.main_stars = load_stars(system, this.sql_session)
+        this.planets = load_planets(this.system, this.sql_session)
+        this.main_stars = load_stars(this.system, this.sql_session)
+        main_star = get_main_star(this.system, this.sql_session)
+        if main_star:
+            this.main_star_type = main_star.type
+            this.main_star_luminosity - main_star.luminosity
 
     if cmdr and not this.commander:
         stmt = select(Commander).where(Commander.name == cmdr)

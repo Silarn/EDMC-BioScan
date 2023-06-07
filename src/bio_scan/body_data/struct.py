@@ -285,10 +285,9 @@ class StarData:
         self.commit()
 
 
-def load_planets(system_name: str, session: Session) -> dict[str, PlanetData]:
-    system = session.scalar(select(System).where(System.name == system_name))
+def load_planets(system: System, session: Session) -> dict[str, PlanetData]:
     planet_data: dict[str, PlanetData] = {}
-    if system:
+    if system and system.id:
         planets = session.scalars(select(Planet).where(Planet.system_id == system.id))
         for planet in planets:  # type: Planet
             planet_data[planet.name] = PlanetData(system, planet, session)
@@ -296,12 +295,17 @@ def load_planets(system_name: str, session: Session) -> dict[str, PlanetData]:
     return planet_data
 
 
-def load_stars(system_name: str, session: Session) -> dict[str, StarData]:
-    system = session.scalar(select(System).where(System.name == system_name))
+def load_stars(system: System, session: Session) -> dict[str, StarData]:
     star_data: dict[str, StarData] = {}
-    if system:
+    if system and system.id:
         stars = session.scalars(select(Star).where(Star.system_id == system.id))
         for star in stars:  # type: Star
             star_data[star.name] = StarData(system, star, session)
     session.commit()
     return star_data
+
+
+def get_main_star(system: System, session: Session) -> Optional[Star]:
+    if system and system.id:
+        return session.scalar(select(Star).where(Star.system_id == system.id).where(Star.distance == 0.0))
+    return None
