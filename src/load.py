@@ -4,7 +4,6 @@
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
 # Core imports
 import concurrent.futures
-import os.path
 from concurrent.futures import Future
 from os import listdir, cpu_count
 from os.path import expanduser, getctime
@@ -23,8 +22,8 @@ import math
 import tkinter as tk
 from tkinter import ttk
 
-from bio_scan.journal_parse import parse_journal
 # Local imports
+from bio_scan.journal_parse import parse_journal
 from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
 from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
@@ -97,7 +96,6 @@ class This:
         self.journal_thread: Optional[threading.Thread] = None
         self.parsing_journals: bool = False
         self.journal_stop: bool = False
-        self.journal_next: str = ''
         self.journal_progress: float = 0.0
 
         # self.odyssey: bool = False
@@ -129,11 +127,11 @@ logger = get_plugin_logger(this.NAME)
 def plugin_start3(plugin_dir: str) -> str:
     """ EDMC start hook """
     engine_path = config.app_dir_path / 'bioscan.db'
-    this.sql_engine = create_engine(f'sqlite:///{engine_path}')
+    this.sql_engine = create_engine(f'sqlite:///{engine_path}', connect_args={'timeout': 30})
     DBBase.metadata.create_all(this.sql_engine)
     migrate(this.sql_engine)
     this.sql_session_factory = scoped_session(sessionmaker(bind=this.sql_engine))
-    this.sql_session = this.sql_session_factory()
+    this.sql_session = Session(this.sql_engine)
     return this.NAME
 
 
@@ -319,10 +317,11 @@ def plugin_stop() -> None:
         this.journal_thread.join()
     try:
         this.sql_session_factory.close()
+        this.sql_session.commit()
+        this.sql_session.close()
         this.sql_engine.dispose()
     except Exception as ex:
         logger.debug('Error during cleanup commit', exc_info=ex)
-    this.sql_engine.dispose()
 
 
 def log(*args) -> None:
@@ -361,44 +360,19 @@ def journal_worker() -> None:
         journal_files: list[Path] = [Path(journal_dir) / str(x) for x in listdir(journal_dir) if
                                      JOURNAL_REGEX.search(x)]
 
-        start_journal = ''
-        if os.path.isfile(config.app_dir_path / 'bioscan.current.journal.txt'):
-            handle = open(config.app_dir_path / 'bioscan.current.journal.txt', 'r')
-            start_journal = handle.read()
-            handle.close()
-            os.remove(config.app_dir_path / 'bioscan.current.journal.txt')
-
         if journal_files:
             journal_files = sorted(journal_files, key=getctime)
-            if start_journal:
-                for journal in journal_files.copy():
-                    if journal.name == start_journal:
-                        journal_files = journal_files[journal_files.index(journal):]
-                        break
             count = 0
-            with concurrent.futures.ThreadPoolExecutor(max_workers=cpu_count() - 1) as executor:
+            with concurrent.futures.ThreadPoolExecutor(max_workers=min([cpu_count(), 4])) as executor:
                 future_journal: dict[Future, Path] = {executor.submit(parse_journal, journal, this.sql_session_factory):
                                                       journal for journal in journal_files}
                 for future in concurrent.futures.as_completed(future_journal):
                     count += 1
-                    if this.journal_stop:
-                        this.parsing_journals = False
-                        this.journal_stop = False
-                        executor.shutdown(wait=True, cancel_futures=True)
-                        for key, value in future_journal.items():
-                            if key.done() or key.running():
-                                continue
-                            this.journal_next = value.name
-                            break
-                        this.frame.event_generate('<<bioscan_journal_finish>>')
-                        break
                     this.journal_progress = count / len(journal_files)
                     this.frame.event_generate('<<bioscan_journal_progress>>')
-                    if not future.result():
+                    if not future.result() or this.journal_stop:
                         this.parsing_journals = False
-                        executor.shutdown(wait=True, cancel_futures=True)
-                        this.frame.event_generate('<<bioscan_journal_finish>>')
-                        break
+                        executor.shutdown(wait=False, cancel_futures=True)
 
     except Exception as ex:
         logger.debug('Journal parsing failed', exc_info=ex)
@@ -423,11 +397,6 @@ def journal_end(event: tk.Event) -> None:
     this.total_label.grid()
     this.scroll_canvas.grid()
     this.scrollbar.grid()
-    if this.journal_next:
-        handle = open(config.app_dir_path / 'bioscan.current.journal.txt', 'w')
-        handle.write(this.journal_next)
-        handle.close()
-        this.journal_next = ''
     update_display()
 
 
@@ -988,7 +957,7 @@ def reset() -> None:
     this.planet_cache = {}
     this.main_stars = {}
     this.scroll_canvas.yview_moveto(0.0)
-    this.sql_session.close()
+    this.sql_session.commit()
 
 
 def add_star(entry: Mapping[str, any]):
@@ -1018,17 +987,22 @@ def journal_entry(
     system_changed = False
     # this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
     # this.odyssey = state.get('Odyssey', False)
+    if not state['StarPos']:
+        return ''
     if system and (not this.system or system != this.system.name):
         reset()
         system_changed = True
-        this.sql_session = this.sql_session_factory()
         this.system = this.sql_session.scalar(select(System).where(System.name == system))
         if not this.system:
             this.system = System(name=system)
             this.sql_session.add(this.system)
-            this.sql_session.commit()
-        this.planets = load_planets(system, this.sql_session_factory)
-        this.main_stars = load_stars(system, this.sql_session_factory)
+            this.system.x = state['StarPos'][0]
+            this.system.y = state['StarPos'][1]
+            this.system.z = state['StarPos'][2]
+            sector = findRegion(this.system.x, this.system.y, this.system.z)
+            this.system.region = sector[0] if sector is not None else None
+        this.planets = load_planets(system, this.sql_session)
+        this.main_stars = load_stars(system, this.sql_session)
 
     if cmdr and not this.commander:
         stmt = select(Commander).where(Commander.name == cmdr)
@@ -1040,23 +1014,7 @@ def journal_entry(
             this.sql_session.commit()
 
     log(f'Event {entry["event"]}')
-    if entry['event'] in ['Location', 'FSDJump', 'CarrierJump']:
-        if entry['event'] == 'CarrierJump':  # Until EDMC can parse CarrierJump, we need to handle the system updates
-            reset()
-            this.system.name = entry['StarSystem']
-            system_changed = True
-        this.system.x = entry['StarPos'][0]
-        this.system.y = entry['StarPos'][1]
-        this.system.z = entry['StarPos'][2]
-        sector = findRegion(this.system.x, this.system.y, this.system.z)
-        this.system.region = sector[0] if sector is not None else None
-        session = this.sql_session_factory()
-        session.add(this.system)
-        session.commit()
-        session.close()
-        log(f'Coords are x:{this.system.x}, y:{this.system.y}, z:{this.system.z}')
-
-    elif entry['event'] == 'Scan':
+    if entry['event'] == 'Scan':
         body_short_name = get_body_name(entry['BodyName'])
         if 'StarType' in entry:
             if entry['DistanceFromArrivalLS'] == 0.0:
@@ -1161,7 +1119,6 @@ def journal_entry(
                         .where(Waypoint.type == 'scan')
                     session.execute(stmt)
                     session.commit()
-                    session.close()
             this.current_scan = entry['Genus']
 
             if 'Variant' in entry:

@@ -39,10 +39,10 @@ class System(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(64), unique=True)
-    x: Mapped[float]
-    y: Mapped[float]
-    z: Mapped[float]
-    region: Mapped[int] = mapped_column(SmallInteger)
+    x: Mapped[float] = mapped_column(default=0.0)
+    y: Mapped[float] = mapped_column(default=0.0)
+    z: Mapped[float] = mapped_column(default=0.0)
+    region: Mapped[Optional[int]] = mapped_column(SmallInteger)
 
     planets: Mapped[list['Planet']] = relationship(
         back_populates='planet', cascade='all, delete-orphan'
@@ -156,6 +156,12 @@ class CodexScans(Base):
     __table_args__ = (UniqueConstraint('commander_id', 'region', 'biological', name='_cmdr_bio_region_constraint'),)
 
 
+class JournalLog(Base):
+    __tablename__ = 'journal_log'
+
+    journal: Mapped[str] = mapped_column(String(32), primary_key=True)
+
+
 def modify_table(engine: Engine, table: type[Base]):
     new_table_name = f'{table.__tablename__}_new'
     connection = engine.connect()
@@ -205,14 +211,13 @@ def migrate(engine: Engine) -> None:
     connection = engine.connect()
     version = connection.execute(select(Metadata).where(Metadata.key == 'version')).mappings().first()
     connection.close()
-    logger.debug(f'Version: {version["value"]}')
     try:
         if version:  # If the database version is set, perform migrations
             if int(version['value']) < 2:
-                add_column(engine, 'systems', Column('x', Float()))
-                add_column(engine, 'systems', Column('y', Float()))
-                add_column(engine, 'systems', Column('z', Float()))
-                add_column(engine, 'systems', Column('region', SmallInteger()))
+                add_column(engine, 'systems', Column('x', Float(), default=0.0))
+                add_column(engine, 'systems', Column('y', Float(), default=0.0))
+                add_column(engine, 'systems', Column('z', Float(), default=0.0))
+                add_column(engine, 'systems', Column('region', SmallInteger(), nullable=True))
                 add_column(engine, 'stars', Column('distance', Float(), nullable=True))
                 modify_table(engine, Star)
                 modify_table(engine, Planet)

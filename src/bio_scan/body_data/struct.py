@@ -280,8 +280,7 @@ class StarData:
         self.commit()
 
 
-def load_planets(system_name: str, session_factory: scoped_session) -> dict[str, PlanetData]:
-    session = session_factory()
+def load_planets(system_name: str, session: Session) -> dict[str, PlanetData]:
     system = session.scalar(select(System).where(System.name == system_name))
     planet_data: dict[str, PlanetData] = {}
     if system:
@@ -292,8 +291,7 @@ def load_planets(system_name: str, session_factory: scoped_session) -> dict[str,
     return planet_data
 
 
-def load_stars(system_name: str, session_factory: scoped_session) -> dict[str, StarData]:
-    session = session_factory()
+def load_stars(system_name: str, session: Session) -> dict[str, StarData]:
     system = session.scalar(select(System).where(System.name == system_name))
     star_data: dict[str, StarData] = {}
     if system:

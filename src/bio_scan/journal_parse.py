@@ -4,12 +4,14 @@ from pathlib import Path
 from typing import Any, BinaryIO, MutableMapping, Optional
 
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError as AlcIntegrityError
 from sqlalchemy.orm import Session, scoped_session
+from sqlite3 import IntegrityError
 
 from EDMCLogging import get_plugin_logger
 from bio_scan.RegionMap import findRegion
 from bio_scan.bio_data.codex import parse_variant, set_codex
-from bio_scan.body_data.db import System, Commander, Planet
+from bio_scan.body_data.db import System, Commander, Planet, JournalLog
 from bio_scan.body_data.struct import PlanetData, StarData
 
 logger = get_plugin_logger('BioScan')
@@ -24,12 +26,23 @@ class JournalParse:
         self._system: Optional[System] = None
 
     def parse_journal(self) -> bool:
-        logger.debug(f'Parsing: {self._journal}')
-        log: BinaryIO = open(self._journal, 'rb', 0)
-        for line in log:
-            result = self.parse_entry(line)
-            if not result:
-                return False
+        found = self._session.scalar(select(JournalLog).where(JournalLog.journal == self._journal.name))
+        if not found:
+            log: BinaryIO = open(self._journal, 'rb', 0)
+            for line in log:
+                result = self.parse_entry(line)
+                if not result:
+                    return False
+        else:
+            self._session.expunge(found)
+            return True
+
+        journal = JournalLog(journal=self._journal.name)
+        try:
+            self._session.add(journal)
+            self._session.commit()
+        except IntegrityError | AlcIntegrityError:
+            self._session.expunge(journal)
         return True
 
     def parse_entry(self, line: bytes) -> bool:
@@ -71,6 +84,8 @@ class JournalParse:
                 self.add_scan(entry)
             case 'codexentry':
                 if entry['Category'] == '$Codex_Category_Biology;' and 'BodyID' in entry:
+                    self._system = self._session.merge(self._system)
+                    self._cmdr = self._session.merge(self._cmdr)
                     planet = self._session.scalar(select(Planet).where(Planet.system_id == self._system.id)
                                                   .where(Planet.body_id == entry['BodyID']))
                     if not planet:
@@ -92,6 +107,7 @@ class JournalParse:
         :param fullname: The full name of the body including the system name
         :return: The short name of the body unless it matches the system name
         """
+        self._system = self._session.merge(self._system)
         if fullname.startswith(self._system.name + ' '):
             body_name = fullname[len(self._system.name + ' '):]
         else:
@@ -106,19 +122,19 @@ class JournalParse:
             self._session.commit()
 
     def set_system(self, name: str, address: list[float]) -> None:
+        if not address:
+            return
         self._system = self._session.scalar(select(System).where(System.name == name))
         if not self._system:
             self._system = System(name=name)
             self._session.add(self._system)
-            self._session.commit()
-        if address:
-            self._system.x = address[0]
-            self._system.y = address[1]
-            self._system.z = address[2]
-            region = findRegion(self._system.x, self._system.y, self._system.z)
-            if region:
-                self._system.region = region[0]
-            self._session.commit()
+        self._system.x = address[0]
+        self._system.y = address[1]
+        self._system.z = address[2]
+        region = findRegion(self._system.x, self._system.y, self._system.z)
+        if region:
+            self._system.region = region[0]
+        self._session.commit()
 
     def add_star(self, entry: MutableMapping[str, Any]) -> None:
         """
@@ -176,6 +192,8 @@ class JournalParse:
                     body_data.add_flora(genus['Genus'])
 
     def add_scan(self, entry: MutableMapping[str, Any]) -> None:
+        self._system = self._session.merge(self._system)
+        self._cmdr = self._session.merge(self._cmdr)
         planet = self._session.scalar(select(Planet).where(Planet.system_id == self._system.id)
                                       .where(Planet.body_id == entry['Body']))
         if not planet:
