@@ -13,8 +13,7 @@ cases, but the results are extremely similar.
 
 There are a few key differences between each. BioScan is intended to be used as an active tool with a compact
 interface which could be potentially overlayed onto the game. It also presents key information to help you navigate and
-track flora while landing, moving, and scanning on a planet. It does not currently mark potential new codex entries, but
-support is planned.
+track flora while landing, moving, and scanning on a planet.
 
 It supports both Horizons and Odyssey biologicals.
 
