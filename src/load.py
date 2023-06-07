@@ -83,6 +83,7 @@ class This:
         self.edsm_button: Optional[tk.Label] = None
         self.edsm_failed: Optional[tk.Label] = None
         self.update_button: Optional[HyperlinkLabel] = None
+        self.journal_label: Optional[tk.Label] = None
 
         # Plugin state data
         self.commander: Optional[Commander] = None
@@ -172,6 +173,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     this.edsm_button.grid(row=3, columnspan=2, sticky=tk.EW)
     this.edsm_button.bind('<Button-1>', lambda e: edsm_fetch())
     this.edsm_failed = tk.Label(this.frame, text='No EDSM Data Found')
+    this.journal_label = tk.Label(this.frame, text='Journal Parsing')
     update = version_check()
     if update != '':
         text = f'Version {update} is now available'
@@ -389,20 +391,17 @@ def journal_worker() -> None:
 
 
 def journal_start(event: tk.Event) -> None:
-    this.edsm_button.grid_remove()
-    this.total_label.grid_remove()
-    this.scroll_canvas.grid_remove()
-    this.scrollbar.grid_remove()
+    this.journal_label.grid(row=5, columnspan=2, sticky=tk.EW)
+    this.journal_label['text'] = 'Parsing Journals: 0%'
 
 
 def journal_update(event: tk.Event) -> None:
-    this.label['text'] = f'BioScan: Parsing Journals ({this.journal_progress:.0%})'
+    this.journal_label['text'] = f'Parsing Journals: {this.journal_progress:.0%}'
+    update_display()
 
 
 def journal_end(event: tk.Event) -> None:
-    this.total_label.grid()
-    this.scroll_canvas.grid()
-    this.scrollbar.grid()
+    this.journal_label.grid_remove()
     update_display()
 
 
@@ -1441,9 +1440,6 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
 
 def update_display() -> None:
     """ Primary display update function. This is run whenever we get an event that would change the display state. """
-
-    if this.parsing_journals:
-        return
 
     if this.fetched_edsm or not this.system:
         this.edsm_button.grid_remove()
