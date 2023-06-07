@@ -33,9 +33,16 @@ of those possibilities. You can optionally display a complete breakdown of the p
 
 After you've mapped a planet with biological signals, it will then pare down the list to the detected genera or species.
 Once you've started to scan each species, it will display the final type and value of the sample as well as indicate the
-scan progress. Additional info will be discussed in the navigation section below.
+scan progress. Additional info will be discussed in the [navigation](#navigation) section below.
 
 Once fully analysed, the total system value (and possible first find value) will be shown at the bottom of the pane.
+
+## Codex Entries
+
+As of version 2.5, any potential species that has not yet been logged to your local region's codex will be marked.
+
+This is marked by the 📝 memo emoji in front of the genus. For best results,
+see [journal importing](#journal-importing).
 
 ## Navigation
 
@@ -73,6 +80,16 @@ data.
 
 The database file is located within EDMC's data storage directory, where the plugins are located. On Windows, this
 should be `%LOCALAPPDATA%\EDMarketConnector\bioscan.db`.
+
+### Journal Importing
+
+To facilitate accurate codex entry data, you can import your past journals into the persistent database. Clicking the
+button in the bottom left of the settings panel will start the process. This can run in the background while you
+continue to use EDMC / BioScan, and the progress will display at the bottom of the BioScan pane.
+
+Despite using a few threads to help speed up the process, parsing several years of journal data can take a good amount
+of time. As each journal is completed, it will get logged in the database. This process can be stopped and restarted. It
+will pick up at the oldest unprocessed journal, though you will need to click the button in the settings to resume.
 
 ### EDSM Integration
 
@@ -113,8 +130,7 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 ## Roadmap
 
 * Refinements to species requirements?
-* Missing codex entry support
-* Historic journal parsing
+* Improve display of codex flag for multiple genus matches
 * Expanded settings
 * EDMCOverlay support?
 
