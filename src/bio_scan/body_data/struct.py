@@ -51,6 +51,11 @@ class PlanetData:
         return self
 
     def add_gas(self, gas: str, percent: float) -> Self:
+        for gas_data in self._data.gasses:  # type: PlanetGas
+            if gas_data.gas_name == gas:
+                gas_data.percent = percent
+                self.commit()
+                return self
         self._data.gasses.append(PlanetGas(gas_name=gas, percent=percent))
         self.commit()
         return self
