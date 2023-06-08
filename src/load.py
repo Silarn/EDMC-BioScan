@@ -5,6 +5,7 @@
 # Core imports
 import concurrent.futures
 from concurrent.futures import Future
+from copy import deepcopy
 from os import listdir, cpu_count
 from os.path import expanduser, getctime
 from pathlib import Path
@@ -60,7 +61,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('2.5.3')
+        self.VERSION = semantic_version.Version('2.5.4')
         self.NAME = 'BioScan'
 
         # Settings vars
@@ -1034,7 +1035,7 @@ def journal_entry(
         main_star = get_main_star(this.system, this.sql_session)
         if main_star:
             this.main_star_type = main_star.type
-            this.main_star_luminosity - main_star.luminosity
+            this.main_star_luminosity = main_star.luminosity
 
     if cmdr and not this.commander:
         stmt = select(Commander).where(Commander.name == cmdr)
@@ -1438,26 +1439,27 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         this.formatter.format_credit_range(min_val, max_val))
                     if this.focus_breakdown.get():
                         for species_details in all_species:
-                            if species_details[1] and len(species_details[1]) > 1:
-                                for variant in species_details[1]:
+                            species_details_final = deepcopy(species_details)
+                            if species_details_final[1] and len(species_details_final[1]) > 1:
+                                for variant in species_details_final[1]:
                                     if not check_codex_from_name(this.sql_session_factory, this.commander.id,
-                                                                 this.system.region, species_details[0], variant):
-                                        species_details[1][species_details[1].index(variant)] = f'\N{memo}{variant}'
+                                                                 this.system.region, species_details_final[0], variant):
+                                        species_details_final[1][species_details_final[1].index(variant)] = f'\N{memo}{variant}'
                             else:
                                 variant = ''
-                                if species_details[1]:
-                                    variant = species_details[1][0]
+                                if species_details_final[1]:
+                                    variant = species_details_final[1][0]
                                 if not check_codex_from_name(this.sql_session_factory, this.commander.id,
-                                                             this.system.region, species_details[0], variant):
-                                    species_details = (
-                                        f'\N{memo}{species_details[0]}',
-                                        species_details[1],
-                                        species_details[2]
+                                                             this.system.region, species_details_final[0], variant):
+                                    species_details_final = (
+                                        f'\N{memo}{species_details_final[0]}',
+                                        species_details_final[1],
+                                        species_details_final[2]
                                     )
                             detail_text += '  {}{}: {}\n'.format(
-                                species_details[0],
-                                ' - {}'.format(', '.join(species_details[1])) if species_details[1] else '',
-                                this.formatter.format_credits(species_details[2])
+                                species_details_final[0],
+                                ' - {}'.format(', '.join(species_details_final[1])) if species_details_final[1] else '',
+                                this.formatter.format_credits(species_details_final[2])
                             )
                 if len(body.get_flora()) == count:
                     detail_text += '\n'
@@ -1474,26 +1476,27 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 )
                 if this.focus_breakdown.get():
                     for species_details in values[2]:
-                        if species_details[1] and len(species_details[1]) > 1:
-                            for variant in species_details[1]:
+                        species_details_final = deepcopy(species_details)
+                        if species_details_final[1] and len(species_details_final[1]) > 1:
+                            for variant in species_details_final[1]:
                                 if not check_codex_from_name(this.sql_session_factory, this.commander.id,
-                                                             this.system.region, species_details[0], variant):
-                                    species_details[1][species_details[1].index(variant)] = f'\N{memo}{variant}'
+                                                             this.system.region, species_details_final[0], variant):
+                                    species_details_final[1][species_details_final[1].index(variant)] = f'\N{memo}{variant}'
                         else:
                             variant = ''
-                            if species_details[1]:
-                                variant = species_details[1][0]
+                            if species_details_final[1]:
+                                variant = species_details_final[1][0]
                             if not check_codex_from_name(this.sql_session_factory, this.commander.id,
-                                                         this.system.region, species_details[0], variant):
-                                species_details = (
-                                    f'\N{memo}{species_details[0]}',
-                                    species_details[1],
-                                    species_details[2]
+                                                         this.system.region, species_details_final[0], variant):
+                                species_details_final = (
+                                    f'\N{memo}{species_details_final[0]}',
+                                    species_details_final[1],
+                                    species_details_final[2]
                                 )
                         detail_text += '  {}{}: {}\n'.format(
-                            species_details[0],
-                            ' - {}'.format(', '.join(species_details[1])) if species_details[1] else '',
-                            this.formatter.format_credits(species_details[2])
+                            species_details_final[0],
+                            ' - {}'.format(', '.join(species_details_final[1])) if species_details_final[1] else '',
+                            this.formatter.format_credits(species_details_final[2])
                         )
                 if len(types) == count:
                     detail_text += '\n'
