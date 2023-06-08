@@ -1,8 +1,10 @@
 """
 The database structure models and helper functions for BioScan data
 """
+from sqlite3 import OperationalError
 from typing import Optional
 
+import sqlalchemy.exc
 from sqlalchemy import ForeignKey, String, UniqueConstraint, select, Column, Float, Engine, text, SmallInteger, \
     Table, MetaData, Executable, Result
 from sqlalchemy.dialects.sqlite import insert
@@ -193,8 +195,11 @@ def modify_table(engine: Engine, table: type[Base]):
 def add_column(engine: Engine, table_name: str, column: Column):
     column_name = column.compile(dialect=engine.dialect)
     column_type = column.type.compile(engine.dialect)
-    statement = text(f'ALTER TABLE {table_name} DROP COLUMN {column_name}')
-    run_statement(engine, statement)
+    try:
+        statement = text(f'ALTER TABLE {table_name} DROP COLUMN {column_name}')
+        run_statement(engine, statement)
+    except (OperationalError, sqlalchemy.exc.OperationalError):
+        pass
     statement = text(f'ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}')
     run_statement(engine, statement)
 
