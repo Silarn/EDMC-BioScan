@@ -165,9 +165,12 @@ class JournalLog(Base):
 
 def modify_table(engine: Engine, table: type[Base]):
     new_table_name = f'{table.__tablename__}_new'
+    statement = text(f'DROP TABLE IF EXISTS {new_table_name}')  # drop table left over from failed migration
+    run_statement(engine, statement)
     run_query(engine, 'PRAGMA foreign_keys=off')
     metadata = MetaData()
     columns: list[Column] = [column.copy() for column in table.__table__.columns.values()]
+    column_names: list[str] = table.__table__.columns.keys()
     args = []
     if hasattr(table, '__table_args__'):
         for arg in table.__table_args__:
@@ -178,7 +181,7 @@ def modify_table(engine: Engine, table: type[Base]):
     new_table = Table(new_table_name, metadata, *columns, *args)
     statement = text(str(CreateTable(new_table).compile(engine)))
     run_statement(engine, statement)
-    statement = text(f'INSERT INTO `{new_table_name}` SELECT * FROM `{table.__tablename__}`')
+    statement = text(f'INSERT INTO `{new_table_name}` ({", ".join(column_names)}) SELECT {", ".join(column_names)} FROM `{table.__tablename__}`')
     run_statement(engine, statement)
     statement = text(f'DROP TABLE `{table.__tablename__}`')
     run_statement(engine, statement)
@@ -190,6 +193,8 @@ def modify_table(engine: Engine, table: type[Base]):
 def add_column(engine: Engine, table_name: str, column: Column):
     column_name = column.compile(dialect=engine.dialect)
     column_type = column.type.compile(engine.dialect)
+    statement = text(f'ALTER TABLE {table_name} DROP COLUMN {column_name}')
+    run_statement(engine, statement)
     statement = text(f'ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}')
     run_statement(engine, statement)
 
@@ -206,7 +211,7 @@ def run_statement(engine: Engine, statement: Executable) -> Result:
     return result
 
 
-def migrate(engine: Engine) -> None:
+def migrate(engine: Engine) -> bool:
     """
     Database migration function. Checks existing DB version, runs any necessary migrations, and sets the new version
     in the metadata.
@@ -236,8 +241,15 @@ WHERE ROWID IN
                 modify_table(engine, Star)
                 modify_table(engine, Planet)
                 modify_table(engine, PlanetGas)
+    except ValueError as ex:
+        run_statement(engine, insert(Metadata).values(key='version', value=db_version)
+                      .on_conflict_do_update(index_elements=['key'], set_=dict(value=1)))
+        logger.error("An attempted fix was made for a known migration issue, please rerun EDMC", exc_info=ex)
+        return False
     except Exception as ex:
-        logger.debug('Problem during migration', exc_info=ex)
+        logger.error('Problem during migration', exc_info=ex)
+        return False
 
     run_statement(engine, insert(Metadata).values(key='version', value=db_version)
-                  .on_conflict_do_update(index_elements=['key'], set_=dict(value='db_version')))
+                  .on_conflict_do_update(index_elements=['key'], set_=dict(value=db_version)))
+    return True

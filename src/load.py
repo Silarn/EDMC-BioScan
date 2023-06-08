@@ -94,6 +94,7 @@ class This:
         self.sql_engine: Optional[Engine] = None
         self.sql_session_factory: Optional[scoped_session] = None
         self.sql_session: Optional[Session] = None
+        self.migration_failed: bool = False
         self.journal_thread: Optional[threading.Thread] = None
         self.parsing_journals: bool = False
         self.journal_stop: bool = False
@@ -132,7 +133,9 @@ def plugin_start3(plugin_dir: str) -> str:
     engine_path = config.app_dir_path / 'bioscan.db'
     this.sql_engine = create_engine(f'sqlite:///{engine_path}', connect_args={'timeout': 30})
     DBBase.metadata.create_all(this.sql_engine)
-    migrate(this.sql_engine)
+    result = migrate(this.sql_engine)
+    if not result:
+        this.migration_failed = True
     this.sql_session_factory = scoped_session(sessionmaker(bind=this.sql_engine))
     this.sql_session = Session(this.sql_engine)
     return this.NAME
@@ -141,48 +144,55 @@ def plugin_start3(plugin_dir: str) -> str:
 def plugin_app(parent: tk.Frame) -> tk.Frame:
     """ EDMC initialization """
 
-    parse_config()
     this.frame = tk.Frame(parent)
-    this.frame.bind('<<BioScanEDSMData>>', edsm_data)
-    this.frame.bind('<<bioscan_journal_start>>', journal_start)
-    this.frame.bind('<<bioscan_journal_progress>>', journal_update)
-    this.frame.bind('<<bioscan_journal_finish>>', journal_end)
-    this.label = tk.Label(this.frame)
-    this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
-    this.scroll_canvas = tk.Canvas(this.frame, height=80, highlightthickness=0)
-    this.scrollbar = ttk.Scrollbar(this.frame, orient='vertical', command=this.scroll_canvas.yview)
-    this.scrollable_frame = ttk.Frame(this.scroll_canvas)
-    this.scrollable_frame.bind(
-        '<Configure>',
-        lambda e: this.scroll_canvas.configure(
-            scrollregion=this.scroll_canvas.bbox('all')
+    if this.migration_failed:
+        this.label = tk.Label(this.frame, text='BioScan: DB Migration Failed')
+        this.label.grid(row=0, column=0, columnspan=2, sticky=tk.EW)
+        this.update_button = HyperlinkLabel(this.frame, text='Please Check or Submit an Issue',
+                                            url='https://github.com/Silarn/EDMC-BioScan/issues')
+        this.update_button.grid(row=1, columnspan=2, sticky=tk.EW)
+    else:
+        parse_config()
+        this.frame.bind('<<BioScanEDSMData>>', edsm_data)
+        this.frame.bind('<<bioscan_journal_start>>', journal_start)
+        this.frame.bind('<<bioscan_journal_progress>>', journal_update)
+        this.frame.bind('<<bioscan_journal_finish>>', journal_end)
+        this.label = tk.Label(this.frame)
+        this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
+        this.scroll_canvas = tk.Canvas(this.frame, height=80, highlightthickness=0)
+        this.scrollbar = ttk.Scrollbar(this.frame, orient='vertical', command=this.scroll_canvas.yview)
+        this.scrollable_frame = ttk.Frame(this.scroll_canvas)
+        this.scrollable_frame.bind(
+            '<Configure>',
+            lambda e: this.scroll_canvas.configure(
+                scrollregion=this.scroll_canvas.bbox('all')
+            )
         )
-    )
-    this.scroll_canvas.bind('<Enter>', bind_mousewheel)
-    this.scroll_canvas.bind('<Leave>', unbind_mousewheel)
-    this.scroll_canvas.create_window((0, 0), window=this.scrollable_frame, anchor='nw')
-    this.scroll_canvas.configure(yscrollcommand=this.scrollbar.set)
-    this.values_label = ttk.Label(this.scrollable_frame)
-    this.values_label.pack(fill='both', side='left')
-    this.scroll_canvas.grid(row=1, column=0, sticky=tk.EW)
-    this.scroll_canvas.grid_rowconfigure(1, weight=0)
-    this.frame.grid_columnconfigure(0, weight=1)
-    this.scrollbar.grid(row=1, column=1, sticky=tk.NSEW)
-    this.total_label = tk.Label(this.frame)
-    this.total_label.grid(row=2, column=0, columnspan=2, sticky=tk.N)
-    this.edsm_button = tk.Label(this.frame, text='Fetch EDSM Data', fg='white', cursor='hand2')
-    this.edsm_button.grid(row=3, columnspan=2, sticky=tk.EW)
-    this.edsm_button.bind('<Button-1>', lambda e: edsm_fetch())
-    this.edsm_failed = tk.Label(this.frame, text='No EDSM Data Found')
-    this.journal_label = tk.Label(this.frame, text='Journal Parsing')
-    update = version_check()
-    if update != '':
-        text = f'Version {update} is now available'
-        url = f'https://github.com/Silarn/EDMC-BioScan/releases/tag/v{update}'
-        this.update_button = HyperlinkLabel(this.frame, text=text, url=url)
-        this.update_button.grid(row=4, columnspan=2, sticky=tk.N)
-    update_display()
-    theme.register(this.values_label)
+        this.scroll_canvas.bind('<Enter>', bind_mousewheel)
+        this.scroll_canvas.bind('<Leave>', unbind_mousewheel)
+        this.scroll_canvas.create_window((0, 0), window=this.scrollable_frame, anchor='nw')
+        this.scroll_canvas.configure(yscrollcommand=this.scrollbar.set)
+        this.values_label = ttk.Label(this.scrollable_frame)
+        this.values_label.pack(fill='both', side='left')
+        this.scroll_canvas.grid(row=1, column=0, sticky=tk.EW)
+        this.scroll_canvas.grid_rowconfigure(1, weight=0)
+        this.frame.grid_columnconfigure(0, weight=1)
+        this.scrollbar.grid(row=1, column=1, sticky=tk.NSEW)
+        this.total_label = tk.Label(this.frame)
+        this.total_label.grid(row=2, column=0, columnspan=2, sticky=tk.N)
+        this.edsm_button = tk.Label(this.frame, text='Fetch EDSM Data', fg='white', cursor='hand2')
+        this.edsm_button.grid(row=3, columnspan=2, sticky=tk.EW)
+        this.edsm_button.bind('<Button-1>', lambda e: edsm_fetch())
+        this.edsm_failed = tk.Label(this.frame, text='No EDSM Data Found')
+        this.journal_label = tk.Label(this.frame, text='Journal Parsing')
+        update = version_check()
+        if update != '':
+            text = f'Version {update} is now available'
+            url = f'https://github.com/Silarn/EDMC-BioScan/releases/tag/v{update}'
+            this.update_button = HyperlinkLabel(this.frame, text=text, url=url)
+            this.update_button.grid(row=4, columnspan=2, sticky=tk.N)
+        update_display()
+        theme.register(this.values_label)
     return this.frame
 
 
@@ -990,6 +1000,10 @@ def journal_entry(
         cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, any], state: MutableMapping[str, any]
 ) -> str:
     """ EDMC journal entry hook. Primary journal data handler. """
+
+    if this.migration_failed:
+        return ''
+
     system_changed = False
     # this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
     # this.odyssey = state.get('Odyssey', False)
@@ -1207,6 +1221,9 @@ def journal_entry(
 
 def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     """ EDMC dashboard entry hook. Parses updates to the Status.json. """
+
+    if this.migration_failed:
+        return ''
 
     if 'BodyName' in entry:
         body_name = get_body_name(entry['BodyName'])
