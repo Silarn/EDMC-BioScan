@@ -60,7 +60,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('2.5.2')
+        self.VERSION = semantic_version.Version('2.5.3')
         self.NAME = 'BioScan'
 
         # Settings vars
@@ -533,6 +533,7 @@ def add_edsm_star(body: dict) -> None:
         else:
             star_data.set_type(parse_edsm_star_class(body['subType']))
         star_data.set_luminosity(body['luminosity'])
+        star_data.set_distance(body['distanceToArrival'])
         this.main_stars[body_short_name] = star_data
     except Exception as e:
         logger.error('Error while parsing EDSM', exc_info=e)
@@ -998,6 +999,7 @@ def add_star(entry: Mapping[str, any]):
 
     star_data.set_type(entry['StarType'])
     star_data.set_luminosity(entry['Luminosity'])
+    star_data.set_distance(entry['DistanceFromArrivalLS'])
 
     this.main_stars[body_short_name] = star_data
 
