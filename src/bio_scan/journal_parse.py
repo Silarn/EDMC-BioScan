@@ -44,7 +44,7 @@ class JournalParse:
         try:
             self._session.add(journal)
             self._session.commit()
-        except IntegrityError | AlcIntegrityError:
+        except (IntegrityError, AlcIntegrityError):
             self._session.expunge(journal)
         return True
 
@@ -56,7 +56,7 @@ class JournalParse:
             entry: MutableMapping[str, Any] = json.loads(line)
             self.process_entry(entry)
         except Exception as ex:
-            logger.debug(f'Invalid journal entry:\n{line!r}\n', exc_info=ex)
+            logger.error(f'Invalid journal entry:\n{line!r}\n', exc_info=ex)
             return False
         return True
 

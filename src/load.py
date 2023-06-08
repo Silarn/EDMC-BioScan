@@ -62,7 +62,7 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('2.5.0')
+        self.VERSION = semantic_version.Version('2.5.1')
         self.NAME = 'BioScan'
 
         # Settings vars
@@ -145,12 +145,13 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     """ EDMC initialization """
 
     this.frame = tk.Frame(parent)
+    this.frame.grid_columnconfigure(0, weight=1)
     if this.migration_failed:
         this.label = tk.Label(this.frame, text='BioScan: DB Migration Failed')
-        this.label.grid(row=0, column=0, columnspan=2, sticky=tk.EW)
+        this.label.grid(row=0, sticky=tk.EW)
         this.update_button = HyperlinkLabel(this.frame, text='Please Check or Submit an Issue',
                                             url='https://github.com/Silarn/EDMC-BioScan/issues')
-        this.update_button.grid(row=1, columnspan=2, sticky=tk.EW)
+        this.update_button.grid(row=1, sticky=tk.EW)
     else:
         parse_config()
         this.frame.bind('<<BioScanEDSMData>>', edsm_data)
@@ -176,7 +177,6 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
         this.values_label.pack(fill='both', side='left')
         this.scroll_canvas.grid(row=1, column=0, sticky=tk.EW)
         this.scroll_canvas.grid_rowconfigure(1, weight=0)
-        this.frame.grid_columnconfigure(0, weight=1)
         this.scrollbar.grid(row=1, column=1, sticky=tk.NSEW)
         this.total_label = tk.Label(this.frame)
         this.total_label.grid(row=2, column=0, columnspan=2, sticky=tk.N)
@@ -311,8 +311,8 @@ def version_check() -> str:
         data = req.json()
         if req.status_code != requests.codes.ok:
             raise requests.RequestException
-    except requests.RequestException | requests.JSONDecodeError:
-        print_exc()
+    except (requests.RequestException, requests.JSONDecodeError) as ex:
+        logger.error('Failed to parse GitHub release info', exc_info=ex)
         return ''
 
     version = semantic_version.Version(data['tag_name'][1:])
@@ -332,7 +332,7 @@ def plugin_stop() -> None:
         this.sql_session.close()
         this.sql_engine.dispose()
     except Exception as ex:
-        logger.debug('Error during cleanup commit', exc_info=ex)
+        logger.error('Error during cleanup commit', exc_info=ex)
 
 
 def log(*args) -> None:
@@ -393,7 +393,7 @@ def journal_worker() -> None:
                             break
 
     except Exception as ex:
-        logger.debug('Journal parsing failed', exc_info=ex)
+        logger.error('Journal parsing failed', exc_info=ex)
 
     this.parsing_journals = False
     this.journal_stop = False
@@ -504,7 +504,7 @@ def edsm_data(event: tk.Event) -> None:
                 this.planets[body_short_name] = planet_data
 
             except Exception as e:
-                logger.debug('Error while parsing EDSM', exc_info=e)
+                logger.error('Error while parsing EDSM', exc_info=e)
     this.fetched_edsm = True
     reset_cache()
     update_display()
@@ -529,7 +529,7 @@ def add_edsm_star(body: dict) -> None:
         star_data.set_luminosity(body['luminosity'])
         this.main_stars[body_short_name] = star_data
     except Exception as e:
-        logger.debug('Error while parsing EDSM', exc_info=e)
+        logger.error('Error while parsing EDSM', exc_info=e)
 
 
 def scan_label(scans: int) -> str:
