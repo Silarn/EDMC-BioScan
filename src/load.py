@@ -5,7 +5,6 @@
 # Core imports
 import concurrent.futures
 from concurrent.futures import Future
-from multiprocessing import Manager
 from os import listdir, cpu_count
 from os.path import expanduser, getctime
 from pathlib import Path
@@ -377,23 +376,22 @@ def journal_worker() -> None:
         if journal_files:
             journal_files = sorted(journal_files, key=getctime)
             count = 0
-            with Manager() as manager:
-                this.journal_event = manager.Event()
-                with concurrent.futures.ThreadPoolExecutor(max_workers=min([cpu_count(), 4])) as executor:
-                    future_journal: dict[Future, Path] = {executor.submit(parse_journal, journal,
-                                                                          this.sql_session_factory, this.journal_event):
-                                                          journal for journal in journal_files}
-                    for future in concurrent.futures.as_completed(future_journal):
-                        count += 1
-                        this.journal_progress = count / len(journal_files)
-                        this.frame.event_generate('<<bioscan_journal_progress>>')
-                        if not future.result() or this.journal_stop:
-                            if not future.result():
-                                this.journal_error = True
-                            this.parsing_journals = False
-                            this.journal_event.set()
-                            executor.shutdown(wait=True, cancel_futures=True)
-                            break
+            this.journal_event = threading.Event()
+            with concurrent.futures.ThreadPoolExecutor(max_workers=min([cpu_count(), 4])) as executor:
+                future_journal: dict[Future, Path] = {executor.submit(parse_journal, journal,
+                                                                      this.sql_session_factory, this.journal_event):
+                                                      journal for journal in journal_files}
+                for future in concurrent.futures.as_completed(future_journal):
+                    count += 1
+                    this.journal_progress = count / len(journal_files)
+                    this.frame.event_generate('<<bioscan_journal_progress>>')
+                    if not future.result() or this.journal_stop:
+                        if not future.result():
+                            this.journal_error = True
+                        this.parsing_journals = False
+                        this.journal_event.set()
+                        executor.shutdown(wait=True, cancel_futures=True)
+                        break
 
     except Exception as ex:
         logger.error('Journal parsing failed', exc_info=ex)
