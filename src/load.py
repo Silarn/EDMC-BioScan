@@ -99,6 +99,7 @@ class This:
         self.journal_stop: bool = False
         self.journal_event: Optional[threading.Event] = None
         self.journal_progress: float = 0.0
+        self.journal_error: bool = False
 
         # self.odyssey: bool = False
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
@@ -366,6 +367,7 @@ def journal_worker() -> None:
         return
 
     this.parsing_journals = True
+    this.journal_error = False
     this.frame.event_generate('<<bioscan_journal_start>>')
 
     try:
@@ -386,6 +388,8 @@ def journal_worker() -> None:
                         this.journal_progress = count / len(journal_files)
                         this.frame.event_generate('<<bioscan_journal_progress>>')
                         if not future.result() or this.journal_stop:
+                            if not future.result():
+                                this.journal_error = True
                             this.parsing_journals = False
                             this.journal_event.set()
                             executor.shutdown(wait=True, cancel_futures=True)
@@ -413,7 +417,10 @@ def journal_update(event: tk.Event) -> None:
 
 
 def journal_end(event: tk.Event) -> None:
-    this.journal_label.grid_remove()
+    if this.journal_error:
+        this.journal_label['text'] = 'Error During Journal Parse\nPlease Submit a Report'
+    else:
+        this.journal_label.grid_remove()
     update_display()
 
 
