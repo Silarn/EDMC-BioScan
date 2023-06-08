@@ -9,7 +9,6 @@ from multiprocessing import Manager
 from os import listdir, cpu_count
 from os.path import expanduser, getctime
 from pathlib import Path
-from traceback import print_exc
 from typing import Mapping, MutableMapping, Optional
 from urllib.parse import quote
 import sys
@@ -151,7 +150,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
         this.label.grid(row=0, sticky=tk.EW)
         this.update_button = HyperlinkLabel(this.frame, text='Please Check or Submit an Issue',
                                             url='https://github.com/Silarn/EDMC-BioScan/issues')
-        this.update_button.grid(row=1, sticky=tk.EW)
+        this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     else:
         parse_config()
         this.frame.bind('<<BioScanEDSMData>>', edsm_data)
@@ -407,7 +406,9 @@ def journal_start(event: tk.Event) -> None:
 
 
 def journal_update(event: tk.Event) -> None:
-    this.journal_label['text'] = f'Parsing Journals: {this.journal_progress:.0%}'
+    progress = f'{this.journal_progress:.1%}'
+    progress = progress.rstrip('0').rstrip('.')
+    this.journal_label['text'] = f'Parsing Journals: {progress}'
     update_display()
 
 
