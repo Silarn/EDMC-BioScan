@@ -38,6 +38,8 @@ Once fully analysed, the total system value (and possible first find value) will
 
 ## Codex Entries
 
+<img src="BioScan-Codex.png">
+
 As of version 2.5, any potential species that has not yet been logged to your local region's codex will be marked.
 
 This is marked by the 📝 memo emoji in front of the genus. For best results,
