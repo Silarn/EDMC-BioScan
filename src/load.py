@@ -1183,7 +1183,7 @@ def journal_entry(
             genus, species, color = parse_variant(entry['Name'])
             if genus is not '' and species is not '':
                 this.planets[target_body].add_flora(genus, species, color)
-                if this.location_id == entry['BodyID']:
+                if this.location_id == entry['BodyID'] and this.planet_latitude and this.planet_longitude:
                     this.planets[target_body].add_flora_waypoint(
                         genus, (this.planet_latitude, this.planet_longitude), this.commander.id
                     )
