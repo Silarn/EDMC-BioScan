@@ -64,6 +64,8 @@ lifeform.
 
 #### Waypoints
 
+<img src="BioScan-Waypoints.png"><br><img src="BioScan-Active-Waypoint.png">
+
 Scans with the comp. scanner will log waypoints for any incomplete species. If you have an active scan, the nearest
 waypoint for that species will display below the progress indicator. Waypoints within the minimum distance of previous
 samples are excluded from the list. When you have no active scan, any remaining unanalyzed species will display the
