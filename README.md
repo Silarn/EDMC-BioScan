@@ -12,7 +12,7 @@ planet, much like the [Observatory] [BioInsights] plugin. BioInsights may be sli
 cases, but the results are extremely similar.
 
 There are a few key differences between each. BioScan is intended to be used as an active tool with a compact
-interface which could be potentially overlayed onto the game. It also presents key information to help you navigate and
+interface which could be potentially overlaid onto the game. It also presents key information to help you navigate and
 track flora while landing, moving, and scanning on a planet.
 
 It supports both Horizons and Odyssey biologicals.
@@ -40,9 +40,10 @@ Once fully analysed, the total system value (and possible first find value) will
 
 <img src="BioScan-Codex.png">
 
-As of version 2.5, any potential species that has not yet been logged to your local region's codex will be marked.
+As of version 2.5, any potential species that has not yet been logged to your local region's codex will be marked. If
+there are multiple possible species or variants (colors), those will be individually marked in the detailed breakdown.
 
-This is marked by the 📝 memo emoji in front of the genus. For best results,
+This is marked by the 📝 memo emoji in front of the genus or variant. For best results,
 see [journal importing](#journal-importing).
 
 ## Navigation
@@ -66,10 +67,10 @@ lifeform.
 
 <img src="BioScan-Waypoints.png"><br><img src="BioScan-Active-Waypoint.png">
 
-Scans with the comp. scanner will log waypoints for any incomplete species. If you have an active scan, the nearest
-waypoint for that species will display below the progress indicator. Waypoints within the minimum distance of previous
-samples are excluded from the list. When you have no active scan, any remaining unanalyzed species will display the
-nearest waypoint in the detailed species list scrollbox.
+Scans with the comp. scanner will optionally log waypoints for any incomplete species. If you have an active scan, the
+nearest waypoint for that species will display below the progress indicator. Waypoints within the minimum distance of
+previous samples are excluded from the list. When you have no active scan, any remaining unanalyzed species will display
+the nearest waypoint in the detailed species scroll list.
 
 The waypoint indicator will display the distance to the waypoint, the compass heading toward that waypoint, and an
 indicator for the direction and degrees to turn to face that heading. Note that waypoints will log your current
@@ -77,9 +78,8 @@ location, so for best results make the scan as close to the target species as po
 
 ### Persistent Data
 
-As of version 2.0, BioScan now maintains a database of all relevant system data and scan progress. It segments scans and
-waypoints by commander, if you play with multiple commanders. You can safely stop and restart EDMC without losing your
-data.
+As of version 2.0, BioScan now maintains a database of all relevant system data and scan progress. It segments scans,
+waypoints, and codex data by commander. You can safely stop and restart EDMC without losing your data.
 
 The database file is located within EDMC's data storage directory, where the plugins are located. On Windows, this
 should be `%LOCALAPPDATA%\EDMarketConnector\bioscan.db`.
@@ -106,13 +106,13 @@ have to manually look up signals if that data was not previously logged.
 
 ## Installation
 
-### Windows Prebuilt EXE
+### EDMC Prebuilt EXE (Windows)
 * Download the [latest release] zip file for Windows
 * Extract the `.zip` archive that you downloaded into the EDMC `plugins` folder
   * This is accessible via the plugins tab in the EDMC settings window
 * Start or restart EDMC to register the plugin and run any necessary database migrations
 
-### Python Native Execution
+### Native Python Execution
 * Download and extract the [latest release] zip file for native python into the EDMC `plugins` directory
 * Run `pip install -r requirements.txt` within the plugin directory to install SQLAlchemy
   * Ensure the correct `pip` is used for Python 3.11
@@ -133,8 +133,9 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 ## Roadmap
 
 * Refinements to species requirements?
-* Improve display of codex flag for multiple genus matches
-* Expanded settings
+* Additional display options (suggestions welcome)
+* Track Vista Genomics sales?
+* Merge persistent database with Pioneer plugin
 * EDMCOverlay support?
 
 ## License
