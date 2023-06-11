@@ -68,8 +68,10 @@ class This:
         self.focus_setting: Optional[tk.StringVar] = None
         self.signal_setting: Optional[tk.StringVar] = None
         self.focus_breakdown: Optional[tk.BooleanVar] = None
+        self.scan_display_mode: Optional[tk.StringVar] = None
         self.waypoints_enabled: Optional[tk.BooleanVar] = None
         self.debug_logging_enabled: Optional[tk.BooleanVar] = None
+        self.focus_distance: Optional[tk.IntVar] = None
 
         # GUI Objects
         self.frame: Optional[tk.Frame] = None
@@ -231,17 +233,23 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         *focus_options
     ).grid(row=11, padx=x_padding, pady=y_padding, column=0, sticky=tk.W)
     nb.Label(frame,
-             text='Never: Never filter signal details\n' +
-                  'On Approach: Show only local signals on approach\n' +
-                  'Near Surface: Show signals under 5km altitude\n' +
+             text='Never: Never filter signal details\n'
+                  'On Approach: Show only local signals on approach\n'
+                  'Near Surface: Show signals under given altitude (see below)\n'
                   'On Surface: Show only local signals when on surface',
              justify=tk.LEFT) \
         .grid(row=12, padx=x_padding, column=0, sticky=tk.NW)
+    nb.Label(frame, text='Altitude (in meters) for "Near Surface":') \
+        .grid(row=13, column=0, padx=x_padding, sticky=tk.SW)
+    nb.Entry(
+        frame, text=this.focus_distance.get(), textvariable=this.focus_distance,
+        validatecommand=(frame.register(is_num), '%P', '%d')
+    ).grid(row=14, column=0, padx=x_padding, sticky=tk.NW)
     nb.Checkbutton(
         frame,
         text='Show complete breakdown of genera with multiple matches',
         variable=this.focus_breakdown
-    ).grid(row=13, column=0, padx=x_button_padding, sticky=tk.W)
+    ).grid(row=16, column=0, padx=x_button_padding, sticky=tk.W)
 
     nb.Label(
         frame,
@@ -258,7 +266,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         *signal_options
     ).grid(row=11, column=1, pady=y_padding, sticky=tk.W)
     nb.Label(frame,
-             text='Always: Always display the body signal summary\n' +
+             text='Always: Always display the body signal summary\n'
                   'In Flight: Show the signal summary in flight only',
              justify=tk.LEFT) \
         .grid(row=12, column=1, sticky=tk.NW)
@@ -267,23 +275,53 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         text='Enable species waypoints with the comp. scanner',
         variable=this.waypoints_enabled
     ).grid(row=13, column=1, sticky=tk.W)
+    nb.Label(
+        frame,
+        text='Completed Scan Display:'
+    ).grid(row=15, column=1, sticky=tk.W)
+    scan_options = [
+        'Check',
+        'Hide',
+        'Hide in System'
+    ]
+    nb.OptionMenu(
+        frame,
+        this.scan_display_mode,
+        this.scan_display_mode.get(),
+        *scan_options
+    ).grid(row=16, column=1, sticky=tk.W)
+    nb.Label(frame,
+             text='Check: Always show species with a checkmark when complete\n'
+                  'Hide: Always hide completed species\n'
+                  'Hide in System: Hide completed species in the full system view',
+             justify=tk.LEFT) \
+        .grid(row=17, column=1, sticky=tk.NW)
 
-    nb.Button(frame, text='Start / Stop Parse Journals', command=parse_journals) \
-        .grid(row=20, column=0, padx=x_padding, sticky=tk.SW)
+    nb.Button(frame, text='Start / Stop Journal Parsing', command=parse_journals) \
+        .grid(row=30, column=0, padx=x_padding, sticky=tk.SW)
 
     nb.Checkbutton(
         frame,
         text='Enable Debug Logging',
         variable=this.debug_logging_enabled
-    ).grid(row=20, column=1, padx=x_button_padding, sticky=tk.SE)
+    ).grid(row=30, column=1, padx=x_button_padding, sticky=tk.SE)
     return frame
+
+
+def is_num(value: str, action: str) -> bool:
+    if action == '1':
+        if not value.isdigit():
+            return False
+    return True
 
 
 def prefs_changed(cmdr: str, is_beta: bool) -> None:
     """ EDMC settings changed hook """
 
     config.set('bioscan_focus', this.focus_setting.get())
+    config.set('bioscan_focus_distance', this.focus_distance.get())
     config.set('bioscan_focus_breakdown', this.focus_breakdown.get())
+    config.set('bioscan_scan_display', this.scan_display_mode.get())
     config.set('bioscan_signal', this.signal_setting.get())
     config.set('bioscan_waypoints', this.waypoints_enabled.get())
     config.set('bioscan_debugging', this.debug_logging_enabled.get())
@@ -294,7 +332,9 @@ def parse_config() -> None:
     """ Load saved settings vars """
 
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
+    this.focus_distance = tk.IntVar(value=config.get_int(key='bioscan_focus_distance', default=5000))
     this.focus_breakdown = tk.BooleanVar(value=config.get_bool(key='bioscan_focus_breakdown', default=False))
+    this.scan_display_mode = tk.StringVar(value=config.get_str(key='bioscan_scan_display', default='Check'))
     this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default='Always'))
     this.waypoints_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_waypoints', default=True))
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
@@ -1272,8 +1312,8 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     if StatusFlags.HAVE_LATLONG in status:
         if 'Altitude' in entry:
             if this.focus_setting.get() == 'Near Surface' and \
-                    (this.planet_altitude > 5000.0 > entry['Altitude'] or
-                     this.planet_altitude < 5000.0 < entry['Altitude']):
+                    (this.planet_altitude > this.focus_distance.get() > entry['Altitude'] or
+                     this.planet_altitude < this.focus_distance.get() < entry['Altitude']):
                 scroll = True
                 refresh = True
             this.planet_altitude = entry['Altitude']
@@ -1401,12 +1441,32 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
     detail_text = ''
     value_sum = 0
     for name, body in bodies.items():
+        complete = True
+        num_complete = 0
+        if len(body.get_flora()):
+            for flora in body.get_flora():
+                scan: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
+                if not scan or scan[0].count < 3:
+                    complete = False
+                else:
+                    num_complete += 1
+        else:
+            complete = False
         if not focused:
-            detail_text += f'{name}:\n'
+            if not complete or this.scan_display_mode.get() not in ['Hide', 'Hide in System']:
+                if len(body.get_flora()) and num_complete:
+                    detail_text += f'{name} ({num_complete}/{len(body.get_flora())} Complete):\n'
+                else:
+                    detail_text += f'{name}:\n'
+            else:
+                detail_text += f'{name} - All Samples Complete\n'
+        elif complete and this.scan_display_mode.get() == 'Hide':
+            detail_text += 'All Scans Complete'
         if len(body.get_flora()) > 0:
             count = 0
             for flora in sorted(body.get_flora(), key=lambda item: bio_genus[item.genus]['name']):
                 count += 1
+                show = True
                 genus: str = flora.genus
                 species: str = flora.species
                 scan: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
@@ -1419,19 +1479,25 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 )
                 if scan and scan[0].count == 3:
                     value_sum += bio_types[genus][species]['value']
+                    if this.scan_display_mode.get() == 'Hide':
+                        show = False
+                    elif this.scan_display_mode.get() == 'Hide in System' and not focused:
+                        show = False
+
                 if species != '':
-                    waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
-                                                                 and this.current_scan == '' and waypoints) else ''
-                    detail_text += '{}{}{} ({}): {}{}{}\n'.format(
-                        '\N{memo} ' if not check_codex(this.sql_session_factory, this.commander.id,
-                                                       this.system.region, genus, species, color) else '',
-                        bio_types[genus][species]['name'],
-                        f' - {color}' if color else '',
-                        scan_label(scan[0].count if scan else 0),
-                        this.formatter.format_credits(bio_types[genus][species]['value']),
-                        u' 🗸' if scan == 3 else '',
-                        f'\n  Nearest Saved Waypoint: {waypoint}' if waypoint else ''
-                    )
+                    if show:
+                        waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
+                                                                     and this.current_scan == '' and waypoints) else ''
+                        detail_text += '{}{}{} ({}): {}{}{}\n'.format(
+                            '\N{memo} ' if not check_codex(this.sql_session_factory, this.commander.id,
+                                                           this.system.region, genus, species, color) else '',
+                            bio_types[genus][species]['name'],
+                            f' - {color}' if color else '',
+                            scan_label(scan[0].count if scan else 0),
+                            this.formatter.format_credits(bio_types[genus][species]['value']),
+                            u' 🗸' if scan and scan[0].count == 3 else '',
+                            f'\n  Nearest Saved Waypoint: {waypoint}' if waypoint else ''
+                        )
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
                     detail_text += '{} (Not located): {}\n'.format(
@@ -1540,7 +1606,7 @@ def update_display() -> None:
             ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
              or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')
              or (this.focus_setting.get() == 'Near Surface' and this.location_state in ['approach', 'surface']
-                 and this.planet_altitude < 5000.0)):
+                 and this.planet_altitude < this.focus_distance.get())):
         detail_text, total_value = get_bodies_summary({this.location_name: this.planets[this.location_name]}, True)
     else:
         detail_text, total_value = get_bodies_summary(bio_bodies)
@@ -1565,7 +1631,7 @@ def update_display() -> None:
                 ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
                  or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')
                  or (this.focus_setting.get() == 'Near Surface' and this.location_state in ['approach', 'surface']
-                     and this.planet_altitude < 5000.0)):
+                     and this.planet_altitude < this.focus_distance.get())):
             if text[-1] != '\n':
                 text += '\n'
             complete = 0
