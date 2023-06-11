@@ -248,7 +248,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         .grid(row=13, column=0, padx=x_padding, sticky=tk.SW)
     nb.Entry(
         frame, text=this.focus_distance.get(), textvariable=this.focus_distance,
-        validatecommand=(frame.register(is_num), '%P', '%d')
+        validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
     ).grid(row=14, column=0, padx=x_padding, sticky=tk.NW)
     nb.Checkbutton(
         frame,
@@ -314,6 +314,14 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
 
 
 def is_num(value: str, action: str) -> bool:
+    """
+    Numeral validator for Entry input
+
+    :param value: Value for input event
+    :param action: Input event action type
+    :return: True or false if input is a numeral
+    """
+
     if action == '1':
         if not value.isdigit():
             return False
