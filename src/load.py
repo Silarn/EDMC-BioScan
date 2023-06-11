@@ -1235,7 +1235,7 @@ def journal_entry(
 
             match scan_level:
                 case 1 | 2:
-                    if this.planet_latitude and this.planet_longitude:
+                    if this.planet_latitude and this.planet_longitude and this.waypoints_enabled.get():
                         this.planets[target_body].add_flora_waypoint(
                             entry['Genus'],
                             (this.planet_latitude, this.planet_longitude),
@@ -1258,7 +1258,8 @@ def journal_entry(
             genus, species, color = parse_variant(entry['Name'])
             if genus is not '' and species is not '':
                 this.planets[target_body].add_flora(genus, species, color)
-                if this.location_id == entry['BodyID'] and this.planet_latitude and this.planet_longitude:
+                if this.location_id == entry['BodyID'] and this.planet_latitude \
+                        and this.planet_longitude and this.waypoints_enabled.get():
                     this.planets[target_body].add_flora_waypoint(
                         genus, (this.planet_latitude, this.planet_longitude), this.commander.id
                     )
