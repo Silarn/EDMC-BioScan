@@ -1,5 +1,6 @@
 import json
 import re
+from time import sleep
 from threading import Event
 from pathlib import Path
 from typing import Any, BinaryIO, MutableMapping, Optional
@@ -33,9 +34,15 @@ class JournalParse:
         if not found:
             log: BinaryIO = open(self._journal, 'rb', 0)
             for line in log:
-                result = self.parse_entry(line)
-                if not result or event.is_set():
-                    return False
+                retry = 2
+                while True:
+                    result = self.parse_entry(line)
+                    if (not result and retry == 0) or event.is_set():
+                        return False
+                    elif result:
+                        break
+                    retry -= 1
+                    sleep(.1)
         else:
             self._session.expunge(found)
             return True
