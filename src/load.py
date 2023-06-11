@@ -6,8 +6,9 @@
 import concurrent.futures
 from concurrent.futures import Future
 from copy import deepcopy
+from datetime import datetime
 from os import listdir, cpu_count
-from os.path import expanduser, getctime
+from os.path import expanduser
 from pathlib import Path
 from typing import Mapping, MutableMapping, Optional
 from urllib.parse import quote
@@ -51,8 +52,12 @@ from ttkHyperlinkLabel import HyperlinkLabel
 from bio_scan.RegionMap import findRegion
 from bio_scan.RegionMapData import regions as galaxy_regions
 
-JOURNAL_REGEX = re.compile(r'^Journal(Alpha|Beta)?\.[0-9]{2,4}(-)?[0-9]{2}(-)?[0-9]{2}(T)?[0-9]{2}[0-9]{2}[0-9]{2}'
+JOURNAL_REGEX = re.compile(r'^Journal(Alpha|Beta)?\.[0-9]{2,4}-?[0-9]{2}-?[0-9]{2}T?[0-9]{2}[0-9]{2}[0-9]{2}'
                            r'\.[0-9]{2}\.log$')
+JOURNAL1_REGEX = re.compile(r'^Journal(Alpha|Beta)?\.([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})'
+                            r'\.([0-9]){2}\.log$')
+JOURNAL2_REGEX = re.compile(r'^Journal(Alpha|Beta)?\.([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2})([0-9]{2})([0-9]{2})'
+                            r'\.([0-9]{2})\.log$')
 
 
 class This:
@@ -397,6 +402,27 @@ def parse_journals() -> None:
             this.journal_event.set()
 
 
+def journal_sort(journal: Path) -> datetime:
+    """
+    Sort journals by parsing the name
+
+    :param journal:  Journal Path object
+    :return: datetime for the parsed journal date
+    """
+
+    match = JOURNAL1_REGEX.search(journal.name)
+    if match:
+        return datetime(int(f'20{match.group(2)}'), int(match.group(3)), int(match.group(4)), int(match.group(5)),
+                        int(match.group(6)), int(match.group(7)), int(match.group(8)))
+
+    match = JOURNAL2_REGEX.search(journal.name)
+    if match:
+        return datetime(int(match.group(2)), int(match.group(3)), int(match.group(4)), int(match.group(5)),
+                        int(match.group(6)), int(match.group(7)), int(match.group(8)))
+
+    return datetime.fromtimestamp(journal.stat().st_ctime)
+
+
 def journal_worker() -> None:
     journal_dir = config.get_str('journaldir')
     journal_dir = journal_dir if journal_dir else config.default_journal_dir
@@ -415,7 +441,7 @@ def journal_worker() -> None:
                                      JOURNAL_REGEX.search(x)]
 
         if journal_files:
-            journal_files = sorted(journal_files, key=getctime)
+            journal_files = sorted(journal_files, key=journal_sort)
             count = 0
             this.journal_event = threading.Event()
             with concurrent.futures.ThreadPoolExecutor(max_workers=min([cpu_count(), 4])) as executor:
