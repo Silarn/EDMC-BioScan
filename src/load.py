@@ -579,8 +579,9 @@ def edsm_data(event: tk.Event) -> None:
                         planet_data.add_material(material.lower())
 
                 atmosphere_composition: dict[str, float] = body.get('atmosphereComposition', {})
-                for gas, percent in atmosphere_composition.items():
-                    planet_data.add_gas(map_edsm_atmosphere(gas), percent)
+                if atmosphere_composition:
+                    for gas, percent in atmosphere_composition.items():
+                        planet_data.add_gas(map_edsm_atmosphere(gas), percent)
 
                 this.planets[body_short_name] = planet_data
 
