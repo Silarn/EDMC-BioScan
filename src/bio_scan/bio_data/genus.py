@@ -122,6 +122,7 @@ data: MutableMapping = {
                         'antimony': 'Red',
                         'polonium': 'Aquamarine',
                         'ruthenium': 'Cobalt',
+                        'technetium': 'Lime',
                         'tellurium': 'Cyan',
                         'yttrium': 'Gold'
                     }
