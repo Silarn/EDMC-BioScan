@@ -135,7 +135,13 @@ logger = get_plugin_logger(this.NAME)
 
 
 def plugin_start3(plugin_dir: str) -> str:
-    """ EDMC start hook """
+    """
+    EDMC start hook.
+    Initializes SQLite database.
+
+    :param plugin_dir: The plugin's directory
+    :return: The plugin's canonical name
+    """
 
     engine_path = config.app_dir_path / 'bioscan.db'
     this.sql_engine = create_engine(f'sqlite:///{engine_path}', connect_args={'timeout': 30})
@@ -149,7 +155,13 @@ def plugin_start3(plugin_dir: str) -> str:
 
 
 def plugin_app(parent: tk.Frame) -> tk.Frame:
-    """ EDMC initialization """
+    """
+    EDMC initialization hook.
+    Build TKinter display pane and initialize display attributes.
+
+    :param parent: EDMC parent TKinter frame
+    :return: Plugin's main TKinter frame
+    """
 
     this.frame = tk.Frame(parent)
     this.frame.grid_columnconfigure(0, weight=1)
@@ -204,7 +216,15 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
 
 
 def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
-    """ EDMC settings pane hook """
+    """
+    EDMC settings pane hook.
+    Build settings display and hook in settings properties.
+
+    :param parent: EDMC parent settings pane TKinter frame
+    :param cmdr: Commander name (unused)
+    :param is_beta: ED beta status (unused)
+    :return: Plugin settings tab TKinter frame
+    """
 
     x_padding = 10
     x_button_padding = 12
@@ -329,7 +349,13 @@ def is_num(value: str, action: str) -> bool:
 
 
 def prefs_changed(cmdr: str, is_beta: bool) -> None:
-    """ EDMC settings changed hook """
+    """
+    EDMC settings changed hook.
+    Save persistent settings values and update display.
+
+    :param cmdr: Commander name. Unused.
+    :param is_beta: Beta status. Unused.
+    """
 
     config.set('bioscan_focus', this.focus_setting.get())
     config.set('bioscan_focus_distance', this.focus_distance.get())
@@ -342,7 +368,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
 
 
 def parse_config() -> None:
-    """ Load saved settings vars """
+    """ Load saved settings vars. Set defaults. """
 
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
     this.focus_distance = tk.IntVar(value=config.get_int(key='bioscan_focus_distance', default=5000))
@@ -356,6 +382,7 @@ def parse_config() -> None:
 def version_check() -> str:
     """
     Parse latest GitHub release version
+
     :return: The latest version string if it's newer than ours
     """
 
@@ -375,6 +402,10 @@ def version_check() -> str:
 
 
 def plugin_stop() -> None:
+    """
+    EDMC plugin stop function. Closes open threads and database sessions for clean shutdown.
+    """
+
     if this.journal_thread and this.journal_thread.is_alive():
         this.journal_stop = True
         if this.journal_event:
@@ -399,6 +430,10 @@ def log(*args) -> None:
 
 
 def parse_journals() -> None:
+    """
+    Journal processing initialization. Creates the process daemon for the main thread and starts the processor.
+    """
+
     if not this.parsing_journals:
         if not this.journal_thread or not this.journal_thread.is_alive():
             this.journal_thread = threading.Thread(target=journal_worker, name='Journal worker')
@@ -432,6 +467,11 @@ def journal_sort(journal: Path) -> datetime:
 
 
 def journal_worker() -> None:
+    """
+    Main thread to handle journal importing / processing. Creates up to four additional threads to process each journal
+    file and commit to the database. Fires events to update the main TKinter display with the current state.
+    """
+
     journal_dir = config.get_str('journaldir')
     journal_dir = journal_dir if journal_dir else config.default_journal_dir
 
@@ -478,11 +518,23 @@ def journal_worker() -> None:
 
 
 def journal_start(event: tk.Event) -> None:
+    """
+    Event handler for the start of journal processing. Adds the progress line to the display.
+
+    :param event: Required to process the event. Unused.
+    """
+
     this.journal_label.grid(row=5, columnspan=2, sticky=tk.EW)
     this.journal_label['text'] = 'Parsing Journals: 0%'
 
 
 def journal_update(event: tk.Event) -> None:
+    """
+    Event handler for journal processing progress updates. Updates the display with the current progress.
+
+    :param event: Required to process the event. Unused.
+    """
+
     progress = f'{this.journal_progress:.1%}'
     progress = progress.rstrip('0').rstrip('.')
     this.journal_label['text'] = f'Parsing Journals: {progress}'
@@ -490,6 +542,12 @@ def journal_update(event: tk.Event) -> None:
 
 
 def journal_end(event: tk.Event) -> None:
+    """
+    Event handler for journal processing completion. Removes the display or reports an error.
+
+    :param event: Required to process the event. Unused.
+    """
+
     if this.journal_error:
         this.journal_label['text'] = 'Error During Journal Parse\nPlease Submit a Report'
     else:
@@ -598,6 +656,7 @@ def add_edsm_star(body: dict) -> None:
 
     :param body: The EDSM body data (JSON)
     """
+
     try:
         body_short_name = get_body_name(body['name'])
         if body_short_name not in this.main_stars:
@@ -637,19 +696,23 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
 
     :param body: The planet data we're fetching species for
     :param genus: The genus we're checking for species requirements
-    :return: The display string for the calculated genus/species, the minimum and maximum values, and a
-             list of individual species if there are multiple matches
+    :return: List of tuples containing the display string for the calculated genus/species, the minimum and maximum
+     values, and a list of individual species data. The species data is a tuple of the species ID, a list of valid
+     variants, and the value of that species.
     """
 
+    # Check the cache. If the refresh flag isn't set, skip the genus.
     if body.get_name() in this.planet_cache:
         if genus in this.planet_cache[body.get_name()] and not this.planet_cache[body.get_name()][genus][0]:
             return this.planet_cache[body.get_name()][genus][1]
     else:
         this.planet_cache[body.get_name()] = {}
 
+    # Initialize the cache entry for this genus.
     if genus not in this.planet_cache[body.get_name()]:
         this.planet_cache[body.get_name()][genus] = (True, ('', 0, 0, []))
 
+    # Main processor for the species rulesets
     possible_species: dict[str, set[str]] = {}
     log(f'System: {this.system.name} - Body: {body.get_name()}')
     log(f'Running checks for {bio_genus[genus]["name"]}:')
@@ -837,6 +900,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             if not eliminated:
                 possible_species[species] = set()
 
+    # For remaining species, run color checks if that genus has color variants
     eliminated_species: set[str] = set()
     if 'colors' in bio_genus[genus]:
         if 'species' in bio_genus[genus]['colors']:
@@ -905,6 +969,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                 for species in possible_species:
                     possible_species[species].add(found_color)
 
+    # Species checks are complete. Sort the results.
     final_species: dict[str, list[str]] = {}
     for species in possible_species:
         if species not in eliminated_species:
@@ -915,6 +980,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         key=lambda target_species: bio_types[genus][target_species[0]]['value']
     )
 
+    # Save the results to the cache and return. Missing codex entries are evaluated here.
     if len(sorted_species) == 1:
         localized_species: list[tuple[str, list[str], int]] = []
         codex = False
@@ -993,9 +1059,9 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
 
 def reset_cache(planet: str = '') -> None:
     """
-    Resets the species calculation cache. If genus is passed, resets only that genus.
+    Resets the species calculation cache. If planet is passed, resets only that planet.
 
-    :param planet: Optional parameter to reset only a specific genus
+    :param planet: Optional parameter to reset only a specific planet
     """
 
     if planet and planet in this.planet_cache:
@@ -1043,7 +1109,7 @@ def get_body_name(fullname: str = '') -> str:
 
 def reset() -> None:
     """
-    Reset system data when location changes
+    Reset system data, typically when the location changes
     """
 
     this.main_star_type = ''
@@ -1059,7 +1125,7 @@ def reset() -> None:
     this.sql_session.commit()
 
 
-def add_star(entry: Mapping[str, any]):
+def add_star(entry: Mapping[str, any]) -> None:
     """
     Add main star data from journal event
 
@@ -1083,7 +1149,18 @@ def add_star(entry: Mapping[str, any]):
 def journal_entry(
         cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, any], state: MutableMapping[str, any]
 ) -> str:
-    """ EDMC journal entry hook. Primary journal data handler. """
+    """
+    EDMC journal entry hook. Primary journal data handler.
+    Primary source for system, star, and planet data, scan info, and system changes.
+
+    :param cmdr: The commander name
+    :param is_beta: Beta status (unused)
+    :param system: The system name
+    :param station: The current station name (unused)
+    :param entry: The journal entry dictionary object
+    :param state: The EDMC state dictionary object
+    :return: Result string. Empty means success.
+    """
 
     if this.migration_failed:
         return ''
@@ -1305,7 +1382,15 @@ def journal_entry(
 
 
 def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
-    """ EDMC dashboard entry hook. Parses updates to the Status.json. """
+    """
+    EDMC dashboard entry hook. Parses updates to the Status.json.
+    Used to determine planetary location data. Used by waypoints, organic scans, and display focus.
+
+    :param cmdr: Commander name (unused)
+    :param is_beta: Beta status (unused)
+    :param entry: Dictionary of status file data
+    :return: Result string. Empty means success.
+    """
 
     if this.migration_failed:
         return ''
@@ -1387,6 +1472,7 @@ def calc_bearing(lat_long: tuple[float, float]) -> float:
     :param lat_long: The target lat/long coordinates.
     :return: The bearing angle (from 0-359)
     """
+
     lat_long2 = (this.planet_latitude, this.planet_longitude)
     phi_1 = math.radians(lat_long2[0])
     phi_2 = math.radians(lat_long[0])
@@ -1403,9 +1489,10 @@ def calc_distance(lat_long: tuple[float, float], lat_long2: tuple[float, float] 
     Use the haversine formula to get the distance between two points of latitude/longitude.
 
     :param lat_long: The lat/long coordinates of the first (target) position.
-    :param lat_long2: Optional. The lat/long coordinates of the second position. Defaults to the current position.
-    :return: The calculated distance.
+    :param lat_long2: Optional. The lat/long coordinates of the second position. Defaults to the player's position.
+    :return: The calculated distance (in meters).
     """
+
     lat_long2 = lat_long2 if lat_long2 else (this.planet_latitude, this.planet_longitude)
     phi_1 = math.radians(lat_long2[0])
     phi_2 = math.radians(lat_long[0])
@@ -1422,7 +1509,7 @@ def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
     """
     Get the shortest distance to a scan location for the currently-in-progress species.
 
-    :param lat_long: The lat/long coordinates to consider for the distance. Defaults to the current location.
+    :param lat_long: The lat/long coordinates to consider for the distance. Defaults to the player's location.
     :return: The minimum distance or None if we don't have active scan info.
     """
 
@@ -1443,9 +1530,9 @@ def get_nearest(genus: str, waypoints: list[Waypoint]) -> str:
     Check logged waypoints and return the nearest one that's not within a previous sample radius.
 
     :param genus: The genus ID
-    :param waypoints: The list of logged waypoints as lat/long
-    :return: String with the distance and bearing to the nearest qualifying waypoint. If none is found, return an
-             empty string.
+    :param waypoints: A list of logged waypoints
+    :return: Display string with the distance and bearing to the nearest qualifying waypoint. If none is found, return
+             an empty string.
     """
 
     if this.planet_heading and this.planet_latitude and this.planet_longitude:
@@ -1472,7 +1559,13 @@ def get_nearest(genus: str, waypoints: list[Waypoint]) -> str:
 
 
 def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> tuple[str, int]:
-    """ Get body genus estimate display text for the scroll pane """
+    """
+    Get body genus estimate display text for the scroll pane
+
+    :param bodies: Dictionary of planets to display
+    :param focused: Whether to return a focused display
+    :return: A tuple containing the display text and the final completed scan value of the display
+    """
 
     detail_text = ''
     value_sum = 0
@@ -1607,7 +1700,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
 
 
 def update_display() -> None:
-    """ Primary display update function. This is run whenever we get an event that would change the display state. """
+    """ Primary display update function. This is run whenever something could change the display state. """
 
     if this.fetched_edsm or not this.system:
         this.edsm_button.grid_remove()
