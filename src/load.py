@@ -2,14 +2,9 @@
 # BioScan plugin for EDMC
 # Source: https://github.com/Silarn/EDMC-BioScan
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
+
 # Core imports
-import concurrent.futures
-from concurrent.futures import Future
 from copy import deepcopy
-from datetime import datetime
-from os import listdir, cpu_count
-from os.path import expanduser
-from pathlib import Path
 from typing import Mapping, MutableMapping, Optional
 from urllib.parse import quote
 import sys
@@ -24,22 +19,28 @@ import tkinter as tk
 from tkinter import ttk
 
 # Local imports
-from bio_scan.journal_parse import parse_journal
 from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
 from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
-from bio_scan.body_data.struct import PlanetData, StarData, load_planets, load_stars, get_main_star
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
-from bio_scan.bio_data.codex import parse_variant, set_codex, check_codex, check_codex_from_name
-from bio_scan.bio_data.genus import data as bio_genus
+from bio_scan.bio_data.codex import check_codex, check_codex_from_name
 from bio_scan.bio_data.regions import region_map, guardian_sectors
 from bio_scan.bio_data.species import rules as bio_types
 from bio_scan.format_util import Formatter
 
-from sqlalchemy import Engine, create_engine, select, delete
-from sqlalchemy.orm import Session, sessionmaker, scoped_session
-from bio_scan.body_data.db import Base as DBBase, Commander, PlanetFlora, FloraScans, Waypoint, migrate, System
+# Database objects
+
+from sqlalchemy import select, delete
+from sqlalchemy.orm import Session
+
+from ExploData.explo_data import db
+from ExploData.explo_data.db import Commander, PlanetFlora, FloraScans, Waypoint, System
+from ExploData.explo_data.body_data.struct import PlanetData, StarData, load_planets, load_stars, get_main_star
+from ExploData.explo_data.bio_data.codex import parse_variant, set_codex
+from ExploData.explo_data.bio_data.genus import data as bio_genus
+import ExploData.explo_data.journal_parse
+from ExploData.explo_data.journal_parse import parse_journals, register_callbacks
 
 # EDMC imports
 from config import config
@@ -49,15 +50,8 @@ import myNotebook as nb
 from ttkHyperlinkLabel import HyperlinkLabel
 
 # 3rd Party
-from bio_scan.RegionMap import findRegion
-from bio_scan.RegionMapData import regions as galaxy_regions
-
-JOURNAL_REGEX = re.compile(r'^Journal(Alpha|Beta)?\.[0-9]{2,4}-?[0-9]{2}-?[0-9]{2}T?[0-9]{2}[0-9]{2}[0-9]{2}'
-                           r'\.[0-9]{2}\.log$')
-JOURNAL1_REGEX = re.compile(r'^Journal(Alpha|Beta)?\.([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})([0-9]{2})'
-                            r'\.([0-9]){2}\.log$')
-JOURNAL2_REGEX = re.compile(r'^Journal(Alpha|Beta)?\.([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2})([0-9]{2})([0-9]{2})'
-                            r'\.([0-9]{2})\.log$')
+from ExploData.explo_data.RegionMap import findRegion
+from ExploData.explo_data.RegionMapData import regions as galaxy_regions
 
 
 class This:
@@ -97,16 +91,8 @@ class This:
         self.main_stars: dict[str, StarData] = {}
         self.planet_cache: dict[
             str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
-        self.sql_engine: Optional[Engine] = None
-        self.sql_session_factory: Optional[scoped_session] = None
-        self.sql_session: Optional[Session] = None
         self.migration_failed: bool = False
-        self.journal_thread: Optional[threading.Thread] = None
-        self.parsing_journals: bool = False
-        self.journal_stop: bool = False
-        self.journal_event: Optional[threading.Event] = None
-        self.journal_progress: float = 0.0
-        self.journal_error: bool = False
+        self.sql_session: Optional[Session] = None
 
         # self.odyssey: bool = False
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
@@ -143,14 +129,8 @@ def plugin_start3(plugin_dir: str) -> str:
     :return: The plugin's canonical name
     """
 
-    engine_path = config.app_dir_path / 'bioscan.db'
-    this.sql_engine = create_engine(f'sqlite:///{engine_path}', connect_args={'timeout': 30})
-    DBBase.metadata.create_all(this.sql_engine)
-    result = migrate(this.sql_engine)
-    if not result:
-        this.migration_failed = True
-    this.sql_session_factory = scoped_session(sessionmaker(bind=this.sql_engine))
-    this.sql_session = Session(this.sql_engine)
+    db.init()
+    this.sql_session = Session(db.get_engine())
     return this.NAME
 
 
@@ -174,9 +154,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     else:
         parse_config()
         this.frame.bind('<<BioScanEDSMData>>', edsm_data)
-        this.frame.bind('<<bioscan_journal_start>>', journal_start)
-        this.frame.bind('<<bioscan_journal_progress>>', journal_update)
-        this.frame.bind('<<bioscan_journal_finish>>', journal_end)
+        register_callbacks(this.frame, 'biodata', journal_start, journal_update, journal_end)
         this.label = tk.Label(this.frame)
         this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
         this.scroll_canvas = tk.Canvas(this.frame, height=80, highlightthickness=0)
@@ -406,115 +384,9 @@ def plugin_stop() -> None:
     EDMC plugin stop function. Closes open threads and database sessions for clean shutdown.
     """
 
-    if this.journal_thread and this.journal_thread.is_alive():
+    if this.edsm_thread and this.edsm_thread.is_alive():
+        this.edsm_thread.join()
         this.journal_stop = True
-        if this.journal_event:
-            this.journal_event.set()
-    try:
-        this.sql_session_factory.close()
-        this.sql_session.commit()
-        this.sql_session.close()
-        this.sql_engine.dispose()
-    except Exception as ex:
-        logger.error('Error during cleanup commit', exc_info=ex)
-
-
-def log(*args) -> None:
-    """
-    Debug logger helper function. Only writes to log if debug logging is enabled for BioScan.
-    :param args: Arguments to be passed to the EDMC logger
-    """
-
-    if this.debug_logging_enabled.get():
-        logger.debug(args)
-
-
-def parse_journals() -> None:
-    """
-    Journal processing initialization. Creates the process daemon for the main thread and starts the processor.
-    """
-
-    if not this.parsing_journals:
-        if not this.journal_thread or not this.journal_thread.is_alive():
-            this.journal_thread = threading.Thread(target=journal_worker, name='Journal worker')
-            this.journal_thread.daemon = True
-            this.journal_thread.start()
-    else:
-        this.journal_stop = True
-        if this.journal_event:
-            this.journal_event.set()
-
-
-def journal_sort(journal: Path) -> datetime:
-    """
-    Sort journals by parsing the name
-
-    :param journal:  Journal Path object
-    :return: datetime for the parsed journal date
-    """
-
-    match = JOURNAL1_REGEX.search(journal.name)
-    if match:
-        return datetime(int(f'20{match.group(2)}'), int(match.group(3)), int(match.group(4)), int(match.group(5)),
-                        int(match.group(6)), int(match.group(7)), int(match.group(8)))
-
-    match = JOURNAL2_REGEX.search(journal.name)
-    if match:
-        return datetime(int(match.group(2)), int(match.group(3)), int(match.group(4)), int(match.group(5)),
-                        int(match.group(6)), int(match.group(7)), int(match.group(8)))
-
-    return datetime.fromtimestamp(journal.stat().st_ctime)
-
-
-def journal_worker() -> None:
-    """
-    Main thread to handle journal importing / processing. Creates up to four additional threads to process each journal
-    file and commit to the database. Fires events to update the main TKinter display with the current state.
-    """
-
-    journal_dir = config.get_str('journaldir')
-    journal_dir = journal_dir if journal_dir else config.default_journal_dir
-
-    journal_dir = expanduser(journal_dir)
-
-    if journal_dir == '':
-        return
-
-    this.parsing_journals = True
-    this.journal_error = False
-    this.frame.event_generate('<<bioscan_journal_start>>')
-
-    try:
-        journal_files: list[Path] = [Path(journal_dir) / str(x) for x in listdir(journal_dir) if
-                                     JOURNAL_REGEX.search(x)]
-
-        if journal_files:
-            journal_files = sorted(journal_files, key=journal_sort)
-            count = 0
-            this.journal_event = threading.Event()
-            with concurrent.futures.ThreadPoolExecutor(max_workers=min([cpu_count(), 4])) as executor:
-                future_journal: dict[Future, Path] = {executor.submit(parse_journal, journal,
-                                                                      this.sql_session_factory, this.journal_event):
-                                                      journal for journal in journal_files}
-                for future in concurrent.futures.as_completed(future_journal):
-                    count += 1
-                    this.journal_progress = count / len(journal_files)
-                    this.frame.event_generate('<<bioscan_journal_progress>>')
-                    if not future.result() or this.journal_stop:
-                        if not future.result():
-                            this.journal_error = True
-                        this.parsing_journals = False
-                        this.journal_event.set()
-                        executor.shutdown(wait=True, cancel_futures=True)
-                        break
-
-    except Exception as ex:
-        logger.error('Journal parsing failed', exc_info=ex)
-
-    this.parsing_journals = False
-    this.journal_stop = False
-    this.journal_event = None
-    this.frame.event_generate('<<bioscan_journal_finish>>')
 
 
 def journal_start(event: tk.Event) -> None:
@@ -535,10 +407,9 @@ def journal_update(event: tk.Event) -> None:
     :param event: Required to process the event. Unused.
     """
 
-    progress = f'{this.journal_progress:.1%}'
+    progress = f'{ExploData.explo_data.journal_parse.get_progress():.1%}'
     progress = progress.rstrip('0').rstrip('.')
     this.journal_label['text'] = f'Parsing Journals: {progress}'
-    update_display()
 
 
 def journal_end(event: tk.Event) -> None:
@@ -548,11 +419,20 @@ def journal_end(event: tk.Event) -> None:
     :param event: Required to process the event. Unused.
     """
 
-    if this.journal_error:
+    if ExploData.explo_data.journal_parse.has_error():
         this.journal_label['text'] = 'Error During Journal Parse\nPlease Submit a Report'
     else:
         this.journal_label.grid_remove()
-    update_display()
+
+
+def log(*args) -> None:
+    """
+    Debug logger helper function. Only writes to log if debug logging is enabled for BioScan.
+    :param args: Arguments to be passed to the EDMC logger
+    """
+
+    if this.debug_logging_enabled.get():
+        logger.debug(args)
 
 
 def edsm_fetch() -> None:
@@ -986,13 +866,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         codex = False
         if sorted_species[0][1]:
             for color in sorted_species[0][1]:
-                if not check_codex(this.sql_session_factory, this.commander.id, this.system.region,
-                                   genus, sorted_species[0][0], color):
+                if not check_codex(this.commander.id, this.system.region, genus, sorted_species[0][0], color):
                     codex = True
                     break
         else:
-            codex = not check_codex(this.sql_session_factory, this.commander.id, this.system.region, genus,
-                                    sorted_species[0][0])
+            codex = not check_codex(this.commander.id, this.system.region, genus, sorted_species[0][0])
         if len(sorted_species[0][1]) > 1:
             localized_species = [
                 (bio_types[genus][sorted_species[0][0]]['name'],
@@ -1021,13 +899,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             if not codex:
                 if colors:
                     for color in colors:
-                        if not check_codex(this.sql_session_factory, this.commander.id, this.system.region, genus,
-                                           species, color):
+                        if not check_codex(this.commander.id, this.system.region, genus, species, color):
                             codex = True
                             break
                 else:
-                    codex = not check_codex(this.sql_session_factory, this.commander.id, this.system.region,
-                                            genus, species)
+                    codex = not check_codex(this.commander.id, this.system.region, genus, species)
             if len(colors) > 1:
                 color = ''
                 break
@@ -1298,12 +1174,11 @@ def journal_entry(
                     this.planets[target_body].set_flora_species_scan(
                         this.current_scan, data.species, 0, this.commander.id
                     )
-                    session = this.sql_session_factory()
                     stmt = delete(Waypoint).where(Waypoint.commander_id == this.commander.id) \
                         .where(Waypoint.flora_id == data.id) \
                         .where(Waypoint.type == 'scan')
-                    session.execute(stmt)
-                    session.commit()
+                    this.sql_session.execute(stmt)
+                    this.sql_session.commit()
             this.current_scan = entry['Genus']
 
             if 'Variant' in entry:
@@ -1341,7 +1216,7 @@ def journal_entry(
                         genus, (this.planet_latitude, this.planet_longitude), this.commander.id
                     )
 
-            set_codex(this.sql_session_factory, this.commander.id, entry['Name'], this.system.region)
+            set_codex(this.commander.id, entry['Name'], this.system.region)
             reset_cache()  # Required to clear found codex marks
 
         update_display()
@@ -1618,8 +1493,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
                                                                      and this.current_scan == '' and waypoints) else ''
                         detail_text += '{}{}{} ({}): {}{}{}\n'.format(
-                            '\N{memo} ' if not check_codex(this.sql_session_factory, this.commander.id,
-                                                           this.system.region, genus, species, color) else '',
+                            '\N{memo} ' if not check_codex(this.commander.id, this.system.region,
+                                                           genus, species, color) else '',
                             bio_types[genus][species]['name'],
                             f' - {color}' if color else '',
                             scan_label(scan[0].count if scan else 0),
@@ -1637,15 +1512,15 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             species_details_final = deepcopy(species_details)
                             if species_details_final[1] and len(species_details_final[1]) > 1:
                                 for variant in species_details_final[1]:
-                                    if not check_codex_from_name(this.sql_session_factory, this.commander.id,
-                                                                 this.system.region, species_details_final[0], variant):
+                                    if not check_codex_from_name(this.commander.id, this.system.region,
+                                                                 species_details_final[0], variant):
                                         species_details_final[1][species_details_final[1].index(variant)] = f'\N{memo}{variant}'
                             else:
                                 variant = ''
                                 if species_details_final[1]:
                                     variant = species_details_final[1][0]
-                                if not check_codex_from_name(this.sql_session_factory, this.commander.id,
-                                                             this.system.region, species_details_final[0], variant):
+                                if not check_codex_from_name(this.commander.id, this.system.region,
+                                                             species_details_final[0], variant):
                                     species_details_final = (
                                         f'\N{memo}{species_details_final[0]}',
                                         species_details_final[1],
@@ -1674,15 +1549,15 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         species_details_final = deepcopy(species_details)
                         if species_details_final[1] and len(species_details_final[1]) > 1:
                             for variant in species_details_final[1]:
-                                if not check_codex_from_name(this.sql_session_factory, this.commander.id,
-                                                             this.system.region, species_details_final[0], variant):
+                                if not check_codex_from_name(this.commander.id, this.system.region,
+                                                             species_details_final[0], variant):
                                     species_details_final[1][species_details_final[1].index(variant)] = f'\N{memo}{variant}'
                         else:
                             variant = ''
                             if species_details_final[1]:
                                 variant = species_details_final[1][0]
-                            if not check_codex_from_name(this.sql_session_factory, this.commander.id,
-                                                         this.system.region, species_details_final[0], variant):
+                            if not check_codex_from_name(this.commander.id, this.system.region,
+                                                         species_details_final[0], variant):
                                 species_details_final = (
                                     f'\N{memo}{species_details_final[0]}',
                                     species_details_final[1],

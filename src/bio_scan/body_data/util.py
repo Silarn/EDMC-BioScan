@@ -1,6 +1,6 @@
 from typing import Optional
 
-from bio_scan.body_data.struct import PlanetData
+from ExploData.explo_data.body_data.struct import PlanetData
 
 
 def get_body_shorthand(body_type: str) -> str:
