@@ -35,12 +35,12 @@ from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
 
 from ExploData.explo_data import db
-from ExploData.explo_data.db import Commander, PlanetFlora, FloraScans, Waypoint, System
+from ExploData.explo_data.db import Commander, PlanetFlora, FloraScans, Waypoint, System, Star, Planet
 from ExploData.explo_data.body_data.struct import PlanetData, StarData, load_planets, load_stars, get_main_star
 from ExploData.explo_data.bio_data.codex import parse_variant, set_codex
 from ExploData.explo_data.bio_data.genus import data as bio_genus
 import ExploData.explo_data.journal_parse
-from ExploData.explo_data.journal_parse import parse_journals, register_callbacks
+from ExploData.explo_data.journal_parse import parse_journals, register_journal_callbacks, register_event_callbacks
 
 # EDMC imports
 from config import config
@@ -88,7 +88,7 @@ class This:
         # Plugin state data
         self.commander: Optional[Commander] = None
         self.planets: dict[str, PlanetData] = {}
-        self.main_stars: dict[str, StarData] = {}
+        self.stars: dict[str, StarData] = {}
         self.planet_cache: dict[
             str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
         self.migration_failed: bool = False
@@ -131,6 +131,7 @@ def plugin_start3(plugin_dir: str) -> str:
 
     db.init()
     this.sql_session = Session(db.get_engine())
+    register_event_callbacks({'Scan', 'FSSBodySignals', 'SAASignalsFound', 'ScanOrganic', 'CodexEntry'}, process_data_event)
     return this.NAME
 
 
@@ -154,7 +155,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     else:
         parse_config()
         this.frame.bind('<<BioScanEDSMData>>', edsm_data)
-        register_callbacks(this.frame, 'biodata', journal_start, journal_update, journal_end)
+        register_journal_callbacks(this.frame, 'biodata', journal_start, journal_update, journal_end)
         this.label = tk.Label(this.frame)
         this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
         this.scroll_canvas = tk.Canvas(this.frame, height=80, highlightthickness=0)
@@ -539,17 +540,17 @@ def add_edsm_star(body: dict) -> None:
 
     try:
         body_short_name = get_body_name(body['name'])
-        if body_short_name not in this.main_stars:
+        if body_short_name not in this.stars:
             star_data = StarData.from_journal(this.system, body_short_name, body['bodyId'], this.sql_session)
         else:
-            star_data = this.main_stars[body_short_name]
+            star_data = this.stars[body_short_name]
         if body['spectralClass']:
             star_data.set_type(body['spectralClass'][:-1])
         else:
             star_data.set_type(parse_edsm_star_class(body['subType']))
         star_data.set_luminosity(body['luminosity'])
         star_data.set_distance(body['distanceToArrival'])
-        this.main_stars[body_short_name] = star_data
+        this.stars[body_short_name] = star_data
     except Exception as e:
         logger.error('Error while parsing EDSM', exc_info=e)
 
@@ -788,9 +789,9 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                 if 'star' in bio_genus[genus]['colors']['species'][species]:
                     try:
                         for star in sorted(body.get_parent_stars(),
-                                           key=lambda item: this.main_stars[item].get_id()):
+                                           key=lambda item: this.stars[item].get_id()):
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
-                                if star_check(star_type, this.main_stars[star].get_type()):
+                                if star_check(star_type, this.stars[star].get_type()):
                                     possible_species[species].add(
                                         bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                     break
@@ -798,7 +799,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 break
                         if possible_species[species]:
                             continue
-                        for star_name, star_data in sorted(this.main_stars.items(), key=lambda item: item[1].get_id()):
+                        for star_name, star_data in sorted(this.stars.items(), key=lambda item: item[1].get_id()):
                             if star_name in body.get_parent_stars():
                                 continue
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
@@ -822,16 +823,16 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         else:
             found_color = ''
             try:
-                for star in sorted(body.get_parent_stars(), key=lambda item: this.main_stars[item].get_id()):
+                for star in sorted(body.get_parent_stars(), key=lambda item: this.stars[item].get_id()):
                     for star_type in bio_genus[genus]['colors']['star']:
-                        log('Checking star type %s against %s' % (star_type, this.main_stars[star].get_type()))
-                        if star_check(star_type, this.main_stars[star].get_type()):
+                        log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
+                        if star_check(star_type, this.stars[star].get_type()):
                             found_color = bio_genus[genus]['colors']['star'][star_type]
                             break
                     if found_color:
                         break
                 if not found_color:
-                    for star_name, star_data in sorted(this.main_stars.items(), key=lambda item: item[1].get_id()):
+                    for star_name, star_data in sorted(this.stars.items(), key=lambda item: item[1].get_id()):
                         if star_name in body.get_parent_stars():
                             continue
                         for star_type in bio_genus[genus]['colors']['star']:
@@ -996,7 +997,7 @@ def reset() -> None:
     this.fetched_edsm = False
     this.planets = {}
     this.planet_cache = {}
-    this.main_stars = {}
+    this.stars = {}
     this.scroll_canvas.yview_moveto(0.0)
     this.sql_session.commit()
 
@@ -1010,16 +1011,16 @@ def add_star(entry: Mapping[str, any]) -> None:
 
     body_short_name = get_body_name(entry['BodyName'])
 
-    if body_short_name not in this.main_stars:
+    if body_short_name not in this.stars:
         star_data = StarData.from_journal(this.system, body_short_name, entry['BodyID'], this.sql_session)
     else:
-        star_data = this.main_stars[body_short_name]
+        star_data = this.stars[body_short_name]
 
     star_data.set_type(entry['StarType'])
     star_data.set_luminosity(entry['Luminosity'])
     star_data.set_distance(entry['DistanceFromArrivalLS'])
 
-    this.main_stars[body_short_name] = star_data
+    this.stars[body_short_name] = star_data
 
 
 def journal_entry(
@@ -1027,7 +1028,7 @@ def journal_entry(
 ) -> str:
     """
     EDMC journal entry hook. Primary journal data handler.
-    Primary source for system, star, and planet data, scan info, and system changes.
+    Update location information. System data is handled by ExploData.
 
     :param cmdr: The commander name
     :param is_beta: Beta status (unused)
@@ -1059,7 +1060,7 @@ def journal_entry(
             sector = findRegion(this.system.x, this.system.y, this.system.z)
             this.system.region = sector[0] if sector is not None else None
         this.planets = load_planets(this.system, this.sql_session)
-        this.main_stars = load_stars(this.system, this.sql_session)
+        this.stars = load_stars(this.system, this.sql_session)
         main_star = get_main_star(this.system, this.sql_session)
         if main_star:
             this.main_star_type = main_star.type
@@ -1075,185 +1076,138 @@ def journal_entry(
             this.sql_session.commit()
 
     log(f'Event {entry["event"]}')
-    if entry['event'] == 'Scan':
-        body_short_name = get_body_name(entry['BodyName'])
-        if 'StarType' in entry:
-            if entry['DistanceFromArrivalLS'] == 0.0:
-                this.main_star_type = entry['StarType']
-                this.main_star_luminosity = entry['Luminosity']
 
-            if body_short_name == entry['BodyName']:
-                add_star(entry)
+    match entry['event']:
+        case 'ApproachBody' | 'Touchdown' | 'Liftoff':
+            if entry['event'] in ['Liftoff', 'Touchdown'] and entry['PlayerControlled'] is False:
+                return ''
+            body_name = get_body_name(entry['Body'])
+            if body_name in this.planets:
+                this.location_name = body_name
+                this.location_id = entry['BodyID']
+
+            if entry['event'] in ['ApproachBody', 'Liftoff']:
+                this.location_state = 'approach'
             else:
-                if re.search('^[A-Z]$', body_short_name):
-                    add_star(entry)
+                this.location_state = 'surface'
 
-            reset_cache()
             update_display()
 
-        if 'PlanetClass' in entry:
-            if body_short_name not in this.planets:
-                body_data = PlanetData.from_journal(this.system, body_short_name,
-                                                    entry['BodyID'], this.sql_session)
-            else:
-                body_data = this.planets[body_short_name]
-            body_data.set_distance(float(entry['DistanceFromArrivalLS'])).set_type(entry['PlanetClass']) \
-                .set_gravity(entry['SurfaceGravity']).set_temp(entry.get('SurfaceTemperature', 0)) \
-                .set_volcanism(entry.get('Volcanism', ''))
+        case 'LeaveBody':
+            this.location_name = ''
+            this.location_id = -1
+            this.location_state = ''
 
-            star_search = re.search('^([A-Z]+) .+$', body_short_name)
-            if star_search:
-                for star in star_search.group(1):
-                    body_data.add_parent_star(star)
-            else:
-                body_data.add_parent_star(this.system.name)
-
-            if 'Materials' in entry:
-                for material in entry['Materials']:
-                    body_data.add_material(material['Name'])
-
-            if 'AtmosphereType' in entry:
-                body_data.set_atmosphere(entry['AtmosphereType'])
-
-            if 'AtmosphereComposition' in entry:
-                for gas in entry['AtmosphereComposition']:
-                    body_data.add_gas(gas['Name'], gas['Percent'])
-
-            this.planets[body_short_name] = body_data
-
-            reset_cache()
             update_display()
-
-    elif entry['event'] in ['FSSBodySignals', 'SAASignalsFound']:
-        body_short_name = get_body_name(entry['BodyName'])
-
-        if body_short_name not in this.planets:
-            body_data = PlanetData.from_journal(this.system, body_short_name, entry['BodyID'], this.sql_session)
-        else:
-            body_data = this.planets[body_short_name]
-
-        # Add bio signal number just in case
-        for signal in entry['Signals']:
-            if signal['Type'] == '$SAA_SignalType_Biological;':
-                body_data.set_bio_signals(signal['Count'])
-
-        # If signals include genuses, add them to the body data
-        if 'Genuses' in entry:
-            for genus in entry['Genuses']:
-                if body_data.get_flora(genus['Genus']) is None:
-                    body_data.add_flora(genus['Genus'])
-
-        this.planets[body_short_name] = body_data
-
-        reset_cache(body_short_name)
-        update_display()
-
-    elif entry['event'] == 'ScanOrganic':
-        target_body = None
-        for name, body in this.planets.items():
-            if body.get_id() == entry['Body']:
-                target_body = name
-                break
-
-        scan_level = 0
-        match entry['ScanType']:
-            case 'Log':
-                scan_level = 1
-            case 'Sample':
-                scan_level = 2
-            case 'Analyse':
-                scan_level = 3
-
-        if target_body is not None:
-            this.planets[target_body].set_flora_species_scan(
-                entry['Genus'], entry['Species'], scan_level, this.commander.id
-            )
-            if this.current_scan != '' and this.current_scan != entry['Genus']:
-                data: PlanetFlora = this.planets[target_body].get_flora(this.current_scan)
-                if data:
-                    this.planets[target_body].set_flora_species_scan(
-                        this.current_scan, data.species, 0, this.commander.id
-                    )
-                    stmt = delete(Waypoint).where(Waypoint.commander_id == this.commander.id) \
-                        .where(Waypoint.flora_id == data.id) \
-                        .where(Waypoint.type == 'scan')
-                    this.sql_session.execute(stmt)
-                    this.sql_session.commit()
-            this.current_scan = entry['Genus']
-
-            if 'Variant' in entry:
-                _, _, color = parse_variant(entry['Variant'])
-                this.planets[target_body].set_flora_color(entry['Genus'], color)
-
-            match scan_level:
-                case 1 | 2:
-                    if this.planet_latitude and this.planet_longitude and this.waypoints_enabled.get():
-                        this.planets[target_body].add_flora_waypoint(
-                            entry['Genus'],
-                            (this.planet_latitude, this.planet_longitude),
-                            this.commander.id,
-                            scan=True
-                        )
-                case _:
-                    this.current_scan = ''
-
-        update_display()
-
-    elif entry['event'] == 'CodexEntry' and entry['Category'] == '$Codex_Category_Biology;' and 'BodyID' in entry:
-        target_body = None
-        for name, body in this.planets.items():
-            if body.get_id() == entry['BodyID']:
-                target_body = name
-                break
-
-        if target_body is not None:
-            genus, species, color = parse_variant(entry['Name'])
-            if genus is not '' and species is not '':
-                this.planets[target_body].add_flora(genus, species, color)
-                if this.location_id == entry['BodyID'] and this.planet_latitude \
-                        and this.planet_longitude and this.waypoints_enabled.get():
-                    this.planets[target_body].add_flora_waypoint(
-                        genus, (this.planet_latitude, this.planet_longitude), this.commander.id
-                    )
-
-            set_codex(this.commander.id, entry['Name'], this.system.region)
-            reset_cache()  # Required to clear found codex marks
-
-        update_display()
-
-    elif entry['event'] in ['ApproachBody', 'Touchdown', 'Liftoff']:
-        if entry['event'] in ['Liftoff', 'Touchdown'] and entry['PlayerControlled'] is False:
-            return ''
-        body_name = get_body_name(entry['Body'])
-        if body_name in this.planets:
-            this.location_name = body_name
-            this.location_id = entry['BodyID']
-
-        if entry['event'] in ['ApproachBody', 'Liftoff']:
-            this.location_state = 'approach'
-        else:
-            this.location_state = 'surface'
-
-        update_display()
-
-        # if this.focus_setting.get() == 'On Approach' and entry['event'] == 'ApproachBody':
-        #     this.scroll_canvas.yview_moveto(0.0)
-        #
-        # if this.focus_setting.get() == 'On Surface' and entry['event'] in ['Touchdown', 'Liftoff']:
-        #     this.scroll_canvas.yview_moveto(0.0)
-
-    elif entry['event'] == 'LeaveBody':
-        this.location_name = ''
-        this.location_id = -1
-        this.location_state = ''
-
-        update_display()
-        this.scroll_canvas.yview_moveto(0.0)
+            this.scroll_canvas.yview_moveto(0.0)
 
     if system_changed:
         update_display()
 
     return ''  # No error
+
+
+def process_data_event(entry: Mapping[str, any]) -> None:
+    match entry['event']:
+        case 'Scan':
+            body_short_name = get_body_name(entry['BodyName'])
+            if 'StarType' in entry:
+                if body_short_name in this.stars:
+                    this.stars[body_short_name].refresh()
+                else:
+                    this.stars[body_short_name] = StarData.from_journal(this.system, body_short_name,
+                                                                        entry['BodyID'], this.sql_session)
+                reset_cache()
+                update_display()
+            if 'PlanetClass' in entry:
+                if body_short_name in this.planets:
+                    this.planets[body_short_name].refresh()
+                else:
+                    this.planets[body_short_name] = PlanetData.from_journal(this.system, body_short_name,
+                                                                            entry['BodyID'], this.sql_session)
+                reset_cache()
+                update_display()
+
+        case 'FSSBodySignals' | 'SAASignalsFound':
+            body_short_name = get_body_name(entry['BodyName'])
+            if body_short_name in this.planets:
+                this.planets[body_short_name].refresh()
+            else:
+                this.planets[body_short_name] = PlanetData.from_journal(this.system, body_short_name,
+                                                                        entry['BodyID'], this.sql_session)
+            reset_cache()
+            update_display()
+
+        case 'ScanOrganic':
+            target_body = None
+            for name, body in this.planets.items():
+                if body.get_id() == entry['Body']:
+                    target_body = name
+                    break
+
+            scan_level = 0
+            match entry['ScanType']:
+                case 'Log':
+                    scan_level = 1
+                case 'Sample':
+                    scan_level = 2
+                case 'Analyse':
+                    scan_level = 3
+
+            if target_body is not None:
+                this.planets[target_body].set_flora_species_scan(
+                    entry['Genus'], entry['Species'], scan_level, this.commander.id
+                )
+                if this.current_scan != '' and this.current_scan != entry['Genus']:
+                    data: PlanetFlora = this.planets[target_body].get_flora(this.current_scan)
+                    if data:
+                        this.planets[target_body].set_flora_species_scan(
+                            this.current_scan, data.species, 0, this.commander.id
+                        )
+                        stmt = delete(Waypoint).where(Waypoint.commander_id == this.commander.id) \
+                            .where(Waypoint.flora_id == data.id) \
+                            .where(Waypoint.type == 'scan')
+                        this.sql_session.execute(stmt)
+                        this.sql_session.commit()
+                this.current_scan = entry['Genus']
+
+                if 'Variant' in entry:
+                    _, _, color = parse_variant(entry['Variant'])
+                    this.planets[target_body].set_flora_color(entry['Genus'], color)
+
+                match scan_level:
+                    case 1 | 2:
+                        if this.planet_latitude and this.planet_longitude and this.waypoints_enabled.get():
+                            this.planets[target_body].add_flora_waypoint(
+                                entry['Genus'],
+                                (this.planet_latitude, this.planet_longitude),
+                                this.commander.id,
+                                scan=True
+                            )
+                    case _:
+                        this.current_scan = ''
+
+            update_display()
+
+        case 'CodexEntry':
+            if entry['Category'] == '$Codex_Category_Biology;' and 'BodyID' in entry:
+                target_body = None
+                for name, body in this.planets.items():
+                    if body.get_id() == entry['BodyID']:
+                        target_body = name
+                        break
+
+                if target_body is not None:
+                    genus, _, _ = parse_variant(entry['Name'])
+                    if genus is not '':
+                        if this.location_id == entry['BodyID'] and this.planet_latitude \
+                                and this.planet_longitude and this.waypoints_enabled.get():
+                            this.planets[target_body].add_flora_waypoint(
+                                genus, (this.planet_latitude, this.planet_longitude), this.commander.id
+                            )
+                    reset_cache()  # Required to clear found codex marks
+
+                update_display()
 
 
 def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
