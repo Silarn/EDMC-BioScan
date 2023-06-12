@@ -481,11 +481,7 @@ def edsm_data(event: tk.Event) -> None:
                     this.main_star_type = parse_edsm_star_class(body['subType'])
                 this.main_star_luminosity = body['luminosity']
 
-            if body_short_name == body['name']:
-                add_edsm_star(body)
-            else:
-                if re.search('^[A-Z]$', body_short_name):
-                    add_edsm_star(body)
+            add_edsm_star(body)
 
         elif body['type'] == 'Planet':
             try:
@@ -546,6 +542,7 @@ def add_edsm_star(body: dict) -> None:
             star_data = this.stars[body_short_name]
         if body['spectralClass']:
             star_data.set_type(body['spectralClass'][:-1])
+            star_data.set_subclass(body['spectralClass'][-1])
         else:
             star_data.set_type(parse_edsm_star_class(body['subType']))
         star_data.set_luminosity(body['luminosity'])
