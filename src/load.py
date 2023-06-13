@@ -400,8 +400,6 @@ def plugin_stop() -> None:
     EDMC plugin stop function. Closes open threads and database sessions for clean shutdown.
     """
 
-    journal_shutdown()
-    db.shutdown()
     if this.edsm_thread and this.edsm_thread.is_alive():
         this.edsm_thread.join()
         this.journal_stop = True
