@@ -228,10 +228,23 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     frame.columnconfigure(1, weight=1)
     frame.rowconfigure(20, weight=1)
 
-    HyperlinkLabel(frame, text=this.NAME, background=nb.Label().cget('background'),
+    title_frame = nb.Frame(frame)
+    title_frame.grid(row=1, columnspan=2, sticky=tk.NSEW)
+    title_frame.columnconfigure(0, weight=1)
+    HyperlinkLabel(title_frame, text=this.NAME, background=nb.Label().cget('background'),
                    url='https://github.com/Silarn/EDMC-BioScan', underline=True) \
-        .grid(row=1, padx=x_padding, sticky=tk.W)
-    nb.Label(frame, text='Version %s' % this.VERSION).grid(row=1, column=1, padx=x_padding, sticky=tk.E)
+        .grid(row=0, padx=x_padding, sticky=tk.W)
+    nb.Label(title_frame, text='Version %s' % this.VERSION) \
+        .grid(row=0, column=1, sticky=tk.E)
+    nb.Label(title_frame, text='Data Version: %s' % bio_scan.const.db_version) \
+        .grid(row=0, column=2, padx=x_padding, sticky=tk.E)
+    HyperlinkLabel(title_frame, text=ExploData.explo_data.const.plugin_name, background=nb.Label().cget('background'),
+                   url='https://github.com/Silarn/EDMC-ExploData', underline=True) \
+        .grid(row=1, padx=x_padding, pady=y_padding * 2, sticky=tk.W)
+    nb.Label(title_frame, text='Version %s' % semantic_version.Version(ExploData.explo_data.const.plugin_version)) \
+        .grid(row=1, column=1, pady=y_padding * 2, sticky=tk.E)
+    nb.Label(title_frame, text='Data Version: %s' % ExploData.explo_data.const.database_version) \
+        .grid(row=1, column=2, padx=x_padding, pady=y_padding * 2, sticky=tk.E)
 
     ttk.Separator(frame).grid(row=5, columnspan=2, pady=y_padding * 2, sticky=tk.EW)
 
