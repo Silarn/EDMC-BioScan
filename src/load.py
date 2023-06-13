@@ -506,12 +506,15 @@ def edsm_data(event: tk.Event) -> None:
                 else:
                     planet_data = this.planets[body_short_name]
                 planet_type = map_edsm_type(body['subType'])
+                terraformable = 'Terraformable' if body['terraformingState'] == 'Candidate for terraforming' \
+                    else ''
                 planet_data.set_type(planet_type) \
                     .set_distance(body['distanceToArrival']) \
                     .set_atmosphere(map_edsm_atmosphere(body['atmosphereType'])) \
                     .set_gravity(body['gravity'] * 9.80665) \
                     .set_temp(body['surfaceTemperature']) \
-                    .set_mass(body['earthMasses'])
+                    .set_mass(body['earthMasses']) \
+                    .set_terraform_state(terraformable)
                 if body['volcanismType'] == 'No volcanism':
                     volcanism = ''
                 else:
