@@ -1140,6 +1140,7 @@ def journal_entry(
 
 
 def process_data_event(entry: Mapping[str, any]) -> None:
+    this.sql_session.commit()
     match entry['event']:
         case 'Scan':
             body_short_name = get_body_name(entry['BodyName'])
@@ -1151,7 +1152,7 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                                                                         entry['BodyID'], this.sql_session)
                 reset_cache()
                 update_display()
-            if 'PlanetClass' in entry:
+            if 'PlanetClass' in entry and entry['PlanetClass']:
                 if body_short_name in this.planets:
                     this.planets[body_short_name].refresh()
                 else:
@@ -1162,6 +1163,8 @@ def process_data_event(entry: Mapping[str, any]) -> None:
 
         case 'FSSBodySignals' | 'SAASignalsFound':
             body_short_name = get_body_name(entry['BodyName'])
+            if body_short_name.endswith('Ring') or body_short_name.find('Belt Cluster') != -1:
+                return
             if body_short_name in this.planets:
                 this.planets[body_short_name].refresh()
             else:
