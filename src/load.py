@@ -19,6 +19,7 @@ import tkinter as tk
 from tkinter import ttk
 
 # Local imports
+import bio_scan.const
 from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
 from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
@@ -35,12 +36,13 @@ from sqlalchemy import select, delete
 from sqlalchemy.orm import Session
 
 from ExploData.explo_data import db
-from ExploData.explo_data.db import Commander, PlanetFlora, FloraScans, Waypoint, System, Star, Planet
+from ExploData.explo_data.db import Commander, PlanetFlora, FloraScans, Waypoint, System, Metadata
 from ExploData.explo_data.body_data.struct import PlanetData, StarData, load_planets, load_stars, get_main_star
-from ExploData.explo_data.bio_data.codex import parse_variant, set_codex
+from ExploData.explo_data.bio_data.codex import parse_variant
 from ExploData.explo_data.bio_data.genus import data as bio_genus
 import ExploData.explo_data.journal_parse
-from ExploData.explo_data.journal_parse import parse_journals, register_journal_callbacks, register_event_callbacks
+from ExploData.explo_data.journal_parse import parse_journals, register_journal_callbacks, register_event_callbacks, \
+    shutdown as journal_shutdown
 
 # EDMC imports
 from config import config
@@ -60,8 +62,8 @@ class This:
     def __init__(self):
         self.formatter = Formatter()
 
-        self.VERSION = semantic_version.Version('2.5.4')
-        self.NAME = 'BioScan'
+        self.VERSION = semantic_version.Version(bio_scan.const.version)
+        self.NAME = bio_scan.const.name
 
         # Settings vars
         self.focus_setting: Optional[tk.StringVar] = None
@@ -92,6 +94,7 @@ class This:
         self.planet_cache: dict[
             str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
         self.migration_failed: bool = False
+        self.db_mismatch: bool = False
         self.sql_session: Optional[Session] = None
 
         # self.odyssey: bool = False
@@ -129,9 +132,15 @@ def plugin_start3(plugin_dir: str) -> str:
     :return: The plugin's canonical name
     """
 
-    db.init()
-    this.sql_session = Session(db.get_engine())
-    register_event_callbacks({'Scan', 'FSSBodySignals', 'SAASignalsFound', 'ScanOrganic', 'CodexEntry'}, process_data_event)
+    this.migration_failed = db.init()
+    if not this.migration_failed:
+        this.sql_session = Session(db.get_engine())
+        db_version: Metadata = this.sql_session.scalar(select(Metadata).where(Metadata.key == 'version'))
+        if db_version.value.isdigit() and int(db_version.value) > bio_scan.const.db_version:
+            this.db_mismatch = True
+
+        if not this.db_mismatch:
+            register_event_callbacks({'Scan', 'FSSBodySignals', 'SAASignalsFound', 'ScanOrganic', 'CodexEntry'}, process_data_event)
     return this.NAME
 
 
@@ -151,6 +160,12 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
         this.label.grid(row=0, sticky=tk.EW)
         this.update_button = HyperlinkLabel(this.frame, text='Please Check or Submit an Issue',
                                             url='https://github.com/Silarn/EDMC-BioScan/issues')
+        this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
+    elif this.db_mismatch:
+        this.label = tk.Label(this.frame, text='BioScan: Database Mismatch')
+        this.label.grid(row=0, sticky=tk.EW)
+        this.update_button = HyperlinkLabel(this.frame, text='You May Need to Update',
+                                            url='https://github.com/Silarn/EDMC-BioScan/releases/latest')
         this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     else:
         parse_config()
@@ -385,6 +400,8 @@ def plugin_stop() -> None:
     EDMC plugin stop function. Closes open threads and database sessions for clean shutdown.
     """
 
+    journal_shutdown()
+    db.shutdown()
     if this.edsm_thread and this.edsm_thread.is_alive():
         this.edsm_thread.join()
         this.journal_stop = True
@@ -495,7 +512,8 @@ def edsm_data(event: tk.Event) -> None:
                     .set_distance(body['distanceToArrival']) \
                     .set_atmosphere(map_edsm_atmosphere(body['atmosphereType'])) \
                     .set_gravity(body['gravity'] * 9.80665) \
-                    .set_temp(body['surfaceTemperature'])
+                    .set_temp(body['surfaceTemperature']) \
+                    .set_mass(body['earthMasses'])
                 if body['volcanismType'] == 'No volcanism':
                     volcanism = ''
                 else:
@@ -522,6 +540,13 @@ def edsm_data(event: tk.Event) -> None:
 
             except Exception as e:
                 logger.error('Error while parsing EDSM', exc_info=e)
+
+    filter_stars()
+    main_star = get_main_star(this.system, this.sql_session)
+    if main_star:
+        this.main_star_type = main_star.type
+        this.main_star_luminosity = main_star.luminosity
+
     this.fetched_edsm = True
     reset_cache()
     update_display()
@@ -547,6 +572,7 @@ def add_edsm_star(body: dict) -> None:
             star_data.set_type(parse_edsm_star_class(body['subType']))
         star_data.set_luminosity(body['luminosity'])
         star_data.set_distance(body['distanceToArrival'])
+        star_data.set_mass(body['solarMasses'])
         this.stars[body_short_name] = star_data
     except Exception as e:
         logger.error('Error while parsing EDSM', exc_info=e)
@@ -1020,6 +1046,13 @@ def add_star(entry: Mapping[str, any]) -> None:
     this.stars[body_short_name] = star_data
 
 
+def filter_stars():
+    for star in this.stars.keys():
+        match = re.match(r'^[A-Z]$', star)
+        if not match and star != this.system.name:
+            this.stars.pop(star)
+
+
 def journal_entry(
         cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, any], state: MutableMapping[str, any]
 ) -> str:
@@ -1036,7 +1069,7 @@ def journal_entry(
     :return: Result string. Empty means success.
     """
 
-    if this.migration_failed:
+    if this.migration_failed or this.db_mismatch:
         return ''
 
     system_changed = False
@@ -1058,6 +1091,7 @@ def journal_entry(
             this.system.region = sector[0] if sector is not None else None
         this.planets = load_planets(this.system, this.sql_session)
         this.stars = load_stars(this.system, this.sql_session)
+        filter_stars()
         main_star = get_main_star(this.system, this.sql_session)
         if main_star:
             this.main_star_type = main_star.type
@@ -1111,7 +1145,7 @@ def process_data_event(entry: Mapping[str, any]) -> None:
             if 'StarType' in entry:
                 if body_short_name in this.stars:
                     this.stars[body_short_name].refresh()
-                else:
+                elif re.match(r'^[A-Z]$', body_short_name) or body_short_name == this.system.name:
                     this.stars[body_short_name] = StarData.from_journal(this.system, body_short_name,
                                                                         entry['BodyID'], this.sql_session)
                 reset_cache()
@@ -1218,7 +1252,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     :return: Result string. Empty means success.
     """
 
-    if this.migration_failed:
+    if this.migration_failed or this.db_mismatch:
         return ''
 
     if 'BodyName' in entry:
