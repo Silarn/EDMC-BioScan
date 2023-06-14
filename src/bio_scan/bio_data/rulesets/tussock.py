@@ -25,7 +25,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.275,
                     'max_temperature': 160.0,
                     'min_temperature': 155.0,
-                    'body_type': ['Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
                 }
             ],
@@ -39,7 +39,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.275,
                     'max_temperature': 170.0,
                     'min_temperature': 160.0,
-                    'body_type': ['Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['sagittarius-carina', 'perseus']
                 }
             ],
@@ -89,7 +89,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.275,
                     'max_temperature': 175.0,
                     'min_temperature': 170.0,
-                    'body_type': ['Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
                 }
             ],
@@ -167,7 +167,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['SulphurDioxide'],
                     'max_gravity': 0.275,
-                    'body_type': ['Rocky body']
+                    'body_type': ['Rocky body', 'High metal content body']
                 }
             ],
         },
