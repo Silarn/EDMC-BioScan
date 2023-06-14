@@ -115,7 +115,7 @@ have to manually look up signals if that data was not previously logged.
   * This is accessible via the plugins tab in the EDMC settings window
   * ExploData must be named as it is packaged, or you will run into trouble loading dependencies
 * For native python users:
-  * Run `pip install -r requirements.txt` within the plugin directory to install SQLAlchemy
+  * Run `pip install -r requirements.txt` within the ExploData plugin directory to install SQLAlchemy
   * Ensure the correct `pip` is used for Python 3.11
 * Start or restart EDMC to register the plugin and run any necessary database migrations
 
