@@ -81,8 +81,8 @@ location, so for best results make the scan as close to the target species as po
 As of version 2.0, BioScan now maintains a database of all relevant system data and scan progress. It segments scans,
 waypoints, and codex data by commander. You can safely stop and restart EDMC without losing your data.
 
-The database file is located within EDMC's data storage directory, where the plugins are located. On Windows, this
-should be `%LOCALAPPDATA%\EDMarketConnector\bioscan.db`.
+From version 2.6 forward, the database management is handled by the [ExploData] plugin/module. See that repository for
+more details.
 
 ### Journal Importing
 
@@ -106,15 +106,16 @@ have to manually look up signals if that data was not previously logged.
 
 ## Installation
 
-### EDMC Prebuilt EXE (Windows)
-* Download the [latest release] zip file for Windows
-* Extract the `.zip` archive that you downloaded into the EDMC `plugins` folder
+* Download the [latest release] of both BioScan and ExploData
+  * Users of the prebuilt Windows EXE EDMC must use the Windows EXE version of ExploData
+  * Native python users should use the native python version
+  * There is only one version of BioScan moving forward
+  * If you use [Pioneer], make sure the version you're using is up-to-date with ExploData
+* Extract the `.zip` archives that you downloaded into the EDMC `plugins` folder
   * This is accessible via the plugins tab in the EDMC settings window
-* Start or restart EDMC to register the plugin and run any necessary database migrations
-
-### Native Python Execution
-* Download and extract the [latest release] zip file for native python into the EDMC `plugins` directory
-* Run `pip install -r requirements.txt` within the plugin directory to install SQLAlchemy
+  * ExploData must be named as it is packaged, or you will run into trouble loading dependencies
+* For native python users:
+  * Run `pip install -r requirements.txt` within the plugin directory to install SQLAlchemy
   * Ensure the correct `pip` is used for Python 3.11
 * Start or restart EDMC to register the plugin and run any necessary database migrations
 
@@ -135,7 +136,6 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 * Refinements to species requirements?
 * Additional display options (suggestions welcome)
 * Track Vista Genomics sales?
-* Merge persistent database with Pioneer plugin
 * EDMCOverlay support?
 
 ## License
@@ -151,6 +151,8 @@ Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 [EliteDangerousRegionMap]: https://github.com/klightspeed/EliteDangerousRegionMap/
 [Catalog of Galactic Nebulae]: https://forums.frontier.co.uk/threads/catalogue-of-galactic-nebulae-submit-your-planetary-nebulae.511743/
 [BioScan]: https://github.com/Silarn/EDMC-BioScan
+[Pioneer]: https://github.com/Silarn/EDMC-Pioneer
+[ExploData]: https://github.com/Silarn/EDMC-ExploData
 [Observatory]: https://github.com/Xjph/ObservatoryCore
 [BioInsights]: https://edjp.colacube.net/observatory
 [latest release]: https://github.com/Silarn/EDMC-BioScan/releases/latest
