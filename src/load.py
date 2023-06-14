@@ -1061,7 +1061,8 @@ def add_star(entry: Mapping[str, any]) -> None:
 
 
 def filter_stars():
-    for star in this.stars.keys():
+    stars = this.stars.copy().keys()
+    for star in stars:
         match = re.match(r'^[A-Z]$', star)
         if not match and star != this.system.name:
             this.stars.pop(star)
