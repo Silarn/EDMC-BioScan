@@ -20,8 +20,8 @@ from tkinter import ttk
 
 # Local imports
 import bio_scan.const
-from bio_scan.nebula_data.reference_stars import coordinates as nebula_coords
-from bio_scan.nebula_data.sectors import planetary_nebulae, data as nebula_sectors
+from bio_scan.nebula_data.reference_stars import get_nearest_nebula
+from bio_scan.nebula_data.sectors import data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
@@ -41,8 +41,7 @@ from ExploData.explo_data.body_data.struct import PlanetData, StarData, load_pla
 from ExploData.explo_data.bio_data.codex import parse_variant
 from ExploData.explo_data.bio_data.genus import data as bio_genus
 import ExploData.explo_data.journal_parse
-from ExploData.explo_data.journal_parse import parse_journals, register_journal_callbacks, register_event_callbacks, \
-    shutdown as journal_shutdown
+from ExploData.explo_data.journal_parse import parse_journals, register_journal_callbacks, register_event_callbacks
 
 # EDMC imports
 from config import config
@@ -791,20 +790,20 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             log('Missing system coordinates')
                             continue
                         found = False
-                        if this.system.name in planetary_nebulae:
-                            found = True
                         for sector in nebula_sectors:
                             if this.system.name.startswith(sector):
                                 found = True
                                 stop = True
-                        for system, coords in nebula_coords.items():
-                            distance = math.sqrt((coords[0] - this.system.x) ** 2
-                                                 + (coords[1] - this.system.y) ** 2
-                                                 + (coords[2] - this.system.z) ** 2)
-                            log(f'Distance to {system} from {this.system.name}: {distance:n} ly')
-                            if distance < 100.0:
-                                found = True
-                                stop = True
+                        if not found:
+                            current_location: tuple[float, float, float] = (this.system.x, this.system.y, this.system.z)
+                            for system, coordinates in get_nearest_nebula(current_location).items():
+                                distance = math.sqrt((coordinates[0] - this.system.x) ** 2
+                                                     + (coordinates[1] - this.system.y) ** 2
+                                                     + (coordinates[2] - this.system.z) ** 2)
+                                log(f'Distance to {system} from {this.system.name}: {distance:n} ly')
+                                if distance < 100.0:
+                                    found = True
+                                    stop = True
                         if not found:
                             log('Eliminated for lack of nebula')
                             eliminated = True
