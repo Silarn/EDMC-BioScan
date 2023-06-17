@@ -60,7 +60,7 @@ distance to a previous sample, which is updated in real time.
 
 It will reset your scan progress if the previous scan wasn't completed and you start a different species. It can also
 track scans with the composition scanner and will lock in the final species of the genus without requiring you to scan
-biologicals one at a time. In this way you can lock in a species and value while competing the analysis of another
+biologicals one at a time. In this way you can lock in a species and value while completing the analysis of another
 lifeform.
 
 #### Waypoints
