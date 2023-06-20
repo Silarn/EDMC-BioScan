@@ -32,7 +32,7 @@ from bio_scan.format_util import Formatter
 
 # Database objects
 
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from sqlalchemy.orm import Session
 
 from ExploData.explo_data import db
@@ -1206,17 +1206,15 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                 this.planets[target_body].set_flora_species_scan(
                     entry['Genus'], entry['Species'], scan_level, this.commander.id
                 )
-                if this.current_scan != '' and this.current_scan != entry['Genus']:
+                if scan_level == 1 and this.current_scan:
                     data: PlanetFlora = this.planets[target_body].get_flora(this.current_scan)
-                    if data:
-                        this.planets[target_body].set_flora_species_scan(
-                            this.current_scan, data.species, 0, this.commander.id
-                        )
-                        stmt = delete(Waypoint).where(Waypoint.commander_id == this.commander.id) \
-                            .where(Waypoint.flora_id == data.id) \
-                            .where(Waypoint.type == 'scan')
-                        this.sql_session.execute(stmt)
-                        this.sql_session.commit()
+                    stmt = delete(Waypoint).where(Waypoint.commander_id == this.commander.id) \
+                        .where(Waypoint.type == 'scan').where(Waypoint.flora_id != data.id)
+                    this.sql_session.execute(stmt)
+                    stmt = update(FloraScans).values({'count': 0}).where(FloraScans.commander_id == this.commander.id) \
+                        .where(FloraScans.count < 3).where(FloraScans.flora_id != data.id)
+                    this.sql_session.execute(stmt)
+                    this.sql_session.commit()
                 this.current_scan = entry['Genus']
 
                 if 'Variant' in entry:
@@ -1269,7 +1267,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     :return: Result string. Empty means success.
     """
 
-    if this.migration_failed or this.db_mismatch:
+    if this.migration_failed or this.db_mismatch or not this.system:
         return ''
 
     if 'BodyName' in entry:
@@ -1398,7 +1396,7 @@ def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
                 filter(lambda item: item.type == 'scan' and item.commander_id == this.commander.id, waypoints))
             for waypoint in waypoints:
                 distance_list.append(calc_distance((waypoint.latitude, waypoint.longitude), lat_long))
-            return min(distance_list)
+            return min(distance_list, default=None)
     return None
 
 
