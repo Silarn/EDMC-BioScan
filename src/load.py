@@ -110,6 +110,7 @@ class This:
         self.planet_heading: Optional[int] = None
         self.current_scan: str = ''
         self.system: Optional[System] = None
+        self.edd_replay: bool = False
 
         # EDSM vars
         self.edsm_thread: Optional[threading.Thread] = None
@@ -1082,6 +1083,10 @@ def journal_entry(
     :param state: The EDMC state dictionary object
     :return: Result string. Empty means success.
     """
+    if entry['event'] == 'Harness-Version':
+        this.edd_replay = True
+    if entry['event'] == 'ReplayOver':
+        this.edd_replay = False
 
     if this.migration_failed or this.db_mismatch:
         return ''
@@ -1188,6 +1193,8 @@ def process_data_event(entry: Mapping[str, any]) -> None:
 
         case 'ScanOrganic':
             target_body = None
+            if this.edd_replay:
+                return
             for name, body in this.planets.items():
                 if body.get_id() == entry['Body']:
                     target_body = name
@@ -1236,6 +1243,8 @@ def process_data_event(entry: Mapping[str, any]) -> None:
             update_display()
 
         case 'CodexEntry':
+            if this.edd_replay:
+                return
             if entry['Category'] == '$Codex_Category_Biology;' and 'BodyID' in entry:
                 target_body = None
                 for name, body in this.planets.items():
