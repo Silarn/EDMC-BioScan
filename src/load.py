@@ -1224,10 +1224,6 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                     this.sql_session.commit()
                 this.current_scan = entry['Genus']
 
-                if 'Variant' in entry:
-                    _, _, color = parse_variant(entry['Variant'])
-                    this.planets[target_body].set_flora_color(entry['Genus'], color)
-
                 match scan_level:
                     case 1 | 2:
                         if this.planet_latitude and this.planet_longitude and this.waypoints_enabled.get():
