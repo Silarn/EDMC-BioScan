@@ -1419,7 +1419,7 @@ def get_nearest(genus: str, waypoints: list[Waypoint]) -> str:
         distances: list[tuple[float, float]] = []
         for waypoint in waypoints:
             min_distance = get_distance((waypoint.latitude, waypoint.longitude))
-            if not min_distance or min_distance > bio_genus[genus]['distance']:
+            if min_distance is None or min_distance > bio_genus[genus]['distance']:
                 distance = calc_distance((waypoint.latitude, waypoint.longitude))
                 bearing = calc_bearing((waypoint.latitude, waypoint.longitude))
                 distances.append((distance, bearing))
