@@ -31,7 +31,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.275,
                     'max_temperature': 196.0,
                     'min_temperature': 190.0,
-                    'body_type': ['Rocky body']
+                    'body_type': ['High metal content body']
                 },
                 {
                     'atmosphere': ['Water', 'WaterRich'],
