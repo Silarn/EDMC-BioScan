@@ -1200,6 +1200,7 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                     target_body = name
                     break
 
+            this.current_scan = entry['Genus']
             scan_level = 0
             match entry['ScanType']:
                 case 'Log':
@@ -1222,7 +1223,6 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                         .where(FloraScans.count < 3).where(FloraScans.flora_id != data.id)
                     this.sql_session.execute(stmt)
                     this.sql_session.commit()
-                this.current_scan = entry['Genus']
 
                 match scan_level:
                     case 1 | 2:
