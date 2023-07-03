@@ -1168,6 +1168,9 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                 elif re.match(r'^[A-Z]$', body_short_name) or body_short_name == this.system.name:
                     this.stars[body_short_name] = StarData.from_journal(this.system, body_short_name,
                                                                         entry['BodyID'], this.sql_session)
+                if entry['DistanceFromArrivalLS'] == 0.0:
+                    this.main_star_type = entry['StarType']
+                    this.main_star_luminosity = entry['Luminosity']
                 reset_cache()
                 update_display()
             if 'PlanetClass' in entry and entry['PlanetClass']:
