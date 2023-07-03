@@ -71,7 +71,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 375.0,
                     'min_temperature': 165.0,
                     'body_type': ['Rocky body'],
-                    'main_star': ['A', 'N', 'T']
+                    'main_star': ['A', 'N', 'T', 'B']
                 }
             ],
         },
