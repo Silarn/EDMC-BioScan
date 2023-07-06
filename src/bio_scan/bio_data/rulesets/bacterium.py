@@ -160,8 +160,8 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1689800,
             'rulesets': [
                 {
-                    'min_gravity': 0.039,
-                    'max_gravity': 0.6,
+                    'min_gravity': 0.049,
+                    'max_gravity': 0.605,
                     'max_temperature': 499.0,
                     'min_temperature': 132.0,
                     'atmosphere': ['SulphurDioxide'],
@@ -169,11 +169,19 @@ catalog: dict[str, dict[str, Mapping]] = {
                 },
                 {
                     'min_gravity': 0.039,
-                    'max_gravity': 0.6,
+                    'max_gravity': 0.07,
                     'max_temperature': 452.0,
                     'min_temperature': 392.0,
                     'atmosphere': ['Water'],
-                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body']
+                    'body_type': ['Rocky body', 'High metal content body']
+                },
+                {
+                    'min_gravity': 0.4,
+                    'max_gravity': 0.5,
+                    'max_temperature': 240.0,
+                    'min_temperature': 320.0,
+                    'atmosphere': ['WaterRich'],
+                    'body_type': ['Rocky ice body']
                 }
             ],
         },
