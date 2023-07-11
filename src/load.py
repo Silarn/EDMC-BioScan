@@ -825,8 +825,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             for species in possible_species:
                 if 'star' in bio_genus[genus]['colors']['species'][species]:
                     try:
-                        for star in sorted(body.get_parent_stars(),
-                                           key=lambda item: this.stars[item].get_id()):
+                        for star in body.get_parent_stars():
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
                                 if star_check(star_type, this.stars[star].get_type()):
                                     possible_species[species].add(
@@ -860,7 +859,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         else:
             found_color = ''
             try:
-                for star in sorted(body.get_parent_stars(), key=lambda item: this.stars[item].get_id()):
+                for star in body.get_parent_stars():
                     for star_type in bio_genus[genus]['colors']['star']:
                         log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
                         if star_check(star_type, this.stars[star].get_type()):

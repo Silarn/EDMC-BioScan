@@ -13,7 +13,19 @@ from bio_scan.bio_data.species import rules as bio_types
 def check_codex(commander: int, region: int, genus: str, species: str, variant: str = '') -> bool:
     biological = species
     if variant:
-        if 'colors' in bio_genus[genus]:
+        if species in bio_genus:
+            code = ''
+            color_data = bio_genus[species]['colors']['star']
+            for key, color in color_data.items():  # type: str, str
+                if color == variant:
+                    code = key.capitalize()
+                    break
+            if code:
+                match = re.match('^(.*)_Name;$', species)
+                if match:
+                    biological = f'{match.group(1)}_{code}_Name;'
+
+        elif 'colors' in bio_genus[genus]:
             variant_data = bio_genus[genus]['colors']
             code = ''
             color_data = []

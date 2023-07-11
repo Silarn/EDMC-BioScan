@@ -1,6 +1,13 @@
 from typing import Mapping
 
 catalog: dict[str, dict[str, Mapping]] = {
+    '$Codex_Ent_Stratum_04_Name;': {
+        '$Codex_Ent_Stratum_04_Name;': {
+            'name': 'Stratum Aranaemus',
+            'value': 2448900,
+            'rulesets': []
+        }
+    },
     '$Codex_Ent_Stratum_Genus_Name;': {
         '$Codex_Ent_Stratum_01_Name;': {
             'name': 'Stratum Excutitus',
