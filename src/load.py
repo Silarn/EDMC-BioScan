@@ -1702,7 +1702,7 @@ def update_display() -> None:
         this.total_label['text'] = ''
 
     this.label['text'] = text
-    this.values_label['text'] = detail_text
+    this.values_label['text'] = detail_text.strip()
 
     # if this.show_details.get():
     #     this.scroll_canvas.grid()
