@@ -42,8 +42,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['None'],
                     'min_gravity': 0.17,
                     'max_gravity': 2.52,
-                    'max_temperature': 65.0,
-                    'min_temperature': 800.0,
+                    'max_temperature': 800.0,
+                    'min_temperature': 65.0,
                     'volcanism': 'None',
                     'body_type': ['Icy body', 'Rocky ice body'],
                     'special': ['O', 'WC']
@@ -52,8 +52,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['None'],
                     'min_gravity': 0.17,
                     'max_gravity': 2.52,
-                    'max_temperature': 65.0,
-                    'min_temperature': 800.0,
+                    'max_temperature': 800.0,
+                    'min_temperature': 65.0,
                     'volcanism': ['carbon dioxide geysers'],
                     'body_type': ['Icy body', 'Rocky ice body'],
                     'special': ['O', 'WC']

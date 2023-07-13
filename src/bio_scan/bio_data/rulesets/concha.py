@@ -16,8 +16,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Water', 'WaterRich'],
                     'max_gravity': 0.275,
-                    'max_temperature': 394.0,
-                    'min_temperature': 452.0,
+                    'max_temperature': 452.0,
+                    'min_temperature': 392.0,
                     'body_type': ['Rocky body', 'High metal content body']
                 },
                 {
@@ -69,8 +69,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Nitrogen'],
                     'max_gravity': 0.275,
-                    'max_temperature': 42.0,
-                    'min_temperature': 51.0,
+                    'max_temperature': 51.0,
+                    'min_temperature': 42.0,
                     'body_type': ['Rocky body', 'High metal content body']
                 }
             ],

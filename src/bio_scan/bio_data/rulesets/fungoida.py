@@ -31,7 +31,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.275,
                     'min_gravity': 0.0405,
                     'max_temperature': 452.0,
-                    'min_temperature': 395.0,
+                    'min_temperature': 392.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'regions': ['orion-cygnus']
                 },
@@ -88,8 +88,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Water'],
                     'max_gravity': 0.275,
-                    'max_temperature': 395.0,
-                    'min_temperature': 455.0,
+                    'max_temperature': 452.0,
+                    'min_temperature': 392.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'regions': ['!orion-cygnus-core']
                 }
