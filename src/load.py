@@ -827,15 +827,12 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     try:
                         for star in body.get_parent_stars():
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
+                                log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
                                 if star_check(star_type, this.stars[star].get_type()):
                                     possible_species[species].add(
                                         bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                     break
-                            if possible_species[species]:
-                                break
-                        if possible_species[species]:
-                            continue
-                        for star_name, star_data in sorted(this.stars.items(), key=lambda item: item[1].get_id()):
+                        for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
                             if star_name in body.get_parent_stars():
                                 continue
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
@@ -843,8 +840,6 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                     possible_species[species].add(
                                         bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                     break
-                            if possible_species[species]:
-                                break
                     except KeyError:
                         log('Parent star not in main stars')
                 elif 'element' in bio_genus[genus]['colors']['species'][species]:
@@ -857,34 +852,29 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     eliminated_species.add(species)
                     log('Eliminated for lack of color')
         else:
-            found_color = ''
+            found_colors: set[str] = set()
             try:
                 for star in body.get_parent_stars():
                     for star_type in bio_genus[genus]['colors']['star']:
                         log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
                         if star_check(star_type, this.stars[star].get_type()):
-                            found_color = bio_genus[genus]['colors']['star'][star_type]
+                            found_colors.add(bio_genus[genus]['colors']['star'][star_type])
                             break
-                    if found_color:
-                        break
-                if not found_color:
-                    for star_name, star_data in sorted(this.stars.items(), key=lambda item: item[1].get_id()):
-                        if star_name in body.get_parent_stars():
-                            continue
-                        for star_type in bio_genus[genus]['colors']['star']:
-                            if star_check(star_type, star_data.get_type()):
-                                found_color = bio_genus[genus]['colors']['star'][star_type]
-                                break
-                        if found_color:
+                for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
+                    if star_name in body.get_parent_stars():
+                        continue
+                    for star_type in bio_genus[genus]['colors']['star']:
+                        if star_check(star_type, star_data.get_type()):
+                            found_colors.add(bio_genus[genus]['colors']['star'][star_type])
                             break
             except KeyError:
                 log('Parent star not in main stars')
-            if not found_color:
+            if not found_colors:
                 possible_species.clear()
                 log('Eliminated genus for lack of color')
             else:
                 for species in possible_species:
-                    possible_species[species].add(found_color)
+                    possible_species[species].update(found_colors)
 
     # Species checks are complete. Sort the results.
     final_species: dict[str, list[str]] = {}
