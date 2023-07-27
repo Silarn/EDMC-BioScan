@@ -7,11 +7,22 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 6284600,
             'rulesets': [
                 {
-                    'atmosphere': ['Neon', 'NeonRich', 'Argon', 'ArgonRich'],
+                    'atmosphere': ['Argon', 'ArgonRich'],
                     'min_gravity': 0.025,
                     'max_gravity': 0.275,
+                    'min_temperature': 50.0,
+                    'max_temperature': 150.0,
                     'body_type': ['Icy body'],
-                    'main_star': ['A', 'B', 'N', 'D', 'H']
+                    'parent_star': ['A', 'N', 'D', 'H', 'AeBe']
+                },
+                {
+                    'atmosphere': ['Neon', 'NeonRich'],
+                    'min_gravity': 0.26,
+                    'max_gravity': 0.275,
+                    'min_temperature': 20.0,
+                    'max_temperature': 70.0,
+                    'body_type': ['Icy body'],
+                    'parent_star': ['A', 'N', 'D', 'H', 'AeBe']
                 }
             ],
         },
@@ -20,9 +31,20 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 6284600,
             'rulesets': [
                 {
-                    'atmosphere': ['Neon', 'NeonRich', 'Argon', 'ArgonRich'],
+                    'atmosphere': ['Argon', 'ArgonRich'],
                     'min_gravity': 0.025,
                     'max_gravity': 0.275,
+                    'min_temperature': 50.0,
+                    'max_temperature': 150.0,
+                    'body_type': ['Icy body'],
+                    'nebula': True
+                },
+                {
+                    'atmosphere': ['Neon', 'NeonRich'],
+                    'min_gravity': 0.026,
+                    'max_gravity': 0.275,
+                    'min_temperature': 20.0,
+                    'max_temperature': 70.0,
                     'body_type': ['Icy body'],
                     'nebula': True
                 }

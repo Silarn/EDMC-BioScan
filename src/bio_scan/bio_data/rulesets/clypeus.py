@@ -7,18 +7,31 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 8418000,
             'rulesets': [
                 {
-                    'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
+                    'atmosphere': ['CarbonDioxide'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'max_temperature': 196.0,
                     'min_temperature': 190.0,
-                    'body_type': ['Rocky body']
+                    'max_temperature': 196.0,
+                    'body_type': ['Rocky body'],
+                    'volcanism': 'None'
                 },
                 {
-                    'atmosphere': ['Water', 'WaterRich'],
+                    'atmosphere': ['Water'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'max_temperature': 455.0,
-                    'min_temperature': 390.0,
-                    'body_type': ['Rocky body']
+                    'min_temperature': 392.0,
+                    'max_temperature': 452.0,
+                    'body_type': ['Rocky body'],
+                    'volcanism': 'None'
+                },
+                {
+                    'atmosphere': ['Water'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.275,
+                    'min_temperature': 392.0,
+                    'max_temperature': 452.0,
+                    'body_type': ['Rocky body'],
+                    'volcanism': ['water']
                 }
             ],
         },
@@ -27,18 +40,22 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 11873200,
             'rulesets': [
                 {
-                    'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
+                    'atmosphere': ['CarbonDioxide'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'max_temperature': 196.0,
                     'min_temperature': 190.0,
-                    'body_type': ['High metal content body']
+                    'max_temperature': 196.0,
+                    'body_type': ['High metal content body'],
+                    'volcanism': 'None'
                 },
                 {
-                    'atmosphere': ['Water', 'WaterRich'],
+                    'atmosphere': ['Water'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'max_temperature': 455.0,
-                    'min_temperature': 390.0,
-                    'body_type': ['High metal content body']
+                    'min_temperature': 392.0,
+                    'max_temperature': 452.0,
+                    'body_type': ['High metal content body'],
+                    'volcanism': 'None'
                 }
             ],
         },
@@ -47,20 +64,34 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 16202800,
             'rulesets': [
                 {
-                    'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
+                    'atmosphere': ['CarbonDioxide'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'max_temperature': 196.0,
                     'min_temperature': 190.0,
+                    'max_temperature': 196.0,
                     'body_type': ['Rocky body'],
-                    'distance': 2500.0
+                    'volcanism': 'None',
+                    'distance': 2000.0
                 },
                 {
-                    'atmosphere': ['Water', 'WaterRich'],
+                    'atmosphere': ['Water'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'max_temperature': 455.0,
-                    'min_temperature': 390.0,
+                    'min_temperature': 392.0,
+                    'max_temperature': 452.0,
                     'body_type': ['Rocky body'],
-                    'distance': 2500.0
+                    'volcanism': 'None',
+                    'distance': 2000.0
+                },
+                {
+                    'atmosphere': ['Water'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.275,
+                    'min_temperature': 392.0,
+                    'max_temperature': 452.0,
+                    'body_type': ['Rocky body'],
+                    'volcanism': ['water'],
+                    'distance': 2000.0
                 }
             ],
         },
