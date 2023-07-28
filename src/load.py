@@ -683,6 +683,20 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             log('Eliminated for low heat')
                             eliminated = True
                             stop = True
+                    case 'min_pressure':
+                        if not body.get_pressure():
+                            continue
+                        if body.get_pressure() / 101231.656250 < value:
+                            log('Eliminated for low pressure')
+                            eliminated = True
+                            stop = True
+                    case 'max_pressure':
+                        if not body.get_pressure():
+                            continue
+                        if body.get_pressure() / 101231.656250 >= value:
+                            log('Eliminated for high pressure')
+                            eliminated = True
+                            stop = True
                     case 'volcanism':
                         log(f'Compare {value} to {body.get_volcanism()}')
                         if value == 'Any' and body.get_volcanism() == '':
