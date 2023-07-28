@@ -16,21 +16,23 @@ catalog: dict[str, dict[str, Mapping]] = {
                 },
                 {
                     'atmosphere': ['Oxygen'],
+                    'body_type': ['Icy body'],
                     'min_gravity': 0.23,
                     'max_gravity': 0.275,
                     'min_temperature': 154.0,
                     'max_temperature': 175.0,
-                    'body_type': ['Icy body'],
+                    'min_pressure': 0.01,
                     'volcanism': 'None',
                     'atmosphere_component': {'SulphurDioxide': 1.05}
                 },
                 {
                     'atmosphere': ['Oxygen'],
+                    'body_type': ['Icy body'],
                     'min_gravity': 0.23,
                     'max_gravity': 0.275,
                     'min_temperature': 154.0,
                     'max_temperature': 175.0,
-                    'body_type': ['Icy body'],
+                    'min_pressure': 0.01,
                     'volcanism': ['water'],
                     'atmosphere_component': {'SulphurDioxide': 1.05}
                 },
@@ -50,21 +52,21 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Icy body', 'Rocky ice body', "High metal content body"],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
                     'min_temperature': 150.0,
                     'max_temperature': 195.0,
-                    'body_type': ['Icy body', 'Rocky ice body', "High metal content body"],
                     'volcanism': 'None',
                     'atmosphere_component': {'SulphurDioxide': 1.05}
                 },
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Icy body', 'Rocky ice body', "High metal content body"],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
                     'min_temperature': 150.0,
                     'max_temperature': 195.0,
-                    'body_type': ['Icy body', 'Rocky ice body', "High metal content body"],
                     'volcanism': ['water'],
                     'atmosphere_component': {'SulphurDioxide': 1.05}
                 },
@@ -84,31 +86,33 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Icy body', 'Rocky ice body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
                     'min_temperature': 150.0,
                     'max_temperature': 195.0,
-                    'body_type': ['Icy body', 'Rocky ice body'],
                     'volcanism': 'None',
                     'atmosphere_component': {'SulphurDioxide': 1.05}
                 },
                 {
                     'atmosphere': ['Oxygen'],
+                    'body_type': ['Icy body'],
                     'min_gravity': 0.23,
                     'max_gravity': 0.275,
                     'min_temperature': 154.0,
                     'max_temperature': 160.0,
-                    'body_type': ['Icy body'],
+                    'min_pressure': 0.01,
                     'volcanism': 'None',
                     'atmosphere_component': {'SulphurDioxide': 1.05}
                 },
                 {
                     'atmosphere': ['Oxygen'],
+                    'body_type': ['Icy body'],
                     'min_gravity': 0.23,
                     'max_gravity': 0.275,
                     'min_temperature': 154.0,
                     'max_temperature': 160.0,
-                    'body_type': ['Icy body'],
+                    'min_pressure': 0.01,
                     'volcanism': ['water'],
                     'atmosphere_component': {'SulphurDioxide': 1.05}
                 },

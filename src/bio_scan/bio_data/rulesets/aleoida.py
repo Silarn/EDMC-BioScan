@@ -12,6 +12,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.275,
                     'min_temperature': 175.0,
                     'max_temperature': 180.0,
+                    'min_pressure': 0.0164,
                     'body_type': ['Rocky body', 'High metal content body'],
                     'volcanism': 'None'
                 }
@@ -27,6 +28,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.275,
                     'min_temperature': 180.0,
                     'max_temperature': 190.0,
+                    'min_pressure': 0.025,
                     'body_type': ['Rocky body', 'High metal content body'],
                     'volcanism': 'None'
                 }
@@ -42,6 +44,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.275,
                     'min_temperature': 170.0,
                     'max_temperature': 177.0,
+                    'max_pressure': 0.0135,
                     'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['outer', 'perseus', 'scutum-centaurus']
                 }
@@ -57,7 +60,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.275,
                     'min_temperature': 152.0,
                     'max_temperature': 177.0,
-                    'max_pressure': 0.013,
+                    'max_pressure': 0.0135,
                     'body_type': ['Rocky body', 'High metal content body'],
                     'regions': ['orion-cygnus', 'sagittarius-carina']
                 }
@@ -68,11 +71,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 12934900,
             'rulesets': [
                 {
-                    'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
+                    'atmosphere': ['CarbonDioxide'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
                     'min_temperature': 190.0,
                     'max_temperature': 196.0,
+                    'min_pressure': 0.054,
                     'body_type': ['Rocky body', 'High metal content body'],
                     'volcanism': 'None'
                 }
