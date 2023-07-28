@@ -7,11 +7,13 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 4027800,
             'rulesets': [
                 {
-                    'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
-                    'max_gravity': 0.275,
-                    'max_temperature': 190.0,
+                    'atmosphere': ['CarbonDioxide'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.271,
                     'min_temperature': 180.0,
+                    'max_temperature': 190.0,
                     'body_type': ['Rocky body', 'High metal content body'],
+                    'volcanism': 'None',
                     'regions': ['!perseus']
                 }
             ],
@@ -21,15 +23,39 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 12934900,
             'rulesets': [
                 {
-                    'atmosphere': ['Ammonia', 'Argon', 'Methane'],
-                    'volcanism': 'Any',
-                    'max_gravity': 0.275,
-                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body']
+                    'atmosphere': ['Ammonia'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.088,
+                    'min_temperature': 161.0,
+                    'max_temperature': 177.0,
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                    'volcanism': 'Any'
                 },
                 {
-                    'atmosphere': ['Water', 'WaterRich'],
+                    'atmosphere': ['Argon'],
+                    'min_gravity': 0.2,
                     'max_gravity': 0.275,
-                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                    'min_temperature': 65.0,
+                    'max_temperature': 120.0,
+                    'body_type': ['Rocky ice body'],
+                    'volcanism': 'Any'
+                },
+                {
+                    'atmosphere': ['Methane'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.127,
+                    'min_temperature': 80.0,
+                    'max_temperature': 110.0,
+                    'body_type': ['Rocky body'],
+                    'volcanism': 'Any'
+                },
+                {
+                    'atmosphere': ['Water'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.055,
+                    'min_temperature': 391.0,
+                    'max_temperature': 452.0,
+                    'body_type': ['Rocky body', 'High metal content body'],
                 }
             ],
         },
@@ -39,8 +65,11 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Ammonia'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_temperature': 160.0,
+                    'max_temperature': 177.0,
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                 }
             ],
         },
@@ -49,9 +78,39 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 3156300,
             'rulesets': [
                 {
-                    'atmosphere': ['Argon', 'ArgonRich', 'Methane', 'MethaneRich', 'Nitrogen'],
+                    'atmosphere': ['Argon'],
+                    'min_gravity': 0.059,
                     'max_gravity': 0.275,
+                    'min_temperature': 50.0,
+                    'max_temperature': 140.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                    'volcanism': 'None',
+                },
+                {
+                    'atmosphere': ['ArgonRich'],
+                    'min_gravity': 0.035,
+                    'max_gravity': 0.1,
+                    'min_temperature': 60.0,
+                    'max_temperature': 80.0,
+                    'body_type': ['Rocky ice body'],
+                    'volcanism': 'None',
+                },
+                {
+                    'atmosphere': ['Methane'],
+                    'min_gravity': 0.033,
+                    'max_gravity': 0.275,
+                    'min_temperature': 67.0,
+                    'max_temperature': 109.0,
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                },
+                {
+                    'atmosphere': ['Nitrogen'],
+                    'min_gravity': 0.05,
+                    'max_gravity': 0.275,
+                    'min_temperature': 42.0,
+                    'max_temperature': 70.0,
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                    'volcanism': 'None',
                 }
             ],
         },
@@ -60,11 +119,13 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1483000,
             'rulesets': [
                 {
-                    'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
+                    'atmosphere': ['CarbonDioxide'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'max_temperature': 196.0,
                     'min_temperature': 180.0,
+                    'max_temperature': 196.0,
                     'body_type': ['Rocky body', 'High metal content body'],
+                    'volcanism': 'None',
                     'regions': ['perseus']
                 }
             ],
@@ -74,11 +135,13 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 9739000,
             'rulesets': [
                 {
-                    'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
-                    'max_gravity': 0.275,
+                    'atmosphere': ['CarbonDioxide'],
+                    'min_gravity': 0.058,
+                    'max_gravity': 0.1,
+                    'min_temperature': 191.0,
                     'max_temperature': 196.0,
-                    'min_temperature': 190.0,
                     'body_type': ['Rocky body', 'High metal content body'],
+                    'volcanism': 'None',
                     'regions': ['!perseus']
                 }
             ],

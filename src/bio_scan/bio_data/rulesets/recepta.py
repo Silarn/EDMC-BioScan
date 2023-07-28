@@ -7,28 +7,40 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 12934900,
             'rulesets': [
                 {
-                    'atmosphere': ['SulphurDioxide'],
-                    'atmosphere_component': {'SulphurDioxide': 1.05},
-                    'max_gravity': 0.275,
-                    'min_gravity': 0.043,
-                    'min_temperature': 132.0,
-                    'max_temperature': 272.0
-                },
-                {
                     'atmosphere': ['CarbonDioxide'],
-                    'atmosphere_component': {'SulphurDioxide': 1.05},
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'min_gravity': 0.043,
                     'min_temperature': 151.0,
-                    'max_temperature': 195.0
+                    'max_temperature': 200.0,
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
                 },
                 {
                     'atmosphere': ['Oxygen'],
-                    'atmosphere_component': {'SulphurDioxide': 1.05},
+                    'min_gravity': 0.23,
                     'max_gravity': 0.275,
-                    'min_gravity': 0.043,
-                    'min_temperature': 151.0,
-                    'max_temperature': 175.0
+                    'min_temperature': 154.0,
+                    'max_temperature': 175.0,
+                    'body_type': ['Icy body'],
+                    'volcanism': 'None',
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
+                },
+                {
+                    'atmosphere': ['Oxygen'],
+                    'min_gravity': 0.23,
+                    'max_gravity': 0.275,
+                    'min_temperature': 154.0,
+                    'max_temperature': 175.0,
+                    'body_type': ['Icy body'],
+                    'volcanism': ['water'],
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
+                },
+                {
+                    'atmosphere': ['SulphurDioxide'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.275,
+                    'min_temperature': 132.0,
+                    'max_temperature': 273.0,
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
                 }
             ],
         },
@@ -37,10 +49,32 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 16202800,
             'rulesets': [
                 {
-                    'atmosphere': ['SulphurDioxide', 'Oxygen', 'CarbonDioxide'],
-                    'atmosphere_component': {'SulphurDioxide': 1.05},
+                    'atmosphere': ['CarbonDioxide'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'min_gravity': 0.043
+                    'min_temperature': 150.0,
+                    'max_temperature': 195.0,
+                    'body_type': ['Icy body', 'Rocky ice body', "High metal content body"],
+                    'volcanism': 'None',
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
+                },
+                {
+                    'atmosphere': ['CarbonDioxide'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.275,
+                    'min_temperature': 150.0,
+                    'max_temperature': 195.0,
+                    'body_type': ['Icy body', 'Rocky ice body', "High metal content body"],
+                    'volcanism': ['water'],
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
+                },
+                {
+                    'atmosphere': ['SulphurDioxide'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.275,
+                    'min_temperature': 132.0,
+                    'max_temperature': 272.0,
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
                 }
             ],
         },
@@ -49,11 +83,42 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 14313700,
             'rulesets': [
                 {
-                    'atmosphere': ['SulphurDioxide', 'Oxygen', 'CarbonDioxide'],
-                    'atmosphere_component': {'SulphurDioxide': 1.05},
+                    'atmosphere': ['CarbonDioxide'],
+                    'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'min_gravity': 0.043,
-                    'body_type': ['Icy body', 'Rocky ice body']
+                    'min_temperature': 150.0,
+                    'max_temperature': 195.0,
+                    'body_type': ['Icy body', 'Rocky ice body'],
+                    'volcanism': 'None',
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
+                },
+                {
+                    'atmosphere': ['Oxygen'],
+                    'min_gravity': 0.23,
+                    'max_gravity': 0.275,
+                    'min_temperature': 154.0,
+                    'max_temperature': 160.0,
+                    'body_type': ['Icy body'],
+                    'volcanism': 'None',
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
+                },
+                {
+                    'atmosphere': ['Oxygen'],
+                    'min_gravity': 0.23,
+                    'max_gravity': 0.275,
+                    'min_temperature': 154.0,
+                    'max_temperature': 160.0,
+                    'body_type': ['Icy body'],
+                    'volcanism': ['water'],
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
+                },
+                {
+                    'atmosphere': ['SulphurDioxide'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.275,
+                    'min_temperature': 132.0,
+                    'max_temperature': 272.0,
+                    'atmosphere_component': {'SulphurDioxide': 1.05}
                 }
             ],
         },
