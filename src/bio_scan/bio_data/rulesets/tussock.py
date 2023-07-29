@@ -8,11 +8,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.09,
                     'min_temperature': 146.0,
                     'max_temperature': 154.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.00289,
                     'volcanism': 'None',
                     'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
                 }
@@ -24,11 +25,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.13,
                     'min_temperature': 155.0,
                     'max_temperature': 160.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.00289,
                     'volcanism': 'None',
                     'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
                 }
@@ -40,11 +42,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.2,
                     'min_temperature': 161.0,
                     'max_temperature': 170.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.00289,
                     'volcanism': 'None',
                     'regions': ['sagittarius-carina', 'perseus']
                 }
@@ -56,11 +59,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Ammonia'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
                     'min_temperature': 152.0,
                     'max_temperature': 177.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'max_pressure': 0.0135,
                     'regions': ['orion-cygnus']
                 }
             ],
@@ -71,11 +75,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Ammonia'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
                     'min_temperature': 152.0,
                     'max_temperature': 177.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'max_pressure': 0.0135,
                     'regions': ['scutum-centaurus-core']
                 }
             ],
@@ -86,11 +91,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
                     'min_temperature': 147.0,
                     'max_temperature': 196.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.00289,
                     'volcanism': 'None',
                     'regions': ['outer']
                 }
@@ -102,11 +108,13 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.042,
                     'max_gravity': 0.23,
                     'min_temperature': 171.0,
                     'max_temperature': 174.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.01,
+                    'max_pressure': 0.071,
                     'volcanism': 'None',
                     'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
                 }
@@ -118,11 +126,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.042,
                     'max_gravity': 0.275,
                     'min_temperature': 175.0,
                     'max_temperature': 180.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.016,
                     'volcanism': 'None',
                     'regions': ['sagittarius-carina', 'perseus']
                 }
@@ -134,11 +143,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
                     'min_temperature': 145.0,
                     'max_temperature': 197.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.00289,
                     'volcanism': 'None',
                     'regions': ['scutum-centaurus']
                 }
@@ -150,11 +160,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Ammonia'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.042,
                     'max_gravity': 0.275,
                     'min_temperature': 152.0,
                     'max_temperature': 177.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'max_pressure': 0.0135,
                     'regions': ['perseus']
                 }
             ],
@@ -165,11 +176,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.041,
                     'max_gravity': 0.27,
                     'min_temperature': 181.0,
                     'max_temperature': 190.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.0275,
                     'volcanism': 'None',
                     'regions': ['sagittarius-carina', 'perseus']
                 }
@@ -181,11 +193,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
                     'min_temperature': 191.0,
                     'max_temperature': 196.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.058,
                     'volcanism': 'None',
                     'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
                 }
@@ -197,11 +210,12 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['SulphurDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.042,
                     'max_gravity': 0.275,
                     'min_temperature': 132.0,
                     'max_temperature': 167.0,
-                    'body_type': ['Rocky body', 'High metal content body']
+                    'max_pressure': 0.01
                 }
             ],
         },
@@ -211,20 +225,22 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Water'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.065,
                     'min_temperature': 392.0,
                     'max_temperature': 450.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.052,
                     'volcanism': 'None',
                 },
                 {
                     'atmosphere': ['Water'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.065,
                     'min_temperature': 392.0,
                     'max_temperature': 450.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_pressure': 0.052,
                     'volcanism': ['water'],
                 }
             ],
