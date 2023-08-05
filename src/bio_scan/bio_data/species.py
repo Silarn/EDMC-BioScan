@@ -26,6 +26,7 @@ _mound_shard_amphora: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
+                    'volcanism': 'Any',
                     'special': 'nebula'
                 }
             ]
