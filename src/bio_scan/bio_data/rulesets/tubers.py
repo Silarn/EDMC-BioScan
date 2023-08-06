@@ -8,9 +8,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'volcanism': 'Any',
                     'regions': ['core']
                 }
             ],
@@ -21,9 +22,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                    'volcanism': 'Any',
                     'regions': ['core']
                 }
             ],
@@ -34,9 +36,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'volcanism': 'Any',
                     'regions': ['core']
                 }
             ],
@@ -47,9 +50,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'body_type': ['Rocky body'],
+                    'volcanism': 'Any',
                     'regions': ['core']
                 }
             ],
@@ -60,9 +64,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'volcanism': 'Any',
                     'regions': ['core']
                 }
             ],
@@ -73,9 +78,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'volcanism': 'Any',
                     'regions': ['core']
                 }
             ],
@@ -86,9 +92,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'volcanism': 'Any',
                     'regions': ['core']
                 }
             ],
@@ -99,9 +106,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['None'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'max_temperature': 500.0,
                     'min_temperature': 200.0,
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'volcanism': 'Any',
                     'regions': ['core']
                 }
             ],
