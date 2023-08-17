@@ -8,8 +8,9 @@ Market Connector][EDMC] for backend journal processing and display.
 ## Core Functionality and Comparison
 
 The core functionality of BioScan is to provide the best possible estimates for which species will be present on a
-planet, much like the [Observatory] [BioInsights] plugin. BioInsights may be slightly more accurate under specific edge
-cases, but the results are extremely similar.
+planet, much like the [Observatory] [BioInsights] plugin. With the latest updates, BioScan can be slightly more accurate
+at ruling out certain bios with overlapping criteria. In a few edge cases, BioInsights may be slightly more accurate.
+Determining region boundaries and proximity to nebulae can be hard.
 
 There are a few key differences between each. BioScan is intended to be used as an active tool with a compact
 interface which could be potentially overlaid onto the game. It also presents key information to help you navigate and
@@ -123,9 +124,8 @@ have to manually look up signals if that data was not previously logged.
 
 Conversion of system coordinates to regions thanks to klightspeed's [EliteDangerousRegionMap].
 
-Species calculations are based on various sources, primarily the 
-[Deep Space Network] and the
-[Codex NSP and Bio requirements spreadsheet][Bio req spreadsheet].
+Species calculations are based on various sources, primarily the [Deep Space Network], the
+[Codex NSP and Bio requirements spreadsheet][Bio req spreadsheet], and the [Canonn Biosheet].
 
 Nebula locations pulled from the [Catalog of Galactic Nebulae] (thanks marx and contributors)
 
@@ -148,6 +148,7 @@ Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 [EDSM]: https://www.edsm.net/
 [Deep Space Network]: https://ed-dsn.net/
 [Bio req spreadsheet]: https://docs.google.com/spreadsheets/d/1nV_UD_0kIxkWAHhAqvf62ILHpbYzdZpJ53CqPHn3qlA/
+[Canonn Biosheet]: https://canonn.fyi/biosheet
 [EliteDangerousRegionMap]: https://github.com/klightspeed/EliteDangerousRegionMap/
 [Catalog of Galactic Nebulae]: https://forums.frontier.co.uk/threads/catalogue-of-galactic-nebulae-submit-your-planetary-nebulae.511743/
 [BioScan]: https://github.com/Silarn/EDMC-BioScan
