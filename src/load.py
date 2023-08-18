@@ -35,6 +35,14 @@ from bio_scan.format_util import Formatter
 from sqlalchemy import select, delete, update
 from sqlalchemy.orm import Session
 
+from ExploData.explo_data import db
+from ExploData.explo_data.db import Commander, PlanetFlora, FloraScans, Waypoint, System, Metadata
+from ExploData.explo_data.body_data.struct import PlanetData, StarData, load_planets, load_stars, get_main_star
+from ExploData.explo_data.bio_data.codex import parse_variant
+from ExploData.explo_data.bio_data.genus import data as bio_genus
+import ExploData.explo_data.journal_parse
+from ExploData.explo_data.journal_parse import parse_journals, register_journal_callbacks, register_event_callbacks
+
 # EDMC imports
 from config import config
 from theme import theme
@@ -42,20 +50,9 @@ from EDMCLogging import get_plugin_logger
 import myNotebook as nb
 from ttkHyperlinkLabel import HyperlinkLabel
 
-explodata_missing = False
-try:
-    from ExploData.explo_data import db
-    from ExploData.explo_data.db import Commander, PlanetFlora, FloraScans, Waypoint, System, Metadata
-    from ExploData.explo_data.body_data.struct import PlanetData, StarData, load_planets, load_stars, get_main_star
-    from ExploData.explo_data.bio_data.codex import parse_variant
-    from ExploData.explo_data.bio_data.genus import data as bio_genus
-    import ExploData.explo_data.journal_parse
-    from ExploData.explo_data.journal_parse import parse_journals, register_journal_callbacks, register_event_callbacks
-    # 3rd Party
-    from ExploData.explo_data.RegionMap import findRegion
-    from ExploData.explo_data.RegionMapData import regions as galaxy_regions
-except ImportError:
-    explodata_missing = True
+# 3rd Party
+from ExploData.explo_data.RegionMap import findRegion
+from ExploData.explo_data.RegionMapData import regions as galaxy_regions
 
 
 class This:
@@ -135,16 +132,15 @@ def plugin_start3(plugin_dir: str) -> str:
     :return: The plugin's canonical name
     """
 
-    if not explodata_missing:
-        this.migration_failed = db.init()
-        if not this.migration_failed:
-            this.sql_session = Session(db.get_engine())
-            db_version: Metadata = this.sql_session.scalar(select(Metadata).where(Metadata.key == 'version'))
-            if db_version.value.isdigit() and int(db_version.value) > bio_scan.const.db_version:
-                this.db_mismatch = True
+    this.migration_failed = db.init()
+    if not this.migration_failed:
+        this.sql_session = Session(db.get_engine())
+        db_version: Metadata = this.sql_session.scalar(select(Metadata).where(Metadata.key == 'version'))
+        if db_version.value.isdigit() and int(db_version.value) > bio_scan.const.db_version:
+            this.db_mismatch = True
 
-            if not this.db_mismatch:
-                register_event_callbacks({'Scan', 'FSSBodySignals', 'SAASignalsFound', 'ScanOrganic', 'CodexEntry'}, process_data_event)
+        if not this.db_mismatch:
+            register_event_callbacks({'Scan', 'FSSBodySignals', 'SAASignalsFound', 'ScanOrganic', 'CodexEntry'}, process_data_event)
     return this.NAME
 
 
@@ -159,20 +155,14 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
 
     this.frame = tk.Frame(parent)
     this.frame.grid_columnconfigure(0, weight=1)
-    if explodata_missing:
-        this.label = tk.Label(this.frame, text='BioScan: ExploData Not Installed')
-        this.label.grid(row=0, sticky=tk.EW)
-        this.update_button = HyperlinkLabel(this.frame, text='Install the Latest ExploData',
-                                            url='https://github.com/Silarn/EDMC-BioScan/releases/latest')
-        this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
-    elif this.migration_failed:
+    if this.migration_failed:
         this.label = tk.Label(this.frame, text='BioScan: DB Migration Failed')
         this.label.grid(row=0, sticky=tk.EW)
         this.update_button = HyperlinkLabel(this.frame, text='Please Check or Submit an Issue',
                                             url='https://github.com/Silarn/EDMC-BioScan/issues')
         this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     elif this.db_mismatch:
-        this.label = tk.Label(this.frame, text='BioScan: Database Version Mismatch')
+        this.label = tk.Label(this.frame, text='BioScan: Database Mismatch')
         this.label.grid(row=0, sticky=tk.EW)
         this.update_button = HyperlinkLabel(this.frame, text='You May Need to Update',
                                             url='https://github.com/Silarn/EDMC-BioScan/releases/latest')
@@ -1127,7 +1117,7 @@ def journal_entry(
     if entry['event'] == 'ReplayOver':
         this.edd_replay = False
 
-    if this.migration_failed or this.db_mismatch or explodata_missing:
+    if this.migration_failed or this.db_mismatch:
         return ''
 
     system_changed = False
@@ -1314,7 +1304,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     :return: Result string. Empty means success.
     """
 
-    if this.migration_failed or this.db_mismatch or not this.system or explodata_missing:
+    if this.migration_failed or this.db_mismatch or not this.system:
         return ''
 
     if 'BodyName' in entry:
