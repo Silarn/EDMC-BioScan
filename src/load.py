@@ -867,12 +867,16 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             for species in possible_species:
                 if 'star' in bio_genus[genus]['colors']['species'][species]:
                     try:
+                        found = False
                         for star in body.get_parent_stars():
+                            if found:
+                                break
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
                                 log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
                                 if star_check(star_type, this.stars[star].get_type()):
                                     possible_species[species].add(
                                         bio_genus[genus]['colors']['species'][species]['star'][star_type])
+                                    found = True
                                     break
                         for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
                             if star_name in body.get_parent_stars():
@@ -896,11 +900,15 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         else:
             found_colors: set[str] = set()
             try:
+                found = False
                 for star in body.get_parent_stars():
+                    if found:
+                        break
                     for star_type in bio_genus[genus]['colors']['star']:
                         log('Checking star type %s against %s' % (star_type, this.stars[star].get_type()))
                         if star_check(star_type, this.stars[star].get_type()):
                             found_colors.add(bio_genus[genus]['colors']['star'][star_type])
+                            found = True
                             break
                 for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
                     if star_name in body.get_parent_stars():
