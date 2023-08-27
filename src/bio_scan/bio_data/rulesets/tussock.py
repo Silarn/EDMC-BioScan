@@ -228,9 +228,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.065,
-                    'min_temperature': 392.0,
-                    'max_temperature': 450.0,
-                    'min_pressure': 0.052,
                     'volcanism': 'None',
                 },
                 {
@@ -238,9 +235,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.065,
-                    'min_temperature': 392.0,
-                    'max_temperature': 450.0,
-                    'min_pressure': 0.052,
                     'volcanism': ['water'],
                 }
             ],

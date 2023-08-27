@@ -21,9 +21,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'min_temperature': 392.0,
-                    'max_temperature': 452.0,
-                    'min_pressure': 0.054,
                     'volcanism': 'None'
                 },
                 {
@@ -31,9 +28,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'min_temperature': 392.0,
-                    'max_temperature': 452.0,
-                    'min_pressure': 0.054,
                     'volcanism': ['water']
                 }
             ],
@@ -57,9 +51,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'min_temperature': 392.0,
-                    'max_temperature': 452.0,
-                    'min_pressure': 0.054,
                     'volcanism': 'None'
                 }
             ],
@@ -83,9 +74,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Water'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'min_temperature': 392.0,
-                    'max_temperature': 452.0,
-                    'min_pressure': 0.055,
                     'body_type': ['Rocky body'],
                     'volcanism': 'None',
                     'distance': 2000.0
@@ -94,9 +82,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Water'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.275,
-                    'min_temperature': 392.0,
-                    'max_temperature': 452.0,
-                    'min_pressure': 0.055,
                     'body_type': ['Rocky body'],
                     'volcanism': ['water'],
                     'distance': 2000.0

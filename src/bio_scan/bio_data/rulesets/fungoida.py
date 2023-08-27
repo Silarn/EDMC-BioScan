@@ -68,9 +68,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.041,
                     'max_gravity': 0.063,
-                    'min_temperature': 392.0,
-                    'max_temperature': 452.0,
-                    'min_pressure': 0.05,
                     'volcanism': 'None',
                     'regions': ['orion-cygnus']
                 }
@@ -142,9 +139,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.039,
                     'max_gravity': 0.063,
-                    'min_temperature': 392.0,
-                    'max_temperature': 452.0,
-                    'min_pressure': 0.05,
                     'volcanism': 'None',
                     'regions': ['!orion-cygnus-core']
                 }

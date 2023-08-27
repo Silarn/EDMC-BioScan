@@ -248,9 +248,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Water'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.06,
-                    'min_temperature': 406.0,
-                    'max_temperature': 450.0,
-                    'min_pressure': 0.06,
                     'body_type': ['Rocky body'],
                     'volcanism': ['water']
                 }
