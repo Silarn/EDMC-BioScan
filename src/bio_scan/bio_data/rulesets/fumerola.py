@@ -75,7 +75,7 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Ammonia'],
-                    'body_type': ['Rock body', 'Rocky ice body', 'High metal content body'],
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.09,
                     'min_temperature': 161.0,
@@ -85,7 +85,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 },
                 {
                     'atmosphere': ['Argon'],
-                    'body_type': ['Rock body', 'Rocky ice body', 'High metal content body'],
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.07,
                     'max_gravity': 0.275,
                     'min_temperature': 50.0,
@@ -94,7 +94,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 },
                 {
                     'atmosphere': ['Methane'],
-                    'body_type': ['Rock body', 'Rocky ice body', 'High metal content body'],
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.127,
                     'min_temperature': 77.0,
@@ -104,7 +104,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 },
                 {
                     'atmosphere': ['SulphurDioxide'],
-                    'body_type': ['Rock body', 'Rocky ice body'],
+                    'body_type': ['Rocky body', 'Rocky ice body'],
                     'min_gravity': 0.07,
                     'max_gravity': 0.275,
                     'min_temperature': 54.0,
@@ -237,18 +237,18 @@ catalog: dict[str, dict[str, Mapping]] = {
                 },
                 {
                     'atmosphere': ['SulphurDioxide'],
+                    'body_type': ['Icy body', 'Rocky ice body', 'Rocky body'],
                     'min_gravity': 0.18,
                     'max_gravity': 0.275,
                     'min_temperature': 150.0,
                     'max_temperature': 270.0,
-                    'body_type': ['Icy body', 'Rocky ice body', 'Rocky body'],
                     'volcanism': ['water']
                 },
                 {
                     'atmosphere': ['Water'],
+                    'body_type': ['Rocky body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.06,
-                    'body_type': ['Rocky body'],
                     'volcanism': ['water']
                 }
             ],
