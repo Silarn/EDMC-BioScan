@@ -15,7 +15,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 154.0,
                     'min_pressure': 0.00289,
                     'volcanism': 'None',
-                    'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
+                    'regions': ['sagittarius-carina-core-9', 'perseus-core', 'orion-cygnus-core']
                 }
             ],
         },
@@ -32,7 +32,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 160.0,
                     'min_pressure': 0.00289,
                     'volcanism': 'None',
-                    'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
+                    'regions': ['sagittarius-carina-core-9', 'perseus-core', 'orion-cygnus-core']
                 }
             ],
         },
@@ -49,7 +49,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 170.0,
                     'min_pressure': 0.00289,
                     'volcanism': 'None',
-                    'regions': ['sagittarius-carina', 'perseus']
+                    'regions': ['sagittarius-carina-core-9', 'perseus-core', 'orion-cygnus-core']
                 }
             ],
         },
@@ -116,7 +116,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_pressure': 0.01,
                     'max_pressure': 0.071,
                     'volcanism': 'None',
-                    'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
+                    'regions': ['sagittarius-carina-core-9', 'perseus-core', 'orion-cygnus-core']
                 }
             ],
         },
@@ -133,7 +133,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 180.0,
                     'min_pressure': 0.016,
                     'volcanism': 'None',
-                    'regions': ['sagittarius-carina', 'perseus']
+                    'regions': ['sagittarius-carina-core-9', 'perseus-core', 'orion-cygnus-core']
                 }
             ],
         },
@@ -183,7 +183,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 190.0,
                     'min_pressure': 0.0275,
                     'volcanism': 'None',
-                    'regions': ['sagittarius-carina', 'perseus']
+                    'regions': ['sagittarius-carina-core-9', 'perseus-core', 'orion-cygnus-core']
                 }
             ],
         },
@@ -200,7 +200,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 196.0,
                     'min_pressure': 0.058,
                     'volcanism': 'None',
-                    'regions': ['sagittarius-carina-core', 'orion-cygnus-1', 'perseus-core']
+                    'regions': ['sagittarius-carina-core-9', 'perseus-core', 'orion-cygnus-core']
                 }
             ],
         },
