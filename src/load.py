@@ -20,6 +20,7 @@ from tkinter import ttk
 
 # Local imports
 import bio_scan.const
+import bio_scan.overlay as overlay
 from bio_scan.nebula_data.reference_stars import get_nearest_nebula
 from bio_scan.nebula_data.sectors import data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
@@ -416,6 +417,9 @@ def plugin_stop() -> None:
     if this.edsm_thread and this.edsm_thread.is_alive():
         this.edsm_thread.join()
         this.journal_stop = True
+
+    if overlay.overlay_enabled():
+        overlay.disconnect()
 
 
 def journal_start(event: tk.Event) -> None:
@@ -1733,6 +1737,11 @@ def update_display() -> None:
 
     this.label['text'] = text
     this.values_label['text'] = detail_text.strip()
+
+    if overlay.overlay_enabled():
+        overlay.display("bioscan_title", "BioScan Details")
+        overlay.display("bioscan_details", detail_text, y=8+20)
+        overlay.display("bioscan_summary", text, x=300, size="large")
 
     # if this.show_details.get():
     #     this.scroll_canvas.grid()
