@@ -16,6 +16,7 @@ import math
 
 # TKinter imports
 import tkinter as tk
+from tkinter import colorchooser as tkColorChooser  # type: ignore # noqa: N812
 from tkinter import ttk
 
 # Local imports
@@ -66,36 +67,42 @@ class This:
         self.NAME = bio_scan.const.name
 
         # Settings vars
-        self.focus_setting: Optional[tk.StringVar] = None
-        self.signal_setting: Optional[tk.StringVar] = None
-        self.focus_breakdown: Optional[tk.BooleanVar] = None
-        self.scan_display_mode: Optional[tk.StringVar] = None
-        self.waypoints_enabled: Optional[tk.BooleanVar] = None
-        self.debug_logging_enabled: Optional[tk.BooleanVar] = None
-        self.focus_distance: Optional[tk.IntVar] = None
+        self.focus_setting: tk.StringVar | None = None
+        self.signal_setting: tk.StringVar | None = None
+        self.focus_breakdown: tk.BooleanVar | None = None
+        self.scan_display_mode: tk.StringVar | None = None
+        self.waypoints_enabled: tk.BooleanVar | None = None
+        self.debug_logging_enabled: tk.BooleanVar | None = None
+        self.focus_distance: tk.IntVar | None = None
+        self.use_overlay: tk.BooleanVar | None = None
+        self.overlay_color: tk.StringVar | None = None
+
+        # Settings objects
+        self.overlay_color_button: nb.ColoredButton | None = None
 
         # GUI Objects
-        self.frame: Optional[tk.Frame] = None
-        self.scroll_canvas: Optional[tk.Canvas] = None
-        self.scrollbar: Optional[ttk.Scrollbar] = None
-        self.scrollable_frame: Optional[ttk.Frame] = None
-        self.label: Optional[tk.Label] = None
-        self.values_label: Optional[tk.Label] = None
-        self.total_label: Optional[tk.Label] = None
-        self.edsm_button: Optional[tk.Label] = None
-        self.edsm_failed: Optional[tk.Label] = None
-        self.update_button: Optional[HyperlinkLabel] = None
-        self.journal_label: Optional[tk.Label] = None
+        self.parent: tk.Frame | None = None
+        self.frame: tk.Frame | None = None
+        self.scroll_canvas: tk.Canvas | None = None
+        self.scrollbar: ttk.Scrollbar | None = None
+        self.scrollable_frame: ttk.Frame | None = None
+        self.label: tk.Label | None = None
+        self.values_label: tk.Label | None = None
+        self.total_label: tk.Label | None = None
+        self.edsm_button: tk.Label | None = None
+        self.edsm_failed: tk.Label | None = None
+        self.update_button: HyperlinkLabel | None = None
+        self.journal_label: tk.Label | None = None
 
         # Plugin state data
-        self.commander: Optional[Commander] = None
+        self.commander: Commander | None = None
         self.planets: dict[str, PlanetData] = {}
         self.stars: dict[str, StarData] = {}
         self.planet_cache: dict[
             str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
         self.migration_failed: bool = False
         self.db_mismatch: bool = False
-        self.sql_session: Optional[Session] = None
+        self.sql_session: Session | None = None
 
         # self.odyssey: bool = False
         # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
@@ -105,18 +112,18 @@ class This:
         self.location_id: str = ''
         self.location_state: str = ''
         self.planet_radius: float = 0.0
-        self.planet_latitude: Optional[float] = None
-        self.planet_longitude: Optional[float] = None
+        self.planet_latitude: float | None = None
+        self.planet_longitude: float | None = None
         self.planet_altitude: float = 10000.0
-        self.planet_heading: Optional[int] = None
+        self.planet_heading: int | None = None
         self.current_scan: str = ''
-        self.system: Optional[System] = None
+        self.system: System | None = None
         self.edd_replay: bool = False
 
         # EDSM vars
-        self.edsm_thread: Optional[threading.Thread] = None
-        self.edsm_session: Optional[str] = None
-        self.edsm_bodies: Optional[Mapping] = None
+        self.edsm_thread: threading.Thread | None = None
+        self.edsm_session: str | None = None
+        self.edsm_bodies: Mapping | None = None
         self.fetched_edsm = False
 
 
@@ -154,6 +161,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     :return: Plugin's main TKinter frame
     """
 
+    this.parent = parent
     this.frame = tk.Frame(parent)
     this.frame.grid_columnconfigure(0, weight=1)
     if this.migration_failed:
@@ -221,6 +229,18 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     :return: Plugin settings tab TKinter frame
     """
 
+    color_button = None
+
+    def color_chooser() -> None:
+        (_, color) = tkColorChooser.askcolor(
+            this.overlay_color.get(), title='Overlay Color', parent=this.parent
+        )
+
+        if color:
+            this.overlay_color.set(color)
+            if color_button is not None:
+                color_button['foreground'] = color
+
     x_padding = 10
     x_button_padding = 12
     y_padding = 2
@@ -249,6 +269,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
 
     ttk.Separator(frame).grid(row=5, columnspan=2, pady=y_padding * 2, sticky=tk.EW)
 
+    # Left column
     nb.Label(
         frame,
         text='Focus Body Signals:',
@@ -284,6 +305,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         variable=this.focus_breakdown
     ).grid(row=16, column=0, padx=x_button_padding, sticky=tk.W)
 
+    # Right column
     nb.Label(
         frame,
         text='Display Signal Summary:'
@@ -330,6 +352,26 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
              justify=tk.LEFT) \
         .grid(row=17, column=1, sticky=tk.NW)
 
+    # Overlay settings
+    ttk.Separator(frame).grid(row=18, columnspan=2, pady=y_padding * 2, sticky=tk.EW)
+
+    tk.Label(frame,
+             text='EDMC Overlay Integration',
+             justify=tk.LEFT) \
+        .grid(row=19, column=0, sticky=tk.NW)
+    nb.Checkbutton(
+        frame,
+        text='Enable overlay',
+        variable=this.use_overlay
+    ).grid(row=20, column=0, sticky=tk.W)
+    color_button = nb.ColoredButton(
+        frame,
+        text='Text Color',
+        foreground=this.overlay_color.get(),
+        background='grey4',
+        command=lambda: color_chooser()
+    ).grid(row=21, column=0, sticky=tk.W)
+
     nb.Button(frame, text='Start / Stop Journal Parsing', command=parse_journals) \
         .grid(row=30, column=0, padx=x_padding, sticky=tk.SW)
 
@@ -372,6 +414,8 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_signal', this.signal_setting.get())
     config.set('bioscan_waypoints', this.waypoints_enabled.get())
     config.set('bioscan_debugging', this.debug_logging_enabled.get())
+    config.set('bioscan_overlay', this.use_overlay.get())
+    config.set('bioscan_overlay_color', this.overlay_color.get())
     update_display()
 
 
@@ -385,6 +429,8 @@ def parse_config() -> None:
     this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default='Always'))
     this.waypoints_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_waypoints', default=True))
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
+    this.use_overlay = tk.BooleanVar(value=config.get_bool(key='bioscan_overlay', default=False))
+    this.overlay_color = tk.StringVar(value=config.get_str(key='bioscan_overlay_color', default='#ffffff'))
 
 
 def version_check() -> str:
@@ -1660,7 +1706,8 @@ def update_display() -> None:
         this.scroll_canvas.grid()
         this.scrollbar.grid()
         this.total_label.grid()
-        text = 'BioScan Estimates:\n'
+        title = 'BioScan Estimates:\n'
+        text = ''
 
         if this.signal_setting.get() == 'Always' or this.location_state != 'surface':
             while True:
@@ -1677,7 +1724,7 @@ def update_display() -> None:
                  or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')
                  or (this.focus_setting.get() == 'Near Surface' and this.location_state in ['approach', 'surface']
                      and this.planet_altitude < this.focus_distance.get())):
-            if text[-1] != '\n':
+            if text and text[-1] != '\n':
                 text += '\n'
             complete = 0
             floras = bio_bodies[this.location_name].get_flora()
@@ -1732,16 +1779,22 @@ def update_display() -> None:
         this.scroll_canvas.grid_remove()
         this.scrollbar.grid_remove()
         this.total_label.grid_remove()
-        text = 'BioScan: No Signals Found'
+        title = 'BioScan: No Signals Found'
+        text = ''
         this.total_label['text'] = ''
 
-    this.label['text'] = text
+    this.label['text'] = title + text
     this.values_label['text'] = detail_text.strip()
 
-    if overlay.overlay_enabled():
-        overlay.display("bioscan_title", "BioScan Details")
-        overlay.display("bioscan_details", detail_text, y=8+20)
-        overlay.display("bioscan_summary", text, x=300, size="large")
+    if this.use_overlay.get() and overlay.overlay_enabled():
+        if text:
+            overlay.display("bioscan_title", "BioScan Details", color=this.overlay_color.get())
+            overlay.display("bioscan_details", detail_text, y=20, color=this.overlay_color.get())
+            overlay.display("bioscan_summary", text, x=400, y=0, size="large", color=this.overlay_color.get())
+        else:
+            overlay.display("bioscan_title", "BioScan: No Signals", color=this.overlay_color.get())
+            overlay.clear("bioscan_details")
+            overlay.clear("bioscan_summary")
 
     # if this.show_details.get():
     #     this.scroll_canvas.grid()
