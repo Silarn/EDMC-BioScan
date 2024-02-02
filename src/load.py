@@ -76,6 +76,10 @@ class This:
         self.focus_distance: tk.IntVar | None = None
         self.use_overlay: tk.BooleanVar | None = None
         self.overlay_color: tk.StringVar | None = None
+        self.overlay_anchor_x: tk.IntVar | None = None
+        self.overlay_anchor_y: tk.IntVar | None = None
+        self.overlay_summary_x: tk.IntVar | None = None
+        self.overlay_summary_y: tk.IntVar | None = None
 
         # Settings objects
         self.overlay_color_button: nb.ColoredButton | None = None
@@ -329,7 +333,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         frame,
         text='Enable species waypoints with the comp. scanner',
         variable=this.waypoints_enabled
-    ).grid(row=13, column=1, sticky=tk.W)
+    ).grid(row=13, column=1, padx=x_button_padding, sticky=tk.W)
     nb.Label(
         frame,
         text='Completed Scan Display:'
@@ -355,22 +359,62 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     # Overlay settings
     ttk.Separator(frame).grid(row=18, columnspan=2, pady=y_padding * 2, sticky=tk.EW)
 
-    tk.Label(frame,
+    nb.Label(frame,
              text='EDMC Overlay Integration',
              justify=tk.LEFT) \
-        .grid(row=19, column=0, sticky=tk.NW)
+        .grid(row=19, column=0, padx=x_padding, sticky=tk.NW)
     nb.Checkbutton(
         frame,
         text='Enable overlay',
         variable=this.use_overlay
-    ).grid(row=20, column=0, sticky=tk.W)
+    ).grid(row=20, column=0, padx=x_button_padding, pady=0, sticky=tk.W)
     color_button = nb.ColoredButton(
         frame,
         text='Text Color',
         foreground=this.overlay_color.get(),
         background='grey4',
         command=lambda: color_chooser()
-    ).grid(row=21, column=0, sticky=tk.W)
+    ).grid(row=21, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.W)
+
+    anchor_frame = nb.Frame(frame)
+    anchor_frame.grid(row=20, column=1, sticky=tk.NSEW)
+    anchor_frame.columnconfigure(4, weight=1)
+    summary_frame = nb.Frame(frame)
+    summary_frame.grid(row=21, column=1, sticky=tk.NSEW)
+    summary_frame.columnconfigure(4, weight=1)
+
+    nb.Label(anchor_frame, text='Prediction Details Anchor:') \
+        .grid(row=0, column=0, sticky=tk.W)
+    nb.Label(anchor_frame, text='X') \
+        .grid(row=0, column=1, sticky=tk.W)
+    nb.Entry(
+        anchor_frame, text=this.overlay_anchor_x.get(), textvariable=this.overlay_anchor_x,
+        width=8, validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
+    ).grid(row=0, column=2, sticky=tk.W)
+    nb.Label(anchor_frame, text='Y') \
+        .grid(row=0, column=3, sticky=tk.W)
+    nb.Entry(
+        anchor_frame, text=this.overlay_anchor_y.get(), textvariable=this.overlay_anchor_y,
+        width=8, validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
+    ).grid(row=0, column=4, sticky=tk.W)
+
+    nb.Label(summary_frame, text='Summary / Progress Anchor:') \
+        .grid(row=0, column=0, sticky=tk.W)
+    nb.Label(summary_frame, text='X') \
+        .grid(row=0, column=1, sticky=tk.W)
+    nb.Entry(
+        summary_frame, text=this.overlay_summary_x.get(), textvariable=this.overlay_summary_x,
+        width=8, validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
+    ).grid(row=0, column=2, sticky=tk.W)
+    nb.Label(summary_frame, text='Y') \
+        .grid(row=0, column=3, sticky=tk.W)
+    nb.Entry(
+        summary_frame, text=this.overlay_summary_y.get(), textvariable=this.overlay_summary_y,
+        width=8, validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
+    ).grid(row=0, column=4, sticky=tk.W)
+
+    # Footer
+    ttk.Separator(frame).grid(row=29, columnspan=2, pady=y_padding * 2, sticky=tk.EW)
 
     nb.Button(frame, text='Start / Stop Journal Parsing', command=parse_journals) \
         .grid(row=30, column=0, padx=x_padding, sticky=tk.SW)
@@ -416,6 +460,10 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_debugging', this.debug_logging_enabled.get())
     config.set('bioscan_overlay', this.use_overlay.get())
     config.set('bioscan_overlay_color', this.overlay_color.get())
+    config.set('bioscan_overlay_anchor_x', this.overlay_anchor_x.get())
+    config.set('bioscan_overlay_anchor_y', this.overlay_anchor_y.get())
+    config.set('bioscan_overlay_summary_x', this.overlay_summary_x.get())
+    config.set('bioscan_overlay_summary_y', this.overlay_summary_y.get())
     update_display()
 
 
@@ -431,6 +479,10 @@ def parse_config() -> None:
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
     this.use_overlay = tk.BooleanVar(value=config.get_bool(key='bioscan_overlay', default=False))
     this.overlay_color = tk.StringVar(value=config.get_str(key='bioscan_overlay_color', default='#ffffff'))
+    this.overlay_anchor_x = tk.IntVar(value=config.get_int(key='bioscan_overlay_anchor_x', default=0))
+    this.overlay_anchor_y = tk.IntVar(value=config.get_int(key='bioscan_overlay_anchor_y', default=0))
+    this.overlay_summary_x = tk.IntVar(value=config.get_int(key='bioscan_overlay_summary_x', default=400))
+    this.overlay_summary_y = tk.IntVar(value=config.get_int(key='bioscan_overlay_summary_y', default=0))
 
 
 def version_check() -> str:
@@ -1788,11 +1840,19 @@ def update_display() -> None:
 
     if this.use_overlay.get() and overlay.overlay_enabled():
         if text:
-            overlay.display("bioscan_title", "BioScan Details", color=this.overlay_color.get())
-            overlay.display("bioscan_details", detail_text, y=20, color=this.overlay_color.get())
-            overlay.display("bioscan_summary", text, x=400, y=0, size="large", color=this.overlay_color.get())
+            overlay.display("bioscan_title", "BioScan Details",
+                            x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
+                            color=this.overlay_color.get())
+            overlay.display("bioscan_details", detail_text,
+                            x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
+                            color=this.overlay_color.get())
+            overlay.display("bioscan_summary", text,
+                            x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
+                            size="large", color=this.overlay_color.get())
         else:
-            overlay.display("bioscan_title", "BioScan: No Signals", color=this.overlay_color.get())
+            overlay.display("bioscan_title", "BioScan: No Signals",
+                            x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
+                            color=this.overlay_color.get())
             overlay.clear("bioscan_details")
             overlay.clear("bioscan_summary")
 
