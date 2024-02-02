@@ -101,9 +101,15 @@ Once per system, you can attempt to fetch any data from EDSM. This is helpful in
 reason or another. Unfortunately, EDSM's API does not currently provide access to biological signal info, so you will
 have to manually look up signals if that data was not previously logged.
 
+### Overlay (Version 2.7+)
+
+BioScan can now make use of EDMCOverlay to draw predictions, signal summaries, and status info directly onto the game
+window. The text color and anchor points are configurable. Suggestions welcome.
+
 ## Requirements
 * [EDMC] version 5.7 and above (python 3.11)
 * SQLAlchemy python module (embedded in the exe distribution)
+* (Optional) [EDMCOverlay]
 
 ## Installation
 
@@ -118,6 +124,7 @@ have to manually look up signals if that data was not previously logged.
 * For native python users:
   * Run `pip install -r requirements.txt` within the ExploData plugin directory to install SQLAlchemy
   * Ensure the correct `pip` is used for Python 3.11
+* (Optional) Install the [EDMCOverlay] plugin for overlay support
 * Start or restart EDMC to register the plugin and run any necessary database migrations
 
 ## Acknowledgements
@@ -133,10 +140,7 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 
 ## Roadmap
 
-* Refinements to species requirements?
-* Additional display options (suggestions welcome)
-* Track Vista Genomics sales?
-* EDMCOverlay support?
+* Refinements and suggestions welcome
 
 ## License
 
@@ -156,5 +160,6 @@ Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 [ExploData]: https://github.com/Silarn/EDMC-ExploData
 [Observatory]: https://github.com/Xjph/ObservatoryCore
 [BioInsights]: https://edjp.colacube.net/observatory
+[EDMCOverlay]: https://github.com/inorton/EDMCOverlay
 [latest release]: https://github.com/Silarn/EDMC-BioScan/releases/latest
 [GPLv2]: http://www.gnu.org/licenses/gpl-2.0.html
