@@ -109,7 +109,7 @@ window. The text color and anchor points are configurable. Suggestions welcome.
 ## Requirements
 * [EDMC] version 5.7 and above (python 3.11)
 * SQLAlchemy python module (embedded in the exe distribution)
-* (Optional) [EDMCOverlay]
+* (Optional) [EDMCOverlay] / [edmcoverlay2]
 
 ## Installation
 
@@ -124,7 +124,7 @@ window. The text color and anchor points are configurable. Suggestions welcome.
 * For native python users:
   * Run `pip install -r requirements.txt` within the ExploData plugin directory to install SQLAlchemy
   * Ensure the correct `pip` is used for Python 3.11
-* (Optional) Install the [EDMCOverlay] plugin for overlay support
+* (Optional) Install the [EDMCOverlay] plugin for overlay support (or [edmcoverlay2] for Linux)
 * Start or restart EDMC to register the plugin and run any necessary database migrations
 
 ## Acknowledgements
@@ -144,7 +144,7 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 
 ## License
 
-[BioScan plugin][BioScan] Copyright © 2023 Jeremy Rimpo
+[BioScan plugin][BioScan] Copyright © 2024 Jeremy Rimpo
 
 Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 
@@ -161,5 +161,6 @@ Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 [Observatory]: https://github.com/Xjph/ObservatoryCore
 [BioInsights]: https://edjp.colacube.net/observatory
 [EDMCOverlay]: https://github.com/inorton/EDMCOverlay
+[edmcoverlay2]: https://github.com/sersorrel/edmcoverlay2
 [latest release]: https://github.com/Silarn/EDMC-BioScan/releases/latest
 [GPLv2]: http://www.gnu.org/licenses/gpl-2.0.html
