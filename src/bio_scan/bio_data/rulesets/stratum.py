@@ -142,8 +142,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['SulphurDioxide'],
                     'min_gravity': 0.27,
                     'max_gravity': 0.4,
-                    'max_temperature': 190.0,
                     'min_temperature': 165.0,
+                    'max_temperature': 190.0,
                     'body_type': ['Rocky body'],
                     'regions': ['scutum-centaurus-core']
                 }
@@ -178,8 +178,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Oxygen'],
                     'min_gravity': 0.4,
                     'max_gravity': 0.6,
-                    'max_temperature': 200.0,
-                    'min_temperature': 250.0,
+                    'min_temperature': 200.0,
+                    'max_temperature': 250.0,
                     'min_pressure': 0.01,
                     'body_type': ['Rocky body'],
                     'regions': ['sagittarius-carina']
@@ -188,8 +188,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['SulphurDioxide'],
                     'min_gravity': 0.26,
                     'max_gravity': 0.55,
-                    'max_temperature': 191.0,
-                    'min_temperature': 373.0,
+                    'min_temperature': 191.0,
+                    'max_temperature': 373.0,
                     'body_type': ['Rocky body'],
                     'regions': ['sagittarius-carina']
                 }
@@ -205,7 +205,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.38,
                     'min_temperature': 165.0,
                     'max_temperature': 177.0,
-                    'max_pressure': 0.013,
                     'body_type': ['High metal content body']
                 },
                 {
@@ -214,7 +213,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.54,
                     'min_temperature': 167.0,
                     'max_temperature': 199.0,
-                    'min_pressure': 0.04,
                     'body_type': ['High metal content body'],
                     'volcanism': 'None'
                 },
@@ -232,7 +230,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.61,
                     'min_temperature': 165.0,
                     'max_temperature': 260.0,
-                    'min_pressure': 0.07,
                     'body_type': ['High metal content body']
                 },
                 {
@@ -241,7 +238,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.52,
                     'min_temperature': 165.0,
                     'max_temperature': 246.0,
-                    'min_pressure': 0.02,
                     'body_type': ['High metal content body']
                 },
                 {
