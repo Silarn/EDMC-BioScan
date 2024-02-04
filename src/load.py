@@ -81,9 +81,6 @@ class This:
         self.overlay_summary_x: tk.IntVar | None = None
         self.overlay_summary_y: tk.IntVar | None = None
 
-        # Settings objects
-        self.overlay_color_button: nb.ColoredButton | None = None
-
         # GUI Objects
         self.parent: tk.Frame | None = None
         self.frame: tk.Frame | None = None
@@ -1384,7 +1381,7 @@ def process_data_event(entry: Mapping[str, any]) -> None:
 
                 if target_body is not None:
                     genus, _, _ = parse_variant(entry['Name'])
-                    if genus is not '':
+                    if genus:
                         if this.location_id == entry['BodyID'] and this.planet_latitude \
                                 and this.planet_longitude and this.waypoints_enabled.get():
                             this.planets[target_body].add_flora_waypoint(
@@ -1855,13 +1852,6 @@ def update_display() -> None:
                             color=this.overlay_color.get())
             overlay.clear("bioscan_details")
             overlay.clear("bioscan_summary")
-
-    # if this.show_details.get():
-    #     this.scroll_canvas.grid()
-    #     this.scrollbar.grid()
-    # else:
-    #     this.scroll_canvas.grid_remove()
-    #     this.scrollbar.grid_remove()
 
 
 def bind_mousewheel(event: tk.Event) -> None:
