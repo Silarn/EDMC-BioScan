@@ -129,12 +129,22 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['SulphurDioxide'],
+                    'body_type': ['Rocky body'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 132.0,
                     'max_temperature': 215.0,
+                    'max_pressure': 0.004
+                },
+                {
+                    'atmosphere': ['SulphurDioxide'],
+                    'body_type': ['High metal content body'],
+                    'min_gravity': 0.265,
+                    'max_gravity': 0.276,
+                    'min_temperature': 132.0,
+                    'max_temperature': 135.0,
                     'max_pressure': 0.004,
-                    'body_type': ['Rocky body']
+                    'volcanism': 'None'
                 }
             ],
         },
