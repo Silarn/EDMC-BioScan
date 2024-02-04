@@ -1759,16 +1759,17 @@ def update_display() -> None:
         this.total_label.grid()
         title = 'BioScan Estimates:\n'
         text = ''
+        signal_summary = ''
 
         if this.signal_setting.get() == 'Always' or this.location_state != 'surface':
             while True:
                 exo_list = exobio_body_names[:5]
                 exobio_body_names = exobio_body_names[5:]
-                text += ' ⬦ '.join([b for b in exo_list])
+                signal_summary += ' ⬦ '.join([b for b in exo_list])
                 if len(exobio_body_names) == 0:
                     break
                 else:
-                    text += '\n'
+                    signal_summary += '\n'
 
         if (this.location_name != '' and this.location_name in bio_bodies) and this.focus_setting.get() != 'Never' and \
                 ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
@@ -1832,13 +1833,14 @@ def update_display() -> None:
         this.total_label.grid_remove()
         title = 'BioScan: No Signals Found'
         text = ''
+        signal_summary = ''
         this.total_label['text'] = ''
 
-    this.label['text'] = title + text
+    this.label['text'] = title + signal_summary + text
     this.values_label['text'] = detail_text.strip()
 
     if this.use_overlay.get() and overlay.overlay_enabled():
-        if text:
+        if detail_text:
             overlay.display("bioscan_title", "BioScan Details",
                             x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                             color=this.overlay_color.get())
