@@ -10,7 +10,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Argon', 'ArgonRich'],
                     'body_type': ['Icy body'],
                     'min_gravity': 0.025,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 50.0,
                     'max_temperature': 150.0,
                     'parent_star': ['A', 'N', 'D', 'H', 'AeBe']
@@ -19,7 +19,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Neon', 'NeonRich'],
                     'body_type': ['Icy body'],
                     'min_gravity': 0.26,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 20.0,
                     'max_temperature': 70.0,
                     'max_pressure': 0.005,
@@ -34,7 +34,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Argon', 'ArgonRich'],
                     'min_gravity': 0.025,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 50.0,
                     'max_temperature': 150.0,
                     'body_type': ['Icy body'],
@@ -43,7 +43,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Neon', 'NeonRich'],
                     'min_gravity': 0.026,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 20.0,
                     'max_temperature': 70.0,
                     'max_pressure': 0.005,

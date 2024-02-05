@@ -9,7 +9,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxide'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 175.0,
                     'max_temperature': 180.0,
                     'min_pressure': 0.0164,
@@ -25,7 +25,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxide'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 180.0,
                     'max_temperature': 190.0,
                     'min_pressure': 0.025,
@@ -41,7 +41,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Ammonia'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 170.0,
                     'max_temperature': 177.0,
                     'max_pressure': 0.0135,
@@ -57,7 +57,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Ammonia'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 152.0,
                     'max_temperature': 177.0,
                     'max_pressure': 0.0135,
@@ -73,7 +73,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxide'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 190.0,
                     'max_temperature': 196.0,
                     'min_pressure': 0.054,

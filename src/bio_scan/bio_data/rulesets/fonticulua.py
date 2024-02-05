@@ -10,7 +10,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Neon', 'NeonRich'],
                     'body_type': ['Icy body'],
                     'min_gravity': 0.25,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 50.0,
                     'max_temperature': 75.0,
                     'max_pressure': 0.006,
@@ -26,7 +26,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Argon'],
                     'body_type': ['Icy body', 'Rocky ice body'],
                     'min_gravity': 0.027,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 50.0,
                     'max_temperature': 150.0
                 }
@@ -40,7 +40,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['ArgonRich'],
                     'body_type': ['Icy body', 'Rocky ice body'],
                     'min_gravity': 0.209,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 61.0,
                     'max_temperature': 125.0,
                     'min_pressure': 0.019
@@ -54,7 +54,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Nitrogen'],
                     'min_gravity': 0.19,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 50.0,
                     'max_temperature': 81.0,
                     'body_type': ['Icy body', 'Rocky ice body']
@@ -69,7 +69,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Oxygen'],
                     'body_type': ['Icy body'],
                     'min_gravity': 0.235,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 143.0,
                     'max_temperature': 200.0,
                     'min_pressure': 0.012

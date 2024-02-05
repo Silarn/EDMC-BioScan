@@ -9,7 +9,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxide'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 151.0,
                     'max_temperature': 200.0,
                     'atmosphere_component': {'SulphurDioxide': 1.05}
@@ -18,7 +18,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Oxygen'],
                     'body_type': ['Icy body'],
                     'min_gravity': 0.23,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 154.0,
                     'max_temperature': 175.0,
                     'min_pressure': 0.01,
@@ -29,7 +29,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Oxygen'],
                     'body_type': ['Icy body'],
                     'min_gravity': 0.23,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 154.0,
                     'max_temperature': 175.0,
                     'min_pressure': 0.01,
@@ -39,7 +39,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['SulphurDioxide'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 132.0,
                     'max_temperature': 273.0,
                     'atmosphere_component': {'SulphurDioxide': 1.05}
@@ -53,7 +53,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxide'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 150.0,
                     'max_temperature': 195.0,
                     'volcanism': 'None',
@@ -63,7 +63,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['CarbonDioxide'],
                     'body_type': ['Icy body', 'Rocky ice body'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 150.0,
                     'max_temperature': 195.0,
                     'volcanism': ['water'],
@@ -72,7 +72,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['SulphurDioxide'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 132.0,
                     'max_temperature': 272.0,
                     'atmosphere_component': {'SulphurDioxide': 1.05}
@@ -87,7 +87,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['CarbonDioxide'],
                     'body_type': ['Icy body', 'Rocky ice body'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 150.0,
                     'max_temperature': 195.0,
                     'volcanism': 'None',
@@ -97,7 +97,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Oxygen'],
                     'body_type': ['Icy body'],
                     'min_gravity': 0.23,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 154.0,
                     'max_temperature': 160.0,
                     'min_pressure': 0.01,
@@ -108,7 +108,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Oxygen'],
                     'body_type': ['Icy body'],
                     'min_gravity': 0.23,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 154.0,
                     'max_temperature': 160.0,
                     'min_pressure': 0.01,
@@ -118,7 +118,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['SulphurDioxide'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 132.0,
                     'max_temperature': 272.0,
                     'atmosphere_component': {'SulphurDioxide': 1.05}

@@ -10,7 +10,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Ammonia'],
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 152.0,
                     'max_temperature': 177.0,
                     'max_pressure': 0.0135,
@@ -20,7 +20,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Methane'],
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.033,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 68.0,
                     'max_temperature': 109.0,
                     'volcanism': 'None'
@@ -80,7 +80,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Argon'],
                     'min_gravity': 0.058,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 50.0,
                     'max_temperature': 128.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
@@ -89,7 +89,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Nitrogen'],
                     'min_gravity': 0.155,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 50.0,
                     'max_temperature': 70.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
@@ -115,7 +115,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxide'],
                     'min_gravity': 0.041,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 180.0,
                     'max_temperature': 200.0,
                     'min_pressure': 0.025,

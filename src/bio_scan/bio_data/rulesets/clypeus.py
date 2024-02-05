@@ -10,7 +10,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['CarbonDioxide'],
                     'body_type': ['Rocky body'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 190.0,
                     'max_temperature': 196.0,
                     'min_pressure': 0.054,
@@ -20,14 +20,14 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Water'],
                     'body_type': ['Rocky body'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'volcanism': 'None'
                 },
                 {
                     'atmosphere': ['Water'],
                     'body_type': ['Rocky body'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'volcanism': ['water']
                 }
             ],
@@ -40,7 +40,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['CarbonDioxide'],
                     'body_type': ['High metal content body'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 190.0,
                     'max_temperature': 196.0,
                     'min_pressure': 0.054,
@@ -50,7 +50,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Water'],
                     'body_type': ['High metal content body'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'volcanism': 'None'
                 }
             ],
@@ -62,7 +62,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxide'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'min_temperature': 190.0,
                     'max_temperature': 196.0,
                     'min_pressure': 0.055,
@@ -73,7 +73,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Water'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'body_type': ['Rocky body'],
                     'volcanism': 'None',
                     'distance': 2000.0
@@ -81,7 +81,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Water'],
                     'min_gravity': 0.04,
-                    'max_gravity': 0.275,
+                    'max_gravity': 0.276,
                     'body_type': ['Rocky body'],
                     'volcanism': ['water'],
                     'distance': 2000.0
