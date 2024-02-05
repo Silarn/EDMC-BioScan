@@ -94,6 +94,7 @@ class This:
         self.edsm_failed: tk.Label | None = None
         self.update_button: HyperlinkLabel | None = None
         self.journal_label: tk.Label | None = None
+        self.overlay: overlay.Overlay = overlay.Overlay()
 
         # Plugin state data
         self.commander: Commander | None = None
@@ -513,8 +514,8 @@ def plugin_stop() -> None:
         this.edsm_thread.join()
         this.journal_stop = True
 
-    if overlay.overlay_enabled():
-        overlay.disconnect()
+    if this.overlay.available():
+        this.overlay.disconnect()
 
 
 def journal_start(event: tk.Event) -> None:
@@ -1837,23 +1838,23 @@ def update_display() -> None:
     this.label['text'] = title + signal_summary + text
     this.values_label['text'] = detail_text.strip()
 
-    if this.use_overlay.get() and overlay.overlay_enabled():
+    if this.use_overlay.get() and this.overlay.available():
         if detail_text:
-            overlay.display("bioscan_title", "BioScan Details",
+            this.overlay.display("bioscan_title", "BioScan Details",
                             x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                             color=this.overlay_color.get())
-            overlay.display("bioscan_details", detail_text,
+            this.overlay.display("bioscan_details", detail_text,
                             x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
                             color=this.overlay_color.get())
-            overlay.display("bioscan_summary", text,
+            this.overlay.display("bioscan_summary", text,
                             x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
                             size="large", color=this.overlay_color.get())
         else:
-            overlay.display("bioscan_title", "BioScan: No Signals",
+            this.overlay.display("bioscan_title", "BioScan: No Signals",
                             x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                             color=this.overlay_color.get())
-            overlay.clear("bioscan_details")
-            overlay.clear("bioscan_summary")
+            this.overlay.clear("bioscan_details")
+            this.overlay.clear("bioscan_summary")
 
 
 def bind_mousewheel(event: tk.Event) -> None:
