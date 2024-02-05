@@ -967,15 +967,14 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                         bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                     found = True
                                     break
-                        if not found:
-                            for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
-                                if star_name in body.get_parent_stars():
-                                    continue
-                                for star_type in bio_genus[genus]['colors']['species'][species]['star']:
-                                    if star_check(star_type, star_data.get_type()):
-                                        possible_species[species].add(
-                                            bio_genus[genus]['colors']['species'][species]['star'][star_type])
-                                        break
+                        for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
+                            if star_name in body.get_parent_stars():
+                                continue
+                            for star_type in bio_genus[genus]['colors']['species'][species]['star']:
+                                if star_check(star_type, star_data.get_type()):
+                                    possible_species[species].add(
+                                        bio_genus[genus]['colors']['species'][species]['star'][star_type])
+                                    break
                     except KeyError:
                         log('Parent star not in main stars')
                 elif 'element' in bio_genus[genus]['colors']['species'][species]:
@@ -1000,14 +999,13 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             found_colors.add(bio_genus[genus]['colors']['star'][star_type])
                             found = True
                             break
-                if not found:
-                    for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
-                        if star_name in body.get_parent_stars():
-                            continue
-                        for star_type in bio_genus[genus]['colors']['star']:
-                            if star_check(star_type, star_data.get_type()):
-                                found_colors.add(bio_genus[genus]['colors']['star'][star_type])
-                                break
+                for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
+                    if star_name in body.get_parent_stars():
+                        continue
+                    for star_type in bio_genus[genus]['colors']['star']:
+                        if star_check(star_type, star_data.get_type()):
+                            found_colors.add(bio_genus[genus]['colors']['star'][star_type])
+                            break
             except KeyError:
                 log('Parent star not in main stars')
             if not found_colors:
