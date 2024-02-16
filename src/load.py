@@ -80,6 +80,9 @@ class This:
         self.overlay_anchor_y: tk.IntVar | None = None
         self.overlay_summary_x: tk.IntVar | None = None
         self.overlay_summary_y: tk.IntVar | None = None
+        self.overlay_detail_scroll: tk.BooleanVar | None = None
+        self.overlay_detail_length: tk.IntVar | None = None
+        self.overlay_detail_delay: tk.DoubleVar | None = None
 
         # GUI Objects
         self.parent: tk.Frame | None = None
@@ -150,7 +153,8 @@ def plugin_start3(plugin_dir: str) -> str:
             this.db_mismatch = True
 
         if not this.db_mismatch:
-            register_event_callbacks({'Scan', 'FSSBodySignals', 'SAASignalsFound', 'ScanOrganic', 'CodexEntry'}, process_data_event)
+            register_event_callbacks({'Scan', 'FSSBodySignals', 'SAASignalsFound', 'ScanOrganic', 'CodexEntry'},
+                                     process_data_event)
     return this.NAME
 
 
@@ -299,7 +303,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         .grid(row=13, column=0, padx=x_padding, sticky=tk.SW)
     nb.Entry(
         frame, text=this.focus_distance.get(), textvariable=this.focus_distance,
-        validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
+        validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=14, column=0, padx=x_padding, sticky=tk.NW)
     nb.Checkbutton(
         frame,
@@ -380,6 +384,9 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     summary_frame = nb.Frame(frame)
     summary_frame.grid(row=21, column=1, sticky=tk.NSEW)
     summary_frame.columnconfigure(4, weight=1)
+    details_frame = nb.Frame(frame)
+    details_frame.grid(row=22, column=1, sticky=tk.NSEW)
+    details_frame.columnconfigure(4, weight=1)
 
     nb.Label(anchor_frame, text='Prediction Details Anchor:') \
         .grid(row=0, column=0, sticky=tk.W)
@@ -387,13 +394,13 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         .grid(row=0, column=1, sticky=tk.W)
     nb.Entry(
         anchor_frame, text=this.overlay_anchor_x.get(), textvariable=this.overlay_anchor_x,
-        width=8, validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
+        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=0, column=2, sticky=tk.W)
     nb.Label(anchor_frame, text='Y') \
         .grid(row=0, column=3, sticky=tk.W)
     nb.Entry(
         anchor_frame, text=this.overlay_anchor_y.get(), textvariable=this.overlay_anchor_y,
-        width=8, validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
+        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=0, column=4, sticky=tk.W)
 
     nb.Label(summary_frame, text='Summary / Progress Anchor:') \
@@ -402,13 +409,31 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
         .grid(row=0, column=1, sticky=tk.W)
     nb.Entry(
         summary_frame, text=this.overlay_summary_x.get(), textvariable=this.overlay_summary_x,
-        width=8, validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
+        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=0, column=2, sticky=tk.W)
     nb.Label(summary_frame, text='Y') \
         .grid(row=0, column=3, sticky=tk.W)
     nb.Entry(
         summary_frame, text=this.overlay_summary_y.get(), textvariable=this.overlay_summary_y,
-        width=8, validate='all', validatecommand=(frame.register(is_num), '%P', '%d')
+        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
+    ).grid(row=0, column=4, sticky=tk.W)
+
+    nb.Checkbutton(
+        details_frame,
+        text='Scroll details',
+        variable=this.overlay_detail_scroll
+    ).grid(row=0, column=0, padx=x_padding, sticky=tk.NW)
+    nb.Label(details_frame, text='Maximum details length:') \
+        .grid(row=0, column=1, sticky=tk.W)
+    nb.Entry(
+        details_frame, text=this.overlay_detail_length.get(), textvariable=this.overlay_detail_length,
+        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
+    ).grid(row=0, column=2, sticky=tk.W)
+    nb.Label(details_frame, text='Scroll delay (sec):') \
+        .grid(row=0, column=3, sticky=tk.W)
+    nb.Entry(
+        details_frame, text=this.overlay_detail_delay.get(), textvariable=this.overlay_detail_delay,
+        width=8, validate='all', validatecommand=(frame.register(is_double), '%P', '%d')
     ).grid(row=0, column=4, sticky=tk.W)
 
     # Footer
@@ -425,7 +450,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     return frame
 
 
-def is_num(value: str, action: str) -> bool:
+def is_digit(value: str, action: str) -> bool:
     """
     Numeral validator for Entry input
 
@@ -436,6 +461,23 @@ def is_num(value: str, action: str) -> bool:
 
     if action == '1':
         if not value.isdigit():
+            return False
+    return True
+
+
+def is_double(value: str, action: str) -> bool:
+    """
+    Double validator for Entry input
+
+    :param value: Value for input event
+    :param action: Input event action type
+    :return: True or false if input is a numeral
+    """
+
+    if action == '1':
+        try:
+            float(value)
+        except ValueError:
             return False
     return True
 
@@ -462,6 +504,9 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_overlay_anchor_y', this.overlay_anchor_y.get())
     config.set('bioscan_overlay_summary_x', this.overlay_summary_x.get())
     config.set('bioscan_overlay_summary_y', this.overlay_summary_y.get())
+    config.set('bioscan_overlay_detail_scroll', this.overlay_detail_scroll.get())
+    config.set('bioscan_overlay_detail_length', this.overlay_detail_length.get())
+    config.set('bioscan_overlay_detail_delay', this.overlay_detail_delay.get())
     update_display()
 
 
@@ -481,6 +526,9 @@ def parse_config() -> None:
     this.overlay_anchor_y = tk.IntVar(value=config.get_int(key='bioscan_overlay_anchor_y', default=0))
     this.overlay_summary_x = tk.IntVar(value=config.get_int(key='bioscan_overlay_summary_x', default=400))
     this.overlay_summary_y = tk.IntVar(value=config.get_int(key='bioscan_overlay_summary_y', default=0))
+    this.overlay_detail_scroll = tk.BooleanVar(value=config.get_int(key='bioscan_overlay_detail_scroll', default=True))
+    this.overlay_detail_length = tk.IntVar(value=config.get_int(key='bioscan_overlay_detail_length', default=70))
+    this.overlay_detail_delay = tk.DoubleVar(value=config.get_int(key='bioscan_overlay_detail_delay', default=10.0))
 
 
 def version_check() -> str:
@@ -968,7 +1016,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                         bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                     found = True
                                     break
-                        for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
+                        for star_name, star_data in filter(lambda item: item[1].get_distance() == 0,
+                                                           this.stars.items()):
                             if star_name in body.get_parent_stars():
                                 continue
                             for star_type in bio_genus[genus]['colors']['species'][species]['star']:
@@ -1651,7 +1700,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 for variant in species_details_final[1]:
                                     if not check_codex_from_name(this.commander.id, this.system.region,
                                                                  species_details_final[0], variant):
-                                        species_details_final[1][species_details_final[1].index(variant)] = f'\N{memo}{variant}'
+                                        species_details_final[1][
+                                            species_details_final[1].index(variant)] = f'\N{memo}{variant}'
                             else:
                                 variant = ''
                                 if species_details_final[1]:
@@ -1688,7 +1738,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             for variant in species_details_final[1]:
                                 if not check_codex_from_name(this.commander.id, this.system.region,
                                                              species_details_final[0], variant):
-                                    species_details_final[1][species_details_final[1].index(variant)] = f'\N{memo}{variant}'
+                                    species_details_final[1][
+                                        species_details_final[1].index(variant)] = f'\N{memo}{variant}'
                         else:
                             variant = ''
                             if species_details_final[1]:
@@ -1841,18 +1892,19 @@ def update_display() -> None:
     if this.use_overlay.get() and this.overlay.available():
         if detail_text:
             this.overlay.display("bioscan_title", "BioScan Details",
-                            x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
-                            color=this.overlay_color.get())
+                                 x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
+                                 color=this.overlay_color.get())
             this.overlay.display("bioscan_details", detail_text,
-                            x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
-                            color=this.overlay_color.get())
+                                 x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
+                                 color=this.overlay_color.get(), scrolled=this.overlay_detail_scroll.get(),
+                                 limit=this.overlay_detail_length.get(), delay=this.overlay_detail_delay.get())
             this.overlay.display("bioscan_summary", text,
-                            x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
-                            size="large", color=this.overlay_color.get())
+                                 x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
+                                 size="large", color=this.overlay_color.get())
         else:
             this.overlay.display("bioscan_title", "BioScan: No Signals",
-                            x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
-                            color=this.overlay_color.get())
+                                 x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
+                                 color=this.overlay_color.get())
             this.overlay.clear("bioscan_details")
             this.overlay.clear("bioscan_summary")
 

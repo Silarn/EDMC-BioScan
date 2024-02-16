@@ -34,6 +34,24 @@ def setInterval(interval: float) -> Callable:
     return decorator
 
 
+class TextBlock:
+    def __init__(self, text: list[str], x: int, y: int, size: str, color: str,
+                 scrolled: bool = False, limit: int = 0, delay: float = 10):
+        self.text = text
+        self.x = x
+        self.y = y
+        self.size = size
+        self.color = color
+        self.scrolled = scrolled
+        self.limit = limit
+        self.delay = delay
+        self.direction = 'down'
+        self.offset = 0
+        self.timer = threading.Timer(self.delay, lambda *args: None)
+        if scrolled:
+            self.timer.start()
+
+
 class Overlay:
     """
     An interface for displaying multiple text blocks with EDMCOverlay. Breaks multi-line text into
@@ -46,17 +64,19 @@ class Overlay:
             self._overlay: edmcoverlay.Overlay | None = edmcoverlay.Overlay()
         else:
             self._overlay: edmcoverlay.Overlay | None = None
-        self._text_blocks: dict[str, tuple[int, int, str, str, list[str]]] = {}
+        self._text_blocks: dict[str, TextBlock] = {}
         self._redraw_timer = self.redraw()
+        self._scroll_timer = self.scroll()
 
     def disconnect(self) -> None:
         self._redraw_timer.set()
+        self._scroll_timer.set()
         self._overlay.send_raw({
             "command": "exit"
         })
 
-    def display(self, message_id: str, text: str, x: int = 0, y: int = 0,
-                color: str = "#ffffff", size: str = "normal") -> None:
+    def display(self, message_id: str, text: str, x: int = 0, y: int = 0, color: str = "#ffffff", size: str = "normal",
+                scrolled: bool = False, limit: int = 0, delay: float = 10) -> None:
         """
         Displays text with given attributes. Saves text in cache to allow for redraw and clearing.
         Expires after 60 seconds.
@@ -67,37 +87,37 @@ class Overlay:
         :param y: Y coordinate
         :param color: Accepts "red", "green", "blue", and hex "#ffffff"
         :param size: Accepts "normal" and "large"
+        :param scrolled: Toggle for scrolled text panel
+        :param limit: Line limit for display; 0 is no limit
         """
-        if message_id in self._text_blocks:
-            self.clear(message_id)
-        self._text_blocks[message_id] = (
-            x, y, color, size,
-            text.replace('🗸', '√').replace('\N{memo}', '♦').split("\n")
+
+        self.clear(message_id)
+        formatted_text = text.replace('🗸', '√').replace('\N{memo}', '♦').split("\n")
+        self._text_blocks[message_id] = TextBlock(
+            text=formatted_text, x=x, y=y, size=size, color=color, scrolled=scrolled, limit=limit, delay=delay
         )
         try:
-            count = 0
-            spacer = 14 if size == "normal" else 24
-            for message in self._text_blocks[message_id][4]:
-                self._overlay.send_message("{}_{}".format(message_id, count), message, color,
-                                           x, y + (spacer * count), ttl=60, size=size)
-                count += 1
+            self.draw(message_id)
         except Exception as err:
             logger.debug(err)
 
-    def clear(self, message_id) -> None:
+    def clear(self, message_id: str, remove: bool = True) -> None:
         """
         Clears a given text block identified by a unique message ID.
 
         :param message_id: Unique ID of text to clear.
+        :param remove: Remove the message from the cache.
         """
         try:
             if message_id in self._text_blocks:
                 count = 0
-                for _ in self._text_blocks[message_id][4]:
+                while (count < len(self._text_blocks[message_id].text) or
+                       (self._text_blocks[message_id].limit > 0 and count < self._text_blocks[message_id].limit)):
                     self._overlay.send_message("{}_{}".format(message_id, count),
                                                "", "#ffffff", 0, 0, ttl=1)
                     count += 1
-                self._text_blocks.pop(message_id, None)
+                if remove:
+                    self._text_blocks.pop(message_id, None)
         except Exception as err:
             logger.debug(err)
 
@@ -110,16 +130,51 @@ class Overlay:
 
         if self.available():
             for message_id, message_info in self._text_blocks.items():
-                x, y, color, size, messages = message_info
-                count = 0
-                spacer = 14 if size == "normal" else 24
-                for message in messages:
-                    try:
-                        self._overlay.send_message("{}_{}".format(message_id, count), message, color,
-                                                   x, y + (spacer * count), 60, size)
-                    except Exception as err:
-                        logger.debug(err)
-                    count += 1
+                if message_info.scrolled:
+                    continue
+                self.draw(message_id)
+
+    @setInterval(.75)
+    def scroll(self):
+        """
+        Redraw scrolled displays based on given lines.
+        :rtype: threading.Event
+        """
+
+        if self.available():
+            for message_id, message_info in self._text_blocks.items():
+                if not message_info.scrolled:
+                    continue
+
+                if not message_info.timer.is_alive():
+                    self.draw(message_id)
+                    if message_info.limit != 0 and message_info.limit < len(message_info.text):
+                        offset = message_info.offset + 1 if message_info.direction == "down" else \
+                            len(message_info.text) - message_info.offset
+                        display = offset + message_info.limit if message_info.direction == "down" else offset
+                        if display >= len(message_info.text):
+                            self._text_blocks[message_id].direction = "up" if message_info.direction == "down" \
+                                else "down"
+                            self._text_blocks[message_id].timer = threading.Timer(message_info.delay,
+                                                                                  lambda *args: None)
+                            self._text_blocks[message_id].timer.start()
+                        if self._text_blocks[message_id].direction == "down":
+                            self._text_blocks[message_id].offset += 1
+                        else:
+                            self._text_blocks[message_id].offset -= 1
+
+    def draw(self, message_id: str):
+        if message_id in self._text_blocks:
+            block = self._text_blocks[message_id]
+            count = block.offset
+            line_count = 0
+            spacer = 14 if block.size == "normal" else 24
+            while (block.limit == 0 or count - block.offset < block.limit) and count < len(block.text):
+                self._overlay.send_message("{}_{}".format(message_id, line_count), block.text[count], block.color,
+                                           block.x, block.y + (spacer * (count - block.offset)),
+                                           ttl=60, size=block.size)
+                count += 1
+                line_count += 1
 
     def available(self) -> bool:
         """
@@ -127,7 +182,7 @@ class Overlay:
 
         :return: Availability of EDMCOverlay
         """
-        if self._overlay:
+        if self._overlay and self._overlay.connection:
             return True
         else:
             if edmcoverlay:
