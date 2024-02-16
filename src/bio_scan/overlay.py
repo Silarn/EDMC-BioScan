@@ -182,8 +182,14 @@ class Overlay:
 
         :return: Availability of EDMCOverlay
         """
-        if self._overlay and self._overlay.connection:
-            return True
+        if self._overlay:
+            if hasattr(self._overlay, 'connection'):
+                if self._overlay.connection:
+                    return True
+                else:
+                    return False
+            else:
+                return True
         else:
             if edmcoverlay:
                 self._overlay = edmcoverlay.Overlay()

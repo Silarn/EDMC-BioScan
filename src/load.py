@@ -506,7 +506,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_overlay_summary_y', this.overlay_summary_y.get())
     config.set('bioscan_overlay_detail_scroll', this.overlay_detail_scroll.get())
     config.set('bioscan_overlay_detail_length', this.overlay_detail_length.get())
-    config.set('bioscan_overlay_detail_delay', this.overlay_detail_delay.get())
+    config.set('bioscan_overlay_detail_delay', str(this.overlay_detail_delay.get()))
     update_display()
 
 
@@ -528,7 +528,7 @@ def parse_config() -> None:
     this.overlay_summary_y = tk.IntVar(value=config.get_int(key='bioscan_overlay_summary_y', default=0))
     this.overlay_detail_scroll = tk.BooleanVar(value=config.get_int(key='bioscan_overlay_detail_scroll', default=True))
     this.overlay_detail_length = tk.IntVar(value=config.get_int(key='bioscan_overlay_detail_length', default=70))
-    this.overlay_detail_delay = tk.DoubleVar(value=config.get_int(key='bioscan_overlay_detail_delay', default=10.0))
+    this.overlay_detail_delay = tk.DoubleVar(value=float(config.get_str(key='bioscan_overlay_detail_delay', default=10.0)))
 
 
 def version_check() -> str:

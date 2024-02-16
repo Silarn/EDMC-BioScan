@@ -125,6 +125,8 @@ window. The text color and anchor points are configurable. Suggestions welcome.
   * Run `pip install -r requirements.txt` within the ExploData plugin directory to install SQLAlchemy
   * Ensure the correct `pip` is used for Python 3.11
 * (Optional) Install the [EDMCOverlay] plugin for overlay support (or [edmcoverlay2] for Linux)
+  * The plugin directory should be named EDMCOverlay to load properly, if this causes a compatibility
+    issue with another EDMC plugin, please submit an issue.
 * Start or restart EDMC to register the plugin and run any necessary database migrations
 
 ## Acknowledgements
@@ -161,6 +163,6 @@ Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 [Observatory]: https://github.com/Xjph/ObservatoryCore
 [BioInsights]: https://edjp.colacube.net/observatory
 [EDMCOverlay]: https://github.com/inorton/EDMCOverlay
-[edmcoverlay2]: https://github.com/sersorrel/edmcoverlay2
+[edmcoverlay2]: https://github.com/pan-mroku/edmcoverlay2
 [latest release]: https://github.com/Silarn/EDMC-BioScan/releases/latest
 [GPLv2]: http://www.gnu.org/licenses/gpl-2.0.html
