@@ -1887,6 +1887,7 @@ def update_display() -> None:
         this.total_label['text'] = ''
 
     this.label['text'] = title + signal_summary + text
+    redraw_overlay = True if this.values_label['text'] != detail_text.strip() else False
     this.values_label['text'] = detail_text.strip()
 
     if this.use_overlay.get() and this.overlay.available():
@@ -1894,10 +1895,11 @@ def update_display() -> None:
             this.overlay.display("bioscan_title", "BioScan Details",
                                  x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                                  color=this.overlay_color.get())
-            this.overlay.display("bioscan_details", detail_text,
-                                 x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
-                                 color=this.overlay_color.get(), scrolled=this.overlay_detail_scroll.get(),
-                                 limit=this.overlay_detail_length.get(), delay=this.overlay_detail_delay.get())
+            if redraw_overlay:
+                this.overlay.display("bioscan_details", detail_text.strip(),
+                                     x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
+                                     color=this.overlay_color.get(), scrolled=this.overlay_detail_scroll.get(),
+                                     limit=this.overlay_detail_length.get(), delay=this.overlay_detail_delay.get())
             this.overlay.display("bioscan_summary", text,
                                  x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
                                  size="large", color=this.overlay_color.get())
