@@ -46,7 +46,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 65.0,
                     'volcanism': 'None',
                     'body_type': ['Icy body', 'Rocky ice body'],
-                    'special': ['O', 'WC']
+                    'main_star': ['O', 'WC']
                 },
                 {
                     'atmosphere': ['None'],
@@ -56,7 +56,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 65.0,
                     'volcanism': ['carbon dioxide geysers'],
                     'body_type': ['Icy body', 'Rocky ice body'],
-                    'special': ['O', 'WC']
+                    'main_star': ['O', 'WC']
                 }
             ],
         },
@@ -72,7 +72,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'volcanism': ['silicate', 'rocky', 'metallic'],
                     'body_type': ['Rocky body'],
-                    'special': [('B', 'I'), ('B', 'II'), ('B', 'III'), ('B', 'IV')]
+                    'main_star': [('B', 'I'), ('B', 'II'), ('B', 'III'), ('B', 'IV')]
                 }
             ],
         },
@@ -127,7 +127,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 400.0,
                     'volcanism': 'Any',
                     'body_type': ['Metal rich body', 'High metal content body'],
-                    'special': ['B', ('A', 'II'), ('A', 'I'), 'H']
+                    'main_star': ['B', ('A', 'II'), ('A', 'I'), 'H']
                 }
             ],
         },

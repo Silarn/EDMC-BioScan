@@ -26,9 +26,9 @@ _mound_amphora: dict[str, dict[str, Mapping]] = {
             'value': 1471900,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'volcanism': 'Any',
-                    'special': 'nebula'
+                    'nebula': True,
+                    'regions': ['!center']
                 }
             ]
         }
@@ -39,13 +39,14 @@ _mound_amphora: dict[str, dict[str, Mapping]] = {
             'value': 1628800,
             'rulesets': [
                 {
+                    'body_type': ['Metal rich body'],
                     'atmosphere': ['None'],
+                    'main_star': 'A',
                     'min_temperature': 1000.0,
                     'max_temperature': 1750.0,
                     'volcanism': ['metallic', 'rocky', 'silicate'],
-                    'body_type': ['Metal rich body'],
-                    'main_star': 'A',
-                    'life': True
+                    'life': True,
+                    'regions': ['amphora']
                 }
             ]
         }
