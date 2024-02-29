@@ -919,30 +919,22 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             stop = True
                     case 'main_star':
                         if isinstance(value, list):
-                            if isinstance(value[0], tuple):
-                                match = False
-                                for star_info in value:
+                            match = False
+                            for star_info in value:
+                                if isinstance(star_info, tuple):
                                     if star_check(star_info[0], this.main_star_type):
                                         for flag in ['', 'a', 'b', 'ab', 'z']:
                                             if star_info[1] + flag == this.main_star_luminosity:
                                                 match = True
                                                 break
-                                        if match:
-                                            break
-                                if not match:
-                                    log('Eliminated for star type')
-                                    eliminated = True
-                                    stop = True
-                            else:
-                                match = False
-                                for star_type in value:
-                                    if star_check(star_type, this.main_star_type):
+                                else:
+                                    if star_check(star_info, this.main_star_type):
                                         match = True
                                         break
-                                if not match:
-                                    log('Eliminated for star type')
-                                    eliminated = True
-                                    stop = True
+                            if not match:
+                                log('Eliminated for star type')
+                                eliminated = True
+                                stop = True
                         else:
                             if not star_check(value, this.main_star_type):
                                 log('Eliminated for star type')
