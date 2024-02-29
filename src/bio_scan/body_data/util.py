@@ -49,6 +49,20 @@ def get_gravity_warning(gravity: Optional[float]) -> str:
 
 
 def star_check(star_query: str, star_type: str) -> bool:
-    if star_query in ['D', 'C', 'W']:
-        return star_type.startswith(star_query)
-    return star_type == star_query
+    match star_query:
+        case 'A':
+            return star_type in ['A', 'A_BlueWhiteSuperGiant']
+        case 'B':
+            return star_type in ['B', 'B_BlueWhiteSuperGiant']
+        case 'F':
+            return star_type in ['F', 'F_WhiteSuperGiant']
+        case 'G':
+            return star_type in ['G', 'G_WhiteSuperGiant']
+        case 'K':
+            return star_type in ['K', 'K_OrangeGiant']
+        case 'M':
+            return star_type in ['M', 'M_RedGiant', 'M_RedSuperGiant']
+        case 'D' | 'C' | 'W':
+            return star_type.startswith(star_query)
+        case _:
+            return star_type == star_query
