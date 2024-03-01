@@ -1008,15 +1008,15 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                         bio_genus[genus]['colors']['species'][species]['star'][star_type])
                                     found = True
                                     break
-                        for star_name, star_data in filter(lambda item: item[1].get_distance() == 0,
-                                                           this.stars.items()):
+                        for star_name, star_data in this.stars.items():
                             if star_name in body.get_parent_stars():
                                 continue
-                            for star_type in bio_genus[genus]['colors']['species'][species]['star']:
-                                if star_check(star_type, star_data.get_type()):
-                                    possible_species[species].add(
-                                        bio_genus[genus]['colors']['species'][species]['star'][star_type])
-                                    break
+                            if star_data.get_distance() == 0 or parent_is_H(star_data, body):
+                                for star_type in bio_genus[genus]['colors']['species'][species]['star']:
+                                    if star_check(star_type, star_data.get_type()):
+                                        possible_species[species].add(
+                                            bio_genus[genus]['colors']['species'][species]['star'][star_type])
+                                        break
                     except KeyError:
                         log('Parent star not in main stars')
                 elif 'element' in bio_genus[genus]['colors']['species'][species]:
@@ -1041,13 +1041,14 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             found_colors.add(bio_genus[genus]['colors']['star'][star_type])
                             found = True
                             break
-                for star_name, star_data in filter(lambda item: item[1].get_distance() == 0, this.stars.items()):
+                for star_name, star_data in this.stars.items():
                     if star_name in body.get_parent_stars():
                         continue
-                    for star_type in bio_genus[genus]['colors']['star']:
-                        if star_check(star_type, star_data.get_type()):
-                            found_colors.add(bio_genus[genus]['colors']['star'][star_type])
-                            break
+                    if star_data.get_distance() == 0 or parent_is_H(star_data, body):
+                        for star_type in bio_genus[genus]['colors']['star']:
+                            if star_check(star_type, star_data.get_type()):
+                                found_colors.add(bio_genus[genus]['colors']['star'][star_type])
+                                break
             except KeyError:
                 log('Parent star not in main stars')
             if not found_colors:
@@ -1139,6 +1140,30 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         this.planet_cache[body.get_name()][genus] = (False, ('', 0, 0, []))
 
     return this.planet_cache[body.get_name()][genus][1]
+
+
+def parent_is_H(star: StarData, body: PlanetData) -> bool:
+    """
+    Checks for parent stars which are black holes. Bios nearly always base their color on the parent star, but
+    when the parent star is a black hole, the orbiting stars can provide color instead.
+
+    :param star: The star to check for a parent black hole
+    :param body: The planet data to ensure the star is a valid parent star
+    :return: True if the star has a parent black hole and the body is orbiting it
+    """
+
+    possible = False
+    if star.get_name() != this.system:
+        if len(star.get_name().split(' ')) > 1:
+            parent = star.get_name().split(' ')[0]
+            if parent in this.stars and this.stars[parent].get_type() == 'H':
+                possible = True
+        else:
+            if this.main_star_type == 'H':
+                possible = True
+    if possible and body.get_name().startswith(star.get_name()):
+        return True
+    return False
 
 
 def reset_cache(planet: str = '') -> None:
