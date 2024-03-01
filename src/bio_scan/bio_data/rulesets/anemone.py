@@ -48,7 +48,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 65.0,
                     'volcanism': 'None',
                     'body_type': ['Icy body', 'Rocky ice body'],
-                    'main_star': ['O', 'WC'],
+                    'star': ['O'],
                     'regions': ['anemone-a']
                 },
                 {

@@ -958,6 +958,19 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             log('Eliminated for star type')
                             eliminated = True
                             stop = True
+                    case 'star':
+                        match = False
+                        for _, star in this.stars.items():
+                            if match:
+                                break
+                            for star_type in value:
+                                if star_check(star_type, star.get_type()):
+                                    match = True
+                                    break
+                        if not match:
+                            log('Eliminated for star type')
+                            eliminated = True
+                            stop = True
                     case 'nebula':
                         if not this.system.x:
                             log('Missing system coordinates')
