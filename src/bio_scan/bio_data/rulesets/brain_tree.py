@@ -24,6 +24,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 330.0,
                     'max_gravity': 0.42,
                     'volcanism': ['metallic', 'rocky', 'silicate', 'water'],
+                    'guardian': True,
                     'life': True
                 }
             ],

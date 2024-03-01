@@ -166,7 +166,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 152.0,
                     'max_temperature': 177.0,
                     'max_pressure': 0.0135,
-                    'regions': ['perseus']
+                    'regions': ['perseus-core']
                 }
             ],
         },

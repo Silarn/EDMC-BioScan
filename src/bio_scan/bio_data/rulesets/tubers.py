@@ -12,7 +12,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['core']
+                    'regions': ['tuber-a', 'tuber-b']
                 }
             ],
         },
@@ -26,7 +26,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['core']
+                    'regions': ['tuber-a']
                 }
             ],
         },
@@ -40,7 +40,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['core']
+                    'regions': ['tuber-a']
                 }
             ],
         },
@@ -54,7 +54,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['core']
+                    'regions': ['tuber-a']
                 }
             ],
         },
@@ -68,7 +68,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['core']
+                    'regions': ['tuber-b']
                 }
             ],
         },
@@ -82,7 +82,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['core']
+                    'regions': ['tuber-b']
                 }
             ],
         },
@@ -96,7 +96,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['core']
+                    'regions': ['tuber-b']
                 }
             ],
         },
@@ -110,7 +110,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['core']
+                    'regions': ['tuber-b']
                 }
             ],
         },
