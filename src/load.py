@@ -959,18 +959,34 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             eliminated = True
                             stop = True
                     case 'star':
-                        match = False
-                        for _, star in this.stars.items():
-                            if match:
-                                break
-                            for star_type in value:
-                                if star_check(star_type, star.get_type()):
+                        if isinstance(value, list):
+                            match = False
+                            for _, star in this.stars.items():
+                                for star_info in value:
+                                    if isinstance(star_info, tuple):
+                                        if star_check(star_info[0], star.get_type()):
+                                            for flag in ['', 'a', 'b', 'ab', 'z']:
+                                                if star_info[1] + flag == star.get_luminosity():
+                                                    match = True
+                                                    break
+                                    else:
+                                        if star_check(star_info, star.get_type()):
+                                            match = True
+                                            break
+                                if not match:
+                                    log('Eliminated for star type')
+                                    eliminated = True
+                                    stop = True
+                        else:
+                            match = False
+                            for _, star in this.stars.items():
+                                if star_check(value, star.get_type()):
                                     match = True
                                     break
-                        if not match:
-                            log('Eliminated for star type')
-                            eliminated = True
-                            stop = True
+                            if not match:
+                                log('Eliminated for star type')
+                                eliminated = True
+                                stop = True
                     case 'nebula':
                         if not this.system.x:
                             log('Missing system coordinates')
