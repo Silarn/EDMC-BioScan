@@ -38,7 +38,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 50.0,
                     'max_temperature': 150.0,
                     'body_type': ['Icy body'],
-                    'nebula': True
+                    'nebula': 'all'
                 },
                 {
                     'atmosphere': ['Neon', 'NeonRich'],
@@ -48,7 +48,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 70.0,
                     'max_pressure': 0.005,
                     'body_type': ['Icy body'],
-                    'nebula': True
+                    'nebula': 'all'
                 }
             ],
         },

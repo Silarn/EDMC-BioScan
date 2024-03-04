@@ -27,7 +27,7 @@ _mound_amphora: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'volcanism': 'Any',
-                    'nebula': True,
+                    'nebula': 'large',
                     'regions': ['!center']
                 }
             ]

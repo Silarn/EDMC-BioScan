@@ -991,6 +991,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                         if not this.system.x:
                             log('Missing system coordinates')
                             continue
+                        if value not in ['all', 'large']:
+                            log('Invalid nebula check type')
                         found = False
                         for sector in nebula_sectors:
                             if this.system.name.startswith(sector):
@@ -998,7 +1000,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 stop = True
                         if not found:
                             current_location: tuple[float, float, float] = (this.system.x, this.system.y, this.system.z)
-                            for system, coordinates in get_nearest_nebula(current_location).items():
+                            all_nebulae = True if value == 'all' else False
+                            for system, coordinates in get_nearest_nebula(current_location, all_nebulae).items():
                                 distance = math.sqrt((coordinates[0] - this.system.x) ** 2
                                                      + (coordinates[1] - this.system.y) ** 2
                                                      + (coordinates[2] - this.system.z) ** 2)
