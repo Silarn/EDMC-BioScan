@@ -791,6 +791,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             eliminated = False
             for rule_type, value in ruleset.items():
                 stop = False
+                log(f'Processing {rule_type}')
                 match rule_type:
                     case 'atmosphere':
                         if value == 'Any' and body.get_atmosphere() in ['', 'None']:
@@ -965,18 +966,23 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 for star_info in value:
                                     if isinstance(star_info, tuple):
                                         if star_check(star_info[0], star.get_type()):
+                                            log(f'Checking {star_info[0]} {star_info[1]} against {star.get_type()}' +
+                                                f' {star.get_luminosity()}')
                                             for flag in ['', 'a', 'b', 'ab', 'z']:
                                                 if star_info[1] + flag == star.get_luminosity():
                                                     match = True
                                                     break
                                     else:
+                                        log(f'Checking {star_info} against {star.get_type()}')
                                         if star_check(star_info, star.get_type()):
                                             match = True
                                             break
-                                if not match:
-                                    log('Eliminated for star type')
-                                    eliminated = True
-                                    stop = True
+                                if match:
+                                    break
+                            if not match:
+                                log('Eliminated for star type')
+                                eliminated = True
+                                stop = True
                         else:
                             match = False
                             for _, star in this.stars.items():
