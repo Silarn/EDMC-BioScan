@@ -10,8 +10,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['None', 'Argon', 'ArgonRich', 'CarbonDioxide', 'CarbonDioxideRich',
                                    'Helium', 'Methane', 'Neon', 'NeonRich'],
                     'max_gravity': 2.0,
-                    'max_temperature': 266.0,
-                    'main_star': ['A', 'B', 'F', 'G', 'K', 'N', 'H'],
+                    'max_temperature': 273.0,
+                    'star': ['F', 'G', 'K'],
                     'distance': 10000.0,
                     'life_plus': True,
                     'regions': ['exterior']
