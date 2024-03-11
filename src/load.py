@@ -703,7 +703,7 @@ def edsm_data(event: tk.Event) -> None:
             except Exception as e:
                 logger.error('Error while parsing EDSM', exc_info=e)
 
-    filter_stars()
+    # filter_stars()
     main_star = get_main_star(this.system, this.sql_session)
     if main_star:
         this.main_star_type = main_star.type
@@ -1051,6 +1051,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 continue
                             if star_data.get_distance() == 0 or parent_is_H(star_data, body):
                                 for star_type in bio_genus[genus]['colors']['species'][species]['star']:
+                                    log('Checking star type %s against %s' % (star_type, star_data.get_type()))
                                     if star_check(star_type, star_data.get_type()):
                                         possible_species[species].add(
                                             bio_genus[genus]['colors']['species'][species]['star'][star_type])
@@ -1084,6 +1085,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                         continue
                     if star_data.get_distance() == 0 or parent_is_H(star_data, body):
                         for star_type in bio_genus[genus]['colors']['star']:
+                            log('Checking star type %s against %s' % (star_type, star_data.get_type()))
                             if star_check(star_type, star_data.get_type()):
                                 found_colors.add(bio_genus[genus]['colors']['star'][star_type])
                                 break
@@ -1190,12 +1192,16 @@ def parent_is_H(star: StarData, body: PlanetData) -> bool:
     :return: True if the star has a parent black hole and the body is orbiting it
     """
 
+    log(f'Checking for BH parent, star {star}, body {body.get_name()}')
     possible = False
     if star.get_name() != this.system:
         if len(star.get_name().split(' ')) > 1:
-            parent = star.get_name().split(' ')[0]
-            if parent in this.stars and this.stars[parent].get_type() == 'H':
-                possible = True
+            parent_string = star.get_name().split(' ')[0]
+            for parent in parent_string:
+                log(f'Checking parent {parent}...')
+                if parent in this.stars and this.stars[parent].get_type() == 'H':
+                    log('IS a black hole!')
+                    possible = True
         else:
             if this.main_star_type == 'H':
                 possible = True
@@ -1343,7 +1349,7 @@ def journal_entry(
             this.system.region = sector[0] if sector is not None else None
         this.planets = load_planets(this.system, this.sql_session)
         this.stars = load_stars(this.system, this.sql_session)
-        filter_stars()
+        # filter_stars()
         main_star = get_main_star(this.system, this.sql_session)
         if main_star:
             this.main_star_type = main_star.type
