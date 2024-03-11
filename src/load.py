@@ -5,7 +5,7 @@
 
 # Core imports
 from copy import deepcopy
-from typing import Mapping, MutableMapping, Optional
+from typing import Mapping, MutableMapping
 from urllib.parse import quote
 import sys
 import threading

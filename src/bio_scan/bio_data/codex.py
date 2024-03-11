@@ -10,7 +10,9 @@ from ExploData.explo_data import db
 from bio_scan.bio_data.species import rules as bio_types
 
 
-def check_codex(commander: int, region: int, genus: str, species: str, variant: str = '') -> bool:
+def check_codex(commander: int, region: int | None, genus: str, species: str, variant: str = '') -> bool:
+    if region is None:
+        return False
     biological = species
     if variant:
         if species in bio_genus:
