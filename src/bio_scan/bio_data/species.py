@@ -41,7 +41,7 @@ _mound_amphora: dict[str, dict[str, Mapping]] = {
                 {
                     'body_type': ['Metal rich body'],
                     'atmosphere': ['None'],
-                    'main_star': 'A',
+                    'star': 'A',
                     'min_temperature': 1000.0,
                     'max_temperature': 1750.0,
                     'volcanism': ['metallic', 'rocky', 'silicate'],
