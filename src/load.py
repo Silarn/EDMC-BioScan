@@ -677,7 +677,10 @@ def edsm_data(event: tk.Event) -> None:
                     .set_gravity(body['gravity'] * 9.80665) \
                     .set_temp(body['surfaceTemperature']) \
                     .set_mass(body['earthMasses']) \
-                    .set_terraform_state(terraformable)
+                    .set_terraform_state(terraformable) \
+                    .set_landable(body['isLandable']) \
+                    .set_orbital_period(body['orbitalPeriod'] * 86400 if body['orbitalPeriod'] else 0) \
+                    .set_rotation(body['rotationalPeriod'] * 86400)
                 if body['volcanismType'] == 'No volcanism':
                     volcanism = ''
                 else:
@@ -736,6 +739,8 @@ def add_edsm_star(body: dict) -> None:
         star_data.set_luminosity(body['luminosity'])
         star_data.set_distance(body['distanceToArrival'])
         star_data.set_mass(body['solarMasses'])
+        star_data.set_orbital_period(body['orbitalPeriod'] * 86400 if body['orbitalPeriod'] else 0)
+        star_data.set_rotation(body['rotationalPeriod'] * 86400)
         this.stars[body_short_name] = star_data
     except Exception as e:
         logger.error('Error while parsing EDSM', exc_info=e)
