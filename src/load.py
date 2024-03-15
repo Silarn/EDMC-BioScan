@@ -584,10 +584,11 @@ def journal_update(event: tk.Event) -> None:
 
     :param event: Required to process the event. Unused.
     """
-
-    progress = f'{ExploData.explo_data.journal_parse.get_progress():.1%}'
+    finished, total = ExploData.explo_data.journal_parse.get_progress()
+    if total > 0:
+        progress = f'{finished / total:.1%}'
     progress = progress.rstrip('0').rstrip('.')
-    this.journal_label['text'] = f'Parsing Journals: {progress}'
+    this.journal_label['text'] = f'Parsing Journals: {progress} [{finished}/{total}]'
 
 
 def journal_end(event: tk.Event) -> None:
