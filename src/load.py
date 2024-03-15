@@ -121,7 +121,7 @@ class This:
         self.planet_longitude: float | None = None
         self.planet_altitude: float = 10000.0
         self.planet_heading: int | None = None
-        self.current_scan: str = ''
+        self.current_scan: tuple[str, str] = ('', '')
         self.system: System | None = None
         self.edd_replay: bool = False
 
@@ -1439,7 +1439,7 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                     target_body = name
                     break
 
-            this.current_scan = entry['Genus']
+            this.current_scan = (entry['Genus'], entry['Species'])
             scan_level = 0
             match entry['ScanType']:
                 case 'Log':
@@ -1454,7 +1454,8 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                     entry['Genus'], entry['Species'], scan_level, this.commander.id
                 )
                 if scan_level == 1 and this.current_scan:
-                    data: PlanetFlora = this.planets[target_body].get_flora(this.current_scan)
+                    data: PlanetFlora = this.planets[target_body].get_flora(this.current_scan[0],
+                                                                            this.current_scan[1])[0]
                     stmt = delete(Waypoint).where(Waypoint.commander_id == this.commander.id) \
                         .where(Waypoint.type == 'scan').where(Waypoint.flora_id != data.id)
                     this.sql_session.execute(stmt)
@@ -1468,6 +1469,7 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                         if this.planet_latitude and this.planet_longitude and this.waypoints_enabled.get():
                             this.planets[target_body].add_flora_waypoint(
                                 entry['Genus'],
+                                entry['Species'],
                                 (this.planet_latitude, this.planet_longitude),
                                 this.commander.id,
                                 scan=True
@@ -1488,12 +1490,12 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                         break
 
                 if target_body is not None:
-                    genus, _, _ = parse_variant(entry['Name'])
+                    genus, species, _ = parse_variant(entry['Name'])
                     if genus:
                         if this.location_id == entry['BodyID'] and this.planet_latitude \
                                 and this.planet_longitude and this.waypoints_enabled.get():
                             this.planets[target_body].add_flora_waypoint(
-                                genus, (this.planet_latitude, this.planet_longitude), this.commander.id
+                                genus, species, (this.planet_latitude, this.planet_longitude), this.commander.id
                             )
                     reset_cache()  # Required to clear found codex marks
 
@@ -1635,7 +1637,8 @@ def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
     distance_list = []
     if this.planet_latitude is not None and this.planet_longitude is not None:
         if this.location_name and this.current_scan:
-            waypoints: list[Waypoint] = this.planets[this.location_name].get_flora(this.current_scan).waypoints
+            waypoints: list[Waypoint] = (this.planets[this.location_name]
+                                         .get_flora(this.current_scan[0], this.current_scan[1])[0].waypoints)
             waypoints = list(
                 filter(lambda item: item.type == 'scan' and item.commander_id == this.commander.id, waypoints))
             for waypoint in waypoints:
@@ -1722,6 +1725,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             detail_text += 'All Scans Complete'
         if len(body.get_flora()) > 0:
             count = 0
+            genus_count: dict[str, int] = {}
             for flora in sorted(body.get_flora(), key=lambda item: bio_genus[item.genus]['name']):
                 count += 1
                 show = True
@@ -1743,10 +1747,15 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         show = False
 
                 if species != '':
+                    if bio_genus[genus]['multiple']:
+                        genus_count[genus] = genus_count.get(genus, 0) + 1
+                        if show and genus_count[genus] == 1:
+                            detail_text += f'{bio_genus[genus]['name']} - Multiple Possible:\n'
                     if show:
                         waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
                                                                      and this.current_scan == '' and waypoints) else ''
-                        detail_text += '{}{}{} ({}): {}{}{}\n'.format(
+                        detail_text += '{}{}{}{} ({}): {}{}{}\n'.format(
+                            '  ' if bio_genus[genus]['multiple'] else '',
                             '\N{memo} ' if not check_codex(this.commander.id, this.system.region,
                                                            genus, species, color) else '',
                             bio_types[genus][species]['name'],
