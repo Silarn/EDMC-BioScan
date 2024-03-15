@@ -703,7 +703,6 @@ def edsm_data(event: tk.Event) -> None:
             except Exception as e:
                 logger.error('Error while parsing EDSM', exc_info=e)
 
-    # filter_stars()
     main_star = get_main_star(this.system, this.sql_session)
     if main_star:
         this.main_star_type = main_star.type
@@ -1299,14 +1298,6 @@ def add_star(entry: Mapping[str, any]) -> None:
     this.stars[body_short_name] = star_data
 
 
-def filter_stars():
-    stars = this.stars.copy().keys()
-    for star in stars:
-        match = re.match(r'^[A-Z]$', star)
-        if not match and star != this.system.name:
-            this.stars.pop(star)
-
-
 def journal_entry(
         cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, any], state: MutableMapping[str, any]
 ) -> str:
@@ -1349,7 +1340,6 @@ def journal_entry(
             this.system.region = sector[0] if sector is not None else None
         this.planets = load_planets(this.system, this.sql_session)
         this.stars = load_stars(this.system, this.sql_session)
-        # filter_stars()
         main_star = get_main_star(this.system, this.sql_session)
         if main_star:
             this.main_star_type = main_star.type
