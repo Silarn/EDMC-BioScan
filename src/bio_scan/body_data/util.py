@@ -38,13 +38,14 @@ def body_check(bodies: dict[str, PlanetData], extra: bool = False) -> bool:
     return False
 
 
-def get_gravity_warning(gravity: Optional[float]) -> str:
+def get_gravity_warning(gravity: Optional[float], with_gravity: bool = False) -> str:
     if gravity:
         g_gravity = round(gravity / 9.80665, 2)
         if g_gravity > 2.69:
-            return ' !G!'
+            return f'!{g_gravity}G!' if with_gravity else ' !G!'
         if g_gravity >= 1.0:
-            return ' ^G^'
+            return f' ^{g_gravity}G^' if with_gravity else ' ^G^'
+        return f' {g_gravity}G' if with_gravity else ''
     return ''
 
 

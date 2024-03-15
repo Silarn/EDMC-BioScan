@@ -528,7 +528,8 @@ def parse_config() -> None:
     this.overlay_summary_y = tk.IntVar(value=config.get_int(key='bioscan_overlay_summary_y', default=0))
     this.overlay_detail_scroll = tk.BooleanVar(value=config.get_int(key='bioscan_overlay_detail_scroll', default=True))
     this.overlay_detail_length = tk.IntVar(value=config.get_int(key='bioscan_overlay_detail_length', default=70))
-    this.overlay_detail_delay = tk.DoubleVar(value=float(config.get_str(key='bioscan_overlay_detail_delay', default=10.0)))
+    this.overlay_detail_delay = tk.DoubleVar(
+        value=float(config.get_str(key='bioscan_overlay_detail_delay', default=10.0)))
 
 
 def version_check() -> str:
@@ -1696,9 +1697,19 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
         if not focused:
             if not complete or this.scan_display_mode.get() not in ['Hide', 'Hide in System']:
                 if len(body.get_flora()) and num_complete:
-                    detail_text += f'{name} ({num_complete}/{len(body.get_flora())} Complete):\n'
-                else:
-                    detail_text += f'{name}:\n'
+                    detail_text += '{} -{}{} ({}/{} Complete):\n'.format(
+                        name,
+                        get_body_shorthand(body.get_type()),
+                        get_gravity_warning(body.get_gravity(), True),
+                        num_complete,
+                        len(body.get_flora())
+                    )
+                elif body.get_scan_state(this.commander.id) == 3 or body.get_bio_signals():
+                    detail_text += '{} -{}{}:\n'.format(
+                        name,
+                        get_body_shorthand(body.get_type()),
+                        get_gravity_warning(body.get_gravity(), True)
+                    )
             else:
                 detail_text += f'{name} - All Samples Complete\n'
         elif complete and this.scan_display_mode.get() == 'Hide':
@@ -1937,7 +1948,7 @@ def update_display() -> None:
         signal_summary = ''
         this.total_label['text'] = ''
 
-    this.label['text'] = title + signal_summary + text
+    this.label['text'] = title + signal_summary + '\n' + text
     redraw_overlay = True if this.values_label['text'] != detail_text.strip() else False
     this.values_label['text'] = detail_text.strip()
 
