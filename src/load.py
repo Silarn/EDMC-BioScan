@@ -1791,41 +1791,44 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
 
         else:
             types = get_possible_values(body)
-            detail_text += f'{body.get_bio_signals()} Signals - Possible Types:\n'
-            count = 0
-            for bio_name, values in types:
-                count += 1
-                detail_text += '{}: {}\n'.format(
-                    bio_name,
-                    this.formatter.format_credit_range(values[0], values[1])
-                )
-                if this.focus_breakdown.get():
-                    for species_details in values[2]:
-                        species_details_final = deepcopy(species_details)
-                        if species_details_final[1] and len(species_details_final[1]) > 1:
-                            for variant in species_details_final[1]:
+            if body.get_bio_signals():
+                detail_text += f'{body.get_bio_signals()} Signals - Possible Types:\n'
+                count = 0
+                for bio_name, values in types:
+                    count += 1
+                    detail_text += '{}: {}\n'.format(
+                        bio_name,
+                        this.formatter.format_credit_range(values[0], values[1])
+                    )
+                    if this.focus_breakdown.get():
+                        for species_details in values[2]:
+                            species_details_final = deepcopy(species_details)
+                            if species_details_final[1] and len(species_details_final[1]) > 1:
+                                for variant in species_details_final[1]:
+                                    if not check_codex_from_name(this.commander.id, this.system.region,
+                                                                 species_details_final[0], variant):
+                                        species_details_final[1][
+                                            species_details_final[1].index(variant)] = f'\N{memo}{variant}'
+                            else:
+                                variant = ''
+                                if species_details_final[1]:
+                                    variant = species_details_final[1][0]
                                 if not check_codex_from_name(this.commander.id, this.system.region,
                                                              species_details_final[0], variant):
-                                    species_details_final[1][
-                                        species_details_final[1].index(variant)] = f'\N{memo}{variant}'
-                        else:
-                            variant = ''
-                            if species_details_final[1]:
-                                variant = species_details_final[1][0]
-                            if not check_codex_from_name(this.commander.id, this.system.region,
-                                                         species_details_final[0], variant):
-                                species_details_final = (
-                                    f'\N{memo}{species_details_final[0]}',
-                                    species_details_final[1],
-                                    species_details_final[2]
-                                )
-                        detail_text += '  {}{}: {}\n'.format(
-                            species_details_final[0],
-                            ' - {}'.format(', '.join(species_details_final[1])) if species_details_final[1] else '',
-                            this.formatter.format_credits(species_details_final[2])
-                        )
-                if len(types) == count:
-                    detail_text += '\n'
+                                    species_details_final = (
+                                        f'\N{memo}{species_details_final[0]}',
+                                        species_details_final[1],
+                                        species_details_final[2]
+                                    )
+                            detail_text += '  {}{}: {}\n'.format(
+                                species_details_final[0],
+                                ' - {}'.format(', '.join(species_details_final[1])) if species_details_final[1] else '',
+                                this.formatter.format_credits(species_details_final[2])
+                            )
+                    if len(types) == count:
+                        detail_text += '\n'
+            elif body.get_scan_state(this.commander.id) < 3 and len(types):
+                detail_text += f'{name}:\nAutoScan Indicates Bios Possible\nRequires Detailed FSS Scan\n\n'
 
     return detail_text, value_sum
 
@@ -1843,8 +1846,9 @@ def update_display() -> None:
         sorted(
             dict(
                 filter(
-                    lambda item: int(item[1].get_bio_signals()) if item[1].get_bio_signals() else 0 > 0 or len(
-                        item[1].get_flora()) > 0,
+                    lambda item: int(item[1].get_bio_signals()) if item[1].get_bio_signals() else 0 > 0
+                        or len(item[1].get_flora()) > 0
+                        or (item[1].is_landable() and item[1].get_scan_state(this.commander.id) < 3),
                     this.planets.items()
                 )
             ).items(),
@@ -1856,7 +1860,7 @@ def update_display() -> None:
             body_name,
             get_body_shorthand(body_data.get_type()),
             get_gravity_warning(body_data.get_gravity()),
-            body_data.get_bio_signals()
+            body_data.get_bio_signals() if body_data.get_bio_signals() > 0 else '?'
         )
         for body_name, body_data
         in bio_bodies.items()
