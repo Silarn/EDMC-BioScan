@@ -585,6 +585,7 @@ def journal_update(event: tk.Event) -> None:
     :param event: Required to process the event. Unused.
     """
     finished, total = ExploData.explo_data.journal_parse.get_progress()
+    progress = '0%'
     if total > 0:
         progress = f'{finished / total:.1%}'
     progress = progress.rstrip('0').rstrip('.')
@@ -1837,7 +1838,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if len(types) == count:
                         detail_text += '\n'
             elif body.get_scan_state(this.commander.id) < 3 and len(types):
-                detail_text += f'{name}:\nAutoScan Indicates Bios Possible\nRequires Detailed FSS Scan\n\n'
+                detail_text += f'{name}:\nAutoScanned Body, Bios Possible\nCheck FSS for Signals (or Map)\n\n'
 
     return detail_text, value_sum
 
@@ -1967,7 +1968,7 @@ def update_display() -> None:
         signal_summary = ''
         this.total_label['text'] = ''
 
-    this.label['text'] = title + signal_summary + '\n' + text
+    this.label['text'] = title + signal_summary + ('\n' if signal_summary else '') + text
     redraw_overlay = True if this.values_label['text'] != detail_text.strip() else False
     this.values_label['text'] = detail_text.strip()
 
