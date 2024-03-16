@@ -12,7 +12,7 @@ def get_body_shorthand(body_type: str) -> str:
         case 'Rocky ice body':
             return ' (RI)'
         case 'Metal rich body':
-            return ' (M)'
+            return ' (MR)'
         case 'High metal content body':
             return ' (HMC)'
         case _:

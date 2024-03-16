@@ -1751,7 +1751,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if bio_genus[genus]['multiple']:
                         genus_count[genus] = genus_count.get(genus, 0) + 1
                         if show and genus_count[genus] == 1:
-                            detail_text += f'{bio_genus[genus]['name']} - Multiple Possible:\n'
+                            detail_text += f'{bio_genus[genus]["name"]} - Multiple Possible:\n'
                     if show:
                         waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
                                                                      and this.current_scan == '' and waypoints) else ''
@@ -1838,7 +1838,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if len(types) == count:
                         detail_text += '\n'
             elif body.get_scan_state(this.commander.id) < 3 and len(types):
-                detail_text += f'{name}:\nAutoScanned Body, Bios Possible\nCheck FSS for Signals (or Map)\n\n'
+                detail_text += f'{name}:\nAutoScanned Body, Bios Possible\nCheck FSS for Signals (or DSS)\n\n'
 
     return detail_text, value_sum
 
