@@ -675,7 +675,7 @@ def edsm_data(event: tk.Event) -> None:
                 planet_data.set_type(planet_type) \
                     .set_distance(body['distanceToArrival']) \
                     .set_atmosphere(map_edsm_atmosphere(body['atmosphereType'])) \
-                    .set_gravity(body['gravity'] * 9.80665) \
+                    .set_gravity(body['gravity'] * 9.797759) \
                     .set_temp(body['surfaceTemperature']) \
                     .set_mass(body['earthMasses']) \
                     .set_terraform_state(terraformable) \
@@ -816,12 +816,12 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                 eliminated = True
                                 stop = True
                     case 'max_gravity':
-                        if body.get_gravity() / 9.80665 > value:
+                        if body.get_gravity() / 9.797759 > value:
                             log('Eliminated for high grav')
                             eliminated = True
                             stop = True
                     case 'min_gravity':
-                        if body.get_gravity() / 9.80665 < value:
+                        if body.get_gravity() / 9.797759 < value:
                             log('Eliminated for low grav')
                             eliminated = True
                             stop = True
@@ -1920,7 +1920,7 @@ def update_display() -> None:
             text += '{} - {} [{}G] - {}/{} Analysed'.format(
                 bio_bodies[this.location_name].get_name(),
                 bio_bodies[this.location_name].get_type(),
-                '{:.2f}'.format(bio_bodies[this.location_name].get_gravity() / 9.80665).rstrip('0').rstrip('.'),
+                '{:.2f}'.format(bio_bodies[this.location_name].get_gravity() / 9.797759).rstrip('0').rstrip('.'),
                 complete, len(bio_bodies[this.location_name].get_flora())
             )
             for flora in this.planets[this.location_name].get_flora():
