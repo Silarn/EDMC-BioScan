@@ -1879,9 +1879,10 @@ def update_display() -> None:
         sorted(
             dict(
                 filter(
-                    lambda item: int(item[1].get_bio_signals()) if item[1].get_bio_signals() else 0 > 0
-                        or len(item[1].get_flora()) > 0
-                        or (item[1].is_landable() and item[1].get_scan_state(this.commander.id) < 3),
+                    lambda item: item[1].get_bio_signals() > 0
+                                 or len(item[1].get_flora()) > 0
+                                 or (item[1].is_landable() and item[1].get_scan_state(this.commander.id) < 3
+                                     and item[1].get_geo_signals() == 0),
                     this.planets.items()
                 )
             ).items(),
