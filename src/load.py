@@ -25,6 +25,7 @@ import bio_scan.overlay as overlay
 from bio_scan.nebula_data.reference_stars import get_nearest_nebula
 from bio_scan.nebula_data.sectors import data as nebula_sectors
 from bio_scan.status_flags import StatusFlags2, StatusFlags
+from bio_scan.util import system_distance
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
 from bio_scan.bio_data.codex import check_codex, check_codex_from_name
@@ -910,9 +911,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                         for zone, info in guardian_nebulae.items():
                             log(f'Checking guardian zone: {zone}')
                             max_distance, coordinates = info
-                            distance = math.sqrt((coordinates[0] - this.system.x) ** 2
-                                                 + (coordinates[1] - this.system.y) ** 2
-                                                 + (coordinates[2] - this.system.z) ** 2)
+                            distance = system_distance((this.system.x, this.system.y, this.system.z), coordinates)
                             log(f'  Distance: {distance}, Max: {max_distance}')
                             if distance < max_distance:
                                 found = True
@@ -927,9 +926,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             if value == 'Any' or zone in value:
                                 max_distance, coordinates = info
                                 log(f'Checking tuber zone: {zone}')
-                                distance = math.sqrt((coordinates[0] - this.system.x) ** 2
-                                                     + (coordinates[1] - this.system.y) ** 2
-                                                     + (coordinates[2] - this.system.z) ** 2)
+                                distance = system_distance((this.system.x, this.system.y, this.system.z), coordinates)
                                 log(f'  Distance: {distance}, Max: {max_distance}')
                                 if distance <= max_distance:
                                     found = True
@@ -1038,9 +1035,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             current_location: tuple[float, float, float] = (this.system.x, this.system.y, this.system.z)
                             all_nebulae = True if value == 'all' else False
                             for system, coordinates in get_nearest_nebula(current_location, all_nebulae).items():
-                                distance = math.sqrt((coordinates[0] - this.system.x) ** 2
-                                                     + (coordinates[1] - this.system.y) ** 2
-                                                     + (coordinates[2] - this.system.z) ** 2)
+                                distance = system_distance(current_location, coordinates)
                                 log(f'Distance to {system} from {this.system.name}: {distance:n} ly')
                                 if distance < 110.0:
                                     found = True
