@@ -28,7 +28,7 @@ from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
 from bio_scan.bio_data.codex import check_codex, check_codex_from_name
-from bio_scan.bio_data.regions import region_map, guardian_sectors
+from bio_scan.bio_data.regions import region_map, guardian_nebulae, tuber_zones
 from bio_scan.bio_data.species import rules as bio_types
 from bio_scan.format_util import Formatter
 
@@ -906,13 +906,36 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                         stop = True
 
                     case 'guardian':
-                        found = False
-                        for sector in guardian_sectors:
-                            if this.system.name.startswith(sector):
+                        found = not value
+                        for zone, info in guardian_nebulae.items():
+                            log(f'Checking guardian zone: {zone}')
+                            max_distance, coordinates = info
+                            distance = math.sqrt((coordinates[0] - this.system.x) ** 2
+                                                 + (coordinates[1] - this.system.y) ** 2
+                                                 + (coordinates[2] - this.system.z) ** 2)
+                            log(f'  Distance: {distance}, Max: {max_distance}')
+                            if distance < max_distance:
                                 found = True
                                 stop = True
                         if not found:
-                            log('Eliminated for not being in a guardian sector')
+                            log('Eliminated for not being in a guardian zone')
+                            eliminated = True
+                            stop = True
+                    case 'tuber':
+                        found = False
+                        for zone, info in tuber_zones.items():
+                            if value == 'Any' or zone in value:
+                                max_distance, coordinates = info
+                                log(f'Checking tuber zone: {zone}')
+                                distance = math.sqrt((coordinates[0] - this.system.x) ** 2
+                                                     + (coordinates[1] - this.system.y) ** 2
+                                                     + (coordinates[2] - this.system.z) ** 2)
+                                log(f'  Distance: {distance}, Max: {max_distance}')
+                                if distance <= max_distance:
+                                    found = True
+                                    break
+                        if not found:
+                            log('Eliminated for not being in a tuber zone')
                             eliminated = True
                             stop = True
                     case 'life':

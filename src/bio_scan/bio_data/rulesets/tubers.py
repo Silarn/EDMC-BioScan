@@ -7,12 +7,19 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['tuber-a', 'tuber-b']
+                    'regions': ['tuber-a', 'tuber-b'],
+                    'tuber': 'Any'
+                },
+                {
+                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_temperature': 200.0,
+                    'max_temperature': 500.0,
+                    'volcanism': 'Any',
+                    'regions': ['empyrean-straits']
                 }
             ],
         },
@@ -21,12 +28,20 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['tuber-a']
+                    'regions': ['tuber-a'],
+                    'tuber': ['Galactic Center', 'Inner S-C Arm D', 'Norma Arm', 'Norma Expanse B',
+                              'Odin A', 'Ryker B', 'Trojan Belt']
+                },
+                {
+                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_temperature': 200.0,
+                    'max_temperature': 500.0,
+                    'volcanism': 'Any',
+                    'regions': ['empyrean-straits']
                 }
             ],
         },
@@ -35,12 +50,20 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['tuber-a']
+                    'regions': ['tuber-a'],
+                    'tuber': ['Galactic Center', 'Inner S-C Arm D', 'Norma Arm', 'Norma Expanse B',
+                              'Odin A', 'Ryker B', 'Trojan Belt']
+                },
+                {
+                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_temperature': 200.0,
+                    'max_temperature': 500.0,
+                    'volcanism': 'Any',
+                    'regions': ['empyrean-straits']
                 }
             ],
         },
@@ -49,12 +72,20 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['tuber-a']
+                    'regions': ['tuber-a'],
+                    'tuber': ['Galactic Center', 'Inner S-C Arm D', 'Norma Arm', 'Norma Expanse B',
+                              'Odin A', 'Ryker B', 'Trojan Belt']
+                },
+                {
+                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_temperature': 200.0,
+                    'max_temperature': 500.0,
+                    'volcanism': 'Any',
+                    'regions': ['empyrean-straits']
                 }
             ],
         },
@@ -63,12 +94,14 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['tuber-b']
+                    'regions': ['tuber-b'],
+                    'tuber': ['Arcadian Stream', 'Inner Orion Spur', 'Inner O-P Conflux', 'Inner S-C Arm A',
+                              'Inner S-C Arm B', 'Inner S-C Arm C', 'Izanami', 'Hawking A', 'Hawking B', 'Norma Arm',
+                              'Norma Expanse A', 'Odin B', 'Ryker A']
                 }
             ],
         },
@@ -77,12 +110,14 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['tuber-b']
+                    'regions': ['tuber-b'],
+                    'tuber': ['Arcadian Stream', 'Inner Orion Spur', 'Inner O-P Conflux', 'Inner S-C Arm A',
+                              'Inner S-C Arm B', 'Inner S-C Arm C', 'Izanami', 'Hawking A', 'Hawking B', 'Norma Arm',
+                              'Norma Expanse A', 'Odin B', 'Ryker A']
                 }
             ],
         },
@@ -91,12 +126,14 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['tuber-b']
+                    'regions': ['tuber-b'],
+                    'tuber': ['Arcadian Stream', 'Inner Orion Spur', 'Inner O-P Conflux', 'Inner S-C Arm A',
+                              'Inner S-C Arm B', 'Inner S-C Arm C', 'Izanami', 'Hawking A', 'Hawking B', 'Norma Arm',
+                              'Norma Expanse A', 'Odin B', 'Ryker A']
                 }
             ],
         },
@@ -105,12 +142,14 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'regions': ['tuber-b']
+                    'regions': ['tuber-b'],
+                    'tuber': ['Arcadian Stream', 'Inner Orion Spur', 'Inner O-P Conflux', 'Inner S-C Arm A',
+                              'Inner S-C Arm B', 'Inner S-C Arm C', 'Izanami', 'Hawking A', 'Hawking B', 'Norma Arm',
+                              'Norma Expanse A', 'Odin B', 'Ryker A']
                 }
             ],
         },

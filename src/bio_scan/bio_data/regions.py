@@ -16,47 +16,40 @@ region_map: dict[str, list[int]] = {
     'amphora': [10, 19, 20, 21, 22],
     'tuber-a': [1, 2, 3, 4, 5, 9, 10, 11],
     'tuber-b': [3, 4, 6, 7, 8, 9, 10, 18, 19],
+    'brain-tree': [2, 9, 10, 17, 18, 35],
+    'empyrean-straits': [2],
     'center': [1, 2, 3]
 }
 
-guardian_sectors: list[str] = [
-    'Blaa Hypai',
-    'Blae Eork',
-    'Blae Hypue',
-    'Chamaeleon Sector',
-    'Clookeou',
-    'Coalsack',
-    'Col 132 Sector',
-    'Col 135 Sector',
-    'Col 173 Sector',
-    'Drokoe',
-    'Eorl Auwsy',
-    'Eta Carina Sector'
-    'Flyua Dryoae',
-    'Graea Hypue',
-    'IC 2391 Sector',
-    'IC 2602 Sector',
-    'Musca Dark Region',
-    'NGC 2451A Sector',
-    'NGC 2516 Sector',
-    'NGC 2547 Sector',
-    'NGC 3199 Sector',
-    'NGC 3532 Sector',
-    'Nuekau',
-    'Nyeajeou',
-    'Pencil Sector',
-    'Plio Eurl',
-    'Praea Euq',
-    'Prai Hypoo',
-    'Pro Eurl',
-    'Prua Dryoae',
-    'Prua Phoe',
-    'Puekee',
-    'Puppis Dark Region',
-    'Shrogaae',
-    'Skaudai',
-    'Swoilz',
-    'Synuefe',
-    'Vela Dark Region',
-    'Wregoe'
-]
+guardian_nebulae: dict[str, tuple[int, tuple[float, float, float]]] = {
+    'Hen 2-333': (750, (-840.65625, -561.15625, 13361.8125)),
+    'Gamma Velorum': (750, (1099.21875, -146.6875, -133.59375)),
+    'Skaudai AA-A h71': (100, (-5493.09375, -589.28125, 10424.4375)),
+    'Blaa Hypai AA-A h68': (100,  (1220.40625, -694.625, 12312.8125)),
+    'Eorl Auwsy AA-A h72': (100, (4949.9375, 164, 20640.125)),
+    'Prai Hypoo AA-A h60': (100, (-9294.875, -458.40625, 7905.71875)),
+    'Eta Carina Nebula': (100, (8579.96875, -138.96875, 2701.375)),
+    'NGC 3199': (100, (14574.15625, -259.625, 3511.90625))
+}
+
+tuber_zones: dict[str, tuple[int, tuple[float, float, float]]] = {
+    'Arcadian Stream': (600, (8897.265, -114.9375, 20520.8)),  # EFGH
+    'Galactic Center': (1500, (585.4055, 129.535, 25389.5)),  # ABCD
+    'Inner Orion Spur': (600, (-3501.86, 38.344, 7309.17)),  # EFGH
+    'Inner O-P Conflux': (750, (-13245.7, -85.766, 30306.5)),  # EFGH
+    'Inner S-C Arm A': (600, (-1644.44, -39.375, 10697.1)),  # EFGH
+    'Inner S-C Arm B': (600, (-6601.435, -78.375, 12551.15)),  # EFGH
+    'Inner S-C Arm C': (600, (-9354.53, -38.7345, 17174.1)),  # EFGH
+    'Inner S-C Arm D': (250, (-11987.4, 228.1874, 22648.7)),  # ABCD
+    'Izanami': (750, (-4620.17, 404.7031, 37197.75)),  # EFGH
+    'Hawking A': (600, (5792.315, 155.0935, 6313.19)),  # EFGH
+    'Hawking B': (600, (9987.79, 24.328, 8198.2)),  # EFGH
+    'Norma Arm': (1000, (3682.595, 142.283, 16430.9)),  # ALL
+    'Norma Expanse A': (600, (4278.095, -91.4685, 11965.6)),  # EFGH
+    'Norma Expanse B': (250, (5573.36, 33.875, 11754.9)),  # ABCD
+    'Odin A': (1000, (-7893.295, 300.28, 27972.55)),  # ABCD
+    'Odin B': (600, (-5309.345, -114.7345, 18655.5)),  # EFGH
+    'Ryker A': (650, (1708.33, 798.5955, 34093.5)),  # EFGH
+    'Ryker B': (1500, (-1138.625, 402.1545, 30630.45)),  # ABCD
+    'Trojan Belt': (325, (18594.95, 18.969, 31666.3)),  # ABCD
+}
