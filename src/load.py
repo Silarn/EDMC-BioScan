@@ -939,12 +939,12 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             eliminated = True
                             stop = True
                     case 'life':
-                        if not body_check(this.planets):
+                        if value and not body_check(this.planets):
                             log('Eliminated for missing body type(s)')
                             eliminated = True
                             stop = True
                     case 'life_plus':
-                        if not body_check(this.planets, True):
+                        if value and not body_check(this.planets, True):
                             log('Eliminated for missing body type(s)')
                             eliminated = True
                             stop = True
@@ -1042,7 +1042,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                                      + (coordinates[1] - this.system.y) ** 2
                                                      + (coordinates[2] - this.system.z) ** 2)
                                 log(f'Distance to {system} from {this.system.name}: {distance:n} ly')
-                                if distance < 120.0:
+                                if distance < 110.0:
                                     found = True
                                     stop = True
                         if not found:
