@@ -1732,7 +1732,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         num_complete,
                         len(body.get_flora())
                     )
-                elif body.get_scan_state(this.commander.id) == 3 or body.get_bio_signals():
+                elif body.get_scan_state(this.commander.id) == 4 or body.get_bio_signals():
                     detail_text += '{} -{}{}:\n'.format(
                         name,
                         get_body_shorthand(body.get_type()),
@@ -1855,7 +1855,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             )
                     if len(types) == count:
                         detail_text += '\n'
-            elif body.get_scan_state(this.commander.id) < 3 and len(types):
+            elif body.get_scan_state(this.commander.id) < 4 and len(types):
                 detail_text += f'{name}:\nAutoScanned Body, Bios Possible\nCheck FSS for Signals (or DSS)\n\n'
 
     return detail_text, value_sum
@@ -1876,7 +1876,7 @@ def update_display() -> None:
                 filter(
                     lambda item: item[1].get_bio_signals() > 0
                                  or len(item[1].get_flora()) > 0
-                                 or (item[1].is_landable() and item[1].get_scan_state(this.commander.id) < 3
+                                 or (item[1].is_landable() and item[1].get_scan_state(this.commander.id) < 4
                                      and item[1].get_geo_signals() == 0),
                     this.planets.items()
                 )
