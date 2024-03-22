@@ -34,22 +34,22 @@ guardian_nebulae: dict[str, tuple[int, tuple[float, float, float]]] = {
 
 tuber_zones: dict[str, tuple[int, tuple[float, float, float]]] = {
     'Arcadian Stream': (600, (8897.265, -114.9375, 20520.8)),  # EFGH
-    'Galactic Center': (1500, (585.4055, 129.535, 25389.5)),  # ABCD
-    'Inner Orion Spur': (600, (-3501.86, 38.344, 7309.17)),  # EFGH
+    'Galactic Center': (1000, (46, 487, 25916)),  # ABCD
+    'Inner Orion Spur': (600, (-3485, 39, 7320)),  # EFGH
     'Inner O-P Conflux': (750, (-13245.7, -85.766, 30306.5)),  # EFGH
     'Inner S-C Arm A': (600, (-1644.44, -39.375, 10697.1)),  # EFGH
     'Inner S-C Arm B': (600, (-6601.435, -78.375, 12551.15)),  # EFGH
     'Inner S-C Arm C': (600, (-9354.53, -38.7345, 17174.1)),  # EFGH
     'Inner S-C Arm D': (250, (-11987.4, 228.1874, 22648.7)),  # ABCD
-    'Izanami': (750, (-4620.17, 404.7031, 37197.75)),  # EFGH
+    'Izanami': (750, (-4595, 420, 37210)),  # EFGH
     'Hawking A': (600, (5792.315, 155.0935, 6313.19)),  # EFGH
-    'Hawking B': (600, (9987.79, 24.328, 8198.2)),  # EFGH
-    'Norma Arm': (1000, (3682.595, 142.283, 16430.9)),  # ALL
-    'Norma Expanse A': (600, (4278.095, -91.4685, 11965.6)),  # EFGH
+    'Hawking B': (600, (9987.79, -114.45325, 8212.201875)),  # EFGH
+    'Norma Arm': (1000, (3722.6, 200, 16441)),  # ALL
+    'Norma Expanse A': (600, (4250, -92, 12015)),  # EFGH
     'Norma Expanse B': (250, (5573.36, 33.875, 11754.9)),  # ABCD
-    'Odin A': (1000, (-7893.295, 300.28, 27972.55)),  # ABCD
+    'Odin A': (1000, (-7950, 225, 28010)),  # ABCD
     'Odin B': (600, (-5309.345, -114.7345, 18655.5)),  # EFGH
-    'Ryker A': (650, (1708.33, 798.5955, 34093.5)),  # EFGH
-    'Ryker B': (1500, (-1138.625, 402.1545, 30630.45)),  # ABCD
-    'Trojan Belt': (325, (18594.95, 18.969, 31666.3)),  # ABCD
+    'Ryker A': (750, (1750, 750, 34100)),  # EFGH
+    'Ryker B': (1500, (-1430, 360, 30456)),  # ABCD
+    'Trojan Belt': (500, (18615, 55, 31730)),  # ABCD
 }
