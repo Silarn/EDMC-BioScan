@@ -122,6 +122,7 @@ class This:
         self.planet_longitude: float | None = None
         self.planet_altitude: float = 10000.0
         self.planet_heading: int | None = None
+        self.analysis_mode: bool = True
         self.current_scan: tuple[str, str] = ('', '')
         self.system: System | None = None
         self.edd_replay: bool = False
@@ -1597,6 +1598,10 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         this.planet_altitude = 0 if this.location_state == 'surface' else 10000
         this.planet_radius = 0
 
+    if this.analysis_mode != (StatusFlags.IS_ANALYSIS_MODE in status):
+        this.analysis_mode = (StatusFlags.IS_ANALYSIS_MODE in status)
+        refresh = True
+
     if refresh:
         update_display()
     if scroll:
@@ -1992,22 +1997,27 @@ def update_display() -> None:
     this.values_label['text'] = detail_text.strip()
 
     if this.use_overlay.get() and this.overlay.available():
-        if detail_text:
-            this.overlay.display("bioscan_title", "BioScan Details",
-                                 x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
-                                 color=this.overlay_color.get())
-            if redraw_overlay:
-                this.overlay.display("bioscan_details", detail_text.strip(),
-                                     x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
-                                     color=this.overlay_color.get(), scrolled=this.overlay_detail_scroll.get(),
-                                     limit=this.overlay_detail_length.get(), delay=this.overlay_detail_delay.get())
-            this.overlay.display("bioscan_summary", text,
-                                 x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
-                                 size="large", color=this.overlay_color.get())
+        if this.analysis_mode:
+            if detail_text:
+                this.overlay.display("bioscan_title", "BioScan Details",
+                                     x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
+                                     color=this.overlay_color.get())
+                if redraw_overlay:
+                    this.overlay.display("bioscan_details", detail_text.strip(),
+                                         x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
+                                         color=this.overlay_color.get(), scrolled=this.overlay_detail_scroll.get(),
+                                         limit=this.overlay_detail_length.get(), delay=this.overlay_detail_delay.get())
+                this.overlay.display("bioscan_summary", text,
+                                     x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
+                                     size="large", color=this.overlay_color.get())
+            else:
+                this.overlay.display("bioscan_title", "BioScan: No Signals",
+                                     x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
+                                     color=this.overlay_color.get())
+                this.overlay.clear("bioscan_details")
+                this.overlay.clear("bioscan_summary")
         else:
-            this.overlay.display("bioscan_title", "BioScan: No Signals",
-                                 x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
-                                 color=this.overlay_color.get())
+            this.overlay.clear("bioscan_title")
             this.overlay.clear("bioscan_details")
             this.overlay.clear("bioscan_summary")
 
