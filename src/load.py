@@ -1861,7 +1861,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if len(types) == count:
                         detail_text += '\n'
             elif body.get_scan_state(this.commander.id) < 4 and len(types):
-                detail_text += f'{name}:\nAutoScanned Body, Bios Possible\nCheck FSS for Signals (or DSS)\n\n'
+                detail_text += f'{name}:\nAutoScan/NavBeacon Data, Bios Possible\nCheck FSS for Signals (or DSS)\n\n'
 
     return detail_text, value_sum
 
@@ -1897,7 +1897,7 @@ def update_display() -> None:
             body_data.get_bio_signals() if body_data.get_bio_signals() > 0 else '?'
         )
         for body_name, body_data
-        in bio_bodies.items()
+        in filter(lambda item: item[1].get_bio_signals() > 0 or len(item[1].get_flora()) > 0, bio_bodies.items())
     ]
 
     if (this.location_name != '' and this.location_name in bio_bodies) and this.focus_setting.get() != 'Never' and \
