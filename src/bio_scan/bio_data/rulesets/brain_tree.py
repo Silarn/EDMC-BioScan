@@ -10,7 +10,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
                     'guardian': True,
-                    'region': ['brain-tree']
+                    'region': ['brain-tree'],
+                    'life': True
                 }
             ],
         },
