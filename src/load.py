@@ -122,7 +122,10 @@ class This:
         self.planet_longitude: float | None = None
         self.planet_altitude: float = 10000.0
         self.planet_heading: int | None = None
+        self.on_foot: bool = False
+        self.suit_name: str = ''
         self.analysis_mode: bool = True
+        self.mode_changed: bool = False
         self.current_scan: tuple[str, str] = ('', '')
         self.system: System | None = None
         self.edd_replay: bool = False
@@ -1372,6 +1375,11 @@ def journal_entry(
             this.main_star_type = main_star.type
             this.main_star_luminosity = main_star.luminosity
 
+    if state['SuitCurrent'] and state['SuitCurrent']['name'] != this.suit_name:
+        this.suit_name = state['SuitCurrent']['name']
+        this.mode_changed = True
+        update_display()
+
     if cmdr and not this.commander:
         stmt = select(Commander).where(Commander.name == cmdr)
         result = this.sql_session.scalars(stmt)
@@ -1600,6 +1608,12 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
 
     if this.analysis_mode != (StatusFlags.IS_ANALYSIS_MODE in status):
         this.analysis_mode = (StatusFlags.IS_ANALYSIS_MODE in status)
+        this.mode_changed = True
+        refresh = True
+
+    if this.on_foot != (StatusFlags2.PLANET_ON_FOOT in status2):
+        this.on_foot = (StatusFlags2.PLANET_ON_FOOT in status2)
+        this.mode_changed = True
         refresh = True
 
     if refresh:
@@ -1994,10 +2008,13 @@ def update_display() -> None:
 
     this.label['text'] = title + signal_summary + ('\n' if signal_summary else '') + text
     redraw_overlay = True if this.values_label['text'] != detail_text.strip() else False
+    if this.mode_changed:
+        redraw_overlay = True
+        this.mode_changed = False
     this.values_label['text'] = detail_text.strip()
 
     if this.use_overlay.get() and this.overlay.available():
-        if this.analysis_mode:
+        if this.analysis_mode or (this.on_foot and this.suit_name.startswith('explorationsuit')):
             if detail_text:
                 this.overlay.display("bioscan_title", "BioScan Details",
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
