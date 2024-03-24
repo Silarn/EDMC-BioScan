@@ -1612,8 +1612,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         refresh = True
 
     if StatusFlags2.PLANET_ON_FOOT in status2:
-        if ((StatusFlags2.SOCIAL_ON_FOOT in status2) or (StatusFlags2.HANGAR_ON_FOOT in status2)
-                or (StatusFlags2.EXTERIOR_ON_FOOT in status2)):
+        if (StatusFlags2.SOCIAL_ON_FOOT in status2) or (StatusFlags2.HANGAR_ON_FOOT in status2):
             on_foot = False
         else:
             on_foot = True
