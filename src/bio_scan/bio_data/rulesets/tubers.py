@@ -10,7 +10,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': 'silicate magma',
+                    'volcanism': 'metallic magma',
                     'regions': ['tuber-a', 'tuber-b'],
                     'tuber': 'Any'
                 },
@@ -18,7 +18,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': 'silicate magma',
+                    'volcanism': 'metallic magma',
                     'regions': ['empyrean-straits']
                 }
             ],
