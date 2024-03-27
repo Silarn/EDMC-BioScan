@@ -7,6 +7,7 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1593700,
             'rulesets': [
                 {
+                    'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
                     'guardian': True,
@@ -20,8 +21,8 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'body_type': ['Rocky body'],
-                    'min_temperature': 174.0,
-                    'max_temperature': 330.0,
+                    'min_temperature': 200.0,
+                    'max_temperature': 300.0,
                     'max_gravity': 0.42,
                     'volcanism': ['metallic', 'rocky', 'silicate', 'water'],
                     'guardian': True,
@@ -50,9 +51,9 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'body_type': ['Rocky ice body'],
                     'min_temperature': 100.0,
-                    'max_temperature': 255.0,
+                    'max_temperature': 270.0,
                     'max_gravity': 0.4,
-                    'volcanism': ['metallic', 'rocky', 'silicate', 'carbon dioxide', 'water'],
+                    'volcanism': 'Any',
                     'guardian': True,
                     'region': ['brain-tree'],
                     'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant']
