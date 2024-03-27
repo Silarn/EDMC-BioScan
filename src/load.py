@@ -1885,6 +1885,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
 
 def update_display() -> None:
     """ Primary display update function. This is run whenever something could change the display state. """
+    if not this.commander:
+        return
 
     if this.fetched_edsm or not this.system:
         this.edsm_button.grid_remove()
