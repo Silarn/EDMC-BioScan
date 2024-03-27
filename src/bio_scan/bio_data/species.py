@@ -45,7 +45,7 @@ _mound_amphora: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 1000.0,
                     'max_temperature': 1750.0,
                     'volcanism': ['metallic', 'rocky', 'silicate'],
-                    'life': True,
+                    'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant'],
                     'regions': ['amphora']
                 }
             ]

@@ -14,6 +14,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'star': ['F', 'G', 'K'],
                     'distance': 10000.0,
                     'life_plus': True,
+                    'bodies': ['Earthlike body', 'Ammonia world', 'Water world', 'Gas giant with water based life',
+                               'Gas giant with ammonia based life', 'Water giant'],
                     'regions': ['exterior']
                 }
             ]

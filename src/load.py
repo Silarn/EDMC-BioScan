@@ -939,13 +939,8 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             log('Eliminated for not being in a tuber zone')
                             eliminated = True
                             stop = True
-                    case 'life':
-                        if value and not body_check(this.planets):
-                            log('Eliminated for missing body type(s)')
-                            eliminated = True
-                            stop = True
-                    case 'life_plus':
-                        if value and not body_check(this.planets, True):
+                    case 'bodies':
+                        if not body_check(value, this.planets):
                             log('Eliminated for missing body type(s)')
                             eliminated = True
                             stop = True

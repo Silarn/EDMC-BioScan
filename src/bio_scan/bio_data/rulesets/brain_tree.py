@@ -10,8 +10,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
                     'guardian': True,
-                    'region': ['brain-tree'],
-                    'life': True
+                    'region': ['brain-tree']
                 }
             ],
         },
@@ -27,7 +26,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'volcanism': ['metallic', 'rocky', 'silicate', 'water'],
                     'guardian': True,
                     'region': ['brain-tree'],
-                    'life': True
+                    'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant']
                 }
             ],
         },
@@ -40,7 +39,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'volcanism': ['metallic', 'rocky', 'silicate'],
                     'guardian': True,
                     'region': ['brain-tree'],
-                    'life': True
+                    'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant']
                 }
             ],
         },
@@ -56,7 +55,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'volcanism': ['metallic', 'rocky', 'silicate', 'carbon dioxide', 'water'],
                     'guardian': True,
                     'region': ['brain-tree'],
-                    'life': True
+                    'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant']
                 }
             ],
         },
@@ -72,7 +71,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'volcanism': ['metallic', 'rocky', 'silicate'],
                     'guardian': True,
                     'region': ['brain-tree'],
-                    'life': True
+                    'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant']
                 }
             ],
         },
@@ -85,7 +84,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'volcanism': 'Any',
                     'guardian': True,
                     'region': ['brain-tree'],
-                    'life': True
+                    'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant']
                 }
             ],
         },
@@ -101,7 +100,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'volcanism': ['rocky', 'silicate', 'metallic'],
                     'guardian': True,
                     'region': ['brain-tree'],
-                    'life': True
+                    'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant']
                 }
             ],
         },
@@ -117,7 +116,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'volcanism': ['metallic', 'rocky', 'silicate', 'water'],
                     'guardian': True,
                     'region': ['brain-tree'],
-                    'life': True
+                    'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant']
                 }
             ],
         },

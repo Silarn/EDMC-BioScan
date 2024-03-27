@@ -19,19 +19,7 @@ def get_body_shorthand(body_type: str) -> str:
             return ''
 
 
-def body_check(bodies: dict[str, PlanetData], extra: bool = False) -> bool:
-    required_types = [
-        'Earthlike body',
-        'Gas giant with water based life',
-        'Gas giant with ammonia based life'
-    ]
-    if extra:
-        required_types += [
-            'Ammonia world',
-            'Water world',
-            'Water giant',
-            'Water giant with life',
-        ]
+def body_check(required_types: list[str], bodies: dict[str, PlanetData]) -> bool:
     for _, body_data in bodies.items():
         if body_data.get_type() in required_types:
             return True
