@@ -5631,9 +5631,17 @@ planetary_coordinates: dict[str, tuple[float, float, float]] = {
     'Zunue ZP-X e1-2273': (-8508.71875, 1078, 23661.9375),
 }
 
+
 def nebulae_sort(current_coordinates: tuple[float, float, float],
-                 all_nebulae: bool) -> list[tuple[str, tuple[float, float, float]]]:
-    final_coordinates = (coordinates | planetary_coordinates) if all_nebulae else coordinates
+                 nebula_type: str = 'large') -> list[tuple[str, tuple[float, float, float]]]:
+    final_coordinates = {}
+    match nebula_type:
+        case 'large':
+            final_coordinates = coordinates
+        case 'planetary':
+            final_coordinates = planetary_coordinates
+        case 'all':
+            final_coordinates = coordinates | planetary_coordinates
     sorted_coordinates: list[tuple[str, tuple[float, float, float]]] = sorted(
         final_coordinates.items(), key=lambda item: sum((a - b) ** 2 for a, b in zip(current_coordinates, item[1]))
     )
@@ -5641,7 +5649,7 @@ def nebulae_sort(current_coordinates: tuple[float, float, float],
 
 
 def get_nearest_nebula(current_coordinates: tuple[float, float, float],
-                       all_nebulae: bool) -> dict[str, tuple[float, float, float]]:
-    result: list[tuple[str, tuple[float, float, float]]] = nebulae_sort(current_coordinates, all_nebulae)
+                       nebula_type: str = 'large') -> dict[str, tuple[float, float, float]]:
+    result: list[tuple[str, tuple[float, float, float]]] = nebulae_sort(current_coordinates, nebula_type)
     return {result[0][0]: result[0][1]}
     

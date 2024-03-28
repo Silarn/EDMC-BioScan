@@ -1029,16 +1029,22 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                         for sector in nebula_sectors:
                             if this.system.name.startswith(sector):
                                 found = True
-                                stop = True
                         if not found:
                             current_location: tuple[float, float, float] = (this.system.x, this.system.y, this.system.z)
                             all_nebulae = True if value == 'all' else False
-                            for system, coordinates in get_nearest_nebula(current_location, all_nebulae).items():
+                            for system, coordinates in get_nearest_nebula(current_location).items():
                                 distance = system_distance(current_location, coordinates)
                                 log(f'Distance to {system} from {this.system.name}: {distance:n} ly')
                                 if distance < 110.0:
                                     found = True
-                                    stop = True
+                                    break
+                            if not found and all_nebulae:
+                                for system, coordinates in get_nearest_nebula(current_location, 'planetary').items():
+                                    distance = system_distance(current_location, coordinates)
+                                    log(f'Distance to {system} from {this.system.name}: {distance:n} ly')
+                                    if distance < 100.0:
+                                        found = True
+                                        break
                         if not found:
                             log('Eliminated for lack of nebula')
                             eliminated = True
