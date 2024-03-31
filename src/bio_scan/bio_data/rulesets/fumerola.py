@@ -129,7 +129,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Methane'],
                     'body_type': ['Icy body'],
-                    'min_gravity': 0.032,
+                    'min_gravity': 0.03,
                     'max_gravity': 0.1,
                     'min_temperature': 83.0,
                     'max_temperature': 109.0,
