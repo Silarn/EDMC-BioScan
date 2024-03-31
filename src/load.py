@@ -1381,7 +1381,7 @@ def journal_entry(
         this.mode_changed = True
         update_display()
 
-    if cmdr and not this.commander:
+    if cmdr and (not this.commander or this.commander.name != cmdr):
         stmt = select(Commander).where(Commander.name == cmdr)
         result = this.sql_session.scalars(stmt)
         this.commander = result.first()
