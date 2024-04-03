@@ -1934,7 +1934,7 @@ def update_display() -> None:
     else:
         detail_text, total_value = get_bodies_summary(bio_bodies)
 
-    if len(bio_bodies) > 0:
+    if detail_text != '':
         this.scroll_canvas.grid()
         this.scrollbar.grid()
         this.total_label.grid()
