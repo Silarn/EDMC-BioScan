@@ -1891,14 +1891,19 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
 
 def update_display() -> None:
     """ Primary display update function. This is run whenever something could change the display state. """
-    if not this.commander:
-        return
 
     if this.fetched_edsm or not this.system:
         this.edsm_button.grid_remove()
     else:
         this.edsm_button.grid()
         this.edsm_failed.grid_remove()
+
+    if not this.commander:
+        this.scroll_canvas.grid_remove()
+        this.scrollbar.grid_remove()
+        this.total_label.grid_remove()
+        this.label['text'] = 'BioScan: Awaiting Data'
+        return
 
     bio_bodies = dict(
         sorted(
