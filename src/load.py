@@ -858,6 +858,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             log('Eliminated for high pressure')
                             eliminated = True
                             stop = True
+                    case 'max_orbital_period':
+                        if body.get_orbital_period() >= value:
+                            log('Eliminated for high orbital period')
+                            eliminated = True
+                            stop = True
                     case 'volcanism':
                         log(f'Compare {value} to {body.get_volcanism()}')
                         if value == 'Any' and body.get_volcanism() == '':
@@ -865,7 +870,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             eliminated = True
                             stop = True
                         elif value == 'None' and body.get_volcanism() != '':
-                            log('Eliminated for any volcanism')
+                            log('Eliminated for having volcanism')
                             eliminated = True
                             stop = True
                         elif isinstance(value, list):
@@ -928,11 +933,12 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                         found = False
                         for zone, info in tuber_zones.items():
                             if value == 'Any' or zone in value:
-                                max_distance, coordinates = info
+                                distances, coordinates = info
+                                min_distance, max_distance = distances
                                 log(f'Checking tuber zone: {zone}')
                                 distance = system_distance((this.system.x, this.system.y, this.system.z), coordinates)
                                 log(f'  Distance: {distance}, Max: {max_distance}')
-                                if distance <= max_distance:
+                                if min_distance <= distance <= max_distance:
                                     found = True
                                     break
                         if not found:
