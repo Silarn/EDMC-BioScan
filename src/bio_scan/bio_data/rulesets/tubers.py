@@ -101,7 +101,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'tuber': ['Arcadian Stream', 'Empyrean Straits', 'Norma Arm A']
+                    'tuber': ['Arcadian Stream', 'Empyrean Straits', 'Norma Arm B']
                 }
             ],
         },
