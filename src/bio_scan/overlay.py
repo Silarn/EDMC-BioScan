@@ -8,7 +8,10 @@ from bio_scan import const
 try:
     from EDMCOverlay import edmcoverlay
 except ImportError:
-    edmcoverlay = None
+    try:
+        from edmcoverlay import edmcoverlay
+    except ImportError:
+        edmcoverlay = None
 
 logger = get_plugin_logger(const.name)
 
@@ -75,9 +78,6 @@ class Overlay:
     def disconnect(self) -> None:
         self._redraw_timer.set()
         self._scroll_timer.set()
-        self._overlay.send_raw({
-            "command": "exit"
-        })
 
     def display(self, message_id: str, text: str, x: int = 0, y: int = 0, color: str = "#ffffff", size: str = "normal",
                 scrolled: bool = False, limit: int = 0, delay: float = 10) -> None:
