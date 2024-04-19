@@ -32,7 +32,7 @@ guardian_nebulae: dict[str, tuple[int, tuple[float, float, float]]] = {
 
 tuber_zones: dict[str, tuple[tuple[int, int], tuple[float, float, float]]] = {
     'Arcadian Stream': ((200, 600), (8885, -20, 20535)),
-    'Empyrean Straits': ((300, 400), (4380, 350, 21260)),
+    'Empyrean Straits': ((200, 400), (4325, 400, 21185)),
     'Galactic Center': ((500, 1000), (44.5, 492.7, 25916)),
     'Hawking A': ((150, 600), (5788, 150, 6335)),
     'Hawking B': ((200, 600), (9990, -40, 8335)),
