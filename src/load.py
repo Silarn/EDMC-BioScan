@@ -854,20 +854,24 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             eliminated = True
                     case 'volcanism':
                         log(f'Compare {value} to {body.get_volcanism()}')
-                        if value == 'Any' and body.get_volcanism() == '':
+                        if isinstance(value, list):
+                            found = False
+                            for volc_type in value:  # type: str
+                                if body.get_volcanism().find(volc_type) != -1:
+                                    found = True
+                                    break
+                            if not found:
+                                log('Eliminated for missing volcanism')
+                                eliminated = True
+                        elif value == 'Any' and body.get_volcanism() == '':
                             log('Eliminated for no volcanism')
                             eliminated = True
                         elif value == 'None' and body.get_volcanism() != '':
                             log('Eliminated for having volcanism')
                             eliminated = True
-                            stop = True
-                        elif isinstance(value, list):
-                            found = False
-                            for volc_type in value:
-                                if body.get_volcanism().find(volc_type) != -1:
-                                    found = True
-                            if not found:
-                                log('Eliminated for missing volcanism')
+                        elif value.startswith('!'):  # 'not' values assume there must be some volcanism
+                            if body.get_volcanism().find(value[1:]) != -1 or body.get_volcanism() == '':
+                                log(f'Eliminated for having {value[1:]} volcanism')
                                 eliminated = True
                     case 'body_type':
                         if body.get_type() not in value:
