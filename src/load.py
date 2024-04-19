@@ -795,80 +795,68 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     log(f'System: {this.system.name} - Body: {body.get_name()}')
     log(f'Running checks for {bio_genus[genus]["name"]}:')
     for species, data in bio_types[genus].items():
-        log(species)
+        log(f'Species: {data["name"]}')
         count = 0
         for ruleset in data['rulesets']:
             count += 1
             log(f'Ruleset {count}')
             eliminated = False
             for rule_type, value in ruleset.items():
-                stop = False
                 log(f'Processing {rule_type}')
                 match rule_type:
                     case 'atmosphere':
                         if value == 'Any' and body.get_atmosphere() in ['', 'None']:
                             log('Eliminated for no atmos')
                             eliminated = True
-                            stop = True
                         elif value != 'Any' and body.get_atmosphere() not in value:
                             log(f'Eliminated for atmos ({body.get_atmosphere()} in {value})')
                             eliminated = True
-                            stop = True
                     case 'atmosphere_component':
                         for gas, percent in value.items():
                             if body.get_gas(gas) < percent:
                                 log('Eliminated for lack of gas in atmosphere')
                                 eliminated = True
-                                stop = True
                     case 'max_gravity':
                         if body.get_gravity() / 9.797759 > value:
                             log('Eliminated for high grav')
                             eliminated = True
-                            stop = True
                     case 'min_gravity':
                         if body.get_gravity() / 9.797759 < value:
                             log('Eliminated for low grav')
                             eliminated = True
-                            stop = True
                     case 'max_temperature':
                         if not body.get_temp():
                             continue
                         if body.get_temp() >= value:
                             log('Eliminated for high heat')
                             eliminated = True
-                            stop = True
                     case 'min_temperature':
                         if not body.get_temp():
                             continue
                         if body.get_temp() < value:
                             log('Eliminated for low heat')
                             eliminated = True
-                            stop = True
                     case 'min_pressure':
                         if not body.get_pressure():
                             continue
                         if body.get_pressure() / 101231.656250 < value:
                             log('Eliminated for low pressure')
                             eliminated = True
-                            stop = True
                     case 'max_pressure':
                         if not body.get_pressure():
                             continue
                         if body.get_pressure() / 101231.656250 >= value:
                             log('Eliminated for high pressure')
                             eliminated = True
-                            stop = True
                     case 'max_orbital_period':
                         if body.get_orbital_period() >= value:
                             log('Eliminated for high orbital period')
                             eliminated = True
-                            stop = True
                     case 'volcanism':
                         log(f'Compare {value} to {body.get_volcanism()}')
                         if value == 'Any' and body.get_volcanism() == '':
                             log('Eliminated for no volcanism')
                             eliminated = True
-                            stop = True
                         elif value == 'None' and body.get_volcanism() != '':
                             log('Eliminated for having volcanism')
                             eliminated = True
@@ -881,12 +869,10 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             if not found:
                                 log('Eliminated for missing volcanism')
                                 eliminated = True
-                                stop = True
                     case 'body_type':
                         if body.get_type() not in value:
                             log('Eliminated for body type')
                             eliminated = True
-                            stop = True
                     case 'regions':
                         if this.system.region is not None:
                             log(f'Current region: {this.system.region} - {galaxy_regions[this.system.region]}')
@@ -897,10 +883,9 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                         if this.system.region in region_map[region[1:]]:
                                             log('Eliminated by region')
                                             eliminated = True
-                                            stop = True
                                             break
 
-                                if not stop:
+                                if not eliminated:
                                     found = False
                                     count = 0
                                     for region in value:
@@ -913,7 +898,6 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                                     if not found and count > 0:
                                         log('Eliminated by region')
                                         eliminated = True
-                                        stop = True
 
                     case 'guardian':
                         found = not value
@@ -924,11 +908,10 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             log(f'  Distance: {distance}, Max: {max_distance}')
                             if distance < max_distance:
                                 found = True
-                                stop = True
+                                break
                         if not found:
                             log('Eliminated for not being in a guardian zone')
                             eliminated = True
-                            stop = True
                     case 'tuber':
                         found = False
                         for zone, info in tuber_zones.items():
@@ -944,12 +927,10 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                         if not found:
                             log('Eliminated for not being in a tuber zone')
                             eliminated = True
-                            stop = True
                     case 'bodies':
                         if not body_check(value, this.planets):
                             log('Eliminated for missing body type(s)')
                             eliminated = True
-                            stop = True
                     case 'main_star':
                         if isinstance(value, list):
                             match = False
@@ -967,12 +948,10 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             if not match:
                                 log('Eliminated for star type')
                                 eliminated = True
-                                stop = True
                         else:
                             if not star_check(value, this.main_star_type):
                                 log('Eliminated for star type')
                                 eliminated = True
-                                stop = True
                     case 'parent_star':
                         match = False
                         for star_type in value:
@@ -990,7 +969,6 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                         if not match:
                             log('Eliminated for star type')
                             eliminated = True
-                            stop = True
                     case 'star':
                         if isinstance(value, list):
                             match = False
@@ -1014,7 +992,6 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             if not match:
                                 log('Eliminated for star type')
                                 eliminated = True
-                                stop = True
                         else:
                             match = False
                             for _, star in this.stars.items():
@@ -1024,7 +1001,6 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             if not match:
                                 log('Eliminated for star type')
                                 eliminated = True
-                                stop = True
                     case 'nebula':
                         if not this.system.x:
                             log('Missing system coordinates')
@@ -1054,12 +1030,10 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                         if not found:
                             log('Eliminated for lack of nebula')
                             eliminated = True
-                            stop = True
                     case 'distance':
                         if body.get_distance() < value:
                             eliminated = True
-                            stop = True
-                if stop:
+                if eliminated:
                     break
             if not eliminated:
                 possible_species[species] = set()
