@@ -1,3 +1,3 @@
 name = 'BioScan'
 version = '2.8.5'
-db_version = 6
+db_version = 7
