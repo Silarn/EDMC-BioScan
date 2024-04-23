@@ -31,14 +31,14 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Metal rich body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': '!metallic magma',
+                    'volcanism': ['major rocky magma', 'major silicate vapour'],
                     'tuber': ['Inner S-C Arm B', 'Inner S-C Arm D', 'Norma Expanse B', 'Odin B']
                 },
                 {
                     'body_type': ['Metal rich body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': '!metallic magma',
+                    'volcanism': ['major rocky magma', 'major silicate vapour'],
                     'regions': ['empyrean-straits']
                 }
             ],
@@ -100,7 +100,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Metal rich body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': '!metallic magma',
+                    'volcanism': ['major silicate vapour'],
                     'tuber': ['Arcadian Stream', 'Empyrean Straits', 'Norma Arm B']
                 }
             ],
