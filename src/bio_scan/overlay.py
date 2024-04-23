@@ -173,7 +173,7 @@ class Overlay:
                                 self._text_blocks[message_id].offset += 1
                             else:
                                 self._text_blocks[message_id].offset -= 1
-                    elif message_info.limit != 0 and message_info.limit > len(message_info.text):
+                    elif message_info.limit != 0 and message_info.limit >= len(message_info.text):
                         self.draw(message_id)
             except Exception as ex:
                 logger.debug("Exception during scroll repaint", exc_info=ex)
@@ -184,7 +184,7 @@ class Overlay:
             count = block.offset
             line_count = 0
             spacer = 14 if block.size == "normal" else 24
-            while (block.limit == 0 or count - block.offset < block.limit) and count < len(block.text):
+            while (block.limit == 0 or count - block.offset <= block.limit) and count < len(block.text):
                 try:
                     self._overlay.send_message("{}_{}".format(message_id, line_count), block.text[count], block.color,
                                                block.x, block.y + (spacer * (count - block.offset)),
