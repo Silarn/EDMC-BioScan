@@ -95,7 +95,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Methane'],
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
-                    'min_gravity': 0.04,
+                    'min_gravity': 0.025,
                     'max_gravity': 0.127,
                     'min_temperature': 77.0,
                     'max_temperature': 109.0,
@@ -129,7 +129,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Methane'],
                     'body_type': ['Icy body'],
-                    'min_gravity': 0.03,
+                    'min_gravity': 0.025,
                     'max_gravity': 0.1,
                     'min_temperature': 83.0,
                     'max_temperature': 109.0,
