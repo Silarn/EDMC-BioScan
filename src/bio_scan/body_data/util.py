@@ -30,7 +30,7 @@ def get_gravity_warning(gravity: Optional[float], with_gravity: bool = False) ->
     if gravity:
         g_gravity = round(gravity / 9.80665, 2)
         if g_gravity > 2.69:
-            return f'!{g_gravity}G!' if with_gravity else ' !G!'
+            return f' !{g_gravity}G!' if with_gravity else ' !G!'
         if g_gravity >= 1.0:
             return f' ^{g_gravity}G^' if with_gravity else ' ^G^'
         return f' {g_gravity}G' if with_gravity else ''
