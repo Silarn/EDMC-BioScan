@@ -39,8 +39,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Metal rich body', 'Rocky body', 'High metal content body'],
                     'volcanism': ['metallic', 'rocky', 'silicate'],
                     'guardian': True,
-                    'region': ['brain-tree'],
-                    'bodies': ['Earthlike body', 'Gas giant with water based life', 'Water giant']
+                    'region': ['brain-tree']
                 }
             ],
         },
