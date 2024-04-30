@@ -122,6 +122,7 @@ class This:
         self.planet_longitude: float | None = None
         self.planet_altitude: float = 10000.0
         self.planet_heading: int | None = None
+        self.docked: bool = False
         self.on_foot: bool = False
         self.suit_name: str = ''
         self.analysis_mode: bool = True
@@ -1605,6 +1606,13 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         this.mode_changed = True
         refresh = True
 
+    docked = True if (StatusFlags.DOCKED in status) else False
+
+    if this.docked != docked:
+        this.docked = docked
+        this.mode_changed = True
+        refresh = True
+
     if refresh:
         update_display()
     if scroll:
@@ -2012,7 +2020,7 @@ def update_display() -> None:
     this.values_label['text'] = detail_text.strip()
 
     if this.use_overlay.get() and this.overlay.available():
-        if this.analysis_mode or (this.on_foot and this.suit_name.startswith('explorationsuit')):
+        if not this.docked and (this.analysis_mode or (this.on_foot and this.suit_name.startswith('explorationsuit'))):
             if detail_text:
                 this.overlay.display("bioscan_title", "BioScan Details",
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
