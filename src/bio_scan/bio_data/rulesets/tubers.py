@@ -7,18 +7,10 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
-                    'body_type': ['Rocky body'],
-                    'min_temperature': 200.0,
-                    'max_temperature': 500.0,
-                    'max_orbital_period': 86400,
-                    'volcanism': ['metallic magma', 'rocky magma'],
-                    'tuber': ['Galactic Center', 'Odin A', 'Ryker B']
-                },
-                {
                     'body_type': ['High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': ['metallic magma', 'rocky magma'],
+                    'volcanism': ['rocky magma'],
                     'tuber': ['Galactic Center', 'Odin A', 'Ryker B']
                 }
             ],
