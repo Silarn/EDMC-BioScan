@@ -24,7 +24,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': 'Any',
-                    'tuber': ['Inner S-C Arm B']
+                    'tuber': ['Inner S-C Arm B 1']
                 },
                 {
                     'body_type': ['Metal rich body', 'High metal content body'],
@@ -52,7 +52,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 500.0,
                     'max_orbital_period': 86400,
                     'volcanism': ['major silicate vapour'],
-                    'tuber': ['Inner S-C Arm B', 'Inner S-C Arm D', 'Trojan Belt']
+                    'tuber': ['Inner S-C Arm B 2', 'Inner S-C Arm D', 'Trojan Belt']
                 }
             ],
         },
@@ -133,8 +133,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Metal rich body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': ['metallic magma'],
-                    'tuber': ['Arcadian Stream', 'Inner Orion Spur', 'Inner S-C Arm B', 'Hawking A']
+                    'volcanism': ['=metallic magma volcanism', '=rocky magma volcanism'],
+                    'tuber': ['Arcadian Stream', 'Inner Orion Spur', 'Inner S-C Arm B 2', 'Hawking A']
                 }
             ],
         },

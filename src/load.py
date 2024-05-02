@@ -858,7 +858,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                         if isinstance(value, list):
                             found = False
                             for volc_type in value:  # type: str
-                                if body.get_volcanism().find(volc_type) != -1:
+                                if volc_type.startswith('='):
+                                    if body.get_volcanism() == volc_type[1:]:
+                                        found = True
+                                        break
+                                elif body.get_volcanism().find(volc_type) != -1:
                                     found = True
                                     break
                             if not found:
