@@ -20,11 +20,18 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1514500,
             'rulesets': [
                 {
+                    'body_type': ['Metal rich body', 'High metal content body', 'Rocky body'],
+                    'min_temperature': 200.0,
+                    'max_temperature': 500.0,
+                    'volcanism': 'Any',
+                    'tuber': ['Inner S-C Arm B']
+                },
+                {
                     'body_type': ['Metal rich body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'volcanism': ['major rocky magma', 'major silicate vapour'],
-                    'tuber': ['Inner S-C Arm B', 'Inner S-C Arm D', 'Norma Expanse B', 'Odin B']
+                    'tuber': ['Inner S-C Arm D', 'Norma Expanse B', 'Odin B']
                 },
                 {
                     'body_type': ['Metal rich body', 'High metal content body'],
@@ -126,7 +133,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Metal rich body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': 'metallic magma',
+                    'volcanism': ['metallic magma'],
                     'tuber': ['Arcadian Stream', 'Inner Orion Spur', 'Inner S-C Arm B', 'Hawking A']
                 }
             ],
