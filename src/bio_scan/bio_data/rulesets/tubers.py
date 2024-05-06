@@ -51,7 +51,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'max_orbital_period': 86400,
-                    'volcanism': ['major silicate vapour'],
+                    'volcanism': ['major silicate vapour', 'major metallic magma'],
                     'tuber': ['Inner S-C Arm B 2', 'Inner S-C Arm D', 'Trojan Belt']
                 }
             ],
