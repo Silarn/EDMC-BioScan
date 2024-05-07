@@ -161,9 +161,6 @@ coordinates = {
     'Xothuia KP-E d12-93': (-7742.8125, 660.375, 30714.09375),
     'Xothuia ZJ-E c13-17': (-6660.65625, 633.21875, 30244.9375),
     'Zejoo WM-Q b52-2': (-15778.1875, -111.96875, 11586.21875),
-}
-
-planetary_coordinates: dict[str, tuple[float, float, float]] = {
     'BD+06 3649': (-4334, 1608.375, 6282.46875),
     'BD+22 3878': (-958.21875, -71, 535.5),
     'BD+24 3048': (-2861.4375, 3248.40625, 3057.78125),
@@ -231,6 +228,9 @@ planetary_coordinates: dict[str, tuple[float, float, float]] = {
     'T Tauri': (-32.96875, -206.40625, -557.3125),
     'V380 Orionis': (549.34375, -374.53125, -926.59375),
     'V651 Monoceros': (1747.15625, 188.34375, -2431.46875),
+}
+
+planetary_coordinates: dict[str, tuple[float, float, float]] = {
     'Aemonz EQ-Y e1899': (4549.96875, -850.5625, 33732.375),
     'Aemonz WP-X e1-230': (3852.90625, -321.15625, 33901.03125),
     'Aemonz WZ-Y e2137': (3857.34375, -576.5, 33733.875),
