@@ -21,9 +21,10 @@ from tkinter import ttk
 
 # Local imports
 import bio_scan.const
-import bio_scan.overlay as overlay
+from bio_scan.globals import Globals
 from bio_scan.nebula_data.reference_stars import get_nearest_nebula
 from bio_scan.nebula_data.sectors import data as nebula_sectors
+from bio_scan.settings import get_settings
 from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.util import system_distance
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
@@ -31,10 +32,8 @@ from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_ed
 from bio_scan.bio_data.codex import check_codex, check_codex_from_name
 from bio_scan.bio_data.regions import region_map, guardian_nebulae, tuber_zones
 from bio_scan.bio_data.species import rules as bio_types
-from bio_scan.format_util import Formatter
 
 # Database objects
-
 from sqlalchemy import select, delete, update
 from sqlalchemy.orm import Session
 
@@ -44,13 +43,12 @@ from ExploData.explo_data.body_data.struct import PlanetData, StarData, load_pla
 from ExploData.explo_data.bio_data.codex import parse_variant
 from ExploData.explo_data.bio_data.genus import data as bio_genus
 import ExploData.explo_data.journal_parse
-from ExploData.explo_data.journal_parse import parse_journals, register_journal_callbacks, register_event_callbacks
+from ExploData.explo_data.journal_parse import register_journal_callbacks, register_event_callbacks
 
 # EDMC imports
 from config import config
 from theme import theme
 from EDMCLogging import get_plugin_logger
-import myNotebook as nb
 from ttkHyperlinkLabel import HyperlinkLabel
 
 # 3rd Party
@@ -58,87 +56,7 @@ from ExploData.explo_data.RegionMap import findRegion
 from ExploData.explo_data.RegionMapData import regions as galaxy_regions
 
 
-class This:
-    """Holds module globals."""
-
-    def __init__(self):
-        self.formatter = Formatter()
-
-        self.VERSION = semantic_version.Version(bio_scan.const.version)
-        self.NAME = bio_scan.const.name
-
-        # Settings vars
-        self.focus_setting: tk.StringVar | None = None
-        self.signal_setting: tk.StringVar | None = None
-        self.focus_breakdown: tk.BooleanVar | None = None
-        self.scan_display_mode: tk.StringVar | None = None
-        self.waypoints_enabled: tk.BooleanVar | None = None
-        self.debug_logging_enabled: tk.BooleanVar | None = None
-        self.focus_distance: tk.IntVar | None = None
-        self.use_overlay: tk.BooleanVar | None = None
-        self.overlay_color: tk.StringVar | None = None
-        self.overlay_anchor_x: tk.IntVar | None = None
-        self.overlay_anchor_y: tk.IntVar | None = None
-        self.overlay_summary_x: tk.IntVar | None = None
-        self.overlay_summary_y: tk.IntVar | None = None
-        self.overlay_detail_scroll: tk.BooleanVar | None = None
-        self.overlay_detail_length: tk.IntVar | None = None
-        self.overlay_detail_delay: tk.DoubleVar | None = None
-
-        # GUI Objects
-        self.parent: tk.Frame | None = None
-        self.frame: tk.Frame | None = None
-        self.scroll_canvas: tk.Canvas | None = None
-        self.scrollbar: ttk.Scrollbar | None = None
-        self.scrollable_frame: ttk.Frame | None = None
-        self.label: tk.Label | None = None
-        self.values_label: tk.Label | None = None
-        self.total_label: tk.Label | None = None
-        self.edsm_button: tk.Label | None = None
-        self.edsm_failed: tk.Label | None = None
-        self.update_button: HyperlinkLabel | None = None
-        self.journal_label: tk.Label | None = None
-        self.overlay: overlay.Overlay = overlay.Overlay()
-
-        # Plugin state data
-        self.commander: Commander | None = None
-        self.planets: dict[str, PlanetData] = {}
-        self.stars: dict[str, StarData] = {}
-        self.planet_cache: dict[
-            str, dict[str, tuple[bool, tuple[str, int, int, list[tuple[str, list[str], int]]]]]] = {}
-        self.migration_failed: bool = False
-        self.db_mismatch: bool = False
-        self.sql_session: Session | None = None
-
-        # self.odyssey: bool = False
-        # self.game_version: semantic_version.Version = semantic_version.Version.coerce('0.0.0.0')
-        self.main_star_type: str = ''
-        self.main_star_luminosity: str = ''
-        self.location_name: str = ''
-        self.location_id: str = ''
-        self.location_state: str = ''
-        self.planet_radius: float = 0.0
-        self.planet_latitude: float | None = None
-        self.planet_longitude: float | None = None
-        self.planet_altitude: float = 10000.0
-        self.planet_heading: int | None = None
-        self.docked: bool = False
-        self.on_foot: bool = False
-        self.suit_name: str = ''
-        self.analysis_mode: bool = True
-        self.mode_changed: bool = False
-        self.current_scan: tuple[str, str] = ('', '')
-        self.system: System | None = None
-        self.edd_replay: bool = False
-
-        # EDSM vars
-        self.edsm_thread: threading.Thread | None = None
-        self.edsm_session: str | None = None
-        self.edsm_bodies: Mapping | None = None
-        self.fetched_edsm = False
-
-
-this = This()
+this = Globals()
 logger = get_plugin_logger(this.NAME)
 
 
@@ -231,261 +149,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
 
 
 def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
-    """
-    EDMC settings pane hook.
-    Build settings display and hook in settings properties.
-
-    :param parent: EDMC parent settings pane TKinter frame
-    :param cmdr: Commander name (unused)
-    :param is_beta: ED beta status (unused)
-    :return: Plugin settings tab TKinter frame
-    """
-
-    color_button = None
-
-    def color_chooser() -> None:
-        (_, color) = tkColorChooser.askcolor(
-            this.overlay_color.get(), title='Overlay Color', parent=this.parent
-        )
-
-        if color:
-            this.overlay_color.set(color)
-            if color_button is not None:
-                color_button['foreground'] = color
-
-    x_padding = 10
-    x_button_padding = 12
-    y_padding = 2
-    frame = nb.Frame(parent)
-    frame.columnconfigure(0, weight=1)
-    frame.columnconfigure(1, weight=1)
-    frame.rowconfigure(20, weight=1)
-
-    title_frame = nb.Frame(frame)
-    title_frame.grid(row=1, columnspan=2, sticky=tk.NSEW)
-    title_frame.columnconfigure(0, weight=1)
-    HyperlinkLabel(title_frame, text=this.NAME, background=nb.Label().cget('background'),
-                   url='https://github.com/Silarn/EDMC-BioScan', underline=True) \
-        .grid(row=0, padx=x_padding, sticky=tk.W)
-    nb.Label(title_frame, text='Version %s' % this.VERSION) \
-        .grid(row=0, column=1, sticky=tk.E)
-    nb.Label(title_frame, text='Data Version: %s' % bio_scan.const.db_version) \
-        .grid(row=0, column=2, padx=x_padding, sticky=tk.E)
-    HyperlinkLabel(title_frame, text=ExploData.explo_data.const.plugin_name, background=nb.Label().cget('background'),
-                   url='https://github.com/Silarn/EDMC-ExploData', underline=True) \
-        .grid(row=1, padx=x_padding, pady=y_padding * 2, sticky=tk.W)
-    nb.Label(title_frame, text='Version %s' % semantic_version.Version(ExploData.explo_data.const.plugin_version)) \
-        .grid(row=1, column=1, pady=y_padding * 2, sticky=tk.E)
-    nb.Label(title_frame, text='Data Version: %s' % ExploData.explo_data.const.database_version) \
-        .grid(row=1, column=2, padx=x_padding, pady=y_padding * 2, sticky=tk.E)
-
-    ttk.Separator(frame).grid(row=5, columnspan=2, pady=y_padding * 2, sticky=tk.EW)
-
-    # Left column
-    nb.Label(
-        frame,
-        text='Focus Body Signals:',
-    ).grid(row=10, padx=x_padding, sticky=tk.W)
-    focus_options = [
-        'Never',
-        'On Approach',
-        'Near Surface',
-        'On Surface',
-    ]
-    nb.OptionMenu(
-        frame,
-        this.focus_setting,
-        this.focus_setting.get(),
-        *focus_options
-    ).grid(row=11, padx=x_padding, pady=y_padding, column=0, sticky=tk.W)
-    nb.Label(frame,
-             text='Never: Never filter signal details\n'
-                  'On Approach: Show only local signals on approach\n'
-                  'Near Surface: Show signals under given altitude (see below)\n'
-                  'On Surface: Show only local signals when on surface',
-             justify=tk.LEFT) \
-        .grid(row=12, padx=x_padding, column=0, sticky=tk.NW)
-    nb.Label(frame, text='Altitude (in meters) for "Near Surface":') \
-        .grid(row=13, column=0, padx=x_padding, sticky=tk.SW)
-    nb.Entry(
-        frame, text=this.focus_distance.get(), textvariable=this.focus_distance,
-        validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=14, column=0, padx=x_padding, sticky=tk.NW)
-    nb.Checkbutton(
-        frame,
-        text='Show complete breakdown of genera with multiple matches',
-        variable=this.focus_breakdown
-    ).grid(row=16, column=0, padx=x_button_padding, sticky=tk.W)
-
-    # Right column
-    nb.Label(
-        frame,
-        text='Display Signal Summary:'
-    ).grid(row=10, column=1, sticky=tk.W)
-    signal_options = [
-        'Always',
-        'In Flight',
-    ]
-    nb.OptionMenu(
-        frame,
-        this.signal_setting,
-        this.signal_setting.get(),
-        *signal_options
-    ).grid(row=11, column=1, pady=y_padding, sticky=tk.W)
-    nb.Label(frame,
-             text='Always: Always display the body signal summary\n'
-                  'In Flight: Show the signal summary in flight only',
-             justify=tk.LEFT) \
-        .grid(row=12, column=1, sticky=tk.NW)
-    nb.Checkbutton(
-        frame,
-        text='Enable species waypoints with the comp. scanner',
-        variable=this.waypoints_enabled
-    ).grid(row=13, column=1, padx=x_button_padding, sticky=tk.W)
-    nb.Label(
-        frame,
-        text='Completed Scan Display:'
-    ).grid(row=15, column=1, sticky=tk.W)
-    scan_options = [
-        'Check',
-        'Hide',
-        'Hide in System'
-    ]
-    nb.OptionMenu(
-        frame,
-        this.scan_display_mode,
-        this.scan_display_mode.get(),
-        *scan_options
-    ).grid(row=16, column=1, sticky=tk.W)
-    nb.Label(frame,
-             text='Check: Always show species with a checkmark when complete\n'
-                  'Hide: Always hide completed species\n'
-                  'Hide in System: Hide completed species in the full system view',
-             justify=tk.LEFT) \
-        .grid(row=17, column=1, sticky=tk.NW)
-
-    # Overlay settings
-    ttk.Separator(frame).grid(row=18, columnspan=2, pady=y_padding * 2, sticky=tk.EW)
-
-    nb.Label(frame,
-             text='EDMC Overlay Integration',
-             justify=tk.LEFT) \
-        .grid(row=19, column=0, padx=x_padding, sticky=tk.NW)
-    nb.Checkbutton(
-        frame,
-        text='Enable overlay',
-        variable=this.use_overlay
-    ).grid(row=20, column=0, padx=x_button_padding, pady=0, sticky=tk.W)
-    color_button = nb.ColoredButton(
-        frame,
-        text='Text Color',
-        foreground=this.overlay_color.get(),
-        background='grey4',
-        command=lambda: color_chooser()
-    ).grid(row=21, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.W)
-
-    anchor_frame = nb.Frame(frame)
-    anchor_frame.grid(row=20, column=1, sticky=tk.NSEW)
-    anchor_frame.columnconfigure(4, weight=1)
-    summary_frame = nb.Frame(frame)
-    summary_frame.grid(row=21, column=1, sticky=tk.NSEW)
-    summary_frame.columnconfigure(4, weight=1)
-    details_frame = nb.Frame(frame)
-    details_frame.grid(row=22, column=1, sticky=tk.NSEW)
-    details_frame.columnconfigure(4, weight=1)
-
-    nb.Label(anchor_frame, text='Prediction Details Anchor:') \
-        .grid(row=0, column=0, sticky=tk.W)
-    nb.Label(anchor_frame, text='X') \
-        .grid(row=0, column=1, sticky=tk.W)
-    nb.Entry(
-        anchor_frame, text=this.overlay_anchor_x.get(), textvariable=this.overlay_anchor_x,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=2, sticky=tk.W)
-    nb.Label(anchor_frame, text='Y') \
-        .grid(row=0, column=3, sticky=tk.W)
-    nb.Entry(
-        anchor_frame, text=this.overlay_anchor_y.get(), textvariable=this.overlay_anchor_y,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=4, sticky=tk.W)
-
-    nb.Label(summary_frame, text='Summary / Progress Anchor:') \
-        .grid(row=0, column=0, sticky=tk.W)
-    nb.Label(summary_frame, text='X') \
-        .grid(row=0, column=1, sticky=tk.W)
-    nb.Entry(
-        summary_frame, text=this.overlay_summary_x.get(), textvariable=this.overlay_summary_x,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=2, sticky=tk.W)
-    nb.Label(summary_frame, text='Y') \
-        .grid(row=0, column=3, sticky=tk.W)
-    nb.Entry(
-        summary_frame, text=this.overlay_summary_y.get(), textvariable=this.overlay_summary_y,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=4, sticky=tk.W)
-
-    nb.Checkbutton(
-        details_frame,
-        text='Scroll details',
-        variable=this.overlay_detail_scroll
-    ).grid(row=0, column=0, padx=x_padding, sticky=tk.NW)
-    nb.Label(details_frame, text='Maximum details length:') \
-        .grid(row=0, column=1, sticky=tk.W)
-    nb.Entry(
-        details_frame, text=this.overlay_detail_length.get(), textvariable=this.overlay_detail_length,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=2, sticky=tk.W)
-    nb.Label(details_frame, text='Scroll delay (sec):') \
-        .grid(row=0, column=3, sticky=tk.W)
-    nb.Entry(
-        details_frame, text=this.overlay_detail_delay.get(), textvariable=this.overlay_detail_delay,
-        width=8, validate='all', validatecommand=(frame.register(is_double), '%P', '%d')
-    ).grid(row=0, column=4, sticky=tk.W)
-
-    # Footer
-    ttk.Separator(frame).grid(row=29, columnspan=2, pady=y_padding * 2, sticky=tk.EW)
-
-    nb.Button(frame, text='Start / Stop Journal Parsing', command=parse_journals) \
-        .grid(row=30, column=0, padx=x_padding, sticky=tk.SW)
-
-    nb.Checkbutton(
-        frame,
-        text='Enable Debug Logging',
-        variable=this.debug_logging_enabled
-    ).grid(row=30, column=1, padx=x_button_padding, sticky=tk.SE)
-    return frame
-
-
-def is_digit(value: str, action: str) -> bool:
-    """
-    Numeral validator for Entry input
-
-    :param value: Value for input event
-    :param action: Input event action type
-    :return: True or false if input is a numeral
-    """
-
-    if action == '1':
-        if not value.isdigit():
-            return False
-    return True
-
-
-def is_double(value: str, action: str) -> bool:
-    """
-    Double validator for Entry input
-
-    :param value: Value for input event
-    :param action: Input event action type
-    :return: True or false if input is a numeral
-    """
-
-    if action == '1':
-        try:
-            float(value)
-        except ValueError:
-            return False
-    return True
+    return get_settings(parent, this)
 
 
 def prefs_changed(cmdr: str, is_beta: bool) -> None:
