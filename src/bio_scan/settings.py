@@ -8,6 +8,7 @@ from tkinter import ttk
 # Local imports
 import bio_scan.const
 from bio_scan.globals import Globals
+from bio_scan.tooltip import Tooltip
 
 # Database objects
 from ExploData.explo_data import db
@@ -18,21 +19,20 @@ from ExploData.explo_data.journal_parse import parse_journals
 import myNotebook as nb
 from ttkHyperlinkLabel import HyperlinkLabel
 
+x_padding = 10
+x_button_padding = 12
+y_padding = 2
+
 
 def get_settings(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
-
     """
-    EDMC settings pane hook.
-    Build settings display and hook in settings properties.
+    Main settings pane builder.
 
     :param parent: EDMC parent settings pane TKinter frame
     :param bioscan_globals: Plugin globals
     :return: Plugin settings tab TKinter frame
     """
 
-    x_padding = 10
-    x_button_padding = 12
-    y_padding = 2
     frame = nb.Frame(parent)
     frame.columnconfigure(0, weight=1)
     frame.columnconfigure(1, weight=1)
@@ -77,24 +77,34 @@ def get_settings(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
 
 
 def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
-    frame = nb.Frame(parent)
-    frame.columnconfigure(0, weight=1)
-    frame.columnconfigure(1, weight=1)
-    frame.rowconfigure(20, weight=1)
+    """
+    General tab builder.
 
-    x_padding = 10
-    x_button_padding = 12
-    y_padding = 2
+    :param parent: Parent tab frame
+    :param bioscan_globals: BioScan globals object
+    :return: Frame for overlay tab
+    """
+
     frame = nb.Frame(parent)
     frame.columnconfigure(0, weight=1)
     frame.columnconfigure(1, weight=1)
-    frame.rowconfigure(8, weight=1)
+    frame.grid(sticky=tk.NSEW)
 
     # Left column
-    nb.Label(
-        frame,
-        text='Focus Body Signals:',
-    ).grid(row=1, padx=x_padding, sticky=tk.W)
+    left_column = tk.Frame(frame, background='')
+    left_column.grid(row=0, column=0, sticky=tk.NSEW)
+    left_column.rowconfigure(6, weight=1)
+    signal_label = nb.Label(
+        left_column,
+        text='Focus Body Signals: (?)',
+    )
+    signal_label.grid(row=0, padx=x_padding, sticky=tk.W)
+    Tooltip(
+        signal_label,
+        text='This setting controls when the prediction details should display.\n\n' +
+        'When filtered, you will only see details for the bio signals relevant to your current location.',
+        waittime=1000
+    )
     focus_options = [
         'Never',
         'On Approach',
@@ -102,81 +112,117 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         'On Surface',
     ]
     nb.OptionMenu(
-        frame,
+        left_column,
         bioscan_globals.focus_setting,
         bioscan_globals.focus_setting.get(),
         *focus_options
-    ).grid(row=2, padx=x_padding, pady=y_padding, column=0, sticky=tk.W)
-    nb.Label(frame,
+    ).grid(row=1, padx=x_padding, pady=y_padding, column=0, sticky=tk.W)
+    nb.Label(left_column,
              text='Never: Never filter signal details\n'
                   'On Approach: Show only local signals on approach\n'
                   'Near Surface: Show signals under given altitude (see below)\n'
                   'On Surface: Show only local signals when on surface',
              justify=tk.LEFT) \
-        .grid(row=3, padx=x_padding, column=0, sticky=tk.NW)
-    nb.Label(frame, text='Altitude (in meters) for "Near Surface":') \
-        .grid(row=4, column=0, padx=x_padding, sticky=tk.SW)
+        .grid(row=2, padx=x_padding, column=0, sticky=tk.NW)
+    nb.Label(left_column, text='Altitude (in meters) for "Near Surface":') \
+        .grid(row=3, column=0, padx=x_padding, sticky=tk.SW)
     nb.Entry(
-        frame, text=bioscan_globals.focus_distance.get(), textvariable=bioscan_globals.focus_distance,
+        left_column, text=bioscan_globals.focus_distance.get(), textvariable=bioscan_globals.focus_distance,
         validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=5, column=0, padx=x_padding, sticky=tk.NW)
+    ).grid(row=4, column=0, padx=x_padding, sticky=tk.NW)
+    ttk.Separator(left_column).grid(row=5, column=0, pady=y_padding * 2, sticky=tk.EW)
     nb.Checkbutton(
-        frame,
+        left_column,
         text='Show complete breakdown of genera with multiple matches',
         variable=bioscan_globals.focus_breakdown
-    ).grid(row=6, column=0, padx=x_button_padding, sticky=tk.W)
+    ).grid(row=6, column=0, padx=0, sticky=tk.W)
+    nb.Checkbutton(
+        left_column,
+        text='Exclude bodies with fewer than x signals',
+        variable=bioscan_globals.exclude_signals
+    ).grid(row=7, column=0, padx=0, sticky=tk.W)
+    nb.Entry(
+        left_column, text=bioscan_globals.focus_distance.get(), textvariable=bioscan_globals.minimum_signals,
+        validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
+    ).grid(row=8, column=0, padx=x_padding, sticky=tk.NW)
 
     # Right column
-    nb.Label(
-        frame,
-        text='Display Signal Summary:'
-    ).grid(row=1, column=1, sticky=tk.W)
+    right_column = tk.Frame(frame, background='')
+    right_column.grid(row=0, column=1, sticky=tk.NSEW)
+    left_column.rowconfigure(9, weight=1)
+    signal_summary_label = nb.Label(
+        right_column,
+        text='Display Signal Summary: (?)'
+    )
+    signal_summary_label.grid(row=0, column=0, sticky=tk.W)
+    Tooltip(
+        signal_summary_label,
+        text='This option determines when to display the signal summary at the top of the pane.\n\n' +
+             'eg. B 1 (R): 5  ⬦ B 2 (HMC): 2',
+        waittime=1000
+    )
     signal_options = [
         'Always',
         'In Flight',
     ]
     nb.OptionMenu(
-        frame,
+        right_column,
         bioscan_globals.signal_setting,
         bioscan_globals.signal_setting.get(),
         *signal_options
-    ).grid(row=2, column=1, pady=y_padding, sticky=tk.W)
-    nb.Label(frame,
+    ).grid(row=2, column=0, pady=y_padding, sticky=tk.W)
+    nb.Label(right_column,
              text='Always: Always display the body signal summary\n'
                   'In Flight: Show the signal summary in flight only',
              justify=tk.LEFT) \
-        .grid(row=3, column=1, sticky=tk.NW)
-    nb.Checkbutton(
-        frame,
-        text='Enable species waypoints with the comp. scanner',
-        variable=bioscan_globals.waypoints_enabled
-    ).grid(row=4, column=1, padx=x_button_padding, sticky=tk.W)
-    nb.Label(
-        frame,
-        text='Completed Scan Display:'
-    ).grid(row=6, column=1, sticky=tk.W)
+        .grid(row=3, column=0, sticky=tk.NW)
+    ttk.Separator(right_column).grid(row=4, column=0, pady=y_padding * 2, sticky=tk.EW)
+    completed_display_label = nb.Label(
+        right_column,
+        text='Completed Scan Display: (?)'
+    )
+    completed_display_label.grid(row=5, column=0, sticky=tk.W)
+    Tooltip(
+        completed_display_label,
+        text='This option determines how to display species that have been fully scanned.',
+        waittime=1000
+    )
     scan_options = [
         'Check',
         'Hide',
         'Hide in System'
     ]
     nb.OptionMenu(
-        frame,
+        right_column,
         bioscan_globals.scan_display_mode,
         bioscan_globals.scan_display_mode.get(),
         *scan_options
-    ).grid(row=7, column=1, sticky=tk.W)
-    nb.Label(frame,
+    ).grid(row=6, column=0, sticky=tk.W)
+    nb.Label(right_column,
              text='Check: Always show species with a checkmark when complete\n'
                   'Hide: Always hide completed species\n'
                   'Hide in System: Hide completed species in the full system view',
              justify=tk.LEFT) \
-        .grid(row=8, column=1, sticky=tk.NW)
+        .grid(row=7, column=0, sticky=tk.NW)
+    ttk.Separator(right_column).grid(row=8, column=0, pady=y_padding * 2, sticky=tk.EW)
+    nb.Checkbutton(
+        right_column,
+        text='Enable species waypoints with the comp. scanner',
+        variable=bioscan_globals.waypoints_enabled
+    ).grid(row=9, column=0, padx=0, sticky=tk.W)
 
     return frame
 
 
 def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
+    """
+    Overlay tab builder.
+
+    :param parent: Parent tab frame
+    :param bioscan_globals: BioScan globals object
+    :return: Frame for overlay tab
+    """
+
     color_button = None
 
     def color_chooser() -> None:
@@ -193,11 +239,6 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     frame.columnconfigure(0, weight=1)
     frame.columnconfigure(1, weight=1)
     frame.rowconfigure(2, weight=1)
-
-    x_padding = 10
-    x_button_padding = 12
-    y_padding = 2
-    frame = nb.Frame(parent)
 
     nb.Label(frame,
              text='EDMC Overlay Integration',

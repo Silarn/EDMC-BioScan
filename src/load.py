@@ -149,6 +149,16 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
 
 
 def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
+    """
+    EDMC settings pane hook.
+    Build settings display and hook in settings properties.
+
+    :param parent: EDMC parent settings pane TKinter frame
+    :param cmdr: Active commander name. Unused.
+    :param is_beta: Beta status. Unused.
+    :return: Plugin settings tab TKinter frame
+    """
+
     return get_settings(parent, this)
 
 
@@ -166,6 +176,8 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_focus_breakdown', this.focus_breakdown.get())
     config.set('bioscan_scan_display', this.scan_display_mode.get())
     config.set('bioscan_signal', this.signal_setting.get())
+    config.set('bioscan_exclude_signals', this.exclude_signals.get())
+    config.set('bioscan_minimum_signals', this.minimum_signals.get())
     config.set('bioscan_waypoints', this.waypoints_enabled.get())
     config.set('bioscan_debugging', this.debug_logging_enabled.get())
     config.set('bioscan_overlay', this.use_overlay.get())
@@ -188,6 +200,8 @@ def parse_config() -> None:
     this.focus_breakdown = tk.BooleanVar(value=config.get_bool(key='bioscan_focus_breakdown', default=False))
     this.scan_display_mode = tk.StringVar(value=config.get_str(key='bioscan_scan_display', default='Check'))
     this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default='Always'))
+    this.exclude_signals = tk.BooleanVar(value=config.get_bool(key='bioscan_exclude_signals', default=False))
+    this.minimum_signals = tk.IntVar(value=config.get_int(key='bioscan_minimum_signals', default=0))
     this.waypoints_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_waypoints', default=True))
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
     this.use_overlay = tk.BooleanVar(value=config.get_bool(key='bioscan_overlay', default=False))
@@ -1408,7 +1422,13 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             complete = False
         if not focused:
             if not complete or this.scan_display_mode.get() not in ['Hide', 'Hide in System']:
-                if len(body.get_flora()) and num_complete:
+                if (this.exclude_signals.get() and body.get_bio_signals()
+                        and body.get_bio_signals() < this.minimum_signals.get()):
+                    detail_text += f'{name} - {body.get_bio_signals()} Signal{"s"[:body.get_bio_signals()^1]}'
+                    if len(body.get_flora()) and len(body.get_flora()) == num_complete:
+                        detail_text += ' (Complete)'
+                    detail_text += '\n'
+                elif len(body.get_flora()) and num_complete:
                     detail_text += '{} -{}{} ({}/{} Complete):\n'.format(
                         name,
                         get_body_shorthand(body.get_type()),
@@ -1426,7 +1446,10 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 detail_text += f'{name} - All Samples Complete\n'
         elif complete and this.scan_display_mode.get() == 'Hide':
             detail_text += 'All Scans Complete'
-        if len(body.get_flora()) > 0:
+        if (this.exclude_signals.get() and body.get_bio_signals()
+                and body.get_bio_signals() < this.minimum_signals.get()):
+            detail_text += '\n'
+        elif len(body.get_flora()) > 0:
             count = 0
             genus_count: dict[str, int] = {}
             for flora in sorted(body.get_flora(), key=lambda item: bio_genus[item.genus]['name']):
