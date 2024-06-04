@@ -138,7 +138,7 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     ).grid(row=6, column=0, padx=0, sticky=tk.W)
     nb.Checkbutton(
         left_column,
-        text='Exclude bodies with fewer than x signals',
+        text='Exclude bodies with fewer than x signals:',
         variable=bioscan_globals.exclude_signals
     ).grid(row=7, column=0, padx=0, sticky=tk.W)
     nb.Entry(

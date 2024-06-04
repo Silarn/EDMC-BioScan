@@ -1529,7 +1529,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             if body.get_bio_signals():
                 if body.get_scan_state(this.commander.id) == 3:
                     detail_text += '! Basic Scan Detected - Install DSS !\n'
-                detail_text += f'{body.get_bio_signals()} Signals - Possible Types:\n'
+                detail_text += f'{body.get_bio_signals()} Signal{"s"[:body.get_bio_signals()^1]} - Possible Types:\n'
                 count = 0
                 for bio_name, values in types:
                     count += 1
