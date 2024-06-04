@@ -92,7 +92,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['ArgonRich'],
                     'body_type': ['Rocky ice body'],
                     'min_gravity': 0.035,
-                    'max_gravity': 0.1,
+                    'max_gravity': 0.276,
                     'min_temperature': 60.0,
                     'max_temperature': 80.0,
                     'min_pressure': 0.03,
