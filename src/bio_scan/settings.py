@@ -126,7 +126,7 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         .grid(row=2, padx=x_padding, column=0, sticky=tk.NW)
     nb.Label(left_column, text='Altitude (in meters) for "Near Surface":') \
         .grid(row=3, column=0, padx=x_padding, sticky=tk.SW)
-    nb.Entry(
+    nb.EntryMenu(
         left_column, text=bioscan_globals.focus_distance.get(), textvariable=bioscan_globals.focus_distance,
         validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=4, column=0, padx=x_padding, sticky=tk.NW)
@@ -141,7 +141,7 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         text='Exclude bodies with fewer than x signals:',
         variable=bioscan_globals.exclude_signals
     ).grid(row=7, column=0, padx=0, sticky=tk.W)
-    nb.Entry(
+    nb.EntryMenu(
         left_column, text=bioscan_globals.focus_distance.get(), textvariable=bioscan_globals.minimum_signals,
         validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=8, column=0, padx=x_padding, sticky=tk.NW)
@@ -249,21 +249,22 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         text='Enable overlay',
         variable=bioscan_globals.use_overlay
     ).grid(row=1, column=0, padx=x_button_padding, pady=0, sticky=tk.W)
-    color_button = nb.ColoredButton(
+    color_button = tk.Button(
         frame,
         text='Text Color',
         foreground=bioscan_globals.overlay_color.get(),
         background='grey4',
         command=lambda: color_chooser()
-    ).grid(row=2, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.W)
+    )
+    color_button.grid(row=2, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.NW)
 
-    anchor_frame = nb.Frame(frame)
+    anchor_frame = tk.Frame(frame)
     anchor_frame.grid(row=0, column=1, sticky=tk.NSEW)
     anchor_frame.columnconfigure(4, weight=1)
-    summary_frame = nb.Frame(frame)
+    summary_frame = tk.Frame(frame)
     summary_frame.grid(row=1, column=1, sticky=tk.NSEW)
     summary_frame.columnconfigure(4, weight=1)
-    details_frame = nb.Frame(frame)
+    details_frame = tk.Frame(frame)
     details_frame.grid(row=2, column=1, sticky=tk.NSEW)
     details_frame.columnconfigure(4, weight=1)
 
@@ -271,13 +272,13 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         .grid(row=0, column=0, sticky=tk.W)
     nb.Label(anchor_frame, text='X') \
         .grid(row=0, column=1, sticky=tk.W)
-    nb.Entry(
+    nb.EntryMenu(
         anchor_frame, text=bioscan_globals.overlay_anchor_x.get(), textvariable=bioscan_globals.overlay_anchor_x,
         width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=0, column=2, sticky=tk.W)
     nb.Label(anchor_frame, text='Y') \
         .grid(row=0, column=3, sticky=tk.W)
-    nb.Entry(
+    nb.EntryMenu(
         anchor_frame, text=bioscan_globals.overlay_anchor_y.get(), textvariable=bioscan_globals.overlay_anchor_y,
         width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=0, column=4, sticky=tk.W)
@@ -286,13 +287,13 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         .grid(row=0, column=0, sticky=tk.W)
     nb.Label(summary_frame, text='X') \
         .grid(row=0, column=1, sticky=tk.W)
-    nb.Entry(
+    nb.EntryMenu(
         summary_frame, text=bioscan_globals.overlay_summary_x.get(), textvariable=bioscan_globals.overlay_summary_x,
         width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=0, column=2, sticky=tk.W)
     nb.Label(summary_frame, text='Y') \
         .grid(row=0, column=3, sticky=tk.W)
-    nb.Entry(
+    nb.EntryMenu(
         summary_frame, text=bioscan_globals.overlay_summary_y.get(), textvariable=bioscan_globals.overlay_summary_y,
         width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=0, column=4, sticky=tk.W)
@@ -304,13 +305,13 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     ).grid(row=0, column=0, padx=x_padding, sticky=tk.NW)
     nb.Label(details_frame, text='Maximum details length:') \
         .grid(row=0, column=1, sticky=tk.W)
-    nb.Entry(
+    nb.EntryMenu(
         details_frame, text=bioscan_globals.overlay_detail_length.get(), textvariable=bioscan_globals.overlay_detail_length,
         width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=0, column=2, sticky=tk.W)
     nb.Label(details_frame, text='Scroll delay (sec):') \
         .grid(row=0, column=3, sticky=tk.W)
-    nb.Entry(
+    nb.EntryMenu(
         details_frame, text=bioscan_globals.overlay_detail_delay.get(), textvariable=bioscan_globals.overlay_detail_delay,
         width=8, validate='all', validatecommand=(frame.register(is_double), '%P', '%d')
     ).grid(row=0, column=4, sticky=tk.W)
