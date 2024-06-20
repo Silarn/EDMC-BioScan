@@ -885,19 +885,20 @@ def parent_is_H(star: StarData, body: PlanetData) -> bool:
     :return: True if the star has a parent black hole and the body is orbiting it
     """
 
-    log(f'Checking for BH parent, star {star}, body {body.get_name()}')
+    log(f'Checking for BH parent, star {star.get_name()}, body {body.get_name()}')
     possible = False
-    if star.get_name() != this.system:
-        if len(star.get_name().split(' ')) > 1:
-            parent_string = star.get_name().split(' ')[0]
-            for parent in parent_string:
-                log(f'Checking parent {parent}...')
-                if parent in this.stars and this.stars[parent].get_type() == 'H':
+    if star.get_name() != this.system.name:
+        if body.get_name().startswith(star.get_name() + " "):
+            if get_main_star(this.system, this.sql_session).name == this.system.name:
+                log('Is sub-star...')
+                if this.main_star_type == 'H':
+                    log('Primary system star IS a black hole!')
+                    possible = True
+            else:
+                log(f'{star.get_name()} is a parent star...')
+                if star.get_name() in this.stars and this.stars[star.get_name()].get_type() == 'H':
                     log('IS a black hole!')
                     possible = True
-        else:
-            if this.main_star_type == 'H':
-                possible = True
     if possible and body.get_name().startswith(star.get_name()):
         return True
     return False
