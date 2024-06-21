@@ -1017,8 +1017,6 @@ def journal_entry(
         return ''
 
     system_changed = False
-    # this.game_version = semantic_version.Version.coerce(state.get('GameVersion', '0.0.0'))
-    # this.odyssey = state.get('Odyssey', False)
     if not state['StarPos']:
         return ''
     if system and (not this.system or system != this.system.name):

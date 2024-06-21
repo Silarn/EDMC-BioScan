@@ -18,6 +18,7 @@ from ExploData.explo_data.journal_parse import parse_journals
 # EDMC imports
 import myNotebook as nb
 from ttkHyperlinkLabel import HyperlinkLabel
+from monitor import monitor
 
 x_padding = 10
 x_button_padding = 12
@@ -223,7 +224,19 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     :return: Frame for overlay tab
     """
 
+    frame = nb.Frame(parent)
+    frame.columnconfigure(0, weight=1)
+    frame.columnconfigure(1, weight=1)
+    frame.rowconfigure(5, weight=1)
     color_button = None
+    ship_list = nb.Label(
+        frame,
+        text=', '.join(bioscan_globals.ship_whitelist) if len(bioscan_globals.ship_whitelist) else 'None',
+        justify=tk.LEFT
+    )
+    add_ship_button = None
+    remove_ship_button = None
+    clear_ships_button = None
 
     def color_chooser() -> None:
         (_, color) = tkColorChooser.askcolor(
@@ -235,20 +248,46 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
             if color_button is not None:
                 color_button['foreground'] = color
 
-    frame = nb.Frame(parent)
-    frame.columnconfigure(0, weight=1)
-    frame.columnconfigure(1, weight=1)
-    frame.rowconfigure(2, weight=1)
+    def add_ship() -> None:
+        """
+        Adds active ship to whitelist
+        """
+        if monitor.state['ShipName'] not in bioscan_globals.ship_whitelist:
+            bioscan_globals.ship_whitelist.append(monitor.state['ShipName'])
+            bioscan_globals.ship_whitelist = sorted(bioscan_globals.ship_whitelist)
+            add_ship_button.grid_remove()
+            remove_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
+            clear_ships_button['state'] = tk.NORMAL
+            ship_list['text'] = ', '.join(bioscan_globals.ship_whitelist)
 
-    nb.Label(frame,
-             text='EDMC Overlay Integration',
-             justify=tk.LEFT) \
-        .grid(row=0, column=0, padx=x_padding, sticky=tk.NW)
+    def remove_ship() -> None:
+        """
+        Removes active ship to whitelist
+        """
+        if monitor.state['ShipName'] in bioscan_globals.ship_whitelist:
+            bioscan_globals.ship_whitelist.remove(monitor.state['ShipName'])
+            remove_ship_button.grid_remove()
+            add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
+
+        if len(bioscan_globals.ship_whitelist):
+            ship_list['text'] = ', '.join(bioscan_globals.ship_whitelist)
+        else:
+            clear_ships_button['state'] = tk.DISABLED
+            ship_list['text'] = 'None'
+
+    def clear_ships() -> None:
+        """
+        Clears ship whitelist
+        """
+        bioscan_globals.ship_whitelist.clear()
+        clear_ships_button['state'] = tk.DISABLED
+        ship_list['text'] = 'None'
+
     nb.Checkbutton(
         frame,
         text='Enable overlay',
         variable=bioscan_globals.use_overlay
-    ).grid(row=1, column=0, padx=x_button_padding, pady=0, sticky=tk.W)
+    ).grid(row=0, column=0, padx=x_button_padding, pady=0, sticky=tk.W)
     color_button = tk.Button(
         frame,
         text='Text Color',
@@ -256,7 +295,38 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         background='grey4',
         command=lambda: color_chooser()
     )
-    color_button.grid(row=2, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.NW)
+    color_button.grid(row=1, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.NW)
+
+    whitelist_label = nb.Label(
+        frame,
+        text='Ship Whitelist (?)',
+        justify=tk.LEFT
+    )
+    whitelist_label.grid(row=2, column=0, padx=x_padding, sticky=tk.W)
+    Tooltip(
+        whitelist_label,
+        text='Ships added to this list will display BioScan on the overlay.\n' +
+             'When empty, BioScan will display for all ships.',
+        waittime=1000
+    )
+    ship_list.grid(row=3, column=0, padx=x_padding, sticky=tk.EW)
+
+    ship_whitelist_frame = tk.Frame(frame)
+    ship_whitelist_frame.grid(row=4, column=0, sticky=tk.NSEW)
+    ship_whitelist_frame.columnconfigure(1, weight=1)
+    add_ship_button = nb.Button(ship_whitelist_frame, text=f'Add "{monitor.state["ShipName"]}"',
+                                command=add_ship)
+    remove_ship_button = nb.Button(ship_whitelist_frame, text=f'Remove "{monitor.state["ShipName"]}"',
+                                   command=remove_ship)
+    clear_ships_button = nb.Button(ship_whitelist_frame, text='Clear Ships', command=clear_ships)
+    if monitor.state['ShipName']:
+        if monitor.state['ShipName'] in bioscan_globals.ship_whitelist:
+            remove_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
+        else:
+            add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
+    if len(bioscan_globals.ship_whitelist):
+        clear_ships_button['state'] = tk.DISABLED
+    clear_ships_button.grid(row=0, column=0, padx=x_padding, sticky=tk.SW)
 
     anchor_frame = tk.Frame(frame)
     anchor_frame.grid(row=0, column=1, sticky=tk.NSEW)

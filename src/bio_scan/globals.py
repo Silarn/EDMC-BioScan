@@ -86,6 +86,7 @@ class Globals:
         self.planet_longitude: float | None = None
         self.planet_altitude: float = 10000.0
         self.planet_heading: int | None = None
+        self.ship_whitelist: list[str] = []
         self.docked: bool = False
         self.on_foot: bool = False
         self.suit_name: str = ''
