@@ -137,10 +137,10 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
         this.edsm_button.bind('<Button-1>', lambda e: edsm_fetch())
         this.edsm_failed = tk.Label(this.frame, text='No EDSM Data Found')
         this.journal_label = tk.Label(this.frame, text='Journal Parsing')
-        update = version_check()
-        if update != '':
-            text = f'Version {update} is now available'
-            url = f'https://github.com/Silarn/EDMC-BioScan/releases/tag/v{update}'
+        update_version = version_check()
+        if update_version != '':
+            text = f'Version {update_version} is now available'
+            url = f'https://github.com/Silarn/EDMC-BioScan/releases/tag/v{update_version}'
             this.update_button = HyperlinkLabel(this.frame, text=text, url=url)
             this.update_button.grid(row=4, columnspan=2, sticky=tk.N)
         update_display()
