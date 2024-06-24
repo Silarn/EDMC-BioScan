@@ -47,6 +47,7 @@ from ExploData.explo_data.journal_parse import register_journal_callbacks, regis
 
 # EDMC imports
 from config import config
+from monitor import monitor
 from theme import theme
 from EDMCLogging import get_plugin_logger
 from ttkHyperlinkLabel import HyperlinkLabel
@@ -107,7 +108,6 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
                                             url='https://github.com/Silarn/EDMC-BioScan/releases/latest')
         this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     else:
-        parse_config()
         this.frame.bind('<<BioScanEDSMData>>', edsm_data)
         register_journal_callbacks(this.frame, 'biodata', journal_start, journal_update, journal_end)
         this.label = tk.Label(this.frame)
@@ -159,6 +159,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     :return: Plugin settings tab TKinter frame
     """
 
+    parse_config(cmdr)
     return get_settings(parent, this)
 
 
@@ -189,10 +190,11 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_overlay_detail_scroll', this.overlay_detail_scroll.get())
     config.set('bioscan_overlay_detail_length', this.overlay_detail_length.get())
     config.set('bioscan_overlay_detail_delay', str(this.overlay_detail_delay.get()))
+    config.set(f'bioscan_ship_whitelist_{cmdr.lower()}', this.ship_whitelist)
     update_display()
 
 
-def parse_config() -> None:
+def parse_config(cmdr: str) -> None:
     """ Load saved settings vars. Set defaults. """
 
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
@@ -214,6 +216,7 @@ def parse_config() -> None:
     this.overlay_detail_length = tk.IntVar(value=config.get_int(key='bioscan_overlay_detail_length', default=70))
     this.overlay_detail_delay = tk.DoubleVar(
         value=float(config.get_str(key='bioscan_overlay_detail_delay', default=10.0)))
+    this.ship_whitelist = config.get_list(key=f'bioscan_ship_whitelist_{cmdr.lower()}', default=[])
 
 
 def version_check() -> str:
@@ -1710,7 +1713,7 @@ def update_display() -> None:
     this.values_label['text'] = detail_text.strip()
 
     if this.use_overlay.get() and this.overlay.available():
-        if not this.docked and (this.analysis_mode or (this.on_foot and this.suit_name.startswith('explorationsuit'))):
+        if overlay_should_display():
             if detail_text:
                 this.overlay.display("bioscan_title", "BioScan Details",
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
@@ -1733,6 +1736,19 @@ def update_display() -> None:
             this.overlay.clear("bioscan_title")
             this.overlay.clear("bioscan_details")
             this.overlay.clear("bioscan_summary")
+
+
+def overlay_should_display() -> bool:
+    if not this.docked and not this.on_foot:
+        if len(this.ship_whitelist):
+            if monitor.state['ShipName'] and monitor.state['ShipName'] in this.ship_whitelist:
+                return True
+        else:
+            return True
+    else:
+        if this.analysis_mode or (this.on_foot and this.suit_name.startswith('explorationsuit')):
+            return True
+    return False
 
 
 def bind_mousewheel(event: tk.Event) -> None:

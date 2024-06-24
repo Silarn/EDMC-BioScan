@@ -282,6 +282,9 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         bioscan_globals.ship_whitelist.clear()
         clear_ships_button['state'] = tk.DISABLED
         ship_list['text'] = 'None'
+        if monitor.state['ShipName']:
+            remove_ship_button.grid_remove()
+            add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
 
     nb.Checkbutton(
         frame,
@@ -309,7 +312,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
              'When empty, BioScan will display for all ships.',
         waittime=1000
     )
-    ship_list.grid(row=3, column=0, padx=x_padding, sticky=tk.EW)
+    ship_list.grid(row=3, column=0, padx=x_padding, sticky=tk.W)
 
     ship_whitelist_frame = tk.Frame(frame)
     ship_whitelist_frame.grid(row=4, column=0, sticky=tk.NSEW)
@@ -324,9 +327,9 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
             remove_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
         else:
             add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
-    if len(bioscan_globals.ship_whitelist):
+    if not len(bioscan_globals.ship_whitelist):
         clear_ships_button['state'] = tk.DISABLED
-    clear_ships_button.grid(row=0, column=0, padx=x_padding, sticky=tk.SW)
+    clear_ships_button.grid(row=0, column=1, padx=x_padding, sticky=tk.W)
 
     anchor_frame = tk.Frame(frame)
     anchor_frame.grid(row=0, column=1, sticky=tk.NSEW)
