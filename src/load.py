@@ -898,10 +898,11 @@ def parent_is_H(star: StarData, body: PlanetData) -> bool:
                     log('Primary system star IS a black hole!')
                     possible = True
             else:
-                log(f'{star.get_name()} is a parent star...')
-                if star.get_name() in this.stars and this.stars[star.get_name()].get_type() == 'H':
-                    log('IS a black hole!')
-                    possible = True
+                if len(star.get_name().split(' ')) == 1:
+                    log(f'{star.get_name()} is a parent star...')
+                    if star.get_name() in this.stars and this.stars[star.get_name()].get_type() == 'H':
+                        log('IS a black hole!')
+                        possible = True
     if possible and body.get_name().startswith(star.get_name()):
         return True
     return False
