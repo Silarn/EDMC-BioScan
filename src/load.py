@@ -108,6 +108,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
                                             url='https://github.com/Silarn/EDMC-BioScan/releases/latest')
         this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     else:
+        parse_config()
         this.frame.bind('<<BioScanEDSMData>>', edsm_data)
         register_journal_callbacks(this.frame, 'biodata', journal_start, journal_update, journal_end)
         this.label = tk.Label(this.frame)
@@ -194,7 +195,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     update_display()
 
 
-def parse_config(cmdr: str) -> None:
+def parse_config(cmdr: str = '') -> None:
     """ Load saved settings vars. Set defaults. """
 
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
@@ -1740,6 +1741,7 @@ def update_display() -> None:
 
 
 def overlay_should_display() -> bool:
+    result = True
     if not this.docked and not this.on_foot:
         if len(this.ship_whitelist):
             if monitor.state['ShipName'] and monitor.state['ShipName'] in this.ship_whitelist:
@@ -1750,6 +1752,13 @@ def overlay_should_display() -> bool:
         if this.analysis_mode or (this.on_foot and this.suit_name.startswith('explorationsuit')):
             return True
     return False
+            if monitor.state['ShipName'] and monitor.state['ShipName'] not in this.ship_whitelist:
+                result = False
+    if not this.analysis_mode:
+        result = False
+    if this.on_foot and not this.suit_name.startswith('explorationsuit'):
+        result = False
+    return result
 
 
 def bind_mousewheel(event: tk.Event) -> None:
