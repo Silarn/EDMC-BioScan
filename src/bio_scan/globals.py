@@ -91,6 +91,7 @@ class Globals:
         self.on_foot: bool = False
         self.suit_name: str = ''
         self.analysis_mode: bool = True
+        self.in_supercruise: bool = False
         self.mode_changed: bool = False
         self.current_scan: tuple[str, str] = ('', '')
         self.system: System | None = None

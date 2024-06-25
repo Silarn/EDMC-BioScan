@@ -217,7 +217,8 @@ def parse_config(cmdr: str = '') -> None:
     this.overlay_detail_length = tk.IntVar(value=config.get_int(key='bioscan_overlay_detail_length', default=70))
     this.overlay_detail_delay = tk.DoubleVar(
         value=float(config.get_str(key='bioscan_overlay_detail_delay', default=10.0)))
-    this.ship_whitelist = config.get_list(key=f'bioscan_ship_whitelist_{cmdr.lower()}', default=[])
+    if cmdr:
+        this.ship_whitelist = config.get_list(key=f'bioscan_ship_whitelist_{cmdr.lower()}', default=[])
 
 
 def version_check() -> str:
@@ -1287,6 +1288,11 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     else:
         on_foot = False
 
+    if this.in_supercruise != (StatusFlags.SUPERCRUISE in status):
+        this.in_supercruise = (StatusFlags.SUPERCRUISE in status)
+        this.mode_changed = True
+        refresh = True
+
     if this.on_foot != on_foot:
         this.on_foot = on_foot
         this.mode_changed = True
@@ -1744,16 +1750,10 @@ def overlay_should_display() -> bool:
     result = True
     if not this.docked and not this.on_foot:
         if len(this.ship_whitelist):
-            if monitor.state['ShipName'] and monitor.state['ShipName'] in this.ship_whitelist:
-                return True
-        else:
-            return True
-    else:
-        if this.analysis_mode or (this.on_foot and this.suit_name.startswith('explorationsuit')):
-            return True
-    return False
             if monitor.state['ShipName'] and monitor.state['ShipName'] not in this.ship_whitelist:
                 result = False
+        if not this.in_supercruise and this.planet_radius == 0:
+            result = False
     if not this.analysis_mode:
         result = False
     if this.on_foot and not this.suit_name.startswith('explorationsuit'):
