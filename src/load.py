@@ -1750,12 +1750,11 @@ def update_display() -> None:
 def overlay_should_display() -> bool:
     result = True
     if not this.docked and not this.on_foot:
-        if len(this.ship_whitelist):
-            if monitor.state['ShipName'] and monitor.state['ShipName'] not in this.ship_whitelist:
-                result = False
+        if this.ship_whitelist and monitor.state['ShipName'] not in this.ship_whitelist:
+            result = False
         if not this.in_supercruise and this.planet_radius == 0:
             result = False
-    if not this.analysis_mode:
+    if this.docked or not this.analysis_mode:
         result = False
     if this.on_foot and not this.suit_name.startswith('explorationsuit'):
         result = False
