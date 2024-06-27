@@ -108,7 +108,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
                                             url='https://github.com/Silarn/EDMC-BioScan/releases/latest')
         this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     else:
-        parse_config()
+        parse_config(monitor.cmdr)
         this.frame.bind('<<BioScanEDSMData>>', edsm_data)
         register_journal_callbacks(this.frame, 'biodata', journal_start, journal_update, journal_end)
         this.label = tk.Label(this.frame)
@@ -1057,6 +1057,7 @@ def journal_entry(
             this.commander = Commander(name=cmdr)
             this.sql_session.add(this.commander)
             this.sql_session.commit()
+        parse_config(cmdr)
 
     log(f'Event {entry["event"]}')
 
