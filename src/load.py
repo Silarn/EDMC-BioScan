@@ -1754,9 +1754,9 @@ def overlay_should_display() -> bool:
             result = False
         if not this.in_supercruise and this.planet_radius == 0:
             result = False
-    if this.docked or not this.analysis_mode:
-        result = False
     if this.on_foot and not this.suit_name.startswith('explorationsuit'):
+        result = False
+    elif this.docked or not this.analysis_mode:
         result = False
     return result
 
