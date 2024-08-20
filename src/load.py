@@ -894,17 +894,36 @@ def parent_is_H(star: StarData, body: PlanetData) -> bool:
     possible = False
     if star.get_name() != this.system.name:
         if body.get_name().startswith(star.get_name() + " "):
+            log('Star is parent star')
+            log(f'Main star is {get_main_star(this.system, this.sql_session).name}')
             if get_main_star(this.system, this.sql_session).name == this.system.name:
-                log('Is sub-star...')
+                log('Main star is system star')
                 if this.main_star_type == 'H':
                     log('Primary system star IS a black hole!')
                     possible = True
             else:
-                if len(star.get_name().split(' ')) == 1:
-                    log(f'{star.get_name()} is a parent star...')
-                    if star.get_name() in this.stars and this.stars[star.get_name()].get_type() == 'H':
-                        log('IS a black hole!')
-                        possible = True
+                log('Multi-star system')
+                star_parts = star.get_name().split(' ')
+                if len(star_parts[0]) > 1:
+                    log('This is a barycenter')
+                    for bary_star in star_parts[0]:
+                        log(f'Checking {bary_star}...')
+                        if bary_star in this.stars and this.stars[bary_star].get_type() == 'H':
+                            log(f'{bary_star} IS a black hole!')
+                            possible = True
+                else:
+                    if len(star_parts) == 1:
+                        log(f'{star.get_name()} is a parent star...')
+                        if star.get_type() == 'H':
+                            log('IS a black hole!')
+                            possible = True
+                    else:
+                        log(f'{star.get_name()} is a sub star...')
+                        if star_parts[0] in this.stars and this.stars[star_parts[0]].get_type() == 'H':
+                            log(f'{star_parts[0]} IS a black hole!')
+                            possible = True
+
+
     if possible and body.get_name().startswith(star.get_name()):
         return True
     return False
