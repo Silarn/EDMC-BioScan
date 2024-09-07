@@ -1641,11 +1641,7 @@ def update_display() -> None:
         in filter(lambda item: item[1].get_bio_signals() > 0 or len(item[1].get_flora()) > 0, bio_bodies.items())
     ]
 
-    if (this.location_name != '' and this.location_name in bio_bodies) and this.focus_setting.get() != 'Never' and \
-            ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
-             or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')
-             or (this.focus_setting.get() == 'Near Surface' and this.location_state in ['approach', 'surface']
-                 and this.planet_altitude < this.focus_distance.get())):
+    if display_planetary_data(bio_bodies, True):
         detail_text, total_value = get_bodies_summary({this.location_name: this.planets[this.location_name]}, True)
     else:
         detail_text, total_value = get_bodies_summary(bio_bodies)
@@ -1668,11 +1664,7 @@ def update_display() -> None:
                 else:
                     signal_summary += '\n'
 
-        if (this.location_name != '' and this.location_name in bio_bodies) and this.focus_setting.get() != 'Never' and \
-                ((this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface'])
-                 or (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface')
-                 or (this.focus_setting.get() == 'Near Surface' and this.location_state in ['approach', 'surface']
-                     and this.planet_altitude < this.focus_distance.get())):
+        if display_planetary_data(bio_bodies):
             if text and text[-1] != '\n':
                 text += '\n'
             complete = 0
@@ -1764,6 +1756,25 @@ def update_display() -> None:
             this.overlay.clear("bioscan_title")
             this.overlay.clear("bioscan_details")
             this.overlay.clear("bioscan_summary")
+
+
+def display_planetary_data(bodies: dict, for_focus: bool = False) -> bool:
+    if this.location_name != '' and this.location_name in bodies:
+        if this.focus_setting.get() == 'Never':
+            if this.location_state in ['approach', 'surface'] and not for_focus:
+                return True
+        else:
+            if this.focus_setting.get() == 'On Approach' and this.location_state in ['approach', 'surface']:
+                return True
+            if this.focus_setting.get() == 'On Surface':
+                if not for_focus and this.location_state == 'approach':
+                    return True
+                if this.location_state == 'surface':
+                    return True
+            if this.focus_setting.get() == 'Near Surface' and this.location_state in ['approach', 'surface']:
+                if this.planet_altitude <= this.focus_distance.get():
+                    return True
+    return False
 
 
 def overlay_should_display() -> bool:
