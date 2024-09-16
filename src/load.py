@@ -74,7 +74,7 @@ def plugin_start3(plugin_dir: str) -> str:
     if not this.migration_failed:
         this.sql_session = Session(db.get_engine())
         db_version: Metadata = this.sql_session.scalar(select(Metadata).where(Metadata.key == 'version'))
-        if db_version.value.isdigit() and int(db_version.value) > bio_scan.const.db_version:
+        if db_version.value.isdigit() and int(db_version.value) != bio_scan.const.db_version:
             this.db_mismatch = True
 
         if not this.db_mismatch:
@@ -104,7 +104,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     elif this.db_mismatch:
         this.label = tk.Label(this.frame, text='BioScan: Database Mismatch')
         this.label.grid(row=0, sticky=tk.EW)
-        this.update_button = HyperlinkLabel(this.frame, text='You May Need to Update',
+        this.update_button = HyperlinkLabel(this.frame, text='BioScan/ExploData Version Mismatch',
                                             url='https://github.com/Silarn/EDMC-BioScan/releases/latest')
         this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     else:
