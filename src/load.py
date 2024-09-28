@@ -6,9 +6,7 @@
 # Core imports
 from copy import deepcopy
 from typing import Mapping, MutableMapping
-from urllib.parse import quote
 import sys
-import threading
 import re
 import requests
 import semantic_version
@@ -28,7 +26,6 @@ from bio_scan.settings import get_settings
 from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.util import system_distance
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
-from bio_scan.body_data.edsm import parse_edsm_star_class, map_edsm_type, map_edsm_atmosphere
 from bio_scan.bio_data.codex import check_codex, check_codex_from_name
 from bio_scan.bio_data.regions import region_map, guardian_nebulae, tuber_zones
 from bio_scan.bio_data.species import rules as bio_types
@@ -44,6 +41,8 @@ from ExploData.explo_data.bio_data.codex import parse_variant
 from ExploData.explo_data.bio_data.genus import data as bio_genus
 import ExploData.explo_data.journal_parse
 from ExploData.explo_data.journal_parse import register_journal_callbacks, register_event_callbacks
+import ExploData.explo_data.edsm_parse
+from ExploData.explo_data.edsm_parse import register_edsm_callbacks
 
 # EDMC imports
 from config import config
@@ -109,8 +108,8 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
         this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     else:
         parse_config(monitor.cmdr)
-        this.frame.bind('<<BioScanEDSMData>>', edsm_data)
         register_journal_callbacks(this.frame, 'biodata', journal_start, journal_update, journal_end)
+        register_edsm_callbacks(this.frame, 'biodata', edsm_start, edsm_end)
         this.label = tk.Label(this.frame)
         this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
         this.scroll_canvas = tk.Canvas(this.frame, height=80, highlightthickness=0)
@@ -136,7 +135,6 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
         this.edsm_button = tk.Label(this.frame, text='Fetch EDSM Data', fg='white', cursor='hand2')
         this.edsm_button.grid(row=3, columnspan=2, sticky=tk.EW)
         this.edsm_button.bind('<Button-1>', lambda e: edsm_fetch())
-        this.edsm_failed = tk.Label(this.frame, text='No EDSM Data Found')
         this.journal_label = tk.Label(this.frame, text='Journal Parsing')
         update_version = version_check()
         if update_version != '':
@@ -248,10 +246,6 @@ def plugin_stop() -> None:
     EDMC plugin stop function. Closes open threads and database sessions for clean shutdown.
     """
 
-    if this.edsm_thread and this.edsm_thread.is_alive():
-        this.edsm_thread.join()
-        this.journal_stop = True
-
     if this.overlay.available():
         this.overlay.disconnect()
 
@@ -292,6 +286,8 @@ def journal_end(event: tk.Event) -> None:
         this.journal_label['text'] = 'Error During Journal Parse\nPlease Submit a Report'
     else:
         this.journal_label.grid_remove()
+        reload_system_data()
+        update_display()
 
 
 def log(*args) -> None:
@@ -307,133 +303,17 @@ def log(*args) -> None:
 def edsm_fetch() -> None:
     """ EDSM system data fetch thread initialization """
 
-    if not this.edsm_thread or not this.edsm_thread.is_alive():
-        this.edsm_thread = threading.Thread(target=edsm_worker, name='EDSM worker', args=(this.system.name,))
-        this.edsm_thread.daemon = True
-        this.edsm_thread.start()
+    ExploData.explo_data.edsm_parse.edsm_fetch(this.system.name)
 
 
-def edsm_worker(system_name: str) -> None:
-    """ Fetch system data from EDSM on a threaded function """
-
-    if not this.edsm_session:
-        this.edsm_session = requests.Session()
-
-    try:
-        r = this.edsm_session.get('https://www.edsm.net/api-system-v1/bodies?systemName=%s' % quote(system_name),
-                                  timeout=10)
-        r.raise_for_status()
-        this.edsm_bodies = r.json() or {}
-    except requests.exceptions.RequestException:
-        this.edsm_bodies = None
-
-    this.frame.event_generate('<<BioScanEDSMData>>', when='tail')
-
-
-def edsm_data(event: tk.Event) -> None:
-    """ Handle data retrieved from EDSM """
-
-    if this.edsm_bodies is None:
-        return
-
-    if len(this.edsm_bodies.get('bodies', [])) == 0:
-        this.edsm_failed.grid(row=3, columnspan=2, sticky=tk.EW)
-
-    for body in this.edsm_bodies.get('bodies', []):
-        body_short_name = get_body_name(body['name'])
-        if body['type'] == 'Star':
-            if body['isMainStar']:
-                if body['spectralClass']:
-                    this.main_star_type = body['spectralClass'][:-1]
-                else:
-                    this.main_star_type = parse_edsm_star_class(body['subType'])
-                this.main_star_luminosity = body['luminosity']
-
-            add_edsm_star(body)
-
-        elif body['type'] == 'Planet':
-            try:
-                if body_short_name not in this.planets:
-                    planet_data = PlanetData.from_journal(this.system, body_short_name,
-                                                          body['bodyId'], this.sql_session)
-                else:
-                    planet_data = this.planets[body_short_name]
-                planet_type = map_edsm_type(body['subType'])
-                terraformable = 'Terraformable' if body['terraformingState'] == 'Candidate for terraforming' \
-                    else ''
-                planet_data.set_type(planet_type) \
-                    .set_distance(body['distanceToArrival']) \
-                    .set_atmosphere(map_edsm_atmosphere(body['atmosphereType'])) \
-                    .set_gravity(body['gravity'] * 9.797759) \
-                    .set_temp(body['surfaceTemperature']) \
-                    .set_mass(body['earthMasses']) \
-                    .set_terraform_state(terraformable) \
-                    .set_landable(body['isLandable']) \
-                    .set_orbital_period(body['orbitalPeriod'] * 86400 if body['orbitalPeriod'] else 0) \
-                    .set_rotation(body['rotationalPeriod'] * 86400)
-                if body['volcanismType'] == 'No volcanism':
-                    volcanism = ''
-                else:
-                    volcanism = body['volcanismType'].lower().capitalize() + ' volcanism'
-                planet_data.set_volcanism(volcanism)
-
-                star_search = re.search('^([A-Z]+) .+$', body_short_name)
-                if star_search:
-                    for star in star_search.group(1):
-                        planet_data.add_parent_star(star)
-                else:
-                    planet_data.add_parent_star(this.system.name)
-
-                if 'materials' in body:
-                    for material in body['materials']:  # type: str
-                        planet_data.add_material(material.lower())
-
-                atmosphere_composition: dict[str, float] = body.get('atmosphereComposition', {})
-                if atmosphere_composition:
-                    for gas, percent in atmosphere_composition.items():
-                        planet_data.add_gas(map_edsm_atmosphere(gas), percent)
-
-                this.planets[body_short_name] = planet_data
-
-            except Exception as e:
-                logger.error('Error while parsing EDSM', exc_info=e)
-
-    main_star = get_main_star(this.system, this.sql_session)
-    if main_star:
-        this.main_star_type = main_star.type
-        this.main_star_luminosity = main_star.luminosity
-
+def edsm_start(event: tk.Event) -> None:
     this.fetched_edsm = True
-    reset_cache()
     update_display()
 
 
-def add_edsm_star(body: dict) -> None:
-    """
-    Add a parent star from EDSM API data
-
-    :param body: The EDSM body data (JSON)
-    """
-
-    try:
-        body_short_name = get_body_name(body['name'])
-        if body_short_name not in this.stars:
-            star_data = StarData.from_journal(this.system, body_short_name, body['bodyId'], this.sql_session)
-        else:
-            star_data = this.stars[body_short_name]
-        if body['spectralClass']:
-            star_data.set_type(body['spectralClass'][:-1])
-            star_data.set_subclass(body['spectralClass'][-1])
-        else:
-            star_data.set_type(parse_edsm_star_class(body['subType']))
-        star_data.set_luminosity(body['luminosity'])
-        star_data.set_distance(body['distanceToArrival'])
-        star_data.set_mass(body['solarMasses'])
-        star_data.set_orbital_period(body['orbitalPeriod'] * 86400 if body['orbitalPeriod'] else 0)
-        star_data.set_rotation(body['rotationalPeriod'] * 86400)
-        this.stars[body_short_name] = star_data
-    except Exception as e:
-        logger.error('Error while parsing EDSM', exc_info=e)
+def edsm_end(event: tk.Event) -> None:
+    reload_system_data()
+    update_display()
 
 
 def scan_label(scans: int) -> str:
@@ -997,6 +877,15 @@ def reset() -> None:
     this.sql_session.commit()
 
 
+def reload_system_data() -> None:
+    this.planets = load_planets(this.system, this.sql_session)
+    this.stars = load_stars(this.system, this.sql_session)
+    main_star = get_main_star(this.system, this.sql_session)
+    if main_star:
+        this.main_star_type = main_star.type
+        this.main_star_luminosity = main_star.luminosity
+
+
 def add_star(entry: Mapping[str, any]) -> None:
     """
     Add main star data from journal event
@@ -1056,12 +945,7 @@ def journal_entry(
             this.system.z = state['StarPos'][2]
             sector = findRegion(this.system.x, this.system.y, this.system.z)
             this.system.region = sector[0] if sector is not None else None
-        this.planets = load_planets(this.system, this.sql_session)
-        this.stars = load_stars(this.system, this.sql_session)
-        main_star = get_main_star(this.system, this.sql_session)
-        if main_star:
-            this.main_star_type = main_star.type
-            this.main_star_luminosity = main_star.luminosity
+        reload_system_data()
 
     if state['SuitCurrent'] and state['SuitCurrent']['name'] != this.suit_name:
         this.suit_name = state['SuitCurrent']['name']
@@ -1607,7 +1491,6 @@ def update_display() -> None:
         this.edsm_button.grid_remove()
     else:
         this.edsm_button.grid()
-        this.edsm_failed.grid_remove()
 
     if not this.commander:
         this.scroll_canvas.grid_remove()

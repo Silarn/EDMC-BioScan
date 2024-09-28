@@ -1,3 +1,3 @@
 name = 'BioScan'
-version = '2.8.9-patch1'
-db_version = 8
+version = '2.9.0'
+db_version = 9

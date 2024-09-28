@@ -60,7 +60,6 @@ class Globals:
         self.values_label: tk.Label | None = None
         self.total_label: tk.Label | None = None
         self.edsm_button: tk.Label | None = None
-        self.edsm_failed: tk.Label | None = None
         self.update_button: HyperlinkLabel | None = None
         self.journal_label: tk.Label | None = None
         self.overlay: overlay.Overlay = overlay.Overlay()
@@ -98,7 +97,4 @@ class Globals:
         self.edd_replay: bool = False
 
         # EDSM vars
-        self.edsm_thread: threading.Thread | None = None
-        self.edsm_session: str | None = None
-        self.edsm_bodies: Mapping | None = None
         self.fetched_edsm = False
