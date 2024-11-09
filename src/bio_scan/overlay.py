@@ -97,7 +97,8 @@ class Overlay:
         """
 
         if sys.platform == 'linux':
-            formatted_text = text.replace('🗸', '*').replace('\N{memo}', '»').split("\n")
+            formatted_text = (text.replace('🗸', '*').replace('\N{memo}', '»')
+                              .replace(' ', ' ').split("\n"))
         else:
             formatted_text = text.replace('🗸', '√').replace('\N{memo}', '♦').split("\n")
         if not scrolled:
