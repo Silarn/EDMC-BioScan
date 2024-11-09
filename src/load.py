@@ -1054,7 +1054,7 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                 this.planets[target_body].set_flora_species_scan(
                     entry['Genus'], entry['Species'], scan_level, this.commander.id
                 )
-                if scan_level == 1 and this.current_scan:
+                if scan_level == 1 and this.current_scan[0]:
                     data: PlanetFlora = this.planets[target_body].get_flora(this.current_scan[0],
                                                                             this.current_scan[1])[0]
                     stmt = delete(Waypoint).where(Waypoint.commander_id == this.commander.id) \
@@ -1076,7 +1076,7 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                                 scan=True
                             )
                     case _:
-                        this.current_scan = ''
+                        this.current_scan = ('', '')
 
             update_display()
 
@@ -1167,7 +1167,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
         this.planet_radius = entry['PlanetRadius']
         this.planet_heading = entry['Heading'] if 'Heading' in entry else None
         try:
-            if this.location_name != '' and (this.current_scan != ''
+            if this.location_name != '' and (this.current_scan[0]
                                              or this.planets[this.location_name].has_waypoint(this.commander.id)):
                 refresh = True
         except KeyError:
@@ -1267,7 +1267,7 @@ def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
 
     distance_list = []
     if this.planet_latitude is not None and this.planet_longitude is not None:
-        if this.location_name and this.current_scan:
+        if this.location_name and this.current_scan[0]:
             waypoints: list[Waypoint] = (this.planets[this.location_name]
                                          .get_flora(this.current_scan[0], this.current_scan[1])[0].waypoints)
             waypoints = list(
@@ -1393,7 +1393,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             detail_text += f'{bio_genus[genus]["name"]} - Multiple Possible:\n'
                     if show:
                         waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
-                                                                     and this.current_scan == '' and waypoints) else ''
+                                                                     and not this.current_scan[0] and waypoints) else ''
                         detail_text += '{}{}{}{} ({}): {}{}{}\n'.format(
                             '  ' if bio_genus[genus]['multiple'] else '',
                             '\N{memo} ' if not check_codex(this.commander.id, this.system.region,
@@ -1576,8 +1576,8 @@ def update_display() -> None:
                     )
                 )
                 if 0 < scan < 3:
-                    if not this.current_scan:
-                        this.current_scan = genus
+                    if not this.current_scan[0]:
+                        this.current_scan = (genus, '')
                     distance = get_distance()
                     distance_format = f'{distance:.2f}' if distance is not None else 'unk'
                     distance = distance if distance is not None else 0
