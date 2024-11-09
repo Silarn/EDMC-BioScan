@@ -1095,8 +1095,13 @@ def process_data_event(entry: Mapping[str, any]) -> None:
                     if genus:
                         if this.location_id == entry['BodyID'] and this.planet_latitude \
                                 and this.planet_longitude and this.waypoints_enabled.get():
+                            latitude = this.planet_latitude
+                            longitude = this.planet_longitude
+                            if 'Latitude' in entry:
+                                latitude = entry['Latitude']
+                                longitude = entry['Longitude']
                             this.planets[target_body].add_flora_waypoint(
-                                genus, species, (this.planet_latitude, this.planet_longitude), this.commander.id
+                                genus, species, (latitude, longitude), this.commander.id
                             )
                     reset_cache()  # Required to clear found codex marks
 
