@@ -7,7 +7,6 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1499900,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'min_gravity': 0.044,
                     'max_gravity': 1.28,
                     'max_temperature': 440.0,
@@ -24,7 +23,6 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1499900,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'min_gravity': 0.047,
                     'max_gravity': 0.37,
                     'max_temperature': 440.0,
@@ -41,7 +39,6 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1499900,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'min_gravity': 0.17,
                     'max_gravity': 2.52,
                     'max_temperature': 800.0,
@@ -52,7 +49,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'regions': ['anemone-a']
                 },
                 {
-                    'atmosphere': ['None'],
                     'min_gravity': 0.17,
                     'max_gravity': 2.52,
                     'max_temperature': 800.0,
@@ -69,7 +65,6 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1499900,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'min_gravity': 0.045,
                     'max_gravity': 0.37,
                     'max_temperature': 440.0,
@@ -86,7 +81,6 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1499900,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'min_gravity': 0.036,
                     'max_gravity': 4.61,
                     'min_temperature': 160.0,
@@ -102,7 +96,6 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1499900,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'min_gravity': 0.036,
                     'min_temperature': 110.0,
                     'max_temperature': 3050.0,
@@ -111,7 +104,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'main_star': ['O', 'AeBe']
                 },
                 {
-                    'atmosphere': ['None'],
                     'min_gravity': 0.036,
                     'min_temperature': 110.0,
                     'max_temperature': 3050.0,
@@ -126,7 +118,6 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1499900,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'min_gravity': 0.036,
                     'max_gravity': 4.61,
                     'min_temperature': 400.0,
@@ -141,7 +132,6 @@ catalog: dict[str, dict[str, Mapping]] = {
             'value': 1499900,
             'rulesets': [
                 {
-                    'atmosphere': ['None'],
                     'min_temperature': 220.0,
                     'volcanism': 'Any',
                     'body_type': ['Metal rich body', 'High metal content body'],
