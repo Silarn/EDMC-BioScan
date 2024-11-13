@@ -114,19 +114,21 @@ window. The text color and anchor points are configurable. Suggestions welcome.
 ## Installation
 
 * Download the [latest release] of both BioScan and ExploData
-  * Users of the prebuilt Windows EXE EDMC must use the Windows EXE version of ExploData
-  * Native python users should use the native python version
-  * There is only one version of BioScan moving forward
+  * Appropriate versions of both are available on every release page
+  * ExploData has multiple versions depending on how you run EDMC:
+    * Users of the prebuilt Windows EXE must use the Windows EXE version of ExploData
+    * Flatpak users must use the flatpak version, which is bundled with SQLAlchemy
+    * Native python users should use the native python version (see additional instructions below)
   * If you use [Pioneer], make sure the version you're using is up-to-date with ExploData
 * Extract the `.zip` archives that you downloaded into the EDMC `plugins` folder
   * This is accessible via the plugins tab in the EDMC settings window
-  * ExploData must be named as it is packaged, or you will run into trouble loading dependencies
+  * The ExploData plugin directory must be named as it is packaged, or you will run into trouble loading dependencies
 * For native python users:
-  * Run `pip install -r requirements.txt` within the ExploData plugin directory to install SQLAlchemy
-  * Ensure the correct `pip` is used for Python 3.11
+  * If you use `venv`, install the SQLAlchemy requirement from the `requirements.txt` to the EDMC venv
+  * For system python, run `pip install -r requirements.txt` within the ExploData plugin directory to install SQLAlchemy
+  * Ensure the correct `pip` is used for your version of EDMC
 * (Optional) Install the [EDMCOverlay] plugin for overlay support (or [edmcoverlay2] for Linux)
-  * The plugin directory should be named EDMCOverlay to load properly, if this causes a compatibility
-    issue with another EDMC plugin, please submit an issue.
+  * Either 'EDMCOverlay' or 'edmcoverlay' should work as the plugin directory name
 * Start or restart EDMC to register the plugin and run any necessary database migrations
 
 ## Acknowledgements
@@ -142,7 +144,8 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 
 ## Roadmap
 
-* Refinements and suggestions welcome
+* Voice support
+* Translations support
 
 ## License
 
