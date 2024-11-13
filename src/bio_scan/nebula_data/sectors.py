@@ -85,5 +85,5 @@ data = [
     'Veil West Sector',
     'Vela Dark Region Sector',
     'Vulpecula Dark Region Sector',
-    'Witch Head Sector',
+    'Witch Head Sector'
 ]
