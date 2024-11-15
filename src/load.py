@@ -22,7 +22,7 @@ import bio_scan.const
 from bio_scan.globals import Globals
 from bio_scan.nebula_data.reference_stars import get_nearest_nebula
 from bio_scan.nebula_data.sectors import data as nebula_sectors
-from bio_scan.settings import get_settings
+from bio_scan.settings import get_settings, ship_in_whitelist, ship_sold, change_ship_name, add_ship_id, sync_ship_name
 from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.util import system_distance
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
@@ -925,10 +925,6 @@ def journal_entry(
     :param state: The EDMC state dictionary object
     :return: Result string. Empty means success.
     """
-    if entry['event'] == 'Harness-Version':
-        this.edd_replay = True
-    if entry['event'] == 'ReplayOver':
-        this.edd_replay = False
 
     if this.migration_failed or this.db_mismatch:
         return ''
@@ -968,6 +964,13 @@ def journal_entry(
     log(f'Event {entry["event"]}')
 
     match entry['event']:
+        case 'Loadout':
+            if entry['ShipName'] in this.ship_whitelist:
+                add_ship_id(entry['ShipID'], entry['ShipName'], this)
+            else:
+                sync_ship_name(entry['ShipID'], entry['ShipName'], this)
+            prefs_changed(cmdr, is_beta)
+
         case 'ApproachBody' | 'Touchdown' | 'Liftoff':
             if entry['event'] in ['Liftoff', 'Touchdown'] and entry['PlayerControlled'] is False:
                 return ''
@@ -990,6 +993,21 @@ def journal_entry(
 
             update_display()
             this.scroll_canvas.yview_moveto(0.0)
+
+        case 'SetUserShipName':
+            change_ship_name(entry['ShipID'], entry['UserShipName'], this)
+            prefs_changed(cmdr, is_beta)
+
+        case 'SellShipOnRebuy' | 'ShipyardSell':
+            ship_id = entry.get('SellShipID', entry.get('SellShipId', -1))
+            if ship_id != -1:
+                ship_sold(ship_id, this)
+                prefs_changed(cmdr, is_beta)
+
+        case 'Resurrect':
+            if entry['Bankrupt']:
+                this.ship_whitelist.clear()
+                prefs_changed(cmdr, is_beta)
 
     if system_changed:
         update_display()
@@ -1671,7 +1689,7 @@ def display_planetary_data(bodies: dict, for_focus: bool = False) -> bool:
 def overlay_should_display() -> bool:
     result = True
     if not this.docked and not this.on_foot:
-        if this.ship_whitelist and monitor.state['ShipName'] not in this.ship_whitelist:
+        if this.ship_whitelist and ship_in_whitelist(monitor.state['ShipID'], monitor.state['ShipName'], this):
             result = False
         if not this.in_supercruise and this.planet_radius == 0:
             result = False

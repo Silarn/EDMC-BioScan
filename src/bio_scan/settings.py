@@ -237,7 +237,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     color_button = None
     ship_list = nb.Label(
         frame,
-        text=', '.join(bioscan_globals.ship_whitelist) if len(bioscan_globals.ship_whitelist) else 'None',
+        text=', '.join(get_ship_names(bioscan_globals)) if len(bioscan_globals.ship_whitelist) else 'None',
         justify=tk.LEFT
     )
     add_ship_button = None
@@ -259,24 +259,33 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         Adds active ship to whitelist
         """
         if monitor.state['ShipName'] not in bioscan_globals.ship_whitelist:
-            bioscan_globals.ship_whitelist.append(monitor.state['ShipName'])
-            bioscan_globals.ship_whitelist = sorted(bioscan_globals.ship_whitelist)
+            bioscan_globals.ship_whitelist.append(f'{monitor.state["ShipID"]}:{monitor.state["ShipName"]}')
             add_ship_button.grid_remove()
             remove_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
             clear_ships_button['state'] = tk.NORMAL
-            ship_list['text'] = ', '.join(bioscan_globals.ship_whitelist)
+            ship_list['text'] = ', '.join(get_ship_names(bioscan_globals))
 
     def remove_ship() -> None:
         """
         Removes active ship to whitelist
         """
-        if monitor.state['ShipName'] in bioscan_globals.ship_whitelist:
-            bioscan_globals.ship_whitelist.remove(monitor.state['ShipName'])
-            remove_ship_button.grid_remove()
-            add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
+        for ship in bioscan_globals.ship_whitelist:
+            ship_data = ship.split(':')
+            if len(ship_data) == 1:
+                if monitor.state['ShipName'] == ship_data[0]:
+                    bioscan_globals.ship_whitelist.remove(ship)
+                    remove_ship_button.grid_remove()
+                    add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
+                    break
+            else:
+                if monitor.state['ShipID'] == int(ship_data[0]):
+                    bioscan_globals.ship_whitelist.remove(ship)
+                    remove_ship_button.grid_remove()
+                    add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
+                    break
 
         if len(bioscan_globals.ship_whitelist):
-            ship_list['text'] = ', '.join(bioscan_globals.ship_whitelist)
+            ship_list['text'] = ', '.join(get_ship_names(bioscan_globals))
         else:
             clear_ships_button['state'] = tk.DISABLED
             ship_list['text'] = 'None'
@@ -329,7 +338,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
                                    command=remove_ship)
     clear_ships_button = nb.Button(ship_whitelist_frame, text='Clear Ships', command=clear_ships)
     if monitor.state['ShipName']:
-        if monitor.state['ShipName'] in bioscan_globals.ship_whitelist:
+        if ship_in_whitelist(monitor.state['ShipID'], monitor.state['ShipName'], bioscan_globals):
             remove_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
         else:
             add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
@@ -395,6 +404,52 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         width=8, validate='all', validatecommand=(frame.register(is_double), '%P', '%d')
     ).grid(row=0, column=4, sticky=tk.W)
     return frame
+
+
+def get_ship_names(bioscan_globals: Globals) -> list[str]:
+    ships: list[str] = []
+    for ship in bioscan_globals.ship_whitelist:
+        ship_data = ship.split(':')
+        ships.append(ship_data[-1])
+    return sorted(ships)
+
+
+def ship_in_whitelist(ship_id: str, name: str, bioscan_globals: Globals):
+    if f'{ship_id}:{name}' in bioscan_globals.ship_whitelist:
+        return True
+    if name in bioscan_globals.ship_whitelist:
+        return True
+    return False
+
+
+def change_ship_name(ship_id: int, name: str, bioscan_globals: Globals) -> None:
+    for ship in bioscan_globals.ship_whitelist:
+        if ship.startswith(f'{ship_id}:'):
+            bioscan_globals.ship_whitelist.append(f'{ship_id}:{name}')
+            bioscan_globals.ship_whitelist.remove(ship)
+            break
+
+
+def ship_sold(ship_id: int, bioscan_globals) -> None:
+    for ship in bioscan_globals.ship_whitelist:
+        if ship.startswith(ship_id):
+            bioscan_globals.ship_whitelist.remove(ship)
+            return
+
+
+def add_ship_id(ship_id: int, name: str, bioscan_globals: Globals) -> None:
+    if name in bioscan_globals.ship_whitelist:
+        bioscan_globals.ship_whitelist.remove(name)
+        bioscan_globals.ship_whitelist.append(f'{ship_id}:{name}')
+
+
+def sync_ship_name(ship_id: int, name: str, bioscan_globals: Globals) -> None:
+    for ship in bioscan_globals.ship_whitelist:
+        if ship.startswith(f'{ship_id}:'):
+            if ship != f'{ship_id}:{name}':
+                bioscan_globals.ship_whitelist.remove(ship)
+                bioscan_globals.ship_whitelist.append(f'{ship_id}:{name}')
+            return
 
 
 def is_digit(value: str, action: str) -> bool:
