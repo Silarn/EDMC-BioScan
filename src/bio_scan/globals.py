@@ -40,6 +40,7 @@ class Globals:
         self.minimum_signals: tk.IntVar | None = None
         self.debug_logging_enabled: tk.BooleanVar | None = None
         self.focus_distance: tk.IntVar | None = None
+        self.box_height: tk.IntVar | None = None
         self.use_overlay: tk.BooleanVar | None = None
         self.overlay_color: tk.StringVar | None = None
         self.overlay_anchor_x: tk.IntVar | None = None

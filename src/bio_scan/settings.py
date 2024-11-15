@@ -146,6 +146,12 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         left_column, text=bioscan_globals.focus_distance.get(), textvariable=bioscan_globals.minimum_signals,
         validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
     ).grid(row=8, column=0, padx=x_padding, sticky=tk.NW)
+    nb.Label(left_column, text='Scrollbox height (px):') \
+        .grid(row=9, column=0, padx=x_padding, sticky=tk.SW)
+    nb.EntryMenu(
+        left_column, text=bioscan_globals.box_height.get(), textvariable=bioscan_globals.box_height,
+        validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
+    ).grid(row=10, column=0, padx=x_padding, sticky=tk.NW)
 
     # Right column
     right_column = tk.Frame(frame, background='')
