@@ -1,6 +1,4 @@
-from typing import Mapping
 import semantic_version
-import threading
 
 # TKinter imports
 import tkinter as tk
