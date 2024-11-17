@@ -46,6 +46,7 @@ from ExploData.explo_data.edsm_parse import register_edsm_callbacks
 
 # EDMC imports
 from config import config
+from edmc_data import ship_name_map
 from monitor import monitor
 from theme import theme
 from EDMCLogging import get_plugin_logger
@@ -963,12 +964,15 @@ def journal_entry(
 
     log(f'Event {entry["event"]}')
 
+    ship_name = monitor.state['ShipName'] if monitor.state['ShipName'] else ship_name_map.get(
+                monitor.state['ShipType'], monitor.state['ShipType'])
+
     match entry['event']:
         case 'Loadout':
-            if entry['ShipName'] in this.ship_whitelist:
-                add_ship_id(entry['ShipID'], entry['ShipName'], this)
+            if ship_name in this.ship_whitelist:
+                add_ship_id(entry['ShipID'], ship_name, this)
             else:
-                sync_ship_name(entry['ShipID'], entry['ShipName'], this)
+                sync_ship_name(entry['ShipID'], ship_name, this)
             prefs_changed(cmdr, is_beta)
 
         case 'ApproachBody' | 'Touchdown' | 'Liftoff':
@@ -995,7 +999,7 @@ def journal_entry(
             this.scroll_canvas.yview_moveto(0.0)
 
         case 'SetUserShipName':
-            change_ship_name(entry['ShipID'], entry['UserShipName'], this)
+            change_ship_name(entry['ShipID'], ship_name, this)
             prefs_changed(cmdr, is_beta)
 
         case 'SellShipOnRebuy' | 'ShipyardSell':
@@ -1689,7 +1693,9 @@ def display_planetary_data(bodies: dict, for_focus: bool = False) -> bool:
 def overlay_should_display() -> bool:
     result = True
     if not this.docked and not this.on_foot:
-        if this.ship_whitelist and ship_in_whitelist(monitor.state['ShipID'], monitor.state['ShipName'], this):
+        ship_name = monitor.state['ShipName'] if monitor.state['ShipName'] else ship_name_map.get(
+                monitor.state['ShipType'], monitor.state['ShipType'])
+        if this.ship_whitelist and ship_in_whitelist(monitor.state['ShipID'], ship_name, this):
             result = False
         if not this.in_supercruise and this.planet_radius == 0:
             result = False
