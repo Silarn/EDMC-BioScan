@@ -418,7 +418,7 @@ def get_ship_names(bioscan_globals: Globals) -> list[str]:
     return sorted(ships)
 
 
-def ship_in_whitelist(ship_id: str, name: str, bioscan_globals: Globals):
+def ship_in_whitelist(ship_id: int, name: str, bioscan_globals: Globals) -> bool:
     if f'{ship_id}:{name}' in bioscan_globals.ship_whitelist:
         return True
     if name and name in bioscan_globals.ship_whitelist:

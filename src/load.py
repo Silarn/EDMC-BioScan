@@ -1695,7 +1695,7 @@ def overlay_should_display() -> bool:
     if not this.docked and not this.on_foot:
         ship_name = monitor.state['ShipName'] if monitor.state['ShipName'] else ship_name_map.get(
                 monitor.state['ShipType'], monitor.state['ShipType'])
-        if this.ship_whitelist and ship_in_whitelist(monitor.state['ShipID'], ship_name, this):
+        if this.ship_whitelist and not ship_in_whitelist(monitor.state['ShipID'], ship_name, this):
             result = False
         if not this.in_supercruise and this.planet_radius == 0:
             result = False
