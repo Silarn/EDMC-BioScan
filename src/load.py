@@ -1380,7 +1380,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         num_complete,
                         len(body.get_flora())
                     )
-                elif body.get_scan_state(this.commander.id) == 4 or body.get_bio_signals():
+                elif body.get_scan_state(this.commander.id) in [2, 4] or body.get_bio_signals():
                     detail_text += '{} -{}{}:\n'.format(
                         name,
                         get_body_shorthand(body.get_type()),
@@ -1472,7 +1472,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             types = get_possible_values(body)
             if body.get_bio_signals():
                 if body.get_scan_state(this.commander.id) == 3:
-                    detail_text += '! Basic Scan Detected - Install DSS !\n'
+                    detail_text += ('! Basic Scan Detected !\n'
+                                    + 'FSS / DSS / AutoScan Needed\n')
+
                 detail_text += f'{body.get_bio_signals()} Signal{"s"[:body.get_bio_signals()^1]} - Possible Types:\n'
                 count = 0
                 for bio_name, values in types:
@@ -1508,7 +1510,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             )
                     if len(types) == count:
                         detail_text += '\n'
-            elif body.get_scan_state(this.commander.id) < 3 and len(types):
+            elif body.get_scan_state(this.commander.id) < 4 and len(types):
                 detail_text += f'{name}:\nAutoScan/NavBeacon Data, Bios Possible\nCheck FSS for Signals (or DSS)\n\n'
 
     return detail_text, value_sum
@@ -1535,7 +1537,7 @@ def update_display() -> None:
                 filter(
                     lambda item: item[1].get_bio_signals() > 0
                                  or len(item[1].get_flora()) > 0
-                                 or (item[1].is_landable() and item[1].get_scan_state(this.commander.id) < 3
+                                 or (item[1].is_landable() and item[1].get_scan_state(this.commander.id) != 4
                                      and item[1].get_geo_signals() == 0),
                     this.planets.items()
                 )
