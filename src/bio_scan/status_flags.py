@@ -2,6 +2,10 @@ from enum import Flag, auto
 
 
 class StatusFlags(Flag):
+    """
+    Enum definition for Elite Dangerous Status.json flags (group 1)
+    """
+
     DOCKED = auto()
     LANDED = auto()
     LANDING_GEAR = auto()
@@ -37,6 +41,10 @@ class StatusFlags(Flag):
 
 
 class StatusFlags2(Flag):
+    """
+    Enum definition for Elite Dangerous Status.json flags (group 2)
+    """
+
     ON_FOOT = auto()
     IN_TAXI = auto()
     MULTICREW = auto()

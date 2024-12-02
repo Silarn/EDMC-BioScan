@@ -76,6 +76,10 @@ class Overlay:
         self._scroll_timer = self.scroll()
 
     def disconnect(self) -> None:
+        """
+        Shut down overlay draw timers
+        """
+
         self._redraw_timer.set()
         self._scroll_timer.set()
 
@@ -119,6 +123,7 @@ class Overlay:
         :param from_line: Start point of clear
         :param remove: Remove the message from the cache.
         """
+
         try:
             if message_id in self._text_blocks:
                 count = from_line
@@ -180,6 +185,10 @@ class Overlay:
                 logger.debug("Exception during scroll repaint", exc_info=ex)
 
     def draw(self, message_id: str):
+        """
+        Render one overlay display
+        """
+
         if message_id in self._text_blocks:
             block = self._text_blocks[message_id]
             count = block.offset
@@ -204,6 +213,7 @@ class Overlay:
 
         :return: Availability of EDMCOverlay
         """
+
         if self._overlay is not None:
             if hasattr(self._overlay, 'connection'):
                 if self._overlay.connection is None:

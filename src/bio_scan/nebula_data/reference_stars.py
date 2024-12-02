@@ -5815,6 +5815,15 @@ named_coordinates = {
 
 def nebulae_sort(current_coordinates: tuple[float, float, float],
                  nebula_type: str = 'large') -> list[tuple[str, tuple[float, float, float]]]:
+    """
+    Get a sorted nebula list of a given type by distance from a given galactic coordinate.
+
+    :param current_coordinates: The coordinate (x, y, z) tuple used to calculate distance to each nebula.
+    :param nebula_type: The nebula type to search against ('large', 'planetary', or 'all'). Default: large
+    :return: Sorted array of nebulae by distance to given coordinates. Data is the display name of the nebula and
+        its x, y, z coordinates.
+    """
+
     final_coordinates = {}
     match nebula_type:
         case 'large':
@@ -5831,6 +5840,15 @@ def nebulae_sort(current_coordinates: tuple[float, float, float],
 
 def get_nearest_nebula(current_coordinates: tuple[float, float, float],
                        nebula_type: str = 'large') -> dict[str, tuple[float, float, float]]:
+    """
+    Retrieve the nearest nebula of the given type to the given coordinates.
+
+    :param current_coordinates: The coordinate (x, y, z) tuple used to calculate distance to each nebula.
+    :param nebula_type: The nebula type to search against ('large', 'planetary', or 'all'). Default: large
+    :return: Single nebula entry that is the closest to the given coordinates. Data is the display name of the nebula
+        and its x, y, z coordinates.
+    """
+
     result: list[tuple[str, tuple[float, float, float]]] = nebulae_sort(current_coordinates, nebula_type)
     return {result[0][0]: result[0][1]}
     

@@ -230,6 +230,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     :param bioscan_globals: BioScan globals object
     :return: Frame for overlay tab
     """
+
     ship_name = monitor.state['ShipName'] if monitor.state['ShipName'] else ship_name_map.get(
                 monitor.state['ShipType'], monitor.state['ShipType'])
 
@@ -248,6 +249,10 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     clear_ships_button = None
 
     def color_chooser() -> None:
+        """
+        Color selector for overlay text
+        """
+
         (_, color) = tkColorChooser.askcolor(
             bioscan_globals.overlay_color.get(), title='Overlay Color', parent=bioscan_globals.parent
         )
@@ -261,6 +266,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         """
         Adds active ship to whitelist
         """
+
         if ship_name not in bioscan_globals.ship_whitelist:
             bioscan_globals.ship_whitelist.append(f'{monitor.state["ShipID"]}:{ship_name}')
             add_ship_button.grid_remove()
@@ -272,6 +278,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         """
         Removes active ship to whitelist
         """
+
         for ship in bioscan_globals.ship_whitelist:
             ship_data = ship.split(':')
             if len(ship_data) == 1:
@@ -297,6 +304,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         """
         Clears ship whitelist
         """
+
         bioscan_globals.ship_whitelist.clear()
         clear_ships_button['state'] = tk.DISABLED
         ship_list['text'] = 'None'
@@ -411,6 +419,13 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
 
 
 def get_ship_names(bioscan_globals: Globals) -> list[str]:
+    """
+    Process and return sorted array of overlay whitelist ship names
+
+    :param bioscan_globals: BioScan globals storage class
+    :return: Sorted array of ship names
+    """
+
     ships: list[str] = []
     for ship in bioscan_globals.ship_whitelist:
         ship_data = ship.split(':')
@@ -419,6 +434,15 @@ def get_ship_names(bioscan_globals: Globals) -> list[str]:
 
 
 def ship_in_whitelist(ship_id: int, name: str, bioscan_globals: Globals) -> bool:
+    """
+    Check if the specified ship ID and / or name is in the overlay whitelist
+
+    :param ship_id: The ship ID
+    :param name: The ship name (custom or default)
+    :param bioscan_globals: BioScan globals storage class
+    :return: Whether or not ship is in the overlay whitelist
+    """
+
     if f'{ship_id}:{name}' in bioscan_globals.ship_whitelist:
         return True
     if name and name in bioscan_globals.ship_whitelist:
@@ -427,6 +451,14 @@ def ship_in_whitelist(ship_id: int, name: str, bioscan_globals: Globals) -> bool
 
 
 def change_ship_name(ship_id: int, name: str, bioscan_globals: Globals) -> None:
+    """
+    Change the stored ship name in EDMC storage assigned to the given ship ID
+
+    :param ship_id: The ship ID
+    :param name: The ship name (custom or default)
+    :param bioscan_globals: BioScan globals storage class
+    """
+
     for ship in bioscan_globals.ship_whitelist:
         if ship.startswith(f'{ship_id}:'):
             bioscan_globals.ship_whitelist.append(f'{ship_id}:{name}')
@@ -435,6 +467,13 @@ def change_ship_name(ship_id: int, name: str, bioscan_globals: Globals) -> None:
 
 
 def ship_sold(ship_id: int, bioscan_globals) -> None:
+    """
+    Remove sold ship from overlay whitelist
+
+    :param ship_id: The ship ID
+    :param bioscan_globals: BioScan globals storage class
+    """
+
     for ship in bioscan_globals.ship_whitelist:
         if ship.startswith(ship_id):
             bioscan_globals.ship_whitelist.remove(ship)
@@ -442,12 +481,28 @@ def ship_sold(ship_id: int, bioscan_globals) -> None:
 
 
 def add_ship_id(ship_id: int, name: str, bioscan_globals: Globals) -> None:
+    """
+    Convert old name-based storage to ID:name if ship name is in the overlay whitelist
+
+    :param ship_id: The ship ID
+    :param name: The ship name (custom or default)
+    :param bioscan_globals: BioScan globals storage class
+    """
+
     if name in bioscan_globals.ship_whitelist:
         bioscan_globals.ship_whitelist.remove(name)
         bioscan_globals.ship_whitelist.append(f'{ship_id}:{name}')
 
 
 def sync_ship_name(ship_id: int, name: str, bioscan_globals: Globals) -> None:
+    """
+    Update the ship name in the overlay whitelist on change
+
+    :param ship_id: The ship ID
+    :param name: The ship name (custom or default)
+    :param bioscan_globals: BioScan globals storage class
+    """
+
     for ship in bioscan_globals.ship_whitelist:
         if ship.startswith(f'{ship_id}:'):
             if ship != f'{ship_id}:{name}':
