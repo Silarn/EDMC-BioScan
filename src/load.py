@@ -395,7 +395,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     case 'max_temperature':
                         if not body.get_temp():
                             continue
-                        if body.get_temp() >= value:
+                        if body.get_temp() > value:
                             log('Eliminated for high heat')
                             eliminated = True
                     case 'min_temperature':
