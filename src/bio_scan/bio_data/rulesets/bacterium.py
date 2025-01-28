@@ -271,6 +271,15 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 500.0,
                     'volcanism': 'None'
                 },
+                {  # Hot thin sulphur dioxide atmos
+                    'atmosphere': ['SulphurDioxide'],
+                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_gravity': 0.5,
+                    'max_gravity': 0.55,
+                    'min_temperature': 500.0,
+                    'max_temperature': 650.0,
+                    'volcanism': 'Any'
+                },
                 {
                     'atmosphere': ['Water'],
                     'body_type': ['Rocky body', 'High metal content body'],
