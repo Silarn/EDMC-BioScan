@@ -71,7 +71,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'volcanism': ['silicate', 'rocky', 'metallic'],
                     'body_type': ['Rocky body'],
-                    'main_star': [('B', 'I'), ('B', 'II'), ('B', 'III'), ('B', 'IV')],
+                    'star': [('B', 'I'), ('B', 'II'), ('B', 'III'), ('B', 'IV')],
                     'regions': ['anemone-a']
                 }
             ],
@@ -101,7 +101,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 3050.0,
                     'volcanism': ['carbon dioxide'],
                     'body_type': ['Metal rich body', 'Rocky body', 'High metal content body'],
-                    'main_star': ['O', 'AeBe']
+                    'star': ['O']
                 },
                 {
                     'min_gravity': 0.036,
@@ -109,7 +109,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 3050.0,
                     'volcanism': 'None',
                     'body_type': ['Metal rich body', 'Rocky body', 'High metal content body'],
-                    'main_star': ['O', 'AeBe']
+                    'star': ['O']
                 }
             ],
         },
