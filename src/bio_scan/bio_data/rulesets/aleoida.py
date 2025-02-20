@@ -75,7 +75,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.04,
                     'max_gravity': 0.276,
                     'min_temperature': 190.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.054,
                     'body_type': ['Rocky body', 'High metal content body'],
                     'volcanism': 'None'

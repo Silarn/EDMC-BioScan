@@ -95,7 +95,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.04,
                     'max_gravity': 0.276,
                     'min_temperature': 147.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.00289,
                     'volcanism': 'None',
                     'regions': ['outer']
@@ -197,7 +197,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.04,
                     'max_gravity': 0.276,
                     'min_temperature': 191.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.058,
                     'volcanism': 'None',
                     'regions': ['sagittarius-carina-core-9', 'perseus-core', 'orion-cygnus-core']
@@ -248,7 +248,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.22,
                     'max_gravity': 0.276,
                     'min_temperature': 80.0,
-                    'max_temperature': 128.0,
+                    'max_temperature': 129.0,
                     'body_type': ['Rocky ice body']
                 },
                 {

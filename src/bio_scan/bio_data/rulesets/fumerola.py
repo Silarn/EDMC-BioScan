@@ -59,7 +59,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.276,
                     'min_temperature': 149.0,
                     'max_temperature': 272.0,
-                    'volcanism': ['carbon']
+                    'volcanism': ['carbon', 'methane']
                 },
                 {  # Probably incomplete
                     'atmosphere': ['Ammonia', 'ArgonRich', 'CarbonDioxideRich'],
@@ -123,7 +123,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.04,
                     'max_gravity': 0.276,
                     'min_temperature': 50.0,
-                    'max_temperature': 128.0,
+                    'max_temperature': 129.0,
                     'volcanism': ['nitrogen', 'ammonia']
                 },
                 {

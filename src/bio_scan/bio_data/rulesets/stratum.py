@@ -129,7 +129,7 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
-                    'min_gravity': 0.045,
+                    'min_gravity': 0.03,
                     'max_gravity': 0.4,
                     'min_temperature': 165.0,
                     'max_temperature': 190.0,

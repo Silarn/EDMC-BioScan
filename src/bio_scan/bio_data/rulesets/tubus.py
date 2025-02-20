@@ -12,7 +12,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.041,
                     'max_gravity': 0.152,
                     'min_temperature': 160.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.003,
                     'volcanism': 'None',
                     'regions': ['perseus']
@@ -38,7 +38,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.045,
                     'max_gravity': 0.152,
                     'min_temperature': 160.0,
-                    'max_temperature': 189.0,
+                    'max_temperature': 195.0,
                     'volcanism': 'None'
                 }
             ],
@@ -53,7 +53,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.041,
                     'max_gravity': 0.152,
                     'min_temperature': 160.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.003,
                     'volcanism': 'None',
                     'regions': ['scutum-centaurus']
@@ -85,7 +85,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.04,
                     'max_gravity': 0.153,
                     'min_temperature': 160.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.003,
                     'volcanism': 'None',
                     'regions': ['sagittarius-carina']

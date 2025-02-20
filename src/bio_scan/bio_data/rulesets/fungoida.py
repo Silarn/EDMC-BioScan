@@ -13,17 +13,24 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.276,
                     'min_temperature': 152.0,
                     'max_temperature': 177.0,
-                    'max_pressure': 0.0135,
-                    'volcanism': 'None'
+                    'max_pressure': 0.0135
                 },
                 {
                     'atmosphere': ['Methane'],
-                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
+                    'body_type': ['Rocky ice body'],
                     'min_gravity': 0.033,
                     'max_gravity': 0.276,
                     'min_temperature': 68.0,
                     'max_temperature': 109.0,
                     'volcanism': 'None'
+                },
+                {
+                    'atmosphere': ['Methane'],
+                    'body_type': ['Rocky body', 'High metal content body'],
+                    'min_gravity': 0.033,
+                    'max_gravity': 0.276,
+                    'min_temperature': 68.0,
+                    'max_temperature': 109.0
                 }
             ],
         },
@@ -47,7 +54,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.0405,
                     'max_gravity': 0.27,
                     'min_temperature': 180.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.025,
                     'volcanism': 'None',
                     'regions': ['orion-cygnus']
@@ -82,7 +89,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.058,
                     'max_gravity': 0.276,
                     'min_temperature': 50.0,
-                    'max_temperature': 128.0,
+                    'max_temperature': 129.0,
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'volcanism': 'None',
                 },
@@ -109,7 +116,18 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 160.0,
                     'max_temperature': 180.0,
                     'max_pressure': 0.0135,
-                    'volcanism': ['silicate', 'metallic'],
+                    'volcanism': ['major silicate'],
+                    'regions': ['!orion-cygnus-core']
+                },
+                {
+                    'atmosphere': ['Ammonia'],
+                    'body_type': ['High metal content body'],
+                    'min_gravity': 0.042,
+                    'max_gravity': 0.071,
+                    'min_temperature': 160.0,
+                    'max_temperature': 180.0,
+                    'max_pressure': 0.0135,
+                    'volcanism': ['major rocky'],
                     'regions': ['!orion-cygnus-core']
                 },
                 {
@@ -125,13 +143,13 @@ catalog: dict[str, dict[str, Mapping]] = {
                 },
                 {
                     'atmosphere': ['Methane'],
-                    'body_type': ['Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.044,
                     'max_gravity': 0.125,
                     'min_temperature': 80.0,
                     'max_temperature': 110.0,
                     'min_pressure': 0.01,
-                    'volcanism': ['silicate', 'metallic'],
+                    'volcanism': ['major silicate', 'major metallic'],
                     'regions': ['!orion-cygnus-core']
                 },
                 {

@@ -127,7 +127,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.0405,
                     'max_gravity': 0.276,
                     'min_temperature': 180.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.025,
                     'volcanism': 'None',
                     'regions': ['perseus']
@@ -144,7 +144,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.0405,
                     'max_gravity': 0.276,
                     'min_temperature': 191.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.057,
                     'volcanism': 'None',
                     'regions': ['!perseus']

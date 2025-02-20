@@ -28,7 +28,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.04,
                     'max_gravity': 0.237,
                     'min_temperature': 146.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.003,
                     'volcanism': 'None',
                     'regions': ['orion-cygnus']
@@ -55,7 +55,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.04,
                     'max_gravity': 0.276,
                     'min_temperature': 146.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.002,
                     'volcanism': 'None',
                 },
@@ -96,7 +96,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.04,
                     'max_gravity': 0.276,
                     'min_temperature': 146.0,
-                    'max_temperature': 196.0,
+                    'max_temperature': 197.0,
                     'min_pressure': 0.003,
                     'volcanism': 'None',
                     'regions': ['outer']

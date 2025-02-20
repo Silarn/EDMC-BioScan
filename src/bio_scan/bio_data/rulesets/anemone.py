@@ -99,15 +99,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.036,
                     'min_temperature': 110.0,
                     'max_temperature': 3050.0,
-                    'volcanism': ['carbon dioxide'],
-                    'body_type': ['Metal rich body', 'Rocky body', 'High metal content body'],
-                    'star': ['O']
-                },
-                {
-                    'min_gravity': 0.036,
-                    'min_temperature': 110.0,
-                    'max_temperature': 3050.0,
-                    'volcanism': 'None',
                     'body_type': ['Metal rich body', 'Rocky body', 'High metal content body'],
                     'star': ['O']
                 }
