@@ -593,7 +593,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                             for system, coordinates in get_nearest_nebula(current_location).items():
                                 distance = system_distance(current_location, coordinates)
                                 log(f'Distance to {system} from {this.system.name}: {distance:n} ly')
-                                if distance < 125.0:
+                                if distance < 150.0:
                                     found = True
                                     break
                             if not found and all_nebulae:
