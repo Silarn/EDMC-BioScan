@@ -112,16 +112,15 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.033,
                     'max_gravity': 0.276,
-                    'min_temperature': 84.0,
-                    'max_temperature': 108.0,
-                    'volcanism': 'None'
+                    'min_temperature': 67.0,
+                    'max_temperature': 109.0
                 },
                 {
                     'atmosphere': ['Nitrogen'],
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.05,
                     'max_gravity': 0.276,
-                    'min_temperature': 50.0,
+                    'min_temperature': 42.0,
                     'max_temperature': 70.1,
                     'volcanism': 'None'
                 }
