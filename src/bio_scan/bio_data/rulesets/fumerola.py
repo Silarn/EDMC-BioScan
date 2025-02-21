@@ -117,8 +117,17 @@ catalog: dict[str, dict[str, Mapping]] = {
             'name': 'Fumerola Nitris',
             'value': 7500900,
             'rulesets': [
+                { # Only one example
+                    'atmosphere': ['Neon'],
+                    'body_type': ['Icy body'],
+                    'min_gravity': 0.04,
+                    'max_gravity': 0.276,
+                    'min_temperature': 30.0,
+                    'max_temperature': 129.0,
+                    'volcanism': ['nitrogen', 'ammonia']
+                },
                 {
-                    'atmosphere': ['Argon', 'ArgonRich', 'NeonRich'],
+                    'atmosphere': ['Argon', 'ArgonRich', 'Neon', 'NeonRich'],
                     'body_type': ['Icy body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.276,

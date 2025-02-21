@@ -84,11 +84,11 @@ catalog: dict[str, dict[str, Mapping]] = {
                 },
                 {
                     'atmosphere': ['Oxygen'],
-                    'min_gravity': 0.4,
-                    'max_gravity': 0.6,
+                    'min_gravity': 0.39,
+                    'max_gravity': 0.59,
                     'min_temperature': 165.0,
                     'max_temperature': 250.0,
-                    'min_pressure': 0.045,
+                    'min_pressure': 0.022,
                     'body_type': ['Rocky body']
                 }
             ],
@@ -116,7 +116,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['SulphurDioxide'],
                     'min_gravity': 0.26,
-                    'max_gravity': 0.55,
+                    'max_gravity': 0.57,
                     'min_temperature': 165.0,
                     'max_temperature': 373.0,
                     'body_type': ['Rocky body']
@@ -167,8 +167,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['CarbonDioxideRich'],
                     'min_gravity': 0.44,
                     'max_gravity': 0.56,
-                    'min_temperature': 215.0,
-                    'max_temperature': 245.0,
+                    'min_temperature': 210.0,
+                    'max_temperature': 246.0,
                     'min_pressure': 0.01,
                     'body_type': ['Rocky body'],
                     'volcanism': 'None',
@@ -275,7 +275,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['CarbonDioxideRich'],
                     'min_gravity': 0.45,
-                    'max_gravity': 0.55,
+                    'max_gravity': 0.56,
                     'min_temperature': 200.0,
                     'max_temperature': 250.0,
                     'min_pressure': 0.01,

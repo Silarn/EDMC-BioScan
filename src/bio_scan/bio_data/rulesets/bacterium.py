@@ -163,9 +163,9 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Argon'],
-                    'body_type': ['Icy body', 'Rocky ice body'],
+                    'body_type': ['Icy body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.045,
-                    'max_gravity': 0.28,
+                    'max_gravity': 0.45,
                     'min_temperature': 50.0,
                     'max_temperature': 150.0,
                     'volcanism': 'Any'
@@ -507,10 +507,10 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Argon'],
                     'body_type': ['Rocky ice body', 'Icy body'],
-                    'min_gravity': 0.17,
+                    'min_gravity': 0.165,
                     'max_gravity': 0.33,
-                    'min_temperature': 60.0,
-                    'max_temperature': 150.0,
+                    'min_temperature': 57.5,
+                    'max_temperature': 145.0,
                     'volcanism': ['water']
                 },
                 {

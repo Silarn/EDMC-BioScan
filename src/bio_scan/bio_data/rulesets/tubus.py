@@ -50,7 +50,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'body_type': ['Rocky body'],
                     'atmosphere': ['CarbonDioxide'],
-                    'min_gravity': 0.041,
+                    'min_gravity': 0.04,
                     'max_gravity': 0.152,
                     'min_temperature': 160.0,
                     'max_temperature': 197.0,
