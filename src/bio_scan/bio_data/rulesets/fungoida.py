@@ -108,6 +108,17 @@ catalog: dict[str, dict[str, Mapping]] = {
             'name': 'Fungoida Gelata',
             'value': 3330300,
             'rulesets': [
+                { # Only one sample - review
+                    'atmosphere': ['Argon'],
+                    'body_type': ['Rocky body', 'Rocky ice body'],
+                    'min_gravity': 0.041,
+                    'max_gravity': 0.276,
+                    'min_temperature': 160.0,
+                    'max_temperature': 180.0,
+                    'max_pressure': 0.0135,
+                    'volcanism': ['major silicate'],
+                    'regions': ['!orion-cygnus-core']
+                },
                 {
                     'atmosphere': ['Ammonia'],
                     'body_type': ['Rocky body', 'Rocky ice body'],

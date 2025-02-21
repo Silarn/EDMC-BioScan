@@ -85,8 +85,17 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.059,
                     'max_gravity': 0.276,
                     'min_temperature': 50.0,
-                    'max_temperature': 140.0,
+                    'max_temperature': 135.0,
                     'volcanism': 'None'
+                },
+                {
+                    'atmosphere': ['Argon'],
+                    'body_type': ['Rocky ice body'],
+                    'min_gravity': 0.059,
+                    'max_gravity': 0.276,
+                    'min_temperature': 50.0,
+                    'max_temperature': 135.0,
+                    'volcanism': ['water', 'geysers']
                 },
                 {
                     'atmosphere': ['ArgonRich'],
@@ -94,7 +103,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.035,
                     'max_gravity': 0.276,
                     'min_temperature': 60.0,
-                    'max_temperature': 80.0,
+                    'max_temperature': 80.5,
                     'min_pressure': 0.03,
                     'volcanism': 'None'
                 },
@@ -103,16 +112,17 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.033,
                     'max_gravity': 0.276,
-                    'min_temperature': 67.0,
-                    'max_temperature': 109.0
+                    'min_temperature': 84.0,
+                    'max_temperature': 108.0,
+                    'volcanism': 'None'
                 },
                 {
                     'atmosphere': ['Nitrogen'],
                     'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.05,
                     'max_gravity': 0.276,
-                    'min_temperature': 42.0,
-                    'max_temperature': 70.0,
+                    'min_temperature': 50.0,
+                    'max_temperature': 70.1,
                     'volcanism': 'None'
                 }
             ],
