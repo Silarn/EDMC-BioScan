@@ -55,7 +55,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['SulphurDioxide'],
                     'body_type': ['Icy body', 'Rocky ice body'],
-                    'min_gravity': 0.19,
+                    'min_gravity': 0.185,
                     'max_gravity': 0.276,
                     'min_temperature': 149.0,
                     'max_temperature': 272.0,
@@ -127,12 +127,12 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'volcanism': ['nitrogen', 'ammonia']
                 },
                 {
-                    'atmosphere': ['Argon', 'ArgonRich', 'Neon', 'NeonRich'],
+                    'atmosphere': ['Argon', 'ArgonRich', 'NeonRich'],
                     'body_type': ['Icy body'],
-                    'min_gravity': 0.04,
+                    'min_gravity': 0.044,
                     'max_gravity': 0.276,
                     'min_temperature': 50.0,
-                    'max_temperature': 129.0,
+                    'max_temperature': 141.0,
                     'volcanism': ['nitrogen', 'ammonia']
                 },
                 {

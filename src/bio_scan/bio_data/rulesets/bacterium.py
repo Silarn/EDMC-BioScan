@@ -121,7 +121,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Neon'],
                     'body_type': ['Icy body', 'Rocky ice body'],
-                    'min_gravity': 0.26,
+                    'min_gravity': 0.255,
                     'max_gravity': 0.61,
                     'min_temperature': 20.0,
                     'max_temperature': 61.0,
@@ -299,9 +299,9 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['WaterRich'],
                     'body_type': ['Icy body', 'Rocky ice body'],
-                    'min_gravity': 0.32,
+                    'min_gravity': 0.315,
                     'max_gravity': 0.44,
-                    'min_temperature': 240.0,
+                    'min_temperature': 220.0,
                     'max_temperature': 330.0,
                     'min_pressure': 0.01,
                     'volcanism': 'Any'
@@ -314,11 +314,20 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Nitrogen'],
+                    'body_type': ['Rocky body', 'Rocky ice body', 'High metal content body'],
                     'min_gravity': 0.05,
                     'max_gravity': 0.6,
                     'min_temperature': 42.5,
                     'max_temperature': 151.0,
                     'volcanism': 'None'
+                },
+                {
+                    'atmosphere': ['Nitrogen'],
+                    'body_type': ['Icy body'],
+                    'min_gravity': 0.17,
+                    'max_gravity': 0.63,
+                    'min_temperature': 50.0,
+                    'max_temperature': 90.0
                 }
             ],
         },
@@ -333,16 +342,6 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 143.5,
                     'max_temperature': 246.0,
                     'min_pressure': 0.013,
-                    'volcanism': 'None'
-                },
-                {
-                    'atmosphere': ['Oxygen'],
-                    'min_gravity': 0.239,
-                    'max_gravity': 0.61,
-                    'min_temperature': 143.5,
-                    'max_temperature': 246.0,
-                    'min_pressure': 0.013,
-                    'volcanism': ['water']
                 }
             ],
         },
@@ -354,7 +353,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['Methane'],
                     'min_gravity': 0.0245,
                     'max_gravity': 0.35,
-                    'min_temperature': 68.0,
+                    'min_temperature': 67.0,
                     'max_temperature': 109.0
                 },
                 {
@@ -398,7 +397,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.51,
                     'min_temperature': 20.0,
                     'max_temperature': 21.0,
-                    'min_pressure': 0.07,
+                    'min_pressure': 0.065,
                     'body_type': ['Icy body'],
                     'volcanism': ['nitrogen', 'ammonia']
                 },

@@ -29,7 +29,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.033,
                     'max_gravity': 0.276,
-                    'min_temperature': 68.0,
+                    'min_temperature': 67.0,
                     'max_temperature': 109.0
                 }
             ],
@@ -49,6 +49,25 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'regions': ['orion-cygnus']
                 },
                 {
+                    'atmosphere': ['Argon'],
+                    'body_type': ['Rocky ice body'],
+                    'min_gravity': 0.20,
+                    'max_gravity': 0.23,
+                    'min_temperature': 60.0,
+                    'max_temperature': 90.0,
+                    'volcanism': ['silicate', 'rocky'],
+                    'regions': ['orion-cygnus']
+                },
+                { # Only one sample
+                    'atmosphere': ['ArgonRich'],
+                    'body_type': ['Icy body'],
+                    'min_gravity': 0.3,
+                    'max_gravity': 0.5,
+                    'min_temperature': 60.0,
+                    'max_temperature': 90.0,
+                    'regions': ['orion-cygnus']
+                },
+                {
                     'atmosphere': ['CarbonDioxide'],
                     'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.0405,
@@ -62,19 +81,19 @@ catalog: dict[str, dict[str, Mapping]] = {
                 {
                     'atmosphere': ['Methane'],
                     'body_type': ['Rocky body'],
-                    'min_gravity': 0.041,
-                    'max_gravity': 0.127,
-                    'min_temperature': 80.0,
-                    'max_temperature': 100.0,
-                    'min_pressure': 0.01,
-                    'volcanism': ['silicate'],
+                    'min_gravity': 0.043,
+                    'max_gravity': 0.126,
+                    'min_temperature': 78.5,
+                    'max_temperature': 109.0,
+                    'min_pressure': 0.012,
+                    'volcanism': ['major silicate'],
                     'regions': ['orion-cygnus']
                 },
                 {
                     'atmosphere': ['Water'],
                     'body_type': ['Rocky body', 'High metal content body'],
-                    'min_gravity': 0.041,
-                    'max_gravity': 0.063,
+                    'min_gravity': 0.039,
+                    'max_gravity': 0.064,
                     'volcanism': 'None',
                     'regions': ['orion-cygnus']
                 }
