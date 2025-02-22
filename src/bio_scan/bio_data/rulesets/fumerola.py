@@ -89,7 +89,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.07,
                     'max_gravity': 0.276,
                     'min_temperature': 50.0,
-                    'max_temperature': 90.0,
+                    'max_temperature': 121.0,
                     'volcanism': ['silicate', 'metallic', 'rocky']
                 },
                 {

@@ -46,7 +46,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.276,
                     'min_temperature': 160.0,
                     'max_temperature': 210.0,
-                    'max_pressure': 0.002,
+                    'max_pressure': 0.005,
                     'volcanism': 'None'
                 },
                 {

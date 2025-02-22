@@ -8,7 +8,7 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['Ammonia'],
-                    'body_type': ['Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.045,
                     'min_temperature': 176.0,
@@ -27,7 +27,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                 },
                 {
                     'atmosphere': ['Methane'],
-                    'body_type': ['Rocky body'],
+                    'body_type': ['Rocky body', 'High metal content body'],
                     'min_gravity': 0.04,
                     'max_gravity': 0.15,
                     'min_temperature': 78.0,

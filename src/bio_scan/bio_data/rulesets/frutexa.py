@@ -29,7 +29,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.237,
                     'min_temperature': 146.0,
                     'max_temperature': 197.0,
-                    'min_pressure': 0.003,
+                    'min_pressure': 0.0029,
                     'volcanism': 'None',
                     'regions': ['orion-cygnus']
                 }
@@ -58,6 +58,14 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 197.0,
                     'min_pressure': 0.002,
                     'volcanism': 'None',
+                },
+                { # Only two samples
+                    'atmosphere': ['Methane'],
+                    'body_type': ['High metal content body'],
+                    'min_gravity': 0.05,
+                    'max_gravity': 0.1,
+                    'min_temperature': 100.0,
+                    'max_temperature': 300.0,
                 },
                 {
                     'atmosphere': ['Water'],

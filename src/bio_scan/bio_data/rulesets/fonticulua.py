@@ -43,7 +43,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.276,
                     'min_temperature': 61.0,
                     'max_temperature': 125.0,
-                    'min_pressure': 0.019
+                    'min_pressure': 0.0175
                 }
             ],
         },
