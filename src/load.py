@@ -172,6 +172,8 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     :param is_beta: Beta status. Unused.
     """
 
+    config.set('bioscan_shorten_credits', this.credits_setting.get())
+    this.formatter.set_shorten(this.credits_setting.get())
     config.set('bioscan_focus', this.focus_setting.get())
     config.set('bioscan_focus_distance', this.focus_distance.get())
     config.set('bioscan_focus_breakdown', this.focus_breakdown.get())
@@ -199,6 +201,8 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
 def parse_config(cmdr: str = '') -> None:
     """ Load saved settings vars. Set defaults. """
 
+    this.credits_setting = tk.BooleanVar(value=config.get_bool(key='bioscan_shorten_credits', default=False))
+    this.formatter.set_shorten(this.credits_setting.get())
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
     this.focus_distance = tk.IntVar(value=config.get_int(key='bioscan_focus_distance', default=5000))
     this.focus_breakdown = tk.BooleanVar(value=config.get_bool(key='bioscan_focus_breakdown', default=False))

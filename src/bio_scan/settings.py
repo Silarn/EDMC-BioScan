@@ -140,19 +140,24 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     ).grid(row=6, column=0, padx=0, sticky=tk.W)
     nb.Checkbutton(
         left_column,
+        text='Shorten credits displays (eg. 19.8 MCr)',
+        variable=bioscan_globals.credits_setting
+    ).grid(row=7, column=0, padx=0, sticky=tk.W)
+    nb.Checkbutton(
+        left_column,
         text='Exclude bodies with fewer than x signals:',
         variable=bioscan_globals.exclude_signals
-    ).grid(row=7, column=0, padx=0, sticky=tk.W)
+    ).grid(row=8, column=0, padx=0, sticky=tk.W)
     nb.EntryMenu(
         left_column, text=bioscan_globals.minimum_signals.get(), textvariable=bioscan_globals.minimum_signals,
         validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=8, column=0, padx=x_padding, sticky=tk.NW)
+    ).grid(row=9, column=0, padx=x_padding, sticky=tk.NW)
     nb.Label(left_column, text='Scrollbox height (px):') \
-        .grid(row=9, column=0, padx=x_padding, sticky=tk.SW)
+        .grid(row=10, column=0, padx=x_padding, sticky=tk.SW)
     nb.EntryMenu(
         left_column, text=bioscan_globals.box_height.get(), textvariable=bioscan_globals.box_height,
         validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=10, column=0, padx=x_padding, sticky=tk.NW)
+    ).grid(row=11, column=0, padx=x_padding, sticky=tk.NW)
 
     # Right column
     right_column = tk.Frame(frame, background='')

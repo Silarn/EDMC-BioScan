@@ -29,6 +29,7 @@ class Globals:
         self.NAME = bio_scan.const.name
 
         # Settings vars
+        self.credits_setting: tk.BooleanVar | None = None
         self.focus_setting: tk.StringVar | None = None
         self.signal_setting: tk.StringVar | None = None
         self.focus_breakdown: tk.BooleanVar | None = None
