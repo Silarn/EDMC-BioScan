@@ -133,7 +133,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Metal rich body', 'High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': ['=metallic magma volcanism', '=rocky magma volcanism'],
+                    'volcanism': ['=metallic magma volcanism', '=rocky magma volcanism', 'major silicate vapour'],
                     'tuber': ['Arcadian Stream', 'Inner Orion Spur', 'Inner S-C Arm B 2', 'Hawking A']
                 }
             ],
