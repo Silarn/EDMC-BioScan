@@ -1,0 +1,75 @@
+/* Language name */
+"!Language" = "Español"
+
+/* load.py: ExploData DB migration threw an error; In files: load.py:105:105 */
+"BioScan: DB Migration Failed" = "BioScan: Error de migración de DB";
+
+/* load.py: Hyperlink text for GitHub issue creation; In files: load.py:108:108 */
+"Please Check or Submit an Issue" = "Please Check or Submit an Issue";
+
+/* load.py: Warning text for mismatched ExploData database version; In files: load.py:113:113 */
+"BioScan: Database Mismatch" = "BioScan: Database Mismatch";
+
+/* load.py: Latest release hyperlink text for database mismatch; In files: load.py:116:116 */
+"BioScan/ExploData Version Mismatch" = "BioScan/ExploData Version Mismatch";
+
+/* load.py: Version update hyperlink message; In files: load.py:151:151 */
+"Version {} is now available" = "Version {} is now available";
+
+/* load.py: Label for journal parsing progress indicator; In files: load.py:279:279; load.py:293:293 */
+"Parsing Journals" = "Parsing Journals";
+
+/* load.py: Journal parsing error message; In files: load.py:305:305 */
+"Error During Journal Parse\r\nPlease Submit a Report" = "Error During Journal Parse\r\nPlease Submit a Report";
+
+/* load.py: Scan complete status text; In files: load.py:1369:1369 */
+"Complete" = "Complete";
+
+/* load.py: All scans complete status text; In files: load.py:1408:1408; load.py:1410:1410 */
+"All Samples Complete" = "All Samples Complete";
+
+/* load.py: Indicator for multiple possible bio variants; In files: load.py:1442:1442 */
+"Multiple Possible" = "Multiple Possible";
+
+/* load.py: Nearest waypoint text; In files: load.py:1456:1456; load.py:1658:1658 */
+"Nearest Saved Waypoint" = "Nearest Saved Waypoint";
+
+/* load.py: Predicted bio not located label; In files: load.py:1461:1461 */
+"Not located" = "Not located";
+
+/* load.py: Basic scan data messages; In files: load.py:1497:1497 */
+"! Basic Scan Detected !" = "! Basic Scan Detected !";
+
+/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1499:1499 */
+"FSS / DSS / AutoScan Needed" = "FSS / DSS / AutoScan Needed";
+
+/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1539:1539 */
+"AutoScan/NavBeacon Data, Bios Possible" = "AutoScan/NavBeacon Data, Bios Possible";
+
+/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1542:1542 */
+"Check FSS for Signals (or DSS)" = "Check FSS for Signals (or DSS)";
+
+/* load.py: Startup message before data has been processed; In files: load.py:1560:1560 */
+"BioScan: Awaiting Data" = "BioScan: Esperando Datos";
+
+/* load.py: General BioScan prediction title label; In files: load.py:1597:1597 */
+"BioScan Predictions" = "BioScan Predictions";
+
+/* load.py: Bio scans completed indicator label; In files: load.py:1626:1626 */
+"Analysed" = "Analysed";
+
+/* load.py: Scan in progress indicator; In files: load.py:1652:1652 */
+"In Progress" = "In Progress";
+
+/* load.py: Analysed samples list label; In files: load.py:1663:1663 */
+"Analysed System Samples" = "Analysed System Samples";
+
+/* load.py: No signals found in current system; In files: load.py:1670:1670 */
+"BioScan: No Signals Found" = "BioScan: No Signals Found";
+
+/* load.py: Overlay details label; In files: load.py:1685:1685 */
+"BioScan Details" = "BioScan Details";
+
+/* load.py: Overlay no signals label; In files: load.py:1698:1698 */
+"BioScan: No Signals" = "BioScan: No Signals";
+

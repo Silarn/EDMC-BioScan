@@ -6,6 +6,7 @@
 # Core imports
 from copy import deepcopy
 from typing import Mapping, MutableMapping
+import os
 import sys
 import re
 import requests
@@ -51,6 +52,7 @@ from monitor import monitor
 from theme import theme
 from EDMCLogging import get_plugin_logger
 from ttkHyperlinkLabel import HyperlinkLabel
+from l10n import translations as tr
 
 # 3rd Party
 from ExploData.explo_data.RegionMap import findRegion
@@ -58,7 +60,10 @@ from ExploData.explo_data.RegionMapData import regions as galaxy_regions
 
 
 this = Globals()
+this.translation_context = os.path.dirname(__file__)
 logger = get_plugin_logger(this.NAME)
+logger.debug(config.plugin_dir)
+logger.debug(this.translation_context)
 
 
 def plugin_start3(plugin_dir: str) -> str:
@@ -96,15 +101,19 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
     this.frame = tk.Frame(parent)
     this.frame.grid_columnconfigure(0, weight=1)
     if this.migration_failed:
-        this.label = tk.Label(this.frame, text='BioScan: DB Migration Failed')
+        # LANG: ExploData DB migration threw an error
+        this.label = tk.Label(this.frame, text=tr.tl('BioScan: DB Migration Failed', this.translation_context))
         this.label.grid(row=0, sticky=tk.EW)
-        this.update_button = HyperlinkLabel(this.frame, text='Please Check or Submit an Issue',
+        # LANG: Hyperlink text for GitHub issue creation
+        this.update_button = HyperlinkLabel(this.frame, text=tr.tl('Please Check or Submit an Issue', this.translation_context),
                                             url='https://github.com/Silarn/EDMC-BioScan/issues')
         this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     elif this.db_mismatch:
-        this.label = tk.Label(this.frame, text='BioScan: Database Mismatch')
+        # LANG: Warning text for mismatched ExploData database version
+        this.label = tk.Label(this.frame, text=tr.tl('BioScan: Database Mismatch', this.translation_context))
         this.label.grid(row=0, sticky=tk.EW)
-        this.update_button = HyperlinkLabel(this.frame, text='BioScan/ExploData Version Mismatch',
+        # LANG: Latest release hyperlink text for database mismatch
+        this.update_button = HyperlinkLabel(this.frame, text=tr.tl('BioScan/ExploData Version Mismatch', this.translation_context),
                                             url='https://github.com/Silarn/EDMC-BioScan/releases/latest')
         this.update_button.grid(row=1, columnspan=2, sticky=tk.N)
     else:
@@ -139,7 +148,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
         this.journal_label = tk.Label(this.frame, text='Journal Parsing')
         update_version = version_check()
         if update_version != '':
-            text = f'Version {update_version} is now available'
+            text = tr.tl('Version {} is now available', this.translation_context).format(update_version)  # LANG: Version update hyperlink message
             url = f'https://github.com/Silarn/EDMC-BioScan/releases/tag/v{update_version}'
             this.update_button = HyperlinkLabel(this.frame, text=text, url=url)
             this.update_button.grid(row=4, columnspan=2, sticky=tk.N)
@@ -266,7 +275,8 @@ def journal_start(event: tk.Event) -> None:
     """
 
     this.journal_label.grid(row=5, columnspan=2, sticky=tk.EW)
-    this.journal_label['text'] = 'Parsing Journals: 0%'
+    # LANG: Label for journal parsing progress indicator
+    this.journal_label['text'] = tr.tl('Parsing Journals', this.translation_context) + ': 0%'
 
 
 def journal_update(event: tk.Event) -> None:
@@ -280,7 +290,7 @@ def journal_update(event: tk.Event) -> None:
     if total > 0:
         progress = f'{finished / total:.1%}'
     progress = progress.rstrip('0').rstrip('.')
-    this.journal_label['text'] = f'Parsing Journals: {progress} [{finished}/{total}]'
+    this.journal_label['text'] = tr.tl('Parsing Journals', this.translation_context) + ' {progress} [{finished}/{total}]'
 
 
 def journal_end(event: tk.Event) -> None:
@@ -291,7 +301,8 @@ def journal_end(event: tk.Event) -> None:
     """
 
     if ExploData.explo_data.journal_parse.has_error():
-        this.journal_label['text'] = 'Error During Journal Parse\nPlease Submit a Report'
+        # LANG: Journal parsing error message
+        this.journal_label['text'] = tr.tl(r'Error During Journal Parse\r\nPlease Submit a Report', this.translation_context)
     else:
         this.journal_label.grid_remove()
         reload_system_data()
@@ -1355,6 +1366,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
     """
 
     detail_text = ''
+    complete_text = tr.tl('Complete', this.translation_context)  # LANG: Scan complete status text
     value_sum = 0
     for name, body in bodies.items():
         complete = True
@@ -1374,15 +1386,16 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         and body.get_bio_signals() < this.minimum_signals.get()):
                     detail_text += f'{name} - {body.get_bio_signals()} Signal{"s"[:body.get_bio_signals()^1]}'
                     if len(body.get_flora()) and len(body.get_flora()) == num_complete:
-                        detail_text += ' (Complete)'
+                        detail_text += f' ({complete_text})'
                     detail_text += '\n'
                 elif len(body.get_flora()) and num_complete:
-                    detail_text += '{} -{}{} ({}/{} Complete):\n'.format(
+                    detail_text += '{} -{}{} ({}/{} {}):\n'.format(
                         name,
                         get_body_shorthand(body.get_type()),
                         get_gravity_warning(body.get_gravity(), True),
                         num_complete,
-                        len(body.get_flora())
+                        len(body.get_flora()),
+                        complete_text
                     )
                 elif body.get_scan_state(this.commander.id) in [2, 4] or body.get_bio_signals():
                     detail_text += '{} -{}{}:\n'.format(
@@ -1391,9 +1404,10 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         get_gravity_warning(body.get_gravity(), True)
                     )
             else:
-                detail_text += f'{name} - All Samples Complete\n'
+                # LANG: All scans complete status text
+                detail_text += f'{name} - ' + tr.tl('All Samples Complete', this.translation_context) + '\n'
         elif complete and this.scan_display_mode.get() == 'Hide':
-            detail_text += 'All Scans Complete'
+            detail_text += tr.tl('All Samples Complete', this.translation_context)
         if (this.exclude_signals.get() and body.get_bio_signals()
                 and body.get_bio_signals() < this.minimum_signals.get()):
             detail_text += '\n'
@@ -1424,7 +1438,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if bio_genus[genus]['multiple']:
                         genus_count[genus] = genus_count.get(genus, 0) + 1
                         if show and genus_count[genus] == 1:
-                            detail_text += f'{bio_genus[genus]["name"]} - Multiple Possible:\n'
+                            detail_text += (f'{bio_genus[genus]["name"]} - ' +
+                                            tr.tl('Multiple Possible', this.translation_context) + ':\n')  # LANG: Indicator for multiple possible bio variants
                     if show:
                         waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
                                                                      and not this.current_scan[0] and waypoints) else ''
@@ -1437,11 +1452,13 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             scan_label(scan[0].count if scan else 0),
                             this.formatter.format_credits(bio_types[genus][species]['value']),
                             u' 🗸' if scan and scan[0].count == 3 else '',
-                            f'\n  Nearest Saved Waypoint: {waypoint}' if waypoint else ''
+                            # LANG: Nearest waypoint text
+                            f'\n  ' + tr.tl('Nearest Saved Waypoint', this.translation_context) + f': {waypoint}' if waypoint else ''
                         )
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
-                    detail_text += '{} (Not located): {}\n'.format(
+                    # LANG: Predicted bio not located label
+                    detail_text += '{} (' + tr.tl('Not located', this.translation_context) + '): {}\n'.format(
                         bio_name,
                         this.formatter.format_credit_range(min_val, max_val))
                     if this.focus_breakdown.get():
@@ -1476,8 +1493,10 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             types = get_possible_values(body)
             if body.get_bio_signals():
                 if body.get_scan_state(this.commander.id) == 3:
-                    detail_text += ('! Basic Scan Detected !\n'
-                                    + 'FSS / DSS / AutoScan Needed\n')
+                    # LANG: Basic scan data messages
+                    detail_text += (tr.tl('! Basic Scan Detected !', this.translation_context) + '\n'
+                    # LANG: Basic scan data FSS / DSS reminder
+                                    + tr.tl('FSS / DSS / AutoScan Needed', this.translation_context) + '\n')
 
                 detail_text += f'{body.get_bio_signals()} Signal{"s"[:body.get_bio_signals()^1]} - Possible Types:\n'
                 count = 0
@@ -1515,7 +1534,12 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if len(types) == count:
                         detail_text += '\n'
             elif body.get_scan_state(this.commander.id) < 4 and len(types):
-                detail_text += f'{name}:\nAutoScan/NavBeacon Data, Bios Possible\nCheck FSS for Signals (or DSS)\n\n'
+                detail_text += (f'{name}:\n' +
+                                # LANG: Text for bodies with unknown signals; typically after autoscans
+                                tr.tl('AutoScan/NavBeacon Data, Bios Possible', this.translation_context) +
+                                '\n' +
+                                # LANG: Reminder to trigger FSS / DSS for unknown signals
+                                tr.tl('Check FSS for Signals (or DSS)') + '\n\n')
 
     return detail_text, value_sum
 
@@ -1532,7 +1556,8 @@ def update_display() -> None:
         this.scroll_canvas.grid_remove()
         this.scrollbar.grid_remove()
         this.total_label.grid_remove()
-        this.label['text'] = 'BioScan: Awaiting Data'
+        # LANG: Startup message before data has been processed
+        this.label['text'] = tr.tl('BioScan: Awaiting Data', this.translation_context)
         return
 
     bio_bodies = dict(
@@ -1569,7 +1594,7 @@ def update_display() -> None:
         this.scroll_canvas.grid()
         this.scrollbar.grid()
         this.total_label.grid()
-        title = 'BioScan Estimates:\n'
+        title = tr.tl('BioScan Predictions', this.translation_context) + ':\n'  # LANG: General BioScan prediction title label
         text = ''
         signal_summary = ''
 
@@ -1593,11 +1618,12 @@ def update_display() -> None:
                                    flora.scans):  # type: FloraScans
                     if scan.count == 3:
                         complete += 1
-            text += '{} - {} [{}G] - {}/{} Analysed'.format(
+            text += '{} - {} [{}G] - {}/{} {}'.format(
                 bio_bodies[this.location_name].get_name(),
                 bio_bodies[this.location_name].get_type(),
                 '{:.2f}'.format(bio_bodies[this.location_name].get_gravity() / 9.797759).rstrip('0').rstrip('.'),
-                complete, len(bio_bodies[this.location_name].get_flora())
+                # LANG: Bio scans completed indicator label
+                complete, len(bio_bodies[this.location_name].get_flora()), tr.tl('Analysed', this.translation_context)
             )
             for flora in this.planets[this.location_name].get_flora():
                 genus: str = flora.genus
@@ -1618,28 +1644,30 @@ def update_display() -> None:
                     distance_format = f'{distance:.2f}' if distance is not None else 'unk'
                     distance = distance if distance is not None else 0
                     waypoint = get_nearest(genus, waypoints) if (waypoints and this.waypoints_enabled.get()) else ''
-                    text += '\nIn Progress: {} - {} ({}/3) [{}]{}'.format(
+                    text += '\n{}: {} - {} ({}/3) [{}]{}'.format(
                         bio_types[genus][species]['name'],
                         scan_label(scan),
                         scan,
                         '{}/{}m'.format(
+                            tr.tl('In Progress', this.translation_context),  # LANG: Scan in progress indicator
                             distance_format
                             if distance < bio_genus[genus]['distance']
                             else f'> {bio_genus[genus]["distance"]}',
                             bio_genus[genus]['distance']
                         ),
-                        f'\nNearest Saved Waypoint: {waypoint}' if waypoint else ''
+                        '\n' + tr.tl('Nearest Saved Waypoint', this.translation_context) + f': {waypoint}' if waypoint else ''
                     )
                     break
 
-        this.total_label['text'] = 'Analysed System Samples:\n{} | FF: {}'.format(
+        this.total_label['text'] = '{}:\n{} | FF: {}'.format(
+            tr.tl('Analysed System Samples', this.translation_context),  # LANG: Analysed samples list label
             this.formatter.format_credits(total_value),
             this.formatter.format_credits((total_value * 5)))
     else:
         this.scroll_canvas.grid_remove()
         this.scrollbar.grid_remove()
         this.total_label.grid_remove()
-        title = 'BioScan: No Signals Found'
+        title = tr.tl('BioScan: No Signals Found', this.translation_context)  # LANG: No signals found in current system
         text = ''
         signal_summary = ''
         this.total_label['text'] = ''
@@ -1654,7 +1682,7 @@ def update_display() -> None:
     if this.use_overlay.get() and this.overlay.available():
         if overlay_should_display():
             if detail_text:
-                this.overlay.display("bioscan_title", "BioScan Details",
+                this.overlay.display("bioscan_title", tr.tl("BioScan Details", this.translation_context),  # LANG: Overlay details label
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                                      color=this.overlay_color.get())
                 if redraw_overlay:
@@ -1666,7 +1694,8 @@ def update_display() -> None:
                                      x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
                                      size="large", color=this.overlay_color.get())
             else:
-                this.overlay.display("bioscan_title", "BioScan: No Signals",
+                # LANG: Overlay no signals label
+                this.overlay.display("bioscan_title", tr.tl("BioScan: No Signals", this.translation_context),
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                                      color=this.overlay_color.get())
                 this.overlay.clear("bioscan_details")
