@@ -1,6 +1,117 @@
 /* Language name */
 "!Language" = "English";
 
+/* settings.py: General settings tab label; In files: settings.py:66:66 */
+"General Settings" = "General Settings";
+
+/* settings.py: Overlay settings tab label; In files: settings.py:68:68 */
+"Overlay Settings" = "Overlay Settings";
+
+/* settings.py: Journal parsing toggle button text; In files: settings.py:73:73 */
+"Start / Stop Journal Parsing" = "Start / Stop Journal Parsing";
+
+/* settings.py: Debug logging checkbox label; In files: settings.py:78:78 */
+"Enable Debug Logging" = "Enable Debug Logging";
+
+/* settings.py: Body focus filter settings title; In files: settings.py:105:105 */
+"Focus Body Signals: (?)" = "Focus Body Signals: (?)";
+
+/* settings.py: Tooltip text for body focus filter settings #1; In files: settings.py:111:111 */
+"This setting controls when the prediction details should display.\n\n" = "This setting controls when the prediction details should display.\n\n";
+
+/* settings.py: Tooltip text for body focus filter settings #2; In files: settings.py:113:113 */
+"When filtered, you will only see details for the bio signals relevant to your current location." = "When filtered, you will only see details for the bio signals relevant to your current location.";
+
+/* settings.py: Settings explanation for body focus filter options (dropdown options (e.g. On Approach) should not be translated); In files: settings.py:130:133 */
+"Never: Never filter signal details\nOn Approach: Show only local signals on approach\nNear Surface: Show signals under given altitude (see below)\nOn Surface: Show only local signals when on surface" = "Never: Never filter signal details\nOn Approach: Show only local signals on approach\nNear Surface: Show signals under given altitude (see below)\nOn Surface: Show only local signals when on surface";
+
+/* In files: settings.py:136:136 */
+"Altitude (in meters) for "Near Surface":" = "Altitude (in meters) for "Near Surface":";
+
+/* In files: settings.py:145:145 */
+"Show complete breakdown of genera with multiple matches" = "Show complete breakdown of genera with multiple matches";
+
+/* In files: settings.py:150:150 */
+"Shorten credits displays (eg. 19.8 MCr)" = "Shorten credits displays (eg. 19.8 MCr)";
+
+/* In files: settings.py:155:155 */
+"Exclude bodies with fewer than x signals:" = "Exclude bodies with fewer than x signals:";
+
+/* In files: settings.py:162:162 */
+"Scrollbox height (px):" = "Scrollbox height (px):";
+
+/* In files: settings.py:175:175 */
+"Display Signal Summary: (?)" = "Display Signal Summary: (?)";
+
+/* In files: settings.py:180:181 */
+"Unknown! type(arg)=<class 'ast.BinOp'> BinOp(left=Constant(value='This option determines when to display the signal summary at the top of the pane.\n\n'), op=Add(), right=Constant(value='eg. B 1 (R): 5  ⬦ B 2 (HMC): 2')) ||| 'This option determines when to display the signal summary at the top of the pane.\n\n' + 'eg. B 1 (R): 5  ⬦ B 2 (HMC): 2'" = "Unknown! type(arg)=<class 'ast.BinOp'> BinOp(left=Constant(value='This option determines when to display the signal summary at the top of the pane.\n\n'), op=Add(), right=Constant(value='eg. B 1 (R): 5  ⬦ B 2 (HMC): 2')) ||| 'This option determines when to display the signal summary at the top of the pane.\n\n' + 'eg. B 1 (R): 5  ⬦ B 2 (HMC): 2'";
+
+/* In files: settings.py:195:196 */
+"Always: Always display the body signal summary
+In Flight: Show the signal summary in flight only" = "Always: Always display the body signal summary
+In Flight: Show the signal summary in flight only";
+
+/* In files: settings.py:202:202 */
+"Completed Scan Display: (?)" = "Completed Scan Display: (?)";
+
+/* In files: settings.py:207:207 */
+"This option determines how to display species that have been fully scanned." = "This option determines how to display species that have been fully scanned.";
+
+/* In files: settings.py:222:224 */
+"Check: Always show species with a checkmark when complete
+Hide: Always hide completed species
+Hide in System: Hide completed species in the full system view" = "Check: Always show species with a checkmark when complete
+Hide: Always hide completed species
+Hide in System: Hide completed species in the full system view";
+
+/* In files: settings.py:230:230 */
+"Enable species waypoints with the comp. scanner" = "Enable species waypoints with the comp. scanner";
+
+/* In files: settings.py:256:256; settings.py:322:322 */
+"None" = "None";
+
+/* In files: settings.py:269:269 */
+"Overlay Color" = "Overlay Color";
+
+/* In files: settings.py:329:329 */
+"Enable overlay" = "Enable overlay";
+
+/* In files: settings.py:334:334 */
+"Text Color" = "Text Color";
+
+/* In files: settings.py:343:343 */
+"Ship Whitelist (?)" = "Ship Whitelist (?)";
+
+/* In files: settings.py:349:349 */
+"Ships added to this list will display BioScan on the overlay.\n" = "Ships added to this list will display BioScan on the overlay.\n";
+
+/* In files: settings.py:350:350 */
+"When empty, BioScan will display for all ships." = "When empty, BioScan will display for all ships.";
+
+/* In files: settings.py:359:359 */
+"Add" = "Add";
+
+/* In files: settings.py:361:361 */
+"Remove" = "Remove";
+
+/* In files: settings.py:363:363 */
+"Clear Ships" = "Clear Ships";
+
+/* In files: settings.py:383:383 */
+"Prediction Details Anchor:" = "Prediction Details Anchor:";
+
+/* In files: settings.py:398:398 */
+"Summary / Progress Anchor:" = "Summary / Progress Anchor:";
+
+/* In files: settings.py:415:415 */
+"Scroll details" = "Scroll details";
+
+/* In files: settings.py:418:418 */
+"Maximum details length:" = "Maximum details length:";
+
+/* In files: settings.py:424:424 */
+"Scroll delay (sec):" = "Scroll delay (sec):";
+
 /* load.py: ExploData DB migration threw an error; In files: load.py:105:105 */
 "BioScan: DB Migration Failed" = "BioScan: DB Migration Failed";
 
