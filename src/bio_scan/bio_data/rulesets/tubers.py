@@ -112,7 +112,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['High metal content body'],
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
-                    'volcanism': ['major silicate vapour'],
+                    'volcanism': ['major rocky magma', 'major silicate vapour'],
                     'tuber': ['Inner O-P Conflux', 'Izanami', 'Ryker A']
                 },
                 {
@@ -120,7 +120,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 200.0,
                     'max_temperature': 500.0,
                     'max_orbital_period': 86400,
-                    'volcanism': ['major silicate vapour'],
+                    'volcanism': ['major rocky magma', 'major silicate vapour'],
                     'tuber': ['Inner O-P Conflux', 'Izanami', 'Ryker A']
                 }
             ],
