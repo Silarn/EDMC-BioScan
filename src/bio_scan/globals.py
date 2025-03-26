@@ -18,7 +18,6 @@ from bio_scan.format_util import Formatter
 # EDMC imports
 from ttkHyperlinkLabel import HyperlinkLabel
 
-
 class Globals:
     """Holds module globals."""
 
@@ -99,3 +98,5 @@ class Globals:
 
         # EDSM vars
         self.fetched_edsm = False
+
+bioscan_globals = Globals()

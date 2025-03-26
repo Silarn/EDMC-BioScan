@@ -7,7 +7,7 @@ from tkinter import ttk
 
 # Local imports
 import bio_scan.const
-from bio_scan.globals import Globals
+from bio_scan.globals import bioscan_globals
 from bio_scan.tooltip import Tooltip
 
 # Database objects
@@ -27,12 +27,11 @@ x_button_padding = 12
 y_padding = 2
 
 
-def get_settings(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
+def get_settings(parent: ttk.Notebook) -> tk.Frame:
     """
     Main settings pane builder.
 
     :param parent: EDMC parent settings pane TKinter frame
-    :param bioscan_globals: Plugin globals
     :return: Plugin settings tab TKinter frame
     """
 
@@ -63,9 +62,9 @@ def get_settings(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     # Tabs
     notebook = ttk.Notebook(frame)
     # LANG: General settings tab label
-    notebook.add(get_general_tab(notebook, bioscan_globals), text=tr.tl('General Settings', bioscan_globals.translation_context))
+    notebook.add(get_general_tab(notebook), text=tr.tl('General Settings', bioscan_globals.translation_context))
     # LANG: Overlay settings tab label
-    notebook.add(get_overlay_tab(notebook, bioscan_globals), text=tr.tl('Overlay Settings', bioscan_globals.translation_context))
+    notebook.add(get_overlay_tab(notebook), text=tr.tl('Overlay Settings', bioscan_globals.translation_context))
     notebook.grid(row=10, columnspan=2, pady=0, sticky=tk.NSEW)
 
     # Footer
@@ -82,12 +81,11 @@ def get_settings(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     return frame
 
 
-def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
+def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
     """
     General tab builder.
 
     :param parent: Parent tab frame
-    :param bioscan_globals: BioScan globals object
     :return: Frame for overlay tab
     """
 
@@ -177,8 +175,10 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     signal_summary_label.grid(row=0, column=0, sticky=tk.W)
     Tooltip(
         signal_summary_label,
-        text=tr.tl('This option determines when to display the signal summary at the top of the pane.\n\n' +
-                   'eg. B 1 (R): 5  ⬦ B 2 (HMC): 2', bioscan_globals.translation_context),
+        # LANG: Signal summary tooltip line 1
+        text=tr.tl(r'This option determines when to display the signal summary at the top of the pane.\n\n', bioscan_globals.translation_context) +
+        # LANG: Signal summary tooltip line 2
+                   tr.tl(r'eg. B 1 (R): 5  ⬦ B 2 (HMC): 2', bioscan_globals.translation_context),
         waittime=1000
     )
     signal_options = [
@@ -192,19 +192,21 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         *signal_options
     ).grid(row=2, column=0, pady=y_padding, sticky=tk.W)
     nb.Label(right_column,
-             text=tr.tl('Always: Always display the body signal summary\n'
-                        'In Flight: Show the signal summary in flight only', bioscan_globals.translation_context),
+             text=tr.tl(r'Always: Always display the body signal summary\n'
+                        r'In Flight: Show the signal summary in flight only', bioscan_globals.translation_context),
              justify=tk.LEFT) \
         .grid(row=3, column=0, sticky=tk.NW)
     ttk.Separator(right_column).grid(row=4, column=0, pady=y_padding * 2, sticky=tk.EW)
     completed_display_label = nb.Label(
         right_column,
+        # LANG: Label for options pertaining to completed scans
         text=tr.tl('Completed Scan Display: (?)', bioscan_globals.translation_context)
     )
     completed_display_label.grid(row=5, column=0, sticky=tk.W)
     Tooltip(
         completed_display_label,
-        text=tr.tl('This option determines how to display species that have been fully scanned.', bioscan_globals.translation_context),
+        # LANG: Tooltip for 'Completed Scan Display' label
+        text=tr.tl(r'This option determines how to display species that have been fully scanned.', bioscan_globals.translation_context),
         waittime=1000
     )
     scan_options = [
@@ -219,9 +221,9 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
         *scan_options
     ).grid(row=6, column=0, sticky=tk.W)
     nb.Label(right_column,
-             text=tr.tl('Check: Always show species with a checkmark when complete\n'
-                        'Hide: Always hide completed species\n'
-                        'Hide in System: Hide completed species in the full system view', bioscan_globals.translation_context),
+             text=tr.tl(r'Check: Always show species with a checkmark when complete\n'
+                        r'Hide: Always hide completed species\n'
+                        r'Hide in System: Hide completed species in the full system view', bioscan_globals.translation_context),
              justify=tk.LEFT) \
         .grid(row=7, column=0, sticky=tk.NW)
     ttk.Separator(right_column).grid(row=8, column=0, pady=y_padding * 2, sticky=tk.EW)
@@ -234,12 +236,11 @@ def get_general_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     return frame
 
 
-def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
+def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
     """
     Overlay tab builder.
 
     :param parent: Parent tab frame
-    :param bioscan_globals: BioScan globals object
     :return: Frame for overlay tab
     """
 
@@ -253,7 +254,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     color_button = None
     ship_list = nb.Label(
         frame,
-        text=', '.join(get_ship_names(bioscan_globals)) if len(bioscan_globals.ship_whitelist) else tr.tl('None', bioscan_globals.translation_context),
+        text=', '.join(get_ship_names()) if len(bioscan_globals.ship_whitelist) else tr.tl('None', bioscan_globals.translation_context),
         justify=tk.LEFT
     )
     add_ship_button = None
@@ -284,7 +285,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
             add_ship_button.grid_remove()
             remove_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
             clear_ships_button['state'] = tk.NORMAL
-            ship_list['text'] = ', '.join(get_ship_names(bioscan_globals))
+            ship_list['text'] = ', '.join(get_ship_names())
 
     def remove_ship() -> None:
         """
@@ -307,7 +308,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
                     break
 
         if len(bioscan_globals.ship_whitelist):
-            ship_list['text'] = ', '.join(get_ship_names(bioscan_globals))
+            ship_list['text'] = ', '.join(get_ship_names())
         else:
             clear_ships_button['state'] = tk.DISABLED
             ship_list['text'] = 'None'
@@ -362,7 +363,7 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
                                    command=remove_ship)
     clear_ships_button = nb.Button(ship_whitelist_frame, text=tr.tl('Clear Ships', bioscan_globals.translation_context), command=clear_ships)
     if ship_name:
-        if ship_in_whitelist(monitor.state['ShipID'], ship_name, bioscan_globals):
+        if ship_in_whitelist(monitor.state['ShipID'], ship_name):
             remove_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
         else:
             add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
@@ -430,11 +431,10 @@ def get_overlay_tab(parent: ttk.Notebook, bioscan_globals: Globals) -> tk.Frame:
     return frame
 
 
-def get_ship_names(bioscan_globals: Globals) -> list[str]:
+def get_ship_names() -> list[str]:
     """
     Process and return sorted array of overlay whitelist ship names
 
-    :param bioscan_globals: BioScan globals storage class
     :return: Sorted array of ship names
     """
 
@@ -445,13 +445,12 @@ def get_ship_names(bioscan_globals: Globals) -> list[str]:
     return sorted(ships)
 
 
-def ship_in_whitelist(ship_id: int, name: str, bioscan_globals: Globals) -> bool:
+def ship_in_whitelist(ship_id: int, name: str) -> bool:
     """
     Check if the specified ship ID and / or name is in the overlay whitelist
 
     :param ship_id: The ship ID
     :param name: The ship name (custom or default)
-    :param bioscan_globals: BioScan globals storage class
     :return: Whether or not ship is in the overlay whitelist
     """
 
@@ -462,13 +461,12 @@ def ship_in_whitelist(ship_id: int, name: str, bioscan_globals: Globals) -> bool
     return False
 
 
-def change_ship_name(ship_id: int, name: str, bioscan_globals: Globals) -> None:
+def change_ship_name(ship_id: int, name: str) -> None:
     """
     Change the stored ship name in EDMC storage assigned to the given ship ID
 
     :param ship_id: The ship ID
     :param name: The ship name (custom or default)
-    :param bioscan_globals: BioScan globals storage class
     """
 
     for ship in bioscan_globals.ship_whitelist:
@@ -478,12 +476,11 @@ def change_ship_name(ship_id: int, name: str, bioscan_globals: Globals) -> None:
             break
 
 
-def ship_sold(ship_id: int, bioscan_globals) -> None:
+def ship_sold(ship_id: int) -> None:
     """
     Remove sold ship from overlay whitelist
 
     :param ship_id: The ship ID
-    :param bioscan_globals: BioScan globals storage class
     """
 
     for ship in bioscan_globals.ship_whitelist:
@@ -492,13 +489,12 @@ def ship_sold(ship_id: int, bioscan_globals) -> None:
             return
 
 
-def add_ship_id(ship_id: int, name: str, bioscan_globals: Globals) -> None:
+def add_ship_id(ship_id: int, name: str) -> None:
     """
     Convert old name-based storage to ID:name if ship name is in the overlay whitelist
 
     :param ship_id: The ship ID
     :param name: The ship name (custom or default)
-    :param bioscan_globals: BioScan globals storage class
     """
 
     if name in bioscan_globals.ship_whitelist:
@@ -506,13 +502,12 @@ def add_ship_id(ship_id: int, name: str, bioscan_globals: Globals) -> None:
         bioscan_globals.ship_whitelist.append(f'{ship_id}:{name}')
 
 
-def sync_ship_name(ship_id: int, name: str, bioscan_globals: Globals) -> None:
+def sync_ship_name(ship_id: int, name: str) -> None:
     """
     Update the ship name in the overlay whitelist on change
 
     :param ship_id: The ship ID
     :param name: The ship name (custom or default)
-    :param bioscan_globals: BioScan globals storage class
     """
 
     for ship in bioscan_globals.ship_whitelist:

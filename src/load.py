@@ -20,12 +20,12 @@ from tkinter import ttk
 
 # Local imports
 import bio_scan.const
-from bio_scan.globals import Globals
+from bio_scan.globals import bioscan_globals as this
 from bio_scan.nebula_data.reference_stars import get_nearest_nebula
 from bio_scan.nebula_data.sectors import data as nebula_sectors
 from bio_scan.settings import get_settings, ship_in_whitelist, ship_sold, change_ship_name, add_ship_id, sync_ship_name
 from bio_scan.status_flags import StatusFlags2, StatusFlags
-from bio_scan.util import system_distance
+from bio_scan.util import system_distance, translate_colors
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.bio_data.codex import check_codex, check_codex_from_name
 from bio_scan.bio_data.regions import region_map, guardian_nebulae, tuber_zones
@@ -58,8 +58,6 @@ from l10n import translations as tr
 from ExploData.explo_data.RegionMap import findRegion
 from ExploData.explo_data.RegionMapData import regions as galaxy_regions
 
-
-this = Globals()
 this.translation_context = os.path.dirname(__file__)
 logger = get_plugin_logger(this.NAME)
 logger.debug(config.plugin_dir)
@@ -169,7 +167,7 @@ def plugin_prefs(parent: ttk.Notebook, cmdr: str, is_beta: bool) -> tk.Frame:
     """
 
     parse_config(cmdr)
-    return get_settings(parent, this)
+    return get_settings(parent)
 
 
 def prefs_changed(cmdr: str, is_beta: bool) -> None:
@@ -340,13 +338,14 @@ def scan_label(scans: int) -> str:
 
     match scans:
         case 0:
-            return 'Located'
+            return tr.tl('Located', this.translation_context)  # LANG: Located scan level (0/3)
         case 1:
-            return 'Logged'
+            return tr.tl('Logged', this.translation_context)  # LANG: Logged scan level (1/3)
         case 2:
-            return 'Sampled'
+            return tr.tl('Sampled', this.translation_context)  # LANG: Sampled scan level (2/3)
         case 3:
-            return 'Analysed'
+            return tr.tl('Analysed', this.translation_context)  # LANG: Analysed scan level (3/3)
+    return tr.tl('Unknown', this.translation_context)  # LANG: Unknown scan level
 
 
 def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tuple[str, list[str], int]]]:
@@ -729,7 +728,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                 '{}{}{}'.format(
                     '\N{memo} ' if codex else '',
                     bio_types[genus][sorted_species[0][0]]['name'],
-                    f' - {sorted_species[0][1][0]}' if len(sorted_species[0][1]) == 1 else ''
+                    f' - {translate_colors(sorted_species[0][1][0])}' if len(sorted_species[0][1]) == 1 else ''
                 ),
                 bio_types[genus][sorted_species[0][0]]['value'], bio_types[genus][sorted_species[0][0]]['value'],
                 localized_species
@@ -765,7 +764,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                 '{}{}{}'.format(
                     '\N{memo} ' if codex else '',
                     bio_genus[genus]['name'],
-                    f' - {color}' if color else ''
+                    f' - {translate_colors(color)}' if color else ''
                 ),
                 bio_types[genus][sorted_species[0][0]]['value'],
                 bio_types[genus][sorted_species[-1][0]]['value'],
@@ -985,9 +984,9 @@ def journal_entry(
     match entry['event']:
         case 'Loadout':
             if ship_name in this.ship_whitelist:
-                add_ship_id(entry['ShipID'], ship_name, this)
+                add_ship_id(entry['ShipID'], ship_name)
             else:
-                sync_ship_name(entry['ShipID'], ship_name, this)
+                sync_ship_name(entry['ShipID'], ship_name)
             prefs_changed(cmdr, is_beta)
 
         case 'ApproachBody' | 'Touchdown' | 'Liftoff':
@@ -1014,13 +1013,13 @@ def journal_entry(
             this.scroll_canvas.yview_moveto(0.0)
 
         case 'SetUserShipName':
-            change_ship_name(entry['ShipID'], ship_name, this)
+            change_ship_name(entry['ShipID'], ship_name)
             prefs_changed(cmdr, is_beta)
 
         case 'SellShipOnRebuy' | 'ShipyardSell':
             ship_id = entry.get('SellShipID', entry.get('SellShipId', -1))
             if ship_id != -1:
-                ship_sold(ship_id, this)
+                ship_sold(ship_id)
                 prefs_changed(cmdr, is_beta)
 
         case 'Resurrect':
@@ -1448,7 +1447,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             '\N{memo} ' if not check_codex(this.commander.id, this.system.region,
                                                            genus, species, color) else '',
                             bio_types[genus][species]['name'],
-                            f' - {color}' if color else '',
+                            f' - {translate_colors(color)}' if color else '',
                             scan_label(scan[0].count if scan else 0),
                             this.formatter.format_credits(bio_types[genus][species]['value']),
                             u' 🗸' if scan and scan[0].count == 3 else '',
@@ -1468,12 +1467,13 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 for variant in species_details_final[1]:
                                     if not check_codex_from_name(this.commander.id, this.system.region,
                                                                  species_details_final[0], variant):
-                                        species_details_final[1][
-                                            species_details_final[1].index(variant)] = f'\N{memo}{variant}'
+                                        species_details_final[1][species_details_final[1].index(variant)] = \
+                                            f'\N{memo}{translate_colors(variant)}'
                             else:
                                 variant = ''
                                 if species_details_final[1]:
                                     variant = species_details_final[1][0]
+                                    species_details_final[1][0] = translate_colors(variant)
                                 if not check_codex_from_name(this.commander.id, this.system.region,
                                                              species_details_final[0], variant):
                                     species_details_final = (
@@ -1645,11 +1645,11 @@ def update_display() -> None:
                     distance = distance if distance is not None else 0
                     waypoint = get_nearest(genus, waypoints) if (waypoints and this.waypoints_enabled.get()) else ''
                     text += '\n{}: {} - {} ({}/3) [{}]{}'.format(
+                        tr.tl('In Progress', this.translation_context),  # LANG: Scan in progress indicator
                         bio_types[genus][species]['name'],
                         scan_label(scan),
                         scan,
                         '{}/{}m'.format(
-                            tr.tl('In Progress', this.translation_context),  # LANG: Scan in progress indicator
                             distance_format
                             if distance < bio_genus[genus]['distance']
                             else f'> {bio_genus[genus]["distance"]}',
@@ -1730,7 +1730,7 @@ def overlay_should_display() -> bool:
     if not this.docked and not this.on_foot:
         ship_name = monitor.state['ShipName'] if monitor.state['ShipName'] else ship_name_map.get(
                 monitor.state['ShipType'], monitor.state['ShipType'])
-        if this.ship_whitelist and not ship_in_whitelist(monitor.state['ShipID'], ship_name, this):
+        if this.ship_whitelist and not ship_in_whitelist(monitor.state['ShipID'], ship_name):
             result = False
         if not this.in_supercruise and this.planet_radius == 0:
             result = False
