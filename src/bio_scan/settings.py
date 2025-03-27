@@ -47,16 +47,18 @@ def get_settings(parent: ttk.Notebook) -> tk.Frame:
     HyperlinkLabel(title_frame, text=bioscan_globals.NAME, background=nb.Label().cget('background'),
                    url='https://github.com/Silarn/EDMC-BioScan', underline=True) \
         .grid(row=0, padx=x_padding, sticky=tk.W)
-    nb.Label(title_frame, text='Version %s' % bioscan_globals.VERSION) \
+    # LANG: Version tag at the top of the settings pane
+    nb.Label(title_frame, text=tr.tl('Version %s', bioscan_globals.translation_context) % bioscan_globals.VERSION) \
         .grid(row=0, column=1, sticky=tk.E)
-    nb.Label(title_frame, text='Data Version: %s' % bio_scan.const.db_version) \
+    # LANG: Data version tag at the top of the settings pane
+    nb.Label(title_frame, text=tr.tl('Data Version: %s', bioscan_globals.translation_context) % bio_scan.const.db_version) \
         .grid(row=0, column=2, padx=x_padding, sticky=tk.E)
     HyperlinkLabel(title_frame, text=ExploData.explo_data.const.plugin_name, background=nb.Label().cget('background'),
                    url='https://github.com/Silarn/EDMC-ExploData', underline=True) \
         .grid(row=1, padx=x_padding, pady=y_padding * 2, sticky=tk.W)
-    nb.Label(title_frame, text='Version %s' % semantic_version.Version(ExploData.explo_data.const.plugin_version)) \
+    nb.Label(title_frame, text=tr.tl('Version %s', bioscan_globals.translation_context) % semantic_version.Version(ExploData.explo_data.const.plugin_version)) \
         .grid(row=1, column=1, pady=y_padding * 2, sticky=tk.E)
-    nb.Label(title_frame, text='Data Version: %s' % ExploData.explo_data.const.database_version) \
+    nb.Label(title_frame, text=tr.tl('Data Version: %s', bioscan_globals.translation_context) % ExploData.explo_data.const.database_version) \
         .grid(row=1, column=2, padx=x_padding, pady=y_padding * 2, sticky=tk.E)
 
     # Tabs

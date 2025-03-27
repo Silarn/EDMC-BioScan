@@ -286,7 +286,7 @@ def journal_update(event: tk.Event) -> None:
     if total > 0:
         progress = f'{finished / total:.1%}'
     progress = progress.rstrip('0').rstrip('.')
-    this.journal_label['text'] = tr.tl('Parsing Journals', this.translation_context) + ' {progress} [{finished}/{total}]'
+    this.journal_label['text'] = tr.tl('Parsing Journals', this.translation_context) + f': {progress} [{finished}/{total}]'
 
 
 def journal_end(event: tk.Event) -> None:

@@ -163,7 +163,239 @@ def translate_species(species: str) -> str:
     """
 
     match species:
+        case 'Aleoida Arcus':
+            return tr.tl('Aleoida Arcus', bioscan_globals.translation_context)
+        case 'Aleoida Coronamus':
+            return tr.tl('Aleoida Coronamus', bioscan_globals.translation_context)
+        case 'Aleoida Spica':
+            return tr.tl('Aleoida Spica', bioscan_globals.translation_context)
+        case 'Aleoida Laminiae':
+            return tr.tl('Aleoida Laminiae', bioscan_globals.translation_context)
+        case 'Aleoida Gravis':
+            return tr.tl('Aleoida Gravis', bioscan_globals.translation_context)
+        case 'Luteolum Anemone':
+            return tr.tl('Luteolum Anemone', bioscan_globals.translation_context)
+        case 'Croceum Anemone':
+            return tr.tl('Croceum Anemone', bioscan_globals.translation_context)
+        case 'Puniceum Anemone':
+            return tr.tl('Puniceum Anemone', bioscan_globals.translation_context)
+        case 'Roseum Anemone':
+            return tr.tl('Roseum Anemone', bioscan_globals.translation_context)
+        case 'Rubeum Bioluminescent Anemone':
+            return tr.tl('Rubeum Bioluminescent Anemone', bioscan_globals.translation_context)
+        case 'Prasinum Bioluminescent Anemone':
+            return tr.tl('Prasinum Bioluminescent Anemone', bioscan_globals.translation_context)
+        case 'Roseum Bioluminescent Anemone':
+            return tr.tl('Roseum Bioluminescent Anemone', bioscan_globals.translation_context)
+        case 'Blatteum Bioluminescent Anemone':
+            return tr.tl('Blatteum Bioluminescent Anemone', bioscan_globals.translation_context)
+        case 'Bacterium Aurasus':
+            return tr.tl('Bacterium Aurasus', bioscan_globals.translation_context)
+        case 'Bacterium Nebulus':
+            return tr.tl('Bacterium Nebulus', bioscan_globals.translation_context)
+        case 'Bacterium Scopulum':
+            return tr.tl('Bacterium Scopulum', bioscan_globals.translation_context)
+        case 'Bacterium Acies':
+            return tr.tl('Bacterium Acies', bioscan_globals.translation_context)
+        case 'Bacterium Vesicula':
+            return tr.tl('Bacterium Vesicula', bioscan_globals.translation_context)
+        case 'Bacterium Alcyoneum':
+            return tr.tl('Bacterium Alcyoneum', bioscan_globals.translation_context)
+        case 'Bacterium Tela':
+            return tr.tl('Bacterium Tela', bioscan_globals.translation_context)
+        case 'Bacterium Informem':
+            return tr.tl('Bacterium Informem', bioscan_globals.translation_context)
+        case 'Bacterium Volu':
+            return tr.tl('Bacterium Volu', bioscan_globals.translation_context)
+        case 'Bacterium Bullaris':
+            return tr.tl('Bacterium Bullaris', bioscan_globals.translation_context)
+        case 'Bacterium Omentum':
+            return tr.tl('Bacterium Omentum', bioscan_globals.translation_context)
+        case 'Bacterium Cerbrus':
+            return tr.tl('Bacterium Cerbrus', bioscan_globals.translation_context)
+        case 'Bacterium Verrata':
+            return tr.tl('Bacterium Verrata', bioscan_globals.translation_context)
+        case 'Roseum Brain Tree':
+            return tr.tl('Roseum Brain Tree', bioscan_globals.translation_context)
+        case 'Gypseeum Brain Tree':
+            return tr.tl('Gypseeum Brain Tree', bioscan_globals.translation_context)
+        case 'Ostrinum Brain Tree':
+            return tr.tl('Ostrinum Brain Tree', bioscan_globals.translation_context)
+        case 'Viride Brain Tree':
+            return tr.tl('Viride Brain Tree', bioscan_globals.translation_context)
+        case 'Aureum Brain Tree':
+            return tr.tl('Aureum Brain Tree', bioscan_globals.translation_context)
+        case 'Puniceum Brain Tree':
+            return tr.tl('Puniceum Brain Tree', bioscan_globals.translation_context)
+        case 'Lindigoticum Brain Tree':
+            return tr.tl('Lindigoticum Brain Tree', bioscan_globals.translation_context)
+        case 'Lividum Brain Tree':
+            return tr.tl('Lividum Brain Tree', bioscan_globals.translation_context)
+        case 'Cactoida Cortexum':
+            return tr.tl('Cactoida Cortexum', bioscan_globals.translation_context)
+        case 'Cactoida Lapis':
+            return tr.tl('Cactoida Lapis', bioscan_globals.translation_context)
+        case 'Cactoida Vermis':
+            return tr.tl('Cactoida Vermis', bioscan_globals.translation_context)
+        case 'Cactoida Pullulanta':
+            return tr.tl('Cactoida Pullulanta', bioscan_globals.translation_context)
+        case 'Cactoida Peperatis':
+            return tr.tl('Cactoida Peperatis', bioscan_globals.translation_context)
+        case 'Clypeus Lacrimam':
+            return tr.tl('Clypeus Lacrimam', bioscan_globals.translation_context)
+        case 'Clypeus Margaritus':
+            return tr.tl('Clypeus Margaritus', bioscan_globals.translation_context)
+        case 'Clypeus Speculumi':
+            return tr.tl('Clypeus Speculumi', bioscan_globals.translation_context)
+        case 'Concha Renibus':
+            return tr.tl('Concha Renibus', bioscan_globals.translation_context)
+        case 'Concha Aureolas':
+            return tr.tl('Concha Aureolas', bioscan_globals.translation_context)
+        case 'Concha Labiata':
+            return tr.tl('Concha Labiata', bioscan_globals.translation_context)
+        case 'Concha Biconcavis':
+            return tr.tl('Concha Biconcavis', bioscan_globals.translation_context)
+        case 'Electricae Pluma':
+            return tr.tl('Electricae Pluma', bioscan_globals.translation_context)
+        case 'Electricae Radialem':
+            return tr.tl('Electricae Radialem', bioscan_globals.translation_context)
+        case 'Fonticulua Segmentatus':
+            return tr.tl('Fonticulua Segmentatus', bioscan_globals.translation_context)
+        case 'Fonticulua Campestris':
+            return tr.tl('Fonticulua Campestris', bioscan_globals.translation_context)
+        case 'Fonticulua Upupam':
+            return tr.tl('Fonticulua Upupam', bioscan_globals.translation_context)
+        case 'Fonticulua Lapida':
+            return tr.tl('Fonticulua Lapida', bioscan_globals.translation_context)
+        case 'Fonticulua Fluctus':
+            return tr.tl('Fonticulua Fluctus', bioscan_globals.translation_context)
+        case 'Fonticulua Digitos':
+            return tr.tl('Fonticulua Digitos', bioscan_globals.translation_context)
+        case 'Frutexa Flabellum':
+            return tr.tl('Frutexa Flabellum', bioscan_globals.translation_context)
+        case 'Frutexa Acus':
+            return tr.tl('Frutexa Acus', bioscan_globals.translation_context)
+        case 'Frutexa Metallicum':
+            return tr.tl('Frutexa Metallicum', bioscan_globals.translation_context)
+        case 'Frutexa Flammasis':
+            return tr.tl('Frutexa Flammasis', bioscan_globals.translation_context)
+        case 'Frutexa Fera':
+            return tr.tl('Frutexa Fera', bioscan_globals.translation_context)
+        case 'Frutexa Sponsae':
+            return tr.tl('Frutexa Sponsae', bioscan_globals.translation_context)
+        case 'Frutexa Collum':
+            return tr.tl('Frutexa Collum', bioscan_globals.translation_context)
+        case 'Fumerola Carbosis':
+            return tr.tl('Fumerola Carbosis', bioscan_globals.translation_context)
+        case 'Fumerola Extremus':
+            return tr.tl('Fumerola Extremus', bioscan_globals.translation_context)
+        case 'Fumerola Nitris':
+            return tr.tl('Fumerola Nitris', bioscan_globals.translation_context)
+        case 'Fumerola Aquatis':
+            return tr.tl('Fumerola Aquatis', bioscan_globals.translation_context)
+        case 'Fungoida Setisis':
+            return tr.tl('Fungoida Setisis', bioscan_globals.translation_context)
+        case 'Fungoida Stabitis':
+            return tr.tl('Fungoida Stabitis', bioscan_globals.translation_context)
+        case 'Fungoida Bullarum':
+            return tr.tl('Fungoida Bullarum', bioscan_globals.translation_context)
+        case 'Fungoida Gelata':
+            return tr.tl('Fungoida Gelata', bioscan_globals.translation_context)
+        case 'Osseus Fractus':
+            return tr.tl('Osseus Fractus', bioscan_globals.translation_context)
+        case 'Osseus Discus':
+            return tr.tl('Osseus Discus', bioscan_globals.translation_context)
+        case 'Osseus Spiralis':
+            return tr.tl('Osseus Spiralis', bioscan_globals.translation_context)
+        case 'Osseus Pumice':
+            return tr.tl('Osseus Pumice', bioscan_globals.translation_context)
+        case 'Osseus Cornibus':
+            return tr.tl('Osseus Cornibus', bioscan_globals.translation_context)
+        case 'Osseus Pellebantus':
+            return tr.tl('Osseus Pellebantus', bioscan_globals.translation_context)
+        case 'Recepta Umbrux':
+            return tr.tl('Recepta Umbrux', bioscan_globals.translation_context)
+        case 'Recepta Deltahedronix':
+            return tr.tl('Recepta Deltahedronix', bioscan_globals.translation_context)
+        case 'Recepta Conditivus':
+            return tr.tl('Recepta Conditivus', bioscan_globals.translation_context)
+        case 'Stratum Aranaemus':
+            return tr.tl('Stratum Aranaemus', bioscan_globals.translation_context)
+        case 'Stratum Excutitus':
+            return tr.tl('Stratum Excutitus', bioscan_globals.translation_context)
+        case 'Stratum Paleas':
+            return tr.tl('Stratum Paleas', bioscan_globals.translation_context)
+        case 'Stratum Laminamus':
+            return tr.tl('Stratum Laminamus', bioscan_globals.translation_context)
+        case 'Stratum Limaxus':
+            return tr.tl('Stratum Limaxus', bioscan_globals.translation_context)
+        case 'Stratum Cucumisis':
+            return tr.tl('Stratum Cucumisis', bioscan_globals.translation_context)
+        case 'Stratum Tectonicas':
+            return tr.tl('Stratum Tectonicas', bioscan_globals.translation_context)
+        case 'Stratum Frigus':
+            return tr.tl('Stratum Frigus', bioscan_globals.translation_context)
+        case 'Roseum Sinuous Tubers':
+            return tr.tl('Roseum Sinuous Tubers', bioscan_globals.translation_context)
+        case 'Prasinum Sinuous Tubers':
+            return tr.tl('Prasinum Sinuous Tubers', bioscan_globals.translation_context)
+        case 'Albidum Sinuous Tubers':
+            return tr.tl('Albidum Sinuous Tubers', bioscan_globals.translation_context)
+        case 'Caeruleum Sinuous Tubers':
+            return tr.tl('Caeruleum Sinuous Tubers', bioscan_globals.translation_context)
+        case 'Lindigoticum Sinuous Tubers':
+            return tr.tl('Lindigoticum Sinuous Tubers', bioscan_globals.translation_context)
+        case 'Violaceum Sinuous Tubers':
+            return tr.tl('Violaceum Sinuous Tubers', bioscan_globals.translation_context)
+        case 'Viride Sinuous Tubers':
+            return tr.tl('Viride Sinuous Tubers', bioscan_globals.translation_context)
+        case 'Blatteum Sinuous Tubers':
+            return tr.tl('Blatteum Sinuous Tubers', bioscan_globals.translation_context)
+        case 'Tubus Conifer':
+            return tr.tl('Tubus Conifer', bioscan_globals.translation_context)
+        case 'Tubus Sororibus':
+            return tr.tl('Tubus Sororibus', bioscan_globals.translation_context)
+        case 'Tubus Cavas':
+            return tr.tl('Tubus Cavas', bioscan_globals.translation_context)
+        case 'Tubus Rosarium':
+            return tr.tl('Tubus Rosarium', bioscan_globals.translation_context)
+        case 'Tubus Compagibus':
+            return tr.tl('Tubus Compagibus', bioscan_globals.translation_context)
+        case 'Tussock Pennata':
+            return tr.tl('Tussock Pennata', bioscan_globals.translation_context)
+        case 'Tussock Ventusa':
+            return tr.tl('Tussock Ventusa', bioscan_globals.translation_context)
+        case 'Tussock Ignis':
+            return tr.tl('Tussock Ignis', bioscan_globals.translation_context)
+        case 'Tussock Cultro':
+            return tr.tl('Tussock Cultro', bioscan_globals.translation_context)
+        case 'Tussock Catena':
+            return tr.tl('Tussock Catena', bioscan_globals.translation_context)
+        case 'Tussock Pennatis':
+            return tr.tl('Tussock Pennatis', bioscan_globals.translation_context)
+        case 'Tussock Serrati':
+            return tr.tl('Tussock Serrati', bioscan_globals.translation_context)
+        case 'Tussock Albata':
+            return tr.tl('Tussock Albata', bioscan_globals.translation_context)
+        case 'Tussock Propagito':
+            return tr.tl('Tussock Propagito', bioscan_globals.translation_context)
+        case 'Tussock Divisa':
+            return tr.tl('Tussock Divisa', bioscan_globals.translation_context)
+        case 'Tussock Caputus':
+            return tr.tl('Tussock Caputus', bioscan_globals.translation_context)
+        case 'Tussock Triticum':
+            return tr.tl('Tussock Triticum', bioscan_globals.translation_context)
+        case 'Tussock Stigmasis':
+            return tr.tl('Tussock Stigmasis', bioscan_globals.translation_context)
+        case 'Tussock Virgam':
+            return tr.tl('Tussock Virgam', bioscan_globals.translation_context)
+        case 'Tussock Capillum':
+            return tr.tl('Tussock Capillum', bioscan_globals.translation_context)
         case 'Crystalline Shards':
             return tr.tl('Crystalline Shards', bioscan_globals.translation_context)  # LANG: Species crystalline shards
+        case 'Bark Mound':
+            return tr.tl('Bark Mound', bioscan_globals.translation_context)  # LANG: Species crystalline shards
+        case 'Amphora Plant':
+            return tr.tl('Amphora Plant', bioscan_globals.translation_context)  # LANG: Species crystalline shards
         case _:
             return species
