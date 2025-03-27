@@ -8,6 +8,7 @@ from ExploData.explo_data.db import CodexScans
 from ExploData.explo_data import db
 
 from bio_scan.bio_data.species import rules as bio_types
+from bio_scan.util import translate_species
 
 
 def check_codex(commander: int, region: int | None, genus: str, species: str, variant: str = '') -> bool:
@@ -61,6 +62,6 @@ def check_codex(commander: int, region: int | None, genus: str, species: str, va
 def check_codex_from_name(commander: int, region: int, name: str, variant: str = '') -> bool:
     for genus, species_data in bio_types.items():
         for species_code, data in species_data.items():
-            if data['name'] == name:
+            if translate_species(data['name']) == name:
                 return check_codex(commander, region, genus, species_code, variant)
     return False

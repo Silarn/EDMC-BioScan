@@ -2,7 +2,7 @@ import math
 
 from l10n import translations as tr
 
-from .globals import bioscan_globals
+from bio_scan.globals import bioscan_globals
 
 def system_distance(coordinate_a: tuple[float, float, float], coordinate_b: tuple[float, float, float]) -> float:
     """
@@ -26,7 +26,7 @@ def translate_colors(color: str) -> str:
     :return: Translated color
     """
 
-    match str:
+    match color:
         case 'Amethyst':
             return tr.tl('Amethyst', bioscan_globals.translation_context)  # LANG: Color amethyst
         case 'Aquamarine':
@@ -77,3 +77,93 @@ def translate_colors(color: str) -> str:
             return tr.tl('Yellow', bioscan_globals.translation_context)  # LANG: Color yellow
         case _:
             return color
+
+
+def translate_body(body_type: str) -> str:
+    """
+    Return translation for a given body type
+    :param body_type: The ED journal string for a body type
+    :return: The translated body type
+    """
+
+    match body_type:
+        case 'Icy body':
+            return tr.tl('Icy body', bioscan_globals.translation_context)  # LANG: Body type icy body
+        case 'Rocky body':
+            return tr.tl('Rocky body', bioscan_globals.translation_context)  # LANG: Body type rocky body
+        case 'Rocky ice body':
+            return tr.tl('Rocky ice body', bioscan_globals.translation_context)  # LANG: Body type rocky ice body
+        case 'Metal rich body':
+            return tr.tl('Metal rich body', bioscan_globals.translation_context)  # LANG: Body type metal rich body
+        case 'High metal content body':
+            return tr.tl('High metal content body', bioscan_globals.translation_context)  # LANG: Body type high metal content body
+        case _:
+            return body_type
+
+
+def translate_genus(genus: str) -> str:
+    """
+    Return translation for a given genus
+    :param genus: The ED journal string for a genus
+    :return: The translated genus
+    """
+
+    match genus:
+        case 'Aleoida':
+            return tr.tl('Aleoida', bioscan_globals.translation_context)  # LANG: Genus aleoida
+        case 'Bacterium':
+            return tr.tl('Bacterium', bioscan_globals.translation_context)  # LANG: Genus bacterium
+        case 'Cactoida':
+            return tr.tl('Cactoida', bioscan_globals.translation_context)  # LANG: Genus cactoida
+        case 'Clypeus':
+            return tr.tl('Clypeus', bioscan_globals.translation_context)  # LANG: Genus clypeus
+        case 'Concha':
+            return tr.tl('Concha', bioscan_globals.translation_context)  # LANG: Genus concha
+        case 'Electricae':
+            return tr.tl('Electricae', bioscan_globals.translation_context)  # LANG: Genus electricae
+        case 'Fonticulua':
+            return tr.tl('Fonticulua', bioscan_globals.translation_context)  # LANG: Genus fonticula
+        case 'Fumerola':
+            return tr.tl('Fumerola', bioscan_globals.translation_context)  # LANG: Genus fumerola
+        case 'Fungoida':
+            return tr.tl('Fungoida', bioscan_globals.translation_context)  # LANG: Genus fungoida
+        case 'Osseus':
+            return tr.tl('Osseus', bioscan_globals.translation_context)  # LANG: Genus osseus
+        case 'Recepta':
+            return tr.tl('Recepta', bioscan_globals.translation_context)  # LANG: Genus recepta
+        case 'Frutexa':
+            return tr.tl('Frutexa', bioscan_globals.translation_context)  # LANG: Genus frutexa
+        case 'Stratum':
+            return tr.tl('Stratum', bioscan_globals.translation_context)  # LANG: Genus stratum
+        case 'Tubus':
+            return tr.tl('Tubus', bioscan_globals.translation_context)  # LANG: Genus tubus
+        case 'Tussock':
+            return tr.tl('Tussock', bioscan_globals.translation_context)  # LANG: Genus tussock
+        case 'Anemone':
+            return tr.tl('Anemone', bioscan_globals.translation_context)  # LANG: Genus anemone
+        case 'Amphora Plant':
+            return tr.tl('Amphora Plant', bioscan_globals.translation_context)  # LANG: Genus amphora plant
+        case 'Bark Mound':
+            return tr.tl('Bark Mound', bioscan_globals.translation_context)  # LANG: Genus bark mound
+        case 'Brain Tree':
+            return tr.tl('Brain Tree', bioscan_globals.translation_context)  # LANG: Genus brain tree
+        case 'Crystalline Shards':
+            return tr.tl('Crystalline Shards', bioscan_globals.translation_context)  # LANG: Genus crystalline shards
+        case 'Sinuous Tubers':
+            return tr.tl('Sinuous Tubers', bioscan_globals.translation_context)  # LANG: Genus sinuous tubers
+        case _:
+            return genus
+
+
+def translate_species(species: str) -> str:
+    """
+    Return translation for a given species
+    :param species: The ED journal string for a species
+    :return: The translated species
+    """
+
+    match species:
+        case 'Crystalline Shards':
+            return tr.tl('Crystalline Shards', bioscan_globals.translation_context)  # LANG: Species crystalline shards
+        case _:
+            return species

@@ -1,162 +1,6 @@
 /* Language name */
 "!Language" = "English";
 
-/* load.py: ExploData DB migration threw an error; In files: load.py:103:103 */
-"BioScan: DB Migration Failed" = "BioScan: DB Migration Failed";
-
-/* load.py: Hyperlink text for GitHub issue creation; In files: load.py:106:106 */
-"Please Check or Submit an Issue" = "Please Check or Submit an Issue";
-
-/* load.py: Warning text for mismatched ExploData database version; In files: load.py:111:111 */
-"BioScan: Database Mismatch" = "BioScan: Database Mismatch";
-
-/* load.py: Latest release hyperlink text for database mismatch; In files: load.py:114:114 */
-"BioScan/ExploData Version Mismatch" = "BioScan/ExploData Version Mismatch";
-
-/* load.py: Version update hyperlink message; In files: load.py:149:149 */
-"Version {} is now available" = "Version {} is now available";
-
-/* load.py: Label for journal parsing progress indicator; In files: load.py:277:277; load.py:291:291 */
-"Parsing Journals" = "Parsing Journals";
-
-/* load.py: Journal parsing error message; In files: load.py:303:303 */
-"Error During Journal Parse\r\nPlease Submit a Report" = "Error During Journal Parse\r\nPlease Submit a Report";
-
-/* load.py: Located scan level (0/3); In files: load.py:341:341 */
-"Located" = "Located";
-
-/* load.py: Logged scan level (1/3); In files: load.py:343:343 */
-"Logged" = "Logged";
-
-/* load.py: Sampled scan level (2/3); In files: load.py:345:345 */
-"Sampled" = "Sampled";
-
-/* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:347:347; load.py:1626:1626 */
-"Analysed" = "Analysed";
-
-/* load.py: Unknown scan level; In files: load.py:348:348 */
-"Unknown" = "Unknown";
-
-/* load.py: Scan complete status text; In files: load.py:1368:1368 */
-"Complete" = "Complete";
-
-/* load.py: All scans complete status text; In files: load.py:1407:1407; load.py:1409:1409 */
-"All Samples Complete" = "All Samples Complete";
-
-/* load.py: Indicator for multiple possible bio variants; In files: load.py:1441:1441 */
-"Multiple Possible" = "Multiple Possible";
-
-/* load.py: Nearest waypoint text; In files: load.py:1455:1455; load.py:1658:1658 */
-"Nearest Saved Waypoint" = "Nearest Saved Waypoint";
-
-/* load.py: Predicted bio not located label; In files: load.py:1460:1460 */
-"Not located" = "Not located";
-
-/* load.py: Basic scan data messages; In files: load.py:1497:1497 */
-"! Basic Scan Detected !" = "! Basic Scan Detected !";
-
-/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1499:1499 */
-"FSS / DSS / AutoScan Needed" = "FSS / DSS / AutoScan Needed";
-
-/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1539:1539 */
-"AutoScan/NavBeacon Data, Bios Possible" = "AutoScan/NavBeacon Data, Bios Possible";
-
-/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1542:1542 */
-"Check FSS for Signals (or DSS)" = "Check FSS for Signals (or DSS)";
-
-/* load.py: Startup message before data has been processed; In files: load.py:1560:1560 */
-"BioScan: Awaiting Data" = "BioScan: Awaiting Data";
-
-/* load.py: General BioScan prediction title label; In files: load.py:1597:1597 */
-"BioScan Predictions" = "BioScan Predictions";
-
-/* load.py: Scan in progress indicator; In files: load.py:1648:1648 */
-"In Progress" = "In Progress";
-
-/* load.py: Analysed samples list label; In files: load.py:1663:1663 */
-"Analysed System Samples" = "Analysed System Samples";
-
-/* load.py: No signals found in current system; In files: load.py:1670:1670 */
-"BioScan: No Signals Found" = "BioScan: No Signals Found";
-
-/* load.py: Overlay details label; In files: load.py:1685:1685 */
-"BioScan Details" = "BioScan Details";
-
-/* load.py: Overlay no signals label; In files: load.py:1698:1698 */
-"BioScan: No Signals" = "BioScan: No Signals";
-
-/* util.py: Color amethyst; In files: util.py:31:31 */
-"Amethyst" = "Amethyst";
-
-/* util.py: Color aquamarine; In files: util.py:33:33 */
-"Aquamarine" = "Aquamarine";
-
-/* util.py: Color blue; In files: util.py:35:35 */
-"Blue" = "Blue";
-
-/* util.py: Color cobalt; In files: util.py:37:37 */
-"Cobalt" = "Cobalt";
-
-/* util.py: Color cyan; In files: util.py:39:39 */
-"Cyan" = "Cyan";
-
-/* util.py: Color emerald; In files: util.py:41:41 */
-"Emerald" = "Emerald";
-
-/* util.py: Color gold; In files: util.py:43:43 */
-"Gold" = "Gold";
-
-/* util.py: Color green; In files: util.py:45:45 */
-"Green" = "Green";
-
-/* util.py: Color grey; In files: util.py:47:47 */
-"Grey" = "Grey";
-
-/* util.py: Color indigo; In files: util.py:49:49 */
-"Indigo" = "Indigo";
-
-/* util.py: Color lime; In files: util.py:51:51 */
-"Lime" = "Lime";
-
-/* util.py: Color magenta; In files: util.py:53:53 */
-"Magenta" = "Magenta";
-
-/* util.py: Color maroon; In files: util.py:55:55 */
-"Maroon" = "Maroon";
-
-/* util.py: Color mauve; In files: util.py:57:57 */
-"Mauve" = "Mauve";
-
-/* util.py: Color mulberry; In files: util.py:59:59 */
-"Mulberry" = "Mulberry";
-
-/* util.py: Color ocher; In files: util.py:61:61 */
-"Ocher" = "Ocher";
-
-/* util.py: Color orange; In files: util.py:63:63 */
-"Orange" = "Orange";
-
-/* util.py: Color peach; In files: util.py:65:65 */
-"Peach" = "Peach";
-
-/* util.py: Color red; In files: util.py:67:67 */
-"Red" = "Red";
-
-/* util.py: Color sage; In files: util.py:69:69 */
-"Sage" = "Sage";
-
-/* util.py: Color teal; In files: util.py:71:71 */
-"Teal" = "Teal";
-
-/* util.py: Color turquoise; In files: util.py:73:73 */
-"Turquoise" = "Turquoise";
-
-/* util.py: Color white; In files: util.py:75:75 */
-"White" = "White";
-
-/* util.py: Color yellow; In files: util.py:77:77 */
-"Yellow" = "Yellow";
-
 /* settings.py: General settings tab label; In files: settings.py:65:65 */
 "General Settings" = "General Settings";
 
@@ -264,4 +108,247 @@
 
 /* In files: settings.py:425:425 */
 "Scroll delay (sec):" = "Scroll delay (sec):";
+
+/* util.py: Color amethyst; In files: util.py:31:31 */
+"Amethyst" = "Amethyst";
+
+/* util.py: Color aquamarine; In files: util.py:33:33 */
+"Aquamarine" = "Aquamarine";
+
+/* util.py: Color blue; In files: util.py:35:35 */
+"Blue" = "Blue";
+
+/* util.py: Color cobalt; In files: util.py:37:37 */
+"Cobalt" = "Cobalt";
+
+/* util.py: Color cyan; In files: util.py:39:39 */
+"Cyan" = "Cyan";
+
+/* util.py: Color emerald; In files: util.py:41:41 */
+"Emerald" = "Emerald";
+
+/* util.py: Color gold; In files: util.py:43:43 */
+"Gold" = "Gold";
+
+/* util.py: Color green; In files: util.py:45:45 */
+"Green" = "Green";
+
+/* util.py: Color grey; In files: util.py:47:47 */
+"Grey" = "Grey";
+
+/* util.py: Color indigo; In files: util.py:49:49 */
+"Indigo" = "Indigo";
+
+/* util.py: Color lime; In files: util.py:51:51 */
+"Lime" = "Lime";
+
+/* util.py: Color magenta; In files: util.py:53:53 */
+"Magenta" = "Magenta";
+
+/* util.py: Color maroon; In files: util.py:55:55 */
+"Maroon" = "Maroon";
+
+/* util.py: Color mauve; In files: util.py:57:57 */
+"Mauve" = "Mauve";
+
+/* util.py: Color mulberry; In files: util.py:59:59 */
+"Mulberry" = "Mulberry";
+
+/* util.py: Color ocher; In files: util.py:61:61 */
+"Ocher" = "Ocher";
+
+/* util.py: Color orange; In files: util.py:63:63 */
+"Orange" = "Orange";
+
+/* util.py: Color peach; In files: util.py:65:65 */
+"Peach" = "Peach";
+
+/* util.py: Color red; In files: util.py:67:67 */
+"Red" = "Red";
+
+/* util.py: Color sage; In files: util.py:69:69 */
+"Sage" = "Sage";
+
+/* util.py: Color teal; In files: util.py:71:71 */
+"Teal" = "Teal";
+
+/* util.py: Color turquoise; In files: util.py:73:73 */
+"Turquoise" = "Turquoise";
+
+/* util.py: Color white; In files: util.py:75:75 */
+"White" = "White";
+
+/* util.py: Color yellow; In files: util.py:77:77 */
+"Yellow" = "Yellow";
+
+/* util.py: Body type icy body; In files: util.py:91:91 */
+"Icy body" = "Icy body";
+
+/* util.py: Body type rocky body; In files: util.py:93:93 */
+"Rocky body" = "Rocky body";
+
+/* util.py: Body type rocky ice body; In files: util.py:95:95 */
+"Rocky ice body" = "Rocky ice body";
+
+/* util.py: Body type metal rich body; In files: util.py:97:97 */
+"Metal rich body" = "Metal rich body";
+
+/* util.py: Body type high metal content body; In files: util.py:99:99 */
+"High metal content body" = "High metal content body";
+
+/* util.py: Genus aleoida; In files: util.py:113:113 */
+"Aleoida" = "Aleoida";
+
+/* util.py: Genus bacterium; In files: util.py:115:115 */
+"Bacterium" = "Bacterium";
+
+/* util.py: Genus cactoida; In files: util.py:117:117 */
+"Cactoida" = "Cactoida";
+
+/* util.py: Genus clypeus; In files: util.py:119:119 */
+"Clypeus" = "Clypeus";
+
+/* util.py: Genus concha; In files: util.py:121:121 */
+"Concha" = "Concha";
+
+/* util.py: Genus electricae; In files: util.py:123:123 */
+"Electricae" = "Electricae";
+
+/* util.py: Genus fonticula; In files: util.py:125:125 */
+"Fonticulua" = "Fonticulua";
+
+/* util.py: Genus fumerola; In files: util.py:127:127 */
+"Fumerola" = "Fumerola";
+
+/* util.py: Genus fungoida; In files: util.py:129:129 */
+"Fungoida" = "Fungoida";
+
+/* util.py: Genus osseus; In files: util.py:131:131 */
+"Osseus" = "Osseus";
+
+/* util.py: Genus recepta; In files: util.py:133:133 */
+"Recepta" = "Recepta";
+
+/* util.py: Genus frutexa; In files: util.py:135:135 */
+"Frutexa" = "Frutexa";
+
+/* util.py: Genus stratum; In files: util.py:137:137 */
+"Stratum" = "Stratum";
+
+/* util.py: Genus tubus; In files: util.py:139:139 */
+"Tubus" = "Tubus";
+
+/* util.py: Genus tussock; In files: util.py:141:141 */
+"Tussock" = "Tussock";
+
+/* util.py: Genus anemone; In files: util.py:143:143 */
+"Anemone" = "Anemone";
+
+/* util.py: Genus amphora plant; In files: util.py:145:145 */
+"Amphora Plant" = "Amphora Plant";
+
+/* util.py: Genus bark mound; In files: util.py:147:147 */
+"Bark Mound" = "Bark Mound";
+
+/* util.py: Genus brain tree; In files: util.py:149:149 */
+"Brain Tree" = "Brain Tree";
+
+/* util.py: Species crystalline shards; util.py: Genus crystalline shards; In files: util.py:151:151; util.py:167:167 */
+"Crystalline Shards" = "Crystalline Shards";
+
+/* util.py: Genus sinuous tubers; In files: util.py:153:153 */
+"Sinuous Tubers" = "Sinuous Tubers";
+
+/* load.py: ExploData DB migration threw an error; In files: load.py:101:101 */
+"BioScan: DB Migration Failed" = "BioScan: DB Migration Failed";
+
+/* load.py: Hyperlink text for GitHub issue creation; In files: load.py:104:104 */
+"Please Check or Submit an Issue" = "Please Check or Submit an Issue";
+
+/* load.py: Warning text for mismatched ExploData database version; In files: load.py:109:109 */
+"BioScan: Database Mismatch" = "BioScan: Database Mismatch";
+
+/* load.py: Latest release hyperlink text for database mismatch; In files: load.py:112:112 */
+"BioScan/ExploData Version Mismatch" = "BioScan/ExploData Version Mismatch";
+
+/* load.py: Version update hyperlink message; In files: load.py:147:147 */
+"Version {} is now available" = "Version {} is now available";
+
+/* load.py: Label for journal parsing progress indicator; In files: load.py:275:275; load.py:289:289 */
+"Parsing Journals" = "Parsing Journals";
+
+/* load.py: Journal parsing error message; In files: load.py:301:301 */
+"Error During Journal Parse\r\nPlease Submit a Report" = "Error During Journal Parse\r\nPlease Submit a Report";
+
+/* load.py: Located scan level (0/3); In files: load.py:339:339 */
+"Located" = "Located";
+
+/* load.py: Logged scan level (1/3); In files: load.py:341:341 */
+"Logged" = "Logged";
+
+/* load.py: Sampled scan level (2/3); In files: load.py:343:343 */
+"Sampled" = "Sampled";
+
+/* load.py: Bio scans completed indicator label; load.py: Analysed scan level (3/3); In files: load.py:345:345; load.py:1628:1628 */
+"Analysed" = "Analysed";
+
+/* load.py: Unknown scan level; In files: load.py:346:346 */
+"Unknown" = "Unknown";
+
+/* load.py: Scan complete status text; In files: load.py:1366:1366 */
+"Complete" = "Complete";
+
+/* load.py: All scans complete status text; In files: load.py:1405:1405; load.py:1407:1407 */
+"All Samples Complete" = "All Samples Complete";
+
+/* load.py: Indicator for multiple possible bio variants; In files: load.py:1439:1439 */
+"Multiple Possible" = "Multiple Possible";
+
+/* load.py: Nearest waypoint text; In files: load.py:1453:1453; load.py:1660:1660 */
+"Nearest Saved Waypoint" = "Nearest Saved Waypoint";
+
+/* load.py: Predicted bio not located label; In files: load.py:1458:1458 */
+"Not located" = "Not located";
+
+/* load.py: Basic scan data messages; In files: load.py:1495:1495 */
+"! Basic Scan Detected !" = "! Basic Scan Detected !";
+
+/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1497:1497 */
+"FSS / DSS / AutoScan Needed" = "FSS / DSS / AutoScan Needed";
+
+/* load.py: Body signal display; In files: load.py:1501:1501 */
+"Signals" = "Signals";
+
+/* load.py: Body signal display; In files: load.py:1501:1501 */
+"Signal" = "Signal";
+
+/* load.py: Possible types label for body signal diplay; In files: load.py:1502:1502 */
+"Possible Types" = "Possible Types";
+
+/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1541:1541 */
+"AutoScan/NavBeacon Data, Bios Possible" = "AutoScan/NavBeacon Data, Bios Possible";
+
+/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1544:1544 */
+"Check FSS for Signals (or DSS)" = "Check FSS for Signals (or DSS)";
+
+/* load.py: Startup message before data has been processed; In files: load.py:1562:1562 */
+"BioScan: Awaiting Data" = "BioScan: Awaiting Data";
+
+/* load.py: General BioScan prediction title label; In files: load.py:1599:1599 */
+"BioScan Predictions" = "BioScan Predictions";
+
+/* load.py: Scan in progress indicator; In files: load.py:1650:1650 */
+"In Progress" = "In Progress";
+
+/* load.py: Analysed samples list label; In files: load.py:1665:1665 */
+"Analysed System Samples" = "Analysed System Samples";
+
+/* load.py: No signals found in current system; In files: load.py:1672:1672 */
+"BioScan: No Signals Found" = "BioScan: No Signals Found";
+
+/* load.py: Overlay details label; In files: load.py:1687:1687 */
+"BioScan Details" = "BioScan Details";
+
+/* load.py: Overlay no signals label; In files: load.py:1700:1700 */
+"BioScan: No Signals" = "BioScan: No Signals";
 

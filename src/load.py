@@ -25,7 +25,7 @@ from bio_scan.nebula_data.reference_stars import get_nearest_nebula
 from bio_scan.nebula_data.sectors import data as nebula_sectors
 from bio_scan.settings import get_settings, ship_in_whitelist, ship_sold, change_ship_name, add_ship_id, sync_ship_name
 from bio_scan.status_flags import StatusFlags2, StatusFlags
-from bio_scan.util import system_distance, translate_colors
+from bio_scan.util import system_distance, translate_colors, translate_body, translate_genus, translate_species
 from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
 from bio_scan.bio_data.codex import check_codex, check_codex_from_name
 from bio_scan.bio_data.regions import region_map, guardian_nebulae, tuber_zones
@@ -60,8 +60,6 @@ from ExploData.explo_data.RegionMapData import regions as galaxy_regions
 
 this.translation_context = os.path.dirname(__file__)
 logger = get_plugin_logger(this.NAME)
-logger.debug(config.plugin_dir)
-logger.debug(this.translation_context)
 
 
 def plugin_start3(plugin_dir: str) -> str:
@@ -718,7 +716,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             codex = not check_codex(this.commander.id, this.system.region, genus, sorted_species[0][0])
         if len(sorted_species[0][1]) > 1:
             localized_species = [
-                (bio_types[genus][sorted_species[0][0]]['name'],
+                (translate_species(bio_types[genus][sorted_species[0][0]]['name']),
                  sorted_species[0][1],
                  bio_types[genus][sorted_species[0][0]]['value'])
             ]
@@ -727,7 +725,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             (
                 '{}{}{}'.format(
                     '\N{memo} ' if codex else '',
-                    bio_types[genus][sorted_species[0][0]]['name'],
+                    translate_species(bio_types[genus][sorted_species[0][0]]['name']),
                     f' - {translate_colors(sorted_species[0][1][0])}' if len(sorted_species[0][1]) == 1 else ''
                 ),
                 bio_types[genus][sorted_species[0][0]]['value'], bio_types[genus][sorted_species[0][0]]['value'],
@@ -738,7 +736,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
         color = ''
         codex = False
         localized_species = [
-            (bio_types[genus][info[0]]['name'], info[1], bio_types[genus][info[0]]['value']) for info in sorted_species
+            (translate_genus(bio_types[genus][info[0]]['name']), info[1], bio_types[genus][info[0]]['value']) for info in sorted_species
         ]
         for species, colors in sorted_species:
             if not codex:
@@ -763,7 +761,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             (
                 '{}{}{}'.format(
                     '\N{memo} ' if codex else '',
-                    bio_genus[genus]['name'],
+                    translate_genus(bio_genus[genus]['name']),
                     f' - {translate_colors(color)}' if color else ''
                 ),
                 bio_types[genus][sorted_species[0][0]]['value'],
@@ -853,7 +851,7 @@ def get_possible_values(body: PlanetData) -> list[tuple[str, tuple[int, int, lis
     """
 
     possible_genus: list[tuple[str, tuple[int, int, list]]] = []
-    for genus in sorted(bio_types, key=lambda item: bio_genus[item]['name']):
+    for genus in sorted(bio_types, key=lambda item: translate_genus(bio_genus[item]['name'])):
         name, min_potential_value, max_potential_value, all_species = value_estimate(body, genus)
         if min_potential_value != 0:
             possible_genus.append((name, (min_potential_value, max_potential_value, all_species)))
@@ -1413,7 +1411,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
         elif len(body.get_flora()) > 0:
             count = 0
             genus_count: dict[str, int] = {}
-            for flora in sorted(body.get_flora(), key=lambda item: bio_genus[item.genus]['name']):
+            for flora in sorted(body.get_flora(), key=lambda item: translate_genus(bio_genus[item.genus]['name'])):
                 count += 1
                 show = True
                 genus: str = flora.genus
@@ -1437,7 +1435,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if bio_genus[genus]['multiple']:
                         genus_count[genus] = genus_count.get(genus, 0) + 1
                         if show and genus_count[genus] == 1:
-                            detail_text += (f'{bio_genus[genus]["name"]} - ' +
+                            detail_text += (f'{translate_genus(bio_genus[genus]["name"])} - ' +
                                             tr.tl('Multiple Possible', this.translation_context) + ':\n')  # LANG: Indicator for multiple possible bio variants
                     if show:
                         waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
@@ -1446,7 +1444,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             '  ' if bio_genus[genus]['multiple'] else '',
                             '\N{memo} ' if not check_codex(this.commander.id, this.system.region,
                                                            genus, species, color) else '',
-                            bio_types[genus][species]['name'],
+                            translate_species(bio_types[genus][species]['name']),
                             f' - {translate_colors(color)}' if color else '',
                             scan_label(scan[0].count if scan else 0),
                             this.formatter.format_credits(bio_types[genus][species]['value']),
@@ -1457,9 +1455,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
                     # LANG: Predicted bio not located label
-                    detail_text += '{} (' + tr.tl('Not located', this.translation_context) + '): {}\n'.format(
-                        bio_name,
-                        this.formatter.format_credit_range(min_val, max_val))
+                    detail_text += (f'{bio_name} (' + tr.tl('Not located', this.translation_context) +
+                                    f'): {this.formatter.format_credit_range(min_val, max_val)}\n')
+
                     if this.focus_breakdown.get():
                         for species_details in all_species:
                             species_details_final = deepcopy(species_details)
@@ -1469,6 +1467,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                                                  species_details_final[0], variant):
                                         species_details_final[1][species_details_final[1].index(variant)] = \
                                             f'\N{memo}{translate_colors(variant)}'
+                                    else:
+                                        species_details_final[1][species_details_final[1].index(variant)] = \
+                                            f'{translate_colors(variant)}'
                             else:
                                 variant = ''
                                 if species_details_final[1]:
@@ -1498,7 +1499,11 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     # LANG: Basic scan data FSS / DSS reminder
                                     + tr.tl('FSS / DSS / AutoScan Needed', this.translation_context) + '\n')
 
-                detail_text += f'{body.get_bio_signals()} Signal{"s"[:body.get_bio_signals()^1]} - Possible Types:\n'
+                detail_text += '{} {} - {}:\n'.format(
+                    body.get_bio_signals(),
+                    tr.tl('Signals', this.translation_context) if body.get_bio_signals() > 1 else tr.tl('Signal', this.translation_context),  # LANG: Body signal display
+                    tr.tl('Possible Types', this.translation_context)  # LANG: Possible types label for body signal diplay
+                )
                 count = 0
                 for bio_name, values in types:
                     count += 1
@@ -1513,12 +1518,16 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 for variant in species_details_final[1]:
                                     if not check_codex_from_name(this.commander.id, this.system.region,
                                                                  species_details_final[0], variant):
-                                        species_details_final[1][
-                                            species_details_final[1].index(variant)] = f'\N{memo}{variant}'
+                                        species_details_final[1][species_details_final[1].index(variant)] = \
+                                            f'\N{memo}{translate_colors(variant)}'
+                                    else:
+                                        species_details_final[1][species_details_final[1].index(variant)] = \
+                                            f'{translate_colors(variant)}'
                             else:
                                 variant = ''
                                 if species_details_final[1]:
                                     variant = species_details_final[1][0]
+                                    species_details_final[1][0] = translate_colors(variant)
                                 if not check_codex_from_name(this.commander.id, this.system.region,
                                                              species_details_final[0], variant):
                                     species_details_final = (
@@ -1539,7 +1548,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 tr.tl('AutoScan/NavBeacon Data, Bios Possible', this.translation_context) +
                                 '\n' +
                                 # LANG: Reminder to trigger FSS / DSS for unknown signals
-                                tr.tl('Check FSS for Signals (or DSS)') + '\n\n')
+                                tr.tl('Check FSS for Signals (or DSS)', this.translation_context) + '\n\n')
 
     return detail_text, value_sum
 
@@ -1620,7 +1629,7 @@ def update_display() -> None:
                         complete += 1
             text += '{} - {} [{}G] - {}/{} {}'.format(
                 bio_bodies[this.location_name].get_name(),
-                bio_bodies[this.location_name].get_type(),
+                translate_body(bio_bodies[this.location_name].get_type()),
                 '{:.2f}'.format(bio_bodies[this.location_name].get_gravity() / 9.797759).rstrip('0').rstrip('.'),
                 # LANG: Bio scans completed indicator label
                 complete, len(bio_bodies[this.location_name].get_flora()), tr.tl('Analysed', this.translation_context)
@@ -1646,7 +1655,7 @@ def update_display() -> None:
                     waypoint = get_nearest(genus, waypoints) if (waypoints and this.waypoints_enabled.get()) else ''
                     text += '\n{}: {} - {} ({}/3) [{}]{}'.format(
                         tr.tl('In Progress', this.translation_context),  # LANG: Scan in progress indicator
-                        bio_types[genus][species]['name'],
+                        translate_genus(bio_types[genus][species]['name']),
                         scan_label(scan),
                         scan,
                         '{}/{}m'.format(
