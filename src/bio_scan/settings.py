@@ -106,9 +106,9 @@ def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
     Tooltip(
         signal_label,
         # LANG: Tooltip text for body focus filter settings #1
-        text=tr.tl(r'This setting controls when the prediction details should display.\n\n', bioscan_globals.translation_context) +
+        text=tr.tl('This setting controls when the prediction details should display.', bioscan_globals.translation_context) + '\n\n' +
         # LANG: Tooltip text for body focus filter settings #2
-        tr.tl(r'When filtered, you will only see details for the bio signals relevant to your current location.', bioscan_globals.translation_context),
+        tr.tl('When filtered, you will only see details for the bio signals relevant to your current location.', bioscan_globals.translation_context),
         waittime=1000
     )
     focus_options = [
@@ -125,10 +125,10 @@ def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
     ).grid(row=1, padx=x_padding, pady=y_padding, column=0, sticky=tk.W)
     nb.Label(left_column,
              # LANG: Settings explanation for body focus filter options (dropdown options (e.g. On Approach) should not be translated)
-             text=tr.tl(r'Never: Never filter signal details\n'
-                        r'On Approach: Show only local signals on approach\n'
-                        r'Near Surface: Show signals under given altitude (see below)\n'
-                        r'On Surface: Show only local signals when on surface', bioscan_globals.translation_context),
+             text=tr.tl('Never: Never filter signal details', bioscan_globals.translation_context) + '\n' +
+                        tr.tl('On Approach: Show only local signals on approach', bioscan_globals.translation_context) + '\n' +
+                        tr.tl('Near Surface: Show signals under given altitude (see below)', bioscan_globals.translation_context) + '\n' +
+                        tr.tl('On Surface: Show only local signals when on surface', bioscan_globals.translation_context),
              justify=tk.LEFT) \
         .grid(row=2, padx=x_padding, column=0, sticky=tk.NW)
     nb.Label(left_column, text=tr.tl('Altitude (in meters) for "Near Surface":', bioscan_globals.translation_context)) \
@@ -176,9 +176,9 @@ def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
     Tooltip(
         signal_summary_label,
         # LANG: Signal summary tooltip line 1
-        text=tr.tl(r'This option determines when to display the signal summary at the top of the pane.\n\n', bioscan_globals.translation_context) +
-        # LANG: Signal summary tooltip line 2
-                   tr.tl(r'eg. B 1 (R): 5  ⬦ B 2 (HMC): 2', bioscan_globals.translation_context),
+        text=tr.tl('This option determines when to display the signal summary at the top of the pane.', bioscan_globals.translation_context) +
+             # LANG: Signal summary tooltip line 2
+             '\r\n' + tr.tl('eg. B 1 (R): 5  ⬦ B 2 (HMC): 2', bioscan_globals.translation_context),
         waittime=1000
     )
     signal_options = [
@@ -192,8 +192,8 @@ def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
         *signal_options
     ).grid(row=2, column=0, pady=y_padding, sticky=tk.W)
     nb.Label(right_column,
-             text=tr.tl(r'Always: Always display the body signal summary\n'
-                        r'In Flight: Show the signal summary in flight only', bioscan_globals.translation_context),
+             text=tr.tl('Always: Always display the body signal summary', bioscan_globals.translation_context) + '\n' +
+                        tr.tl('In Flight: Show the signal summary in flight only', bioscan_globals.translation_context),
              justify=tk.LEFT) \
         .grid(row=3, column=0, sticky=tk.NW)
     ttk.Separator(right_column).grid(row=4, column=0, pady=y_padding * 2, sticky=tk.EW)
@@ -206,7 +206,7 @@ def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
     Tooltip(
         completed_display_label,
         # LANG: Tooltip for 'Completed Scan Display' label
-        text=tr.tl(r'This option determines how to display species that have been fully scanned.', bioscan_globals.translation_context),
+        text=tr.tl('This option determines how to display species that have been fully scanned.', bioscan_globals.translation_context),
         waittime=1000
     )
     scan_options = [
@@ -221,9 +221,9 @@ def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
         *scan_options
     ).grid(row=6, column=0, sticky=tk.W)
     nb.Label(right_column,
-             text=tr.tl(r'Check: Always show species with a checkmark when complete\n'
-                        r'Hide: Always hide completed species\n'
-                        r'Hide in System: Hide completed species in the full system view', bioscan_globals.translation_context),
+             text=tr.tl('Check: Always show species with a checkmark when complete', bioscan_globals.translation_context) + '\n' +
+                        tr.tl('Hide: Always hide completed species', bioscan_globals.translation_context) + '\n' +
+                        tr.tl('Hide in System: Hide completed species in the full system view', bioscan_globals.translation_context),
              justify=tk.LEFT) \
         .grid(row=7, column=0, sticky=tk.NW)
     ttk.Separator(right_column).grid(row=8, column=0, pady=y_padding * 2, sticky=tk.EW)
@@ -347,8 +347,8 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
     whitelist_label.grid(row=2, column=0, padx=x_padding, sticky=tk.W)
     Tooltip(
         whitelist_label,
-        text=tr.tl(r'Ships added to this list will display BioScan on the overlay.\n', bioscan_globals.translation_context) +
-             tr.tl(r'When empty, BioScan will display for all ships.', bioscan_globals.translation_context),
+        text=tr.tl('Ships added to this list will display BioScan on the overlay.', bioscan_globals.translation_context) +
+             '\n\n' + tr.tl('When empty, BioScan will display for all ships.', bioscan_globals.translation_context),
         waittime=1000
     )
     ship_list.grid(row=3, column=0, padx=x_padding, sticky=tk.W)

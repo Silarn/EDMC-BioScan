@@ -297,8 +297,10 @@ def journal_end(event: tk.Event) -> None:
     """
 
     if ExploData.explo_data.journal_parse.has_error():
-        # LANG: Journal parsing error message
-        this.journal_label['text'] = tr.tl(r'Error During Journal Parse\r\nPlease Submit a Report', this.translation_context)
+        # LANG: Journal parsing error message (line 1)
+        this.journal_label['text'] = (tr.tl('Error During Journal Parse', this.translation_context) + '\n' +
+        # LANG: Journal parsing error message (line 2)
+                                      tr.tl('Please Submit a Report', this.translation_context))
     else:
         this.journal_label.grid_remove()
         reload_system_data()
