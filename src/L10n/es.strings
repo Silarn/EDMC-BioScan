@@ -1,6 +1,30 @@
 /* Language name */
 "!Language" = "Español";
 
+/* In files: util.py:20:20 */
+"I" = "H";
+
+/* In files: util.py:22:22 */
+"R" = "R";
+
+/* In files: util.py:24:24 */
+"RI" = "HR";
+
+/* In files: util.py:26:26 */
+"MR" = "RM";
+
+/* In files: util.py:28:28 */
+"HMC" = "ACM";
+
+/* format_util.py: Credits unit; In files: format_util.py:7:7 */
+"Cr" = "Cr";
+
+/* format_util.py: Millions unit; In files: format_util.py:40:40 */
+"M" = "M";
+
+/* format_util.py: Thousands unit; In files: format_util.py:44:44 */
+"k" = "k";
+
 /* settings.py: Version tag at the top of the settings pane; In files: settings.py:51:51; settings.py:59:59 */
 "Version %s" = "Versión %s";
 
@@ -161,7 +185,7 @@
 "Grey" = "Gris";
 
 /* util.py: Color indigo; In files: util.py:49:49 */
-"Indigo" = "Índigo";
+"Indigo" = "Añil";
 
 /* util.py: Color lime; In files: util.py:51:51 */
 "Lime" = "Lima";
@@ -176,7 +200,7 @@
 "Mauve" = "Malva";
 
 /* util.py: Color mulberry; In files: util.py:59:59 */
-"Mulberry" = "Mora";
+"Mulberry" = "Morado";
 
 /* util.py: Color ocher; In files: util.py:61:61 */
 "Ocher" = "Ocre";
@@ -185,7 +209,7 @@
 "Orange" = "Naranja";
 
 /* util.py: Color peach; In files: util.py:65:65 */
-"Peach" = "Melocotón";
+"Peach" = "Durazno";
 
 /* util.py: Color red; In files: util.py:67:67 */
 "Red" = "Rojo";
@@ -212,13 +236,13 @@
 "Rocky body" = "Cuerpo rocoso";
 
 /* util.py: Body type rocky ice body; In files: util.py:95:95 */
-"Rocky ice body" = "Cuerpo de hielo rocoso";
+"Rocky ice body" = "Cuerpo rocoso helado";
 
 /* util.py: Body type metal rich body; In files: util.py:97:97 */
-"Metal rich body" = "Cuerpo rico en metal";
+"Metal rich body" = "Cuerpo rico en metales";
 
 /* util.py: Body type high metal content body; In files: util.py:99:99 */
-"High metal content body" = "Cuerpo con alto contenido de metal";
+"High metal content body" = "Cuerpo con alto contenido en metal";
 
 /* util.py: Genus aleoida; In files: util.py:113:113 */
 "Aleoida" = "Aleoida";
@@ -230,7 +254,7 @@
 "Cactoida" = "Cactoida";
 
 /* util.py: Genus clypeus; In files: util.py:119:119 */
-"Clypeus" = "Clípeo";
+"Clypeus" = "Clypeus";
 
 /* util.py: Genus concha; In files: util.py:121:121 */
 "Concha" = "Concha";
@@ -248,7 +272,7 @@
 "Fungoida" = "Fungoida";
 
 /* util.py: Genus osseus; In files: util.py:131:131 */
-"Osseus" = "Óseo";
+"Osseus" = "Osseus";
 
 /* util.py: Genus recepta; In files: util.py:133:133 */
 "Recepta" = "Recepta";
@@ -257,13 +281,13 @@
 "Frutexa" = "Frutexa";
 
 /* util.py: Genus stratum; In files: util.py:137:137 */
-"Stratum" = "Estrato";
+"Stratum" = "Stratum";
 
 /* util.py: Genus tubus; In files: util.py:139:139 */
-"Tubus" = "Tubo";
+"Tubus" = "Tubus";
 
 /* util.py: Genus tussock; In files: util.py:141:141 */
-"Tussock" = "Tussock";
+"Tussock" = "Tusoc";
 
 /* util.py: Genus anemone; In files: util.py:143:143 */
 "Anemone" = "Anémona";
@@ -272,16 +296,16 @@
 "Amphora Plant" = "Planta de Ánfora";
 
 /* util.py: Species crystalline shards; util.py: Genus bark mound; In files: util.py:147:147; util.py:397:397 */
-"Bark Mound" = "Montículo de Corteza";
+"Bark Mound" = "Agrupaciones de Corteza";
 
 /* util.py: Genus brain tree; In files: util.py:149:149 */
-"Brain Tree" = "Árbol Cerebral";
+"Brain Tree" = "Árbol de Cerebros";
 
 /* util.py: Species crystalline shards; util.py: Genus crystalline shards; In files: util.py:151:151; util.py:395:395 */
-"Crystalline Shards" = "Fragmentos Crystalinos";
+"Crystalline Shards" = "Esquirlas Crystalinas";
 
 /* util.py: Genus sinuous tubers; In files: util.py:153:153 */
-"Sinuous Tubers" = "Tubérculos Sinuosos";
+"Sinuous Tubers" = "Tubiformes Sinuosos";
 
 /* In files: util.py:167:167 */
 "Aleoida Arcus" = "Aleoida Arcus";
@@ -299,28 +323,28 @@
 "Aleoida Gravis" = "Aleoida Gravis";
 
 /* In files: util.py:177:177 */
-"Luteolum Anemone" = "Luteolum Anémona";
+"Luteolum Anemone" = "Anémona Luteolum";
 
 /* In files: util.py:179:179 */
-"Croceum Anemone" = "Croceum Anémona";
+"Croceum Anemone" = "Anémona Croceum";
 
 /* In files: util.py:181:181 */
-"Puniceum Anemone" = "Puniceum Anémona";
+"Puniceum Anemone" = "Anémona Puniceum";
 
 /* In files: util.py:183:183 */
-"Roseum Anemone" = "Roseum Anémona";
+"Roseum Anemone" = "Anémona Roseum";
 
 /* In files: util.py:185:185 */
-"Rubeum Bioluminescent Anemone" = "Rubeum Bioluminescent Anémona";
+"Rubeum Bioluminescent Anemone" = "Anémona Bioluminiscente Rubeum";
 
 /* In files: util.py:187:187 */
-"Prasinum Bioluminescent Anemone" = "Prasinum Bioluminescent Anémona";
+"Prasinum Bioluminescent Anemone" = "Anémona Bioluminiscente Prasinum";
 
 /* In files: util.py:189:189 */
-"Roseum Bioluminescent Anemone" = "Roseum Bioluminescent Anémona";
+"Roseum Bioluminescent Anemone" = "Anémona Bioluminiscente Roseum";
 
 /* In files: util.py:191:191 */
-"Blatteum Bioluminescent Anemone" = "Blatteum Bioluminescent Anémona";
+"Blatteum Bioluminescent Anemone" = "Anémona Bioluminiscente Blatteum";
 
 /* In files: util.py:193:193 */
 "Bacterium Aurasus" = "Bactéria Aurasus";
@@ -362,28 +386,28 @@
 "Bacterium Verrata" = "Bactéria Verrata";
 
 /* In files: util.py:219:219 */
-"Roseum Brain Tree" = "Árbol Cerebral Roseum";
+"Roseum Brain Tree" = "Árbol de Cerebros Roseum";
 
 /* In files: util.py:221:221 */
-"Gypseeum Brain Tree" = "Árbol Cerebral Gypseeum";
+"Gypseeum Brain Tree" = "Árbol de Cerebros Gypseeum";
 
 /* In files: util.py:223:223 */
-"Ostrinum Brain Tree" = "Árbol Cerebral Ostrinum";
+"Ostrinum Brain Tree" = "Árbol de Cerebros Ostrinum";
 
 /* In files: util.py:225:225 */
-"Viride Brain Tree" = "Árbol Cerebral Viride";
+"Viride Brain Tree" = "Árbol de Cerebros Viride";
 
 /* In files: util.py:227:227 */
-"Aureum Brain Tree" = "Árbol Cerebral Aureum";
+"Aureum Brain Tree" = "Árbol de Cerebros Aureum";
 
 /* In files: util.py:229:229 */
-"Puniceum Brain Tree" = "Árbol Cerebral Puniceum";
+"Puniceum Brain Tree" = "Árbol de Cerebros Puniceum";
 
 /* In files: util.py:231:231 */
-"Lindigoticum Brain Tree" = "Árbol Cerebral Lindigoticum";
+"Lindigoticum Brain Tree" = "Árbol de Cerebros Lindigoticum";
 
 /* In files: util.py:233:233 */
-"Lividum Brain Tree" = "Árbol Cerebral Lividum";
+"Lividum Brain Tree" = "Árbol de Cerebros Lividum";
 
 /* In files: util.py:235:235 */
 "Cactoida Cortexum" = "Cactoida Cortexum";
@@ -401,13 +425,13 @@
 "Cactoida Peperatis" = "Cactoida Peperatis";
 
 /* In files: util.py:245:245 */
-"Clypeus Lacrimam" = "Clípeo Lacrimam";
+"Clypeus Lacrimam" = "Clypeus Lacrimam";
 
 /* In files: util.py:247:247 */
-"Clypeus Margaritus" = "Clípeo Margaritus";
+"Clypeus Margaritus" = "Clypeus Margaritus";
 
 /* In files: util.py:249:249 */
-"Clypeus Speculumi" = "Clípeo Speculumi";
+"Clypeus Speculumi" = "Clypeus Speculumi";
 
 /* In files: util.py:251:251 */
 "Concha Renibus" = "Concha Renibus";
@@ -491,22 +515,22 @@
 "Fungoida Gelata" = "Fungoida Gelata";
 
 /* In files: util.py:305:305 */
-"Osseus Fractus" = "Óseo Fractus";
+"Osseus Fractus" = "Osseus Fractus";
 
 /* In files: util.py:307:307 */
-"Osseus Discus" = "Óseo Discus";
+"Osseus Discus" = "Osseus Discus";
 
 /* In files: util.py:309:309 */
-"Osseus Spiralis" = "Óseo Spiralis";
+"Osseus Spiralis" = "Osseus Spiralis";
 
 /* In files: util.py:311:311 */
-"Osseus Pumice" = "Óseo Pumice";
+"Osseus Pumice" = "Osseus Pumice";
 
 /* In files: util.py:313:313 */
-"Osseus Cornibus" = "Óseo Cornibus";
+"Osseus Cornibus" = "Osseus Cornibus";
 
 /* In files: util.py:315:315 */
-"Osseus Pellebantus" = "Óseo Pellebantus";
+"Osseus Pellebantus" = "Osseus Pellebantus";
 
 /* In files: util.py:317:317 */
 "Recepta Umbrux" = "Recepta Umbrux";
@@ -518,112 +542,112 @@
 "Recepta Conditivus" = "Recepta Conditivus";
 
 /* In files: util.py:323:323 */
-"Stratum Aranaemus" = "Estrato Aranaemus";
+"Stratum Aranaemus" = "Stratum Aranaemus";
 
 /* In files: util.py:325:325 */
-"Stratum Excutitus" = "Estrato Excutitus";
+"Stratum Excutitus" = "Stratum Excutitus";
 
 /* In files: util.py:327:327 */
-"Stratum Paleas" = "Estrato Paleas";
+"Stratum Paleas" = "Stratum Paleas";
 
 /* In files: util.py:329:329 */
-"Stratum Laminamus" = "Estrato Laminamus";
+"Stratum Laminamus" = "Stratum Laminamus";
 
 /* In files: util.py:331:331 */
-"Stratum Limaxus" = "Estrato Limaxus";
+"Stratum Limaxus" = "Stratum Limaxus";
 
 /* In files: util.py:333:333 */
-"Stratum Cucumisis" = "Estrato Cucumisis";
+"Stratum Cucumisis" = "Stratum Cucumisis";
 
 /* In files: util.py:335:335 */
-"Stratum Tectonicas" = "Estrato Tectónicas";
+"Stratum Tectonicas" = "Stratum Tectonicas";
 
 /* In files: util.py:337:337 */
-"Stratum Frigus" = "Estrato Frigus";
+"Stratum Frigus" = "Stratum Frigus";
 
 /* In files: util.py:339:339 */
-"Roseum Sinuous Tubers" = "Tubérculos Sinuosos Roseum";
+"Roseum Sinuous Tubers" = "Tubiformes Sinuosos Roseum";
 
 /* In files: util.py:341:341 */
-"Prasinum Sinuous Tubers" = "Tubérculos Sinuosos Prasinum";
+"Prasinum Sinuous Tubers" = "Tubiformes Sinuosos Prasinum";
 
 /* In files: util.py:343:343 */
-"Albidum Sinuous Tubers" = "Tubérculos Sinuosos Albidum";
+"Albidum Sinuous Tubers" = "Tubiformes Sinuosos Albidum";
 
 /* In files: util.py:345:345 */
-"Caeruleum Sinuous Tubers" = "Tubérculos Sinuosos Caeruleum";
+"Caeruleum Sinuous Tubers" = "Tubiformes Sinuosos Caeruleum";
 
 /* In files: util.py:347:347 */
-"Lindigoticum Sinuous Tubers" = "Tubérculos Sinuosos Lindigoticum";
+"Lindigoticum Sinuous Tubers" = "Tubiformes Sinuosos Lindigoticum";
 
 /* In files: util.py:349:349 */
-"Violaceum Sinuous Tubers" = "Tubérculos Sinuosos Violaceum";
+"Violaceum Sinuous Tubers" = "Tubiformes Sinuosos Violaceum";
 
 /* In files: util.py:351:351 */
-"Viride Sinuous Tubers" = "Tubérculos Sinuosos Viride";
+"Viride Sinuous Tubers" = "Tubiformes Sinuosos Viride";
 
 /* In files: util.py:353:353 */
-"Blatteum Sinuous Tubers" = "Tubérculos Sinuosos Blatteum";
+"Blatteum Sinuous Tubers" = "Tubiformes Sinuosos Blatteum";
 
 /* In files: util.py:355:355 */
-"Tubus Conifer" = "Tubo Conifer";
+"Tubus Conifer" = "Tubus Conifer";
 
 /* In files: util.py:357:357 */
-"Tubus Sororibus" = "Tubo Sororibus";
+"Tubus Sororibus" = "Tubus Sororibus";
 
 /* In files: util.py:359:359 */
-"Tubus Cavas" = "Tubo Cavas";
+"Tubus Cavas" = "Tubus Cavas";
 
 /* In files: util.py:361:361 */
-"Tubus Rosarium" = "Tubo Rosarium";
+"Tubus Rosarium" = "Tubus Rosarium";
 
 /* In files: util.py:363:363 */
-"Tubus Compagibus" = "Tubo Compagibus";
+"Tubus Compagibus" = "Tubus Compagibus";
 
 /* In files: util.py:365:365 */
-"Tussock Pennata" = "Tussock Pennata";
+"Tussock Pennata" = "Tusoc Pennata";
 
 /* In files: util.py:367:367 */
-"Tussock Ventusa" = "Tussock Ventusa";
+"Tussock Ventusa" = "Tusoc Ventusa";
 
 /* In files: util.py:369:369 */
-"Tussock Ignis" = "Tussock Ignis";
+"Tussock Ignis" = "Tusoc Ignis";
 
 /* In files: util.py:371:371 */
-"Tussock Cultro" = "Tussock Cultro";
+"Tussock Cultro" = "Tusoc Cultro";
 
 /* In files: util.py:373:373 */
-"Tussock Catena" = "Tussock Catena";
+"Tussock Catena" = "Tusoc Catena";
 
 /* In files: util.py:375:375 */
-"Tussock Pennatis" = "Tussock Pennatis";
+"Tussock Pennatis" = "Tusoc Pennatis";
 
 /* In files: util.py:377:377 */
-"Tussock Serrati" = "Tussock Serrati";
+"Tussock Serrati" = "Tusoc Serrati";
 
 /* In files: util.py:379:379 */
-"Tussock Albata" = "Tussock Albata";
+"Tussock Albata" = "Tusoc Albata";
 
 /* In files: util.py:381:381 */
-"Tussock Propagito" = "Tussock Propagito";
+"Tussock Propagito" = "Tusoc Propagito";
 
 /* In files: util.py:383:383 */
-"Tussock Divisa" = "Tussock Divisa";
+"Tussock Divisa" = "Tusoc Divisa";
 
 /* In files: util.py:385:385 */
-"Tussock Caputus" = "Tussock Caputus";
+"Tussock Caputus" = "Tusoc Caputus";
 
 /* In files: util.py:387:387 */
-"Tussock Triticum" = "Tussock Triticum";
+"Tussock Triticum" = "Tusoc Triticum";
 
 /* In files: util.py:389:389 */
-"Tussock Stigmasis" = "Tussock Stigmasis";
+"Tussock Stigmasis" = "Tusoc Stigmasis";
 
 /* In files: util.py:391:391 */
-"Tussock Virgam" = "Tussock Virgam";
+"Tussock Virgam" = "Tusoc Virgam";
 
 /* In files: util.py:393:393 */
-"Tussock Capillum" = "Tussock Capillum";
+"Tussock Capillum" = "Tusoc Capillum";
 
 /* load.py: ExploData DB migration threw an error; In files: load.py:101:101 */
 "BioScan: DB Migration Failed" = "BioScan: Error de migración de DB";
@@ -640,84 +664,87 @@
 /* load.py: Version update hyperlink message; In files: load.py:147:147 */
 "Version {} is now available" = "La versión {} ya está disponible";
 
-/* load.py: Label for journal parsing progress indicator; In files: load.py:275:275; load.py:289:289 */
+/* load.py: Label for journal parsing progress indicator; In files: load.py:279:279; load.py:293:293 */
 "Parsing Journals" = "Análisis de Diarios";
 
-/* load.py: Journal parsing error message (line 1); In files: load.py:301:301 */
+/* load.py: Journal parsing error message (line 1); In files: load.py:305:305 */
 "Error During Journal Parse" = "Error al Analizar el Diario";
 
-/* load.py: Journal parsing error message (line 2); In files: load.py:303:303 */
+/* load.py: Journal parsing error message (line 2); In files: load.py:307:307 */
 "Please Submit a Report" = "Por Favor Envíe un Informe";
 
-/* load.py: Located scan level (0/3); In files: load.py:341:341 */
+/* load.py: Located scan level (0/3); In files: load.py:345:345 */
 "Located" = "Situado";
 
-/* load.py: Logged scan level (1/3); In files: load.py:343:343 */
+/* load.py: Logged scan level (1/3); In files: load.py:347:347 */
 "Logged" = "Registrado";
 
-/* load.py: Sampled scan level (2/3); In files: load.py:345:345 */
+/* load.py: Sampled scan level (2/3); In files: load.py:349:349 */
 "Sampled" = "Muestreado";
 
-/* load.py: Bio scans completed indicator label; load.py: Analysed scan level (3/3); In files: load.py:347:347; load.py:1637:1637 */
+/* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:351:351; load.py:1642:1642 */
 "Analysed" = "Analizado";
 
-/* load.py: Unknown scan level; In files: load.py:348:348 */
+/* load.py: Unknown scan level; In files: load.py:352:352 */
 "Unknown" = "Desconocido";
 
-/* load.py: Scan complete status text; In files: load.py:1368:1368 */
+/* load.py: Meters unit; In files: load.py:1351:1351 */
+"m" = "m";
+
+/* load.py: Scan complete status text; In files: load.py:1373:1373 */
 "Complete" = "Completo";
 
-/* load.py: All scans complete status text; In files: load.py:1407:1407; load.py:1409:1409 */
+/* load.py: All scans complete status text; In files: load.py:1412:1412; load.py:1414:1414 */
 "All Samples Complete" = "Todas las Muestras Completas";
 
-/* load.py: Indicator for multiple possible bio variants; In files: load.py:1441:1441 */
+/* load.py: Indicator for multiple possible bio variants; In files: load.py:1446:1446 */
 "Multiple Possible" = "Múltiples Posibles";
 
-/* load.py: Nearest waypoint text; In files: load.py:1455:1455; load.py:1669:1669 */
+/* load.py: Nearest waypoint text; In files: load.py:1460:1460; load.py:1674:1674 */
 "Nearest Saved Waypoint" = "Punto de Ruta Guardado más Cercano";
 
-/* load.py: Predicted bio not located label; In files: load.py:1460:1460 */
+/* load.py: Predicted bio not located label; In files: load.py:1465:1465 */
 "Not located" = "No ubicado";
 
-/* load.py: Basic scan data messages; In files: load.py:1500:1500 */
+/* load.py: Basic scan data messages; In files: load.py:1505:1505 */
 "! Basic Scan Detected !" = "! Escaneo Básico Detectado !";
 
-/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1502:1502 */
+/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1507:1507 */
 "FSS / DSS / AutoScan Needed" = "FSS / DSS / Autoescaneo Necesario";
 
-/* load.py: Body signal display; In files: load.py:1506:1506 */
+/* load.py: Body signal display; In files: load.py:1511:1511 */
 "Signals" = "Señales";
 
-/* load.py: Body signal display; In files: load.py:1506:1506 */
+/* load.py: Body signal display; In files: load.py:1511:1511 */
 "Signal" = "Señal";
 
-/* load.py: Possible types label for body signal diplay; In files: load.py:1507:1507 */
+/* load.py: Possible types label for body signal diplay; In files: load.py:1512:1512 */
 "Possible Types" = "Tipos Posibles";
 
-/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1550:1550 */
+/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1555:1555 */
 "AutoScan/NavBeacon Data, Bios Possible" = "Autoescaneo/BalizaNav Datos, Bios Posible";
 
-/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1553:1553 */
+/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1558:1558 */
 "Check FSS for Signals (or DSS)" = "Comprobar FSS para Señales (o DSS)";
 
-/* load.py: Startup message before data has been processed; In files: load.py:1571:1571 */
+/* load.py: Startup message before data has been processed; In files: load.py:1576:1576 */
 "BioScan: Awaiting Data" = "BioScan: Esperando Datos";
 
-/* load.py: General BioScan prediction title label; In files: load.py:1608:1608 */
+/* load.py: General BioScan prediction title label; In files: load.py:1613:1613 */
 "BioScan Predictions" = "BioScan Predicciones";
 
-/* load.py: Scan in progress indicator; In files: load.py:1659:1659 */
+/* load.py: Scan in progress indicator; In files: load.py:1664:1664 */
 "In Progress" = "En Curso";
 
-/* load.py: Analysed samples list label; In files: load.py:1674:1674 */
+/* load.py: Analysed samples list label; In files: load.py:1679:1679 */
 "Analysed System Samples" = "Muestras del Sistema Analizadas";
 
-/* load.py: No signals found in current system; In files: load.py:1681:1681 */
+/* load.py: No signals found in current system; In files: load.py:1686:1686 */
 "BioScan: No Signals Found" = "BioScan: No se Encontraron Señales";
 
-/* load.py: Overlay details label; In files: load.py:1696:1696 */
+/* load.py: Overlay details label; In files: load.py:1701:1701 */
 "BioScan Details" = "Detalles de BioScan";
 
-/* load.py: Overlay no signals label; In files: load.py:1709:1709 */
+/* load.py: Overlay no signals label; In files: load.py:1714:1714 */
 "BioScan: No Signals" = "BioScan: Sin Señales";
 

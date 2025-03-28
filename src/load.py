@@ -179,6 +179,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
 
     config.set('bioscan_shorten_credits', this.credits_setting.get())
     this.formatter.set_shorten(this.credits_setting.get())
+    this.formatter.set_locale(config.get_str('language'))
     config.set('bioscan_focus', this.focus_setting.get())
     config.set('bioscan_focus_distance', this.focus_distance.get())
     config.set('bioscan_focus_breakdown', this.focus_breakdown.get())
@@ -208,6 +209,7 @@ def parse_config(cmdr: str = '') -> None:
 
     this.credits_setting = tk.BooleanVar(value=config.get_bool(key='bioscan_shorten_credits', default=False))
     this.formatter.set_shorten(this.credits_setting.get())
+    this.formatter.set_locale(config.get_str('language'))
     this.focus_setting = tk.StringVar(value=config.get_str(key='bioscan_focus', default='On Approach'))
     this.focus_distance = tk.IntVar(value=config.get_int(key='bioscan_focus_distance', default=5000))
     this.focus_breakdown = tk.BooleanVar(value=config.get_bool(key='bioscan_focus_breakdown', default=False))
@@ -230,6 +232,8 @@ def parse_config(cmdr: str = '') -> None:
         value=float(config.get_str(key='bioscan_overlay_detail_delay', default=10.0)))
     if cmdr:
         this.ship_whitelist = config.get_list(key=f'bioscan_ship_whitelist_{cmdr.lower()}', default=[])
+
+
 
 
 def version_check() -> str:
@@ -1343,7 +1347,8 @@ def get_nearest(genus: str, waypoints: list[Waypoint]) -> str:
 
         if len(distances):
             distance, bearing = sorted(distances, key=lambda item: item[0])[0]
-            distance_formatted = this.formatter.format_distance(int(distance), 'm', False)
+            # LANG: Meters unit
+            distance_formatted = this.formatter.format_distance(int(distance), tr.tl('m', this.translation_context), False)
             bearing_diff = abs(bearing - this.planet_heading) % 360
             bearing_diff = 360 - bearing_diff if bearing_diff > 180 else bearing_diff
             bearing_diff = bearing_diff if (this.planet_heading + bearing_diff) % 360 == bearing else bearing_diff * -1
