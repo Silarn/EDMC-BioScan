@@ -20,6 +20,7 @@ from tkinter import ttk
 
 # Local imports
 import bio_scan.const
+from bio_scan.format_util import Formatter
 from bio_scan.globals import bioscan_globals as this
 from bio_scan.nebula_data.reference_stars import get_nearest_nebula
 from bio_scan.nebula_data.sectors import data as nebula_sectors
@@ -60,6 +61,8 @@ from ExploData.explo_data.RegionMapData import regions as galaxy_regions
 
 this.translation_context = os.path.dirname(__file__)
 logger = get_plugin_logger(this.NAME)
+
+this.formatter = Formatter()
 
 
 def plugin_start3(plugin_dir: str) -> str:
