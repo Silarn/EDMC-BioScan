@@ -731,7 +731,7 @@
 "BioScan: Awaiting Data" = "BioScan: Esperando Datos";
 
 /* load.py: General BioScan prediction title label; In files: load.py:1613:1613 */
-"BioScan Predictions" = "BioScan Predicciones";
+"BioScan Predictions" = "Predicciones de BioScan";
 
 /* load.py: Scan in progress indicator; In files: load.py:1664:1664 */
 "In Progress" = "En Curso";
