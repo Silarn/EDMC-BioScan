@@ -8,13 +8,13 @@
 "R" = "R";
 
 /* In files: util.py:24:24 */
-"RI" = "GR";
+"RI" = "RG";
 
 /* In files: util.py:26:26 */
 "MR" = "RM";
 
 /* In files: util.py:28:28 */
-"HMC" = "HTM";
+"HMC" = "AM";
 
 /* format_util.py: Credits unit; In files: format_util.py:7:7 */
 "Cr" = "Cr";
@@ -44,7 +44,7 @@
 "Enable Debug Logging" = "Activer la Journalisation de Débogage";
 
 /* settings.py: Body focus filter settings title; In files: settings.py:105:105 */
-"Focus Body Signals: (?)" = "Concentrer les Signaux Corporels: (?)";
+"Focus Body Signals: (?)" = "Concentrer les Signaux Corporels : (?)";
 
 /* settings.py: Tooltip text for body focus filter settings #1; In files: settings.py:111:111 */
 "This setting controls when the prediction details should display." = "Ce paramètre contrôle le moment où les détails de la prédiction doivent s'afficher.";
@@ -53,16 +53,16 @@
 "When filtered, you will only see details for the bio signals relevant to your current location." = "Une fois filtré, vous ne verrez que les détails des signaux biologiques pertinents pour votre emplacement actuel.";
 
 /* settings.py: Settings explanation for body focus filter options (dropdown options (e.g. On Approach) should not be translated); In files: settings.py:130:130 */
-"Never: Never filter signal details" = "Never: Ne jamais filtrer les détails du signal";
+"Never: Never filter signal details" = "Never : Ne jamais filtrer les détails du signal";
 
 /* In files: settings.py:131:131 */
-"On Approach: Show only local signals on approach" = "On Approach: Afficher uniquement les signaux locaux à l'approche";
+"On Approach: Show only local signals on approach" = "On Approach : Afficher uniquement les signaux locaux à l'approche";
 
 /* In files: settings.py:132:132 */
-"Near Surface: Show signals under given altitude (see below)" = "Near Surface: Afficher les signaux sous une altitude donnée (voir ci-dessous)";
+"Near Surface: Show signals under given altitude (see below)" = "Near Surface : Afficher les signaux sous une altitude donnée (voir ci-dessous)";
 
 /* In files: settings.py:133:133 */
-"On Surface: Show only local signals when on surface" = "On Surface: Afficher les signaux locaux uniquement en surface";
+"On Surface: Show only local signals when on surface" = "On Surface : Afficher les signaux locaux uniquement en surface";
 
 /* In files: settings.py:136:136 */
 "Altitude (in meters) for "Near Surface":" = "Altitude (en mètres) pour « Near Surface »:";
@@ -74,40 +74,40 @@
 "Shorten credits displays (eg. 19.8 MCr)" = "Raccourcir les affichages des crédits (ex. 19,8 MCr)";
 
 /* In files: settings.py:155:155 */
-"Exclude bodies with fewer than x signals:" = "Exclure les corps avec moins de x signaux:";
+"Exclude bodies with fewer than x signals:" = "Exclure les corps avec moins de x signaux :";
 
 /* In files: settings.py:162:162 */
-"Scrollbox height (px):" = "Hauteur de la zone de défilement (px):";
+"Scrollbox height (px):" = "Hauteur de la zone de défilement (px) :";
 
 /* In files: settings.py:175:175 */
-"Display Signal Summary: (?)" = "Display Signal Summary: (?)";
+"Display Signal Summary: (?)" = "Afficher le Résumé du Signal : (?)";
 
 /* settings.py: Signal summary tooltip line 1; In files: settings.py:181:181 */
-"This option determines when to display the signal summary at the top of the pane." = "This option determines when to display the signal summary at the top of the pane.";
+"This option determines when to display the signal summary at the top of the pane." = "Cette option détermine quand afficher le résumé du signal en haut du volet.";
 
 /* settings.py: Signal summary tooltip line 2; In files: settings.py:183:183 */
-"eg. B 1 (R): 5  ⬦ B 2 (HMC): 2" = "ex. B 1 (R): 5 ⬦ B 2 (HTM): 2";
+"eg. B 1 (R): 5  ⬦ B 2 (HMC): 2" = "ex. B 1 (R) : 5 ⬦ B 2 (AM) : 2";
 
 /* In files: settings.py:197:197 */
-"Always: Always display the body signal summary" = "Always: Toujours afficher le résumé des signaux corporels";
+"Always: Always display the body signal summary" = "Always : Toujours afficher le résumé des signaux corporels";
 
 /* In files: settings.py:198:198 */
-"In Flight: Show the signal summary in flight only" = "In Flight: Afficher le résumé du signal uniquement en vol";
+"In Flight: Show the signal summary in flight only" = "In Flight : Afficher le résumé du signal uniquement en vol";
 
 /* settings.py: Label for options pertaining to completed scans; In files: settings.py:205:205 */
-"Completed Scan Display: (?)" = "Affichage de L'Analyse Terminée: (?)";
+"Completed Scan Display: (?)" = "Affichage de L'Analyse Terminée : (?)";
 
 /* settings.py: Tooltip for 'Completed Scan Display' label; In files: settings.py:211:211 */
 "This option determines how to display species that have been fully scanned." = "Cette option détermine comment afficher les espèces qui ont été entièrement analysées.";
 
 /* In files: settings.py:226:226 */
-"Check: Always show species with a checkmark when complete" = "Check: Toujours afficher les espèces avec une coche une fois terminées";
+"Check: Always show species with a checkmark when complete" = "Check : Toujours afficher les espèces avec une coche une fois terminées";
 
 /* In files: settings.py:227:227 */
-"Hide: Always hide completed species" = "Hide: Toujours masquer les espèces complétées";
+"Hide: Always hide completed species" = "Hide : Toujours masquer les espèces complétées";
 
 /* In files: settings.py:228:228 */
-"Hide in System: Hide completed species in the full system view" = "Hide in System: Masquer les espèces terminées dans la vue complète du système";
+"Hide in System: Hide completed species in the full system view" = "Hide in System : Masquer les espèces terminées dans la vue complète du système";
 
 /* In files: settings.py:234:234 */
 "Enable species waypoints with the comp. scanner" = "Activer les points de cheminement des espèces avec le scanner de comp.";
@@ -125,7 +125,7 @@
 "Text Color" = "Couleur du Texte";
 
 /* In files: settings.py:346:346 */
-"Ship Whitelist (?)" = "Liste Blanche des Davires (?)";
+"Ship Whitelist (?)" = "Liste Blanche des Navires (?)";
 
 /* In files: settings.py:352:352 */
 "Ships added to this list will display BioScan on the overlay." = "Les navires ajoutés à cette liste afficheront BioScan sur la superposition.";
@@ -236,13 +236,13 @@
 "Rocky body" = "Corps rocheux";
 
 /* util.py: Body type rocky ice body; In files: util.py:95:95 */
-"Rocky ice body" = "Corps de glace rocheux";
+"Rocky ice body" = "Corps rocheuse glacé";
 
 /* util.py: Body type metal rich body; In files: util.py:97:97 */
-"Metal rich body" = "Corps riche en métal";
+"Metal rich body" = "Corps riche en métaux";
 
 /* util.py: Body type high metal content body; In files: util.py:99:99 */
-"High metal content body" = "Corps à haute teneur en métal";
+"High metal content body" = "Corps abondant en métaux";
 
 /* util.py: Genus aleoida; In files: util.py:113:113 */
 "Aleoida" = "Aleoida";
@@ -323,28 +323,28 @@
 "Aleoida Gravis" = "Aleoida Gravis";
 
 /* In files: util.py:177:177 */
-"Luteolum Anemone" = "Luteolum Anemone";
+"Luteolum Anemone" = "Anémone Luteolum";
 
 /* In files: util.py:179:179 */
-"Croceum Anemone" = "Croceum Anemone";
+"Croceum Anemone" = "Anémone Croceum";
 
 /* In files: util.py:181:181 */
-"Puniceum Anemone" = "Puniceum Anemone";
+"Puniceum Anemone" = "Anémone Puniceum";
 
 /* In files: util.py:183:183 */
-"Roseum Anemone" = "Roseum Anemone";
+"Roseum Anemone" = "Anémone Roseum";
 
 /* In files: util.py:185:185 */
-"Rubeum Bioluminescent Anemone" = "Rubeum Bioluminescent Anemone";
+"Rubeum Bioluminescent Anemone" = "Anémone Bioluminescente Rubeum";
 
 /* In files: util.py:187:187 */
-"Prasinum Bioluminescent Anemone" = "Prasinum Bioluminescent Anemone";
+"Prasinum Bioluminescent Anemone" = "Anémone Bioluminescente Prasinum";
 
 /* In files: util.py:189:189 */
-"Roseum Bioluminescent Anemone" = "Roseum Bioluminescent Anemone";
+"Roseum Bioluminescent Anemone" = "Anémone Bioluminescente Roseum";
 
 /* In files: util.py:191:191 */
-"Blatteum Bioluminescent Anemone" = "Blatteum Bioluminescent Anemone";
+"Blatteum Bioluminescent Anemone" = "Anémone Bioluminescente Blatteum";
 
 /* In files: util.py:193:193 */
 "Bacterium Aurasus" = "Bacterium Aurasus";
@@ -386,28 +386,28 @@
 "Bacterium Verrata" = "Bacterium Verrata";
 
 /* In files: util.py:219:219 */
-"Roseum Brain Tree" = "Roseum Brain Tree";
+"Roseum Brain Tree" = "Céphalobore Roseum";
 
 /* In files: util.py:221:221 */
-"Gypseeum Brain Tree" = "Gypseeum Brain Tree";
+"Gypseeum Brain Tree" = "Céphalobore Gypseeum";
 
 /* In files: util.py:223:223 */
-"Ostrinum Brain Tree" = "Ostrinum Brain Tree";
+"Ostrinum Brain Tree" = "Céphalobore Ostrinum";
 
 /* In files: util.py:225:225 */
-"Viride Brain Tree" = "Viride Brain Tree";
+"Viride Brain Tree" = "Céphalobore Viride";
 
 /* In files: util.py:227:227 */
-"Aureum Brain Tree" = "Aureum Brain Tree";
+"Aureum Brain Tree" = "Céphalobore Aureum";
 
 /* In files: util.py:229:229 */
-"Puniceum Brain Tree" = "Puniceum Brain Tree";
+"Puniceum Brain Tree" = "Céphalobore Puniceum";
 
 /* In files: util.py:231:231 */
-"Lindigoticum Brain Tree" = "Lindigoticum Brain Tree";
+"Lindigoticum Brain Tree" = "Céphalobore Lindigoticum";
 
 /* In files: util.py:233:233 */
-"Lividum Brain Tree" = "Lividum Brain Tree";
+"Lividum Brain Tree" = "Céphalobore Lividum";
 
 /* In files: util.py:235:235 */
 "Cactoida Cortexum" = "Cactoida Cortexum";
@@ -650,101 +650,101 @@
 "Tussock Capillum" = "Touradon Capillum";
 
 /* load.py: ExploData DB migration threw an error; In files: load.py:101:101 */
-"BioScan: DB Migration Failed" = "BioScan: DB Migration Failed";
+"BioScan: DB Migration Failed" = "BioScan : Échec Migration BD";
 
 /* load.py: Hyperlink text for GitHub issue creation; In files: load.py:104:104 */
-"Please Check or Submit an Issue" = "Please Check or Submit an Issue";
+"Please Check or Submit an Issue" = "Veuillez Vérifier ou Soumettre un Problème";
 
 /* load.py: Warning text for mismatched ExploData database version; In files: load.py:109:109 */
-"BioScan: Database Mismatch" = "BioScan: Database Mismatch";
+"BioScan: Database Mismatch" = "BioScan : Incompatibilité de la Base de Données";
 
 /* load.py: Latest release hyperlink text for database mismatch; In files: load.py:112:112 */
-"BioScan/ExploData Version Mismatch" = "BioScan/ExploData Version Mismatch";
+"BioScan/ExploData Version Mismatch" = "Incompatibilité de Version Entre BioScan / ExploData";
 
 /* load.py: Version update hyperlink message; In files: load.py:147:147 */
-"Version {} is now available" = "Version {} is now available";
+"Version {} is now available" = "La version {} est maintenant disponible";
 
 /* load.py: Label for journal parsing progress indicator; In files: load.py:279:279; load.py:293:293 */
-"Parsing Journals" = "Parsing Journals";
+"Parsing Journals" = "Analyse des Journaux";
 
 /* load.py: Journal parsing error message (line 1); In files: load.py:305:305 */
-"Error During Journal Parse" = "Error During Journal Parse";
+"Error During Journal Parse" = "Erreur Lors de L'Analyse du Journal";
 
 /* load.py: Journal parsing error message (line 2); In files: load.py:307:307 */
-"Please Submit a Report" = "Please Submit a Report";
+"Please Submit a Report" = "Veuillez Soumettre un Rapport";
 
 /* load.py: Located scan level (0/3); In files: load.py:345:345 */
-"Located" = "Located";
+"Located" = "Situé";
 
 /* load.py: Logged scan level (1/3); In files: load.py:347:347 */
-"Logged" = "Logged";
+"Logged" = "Enregistré";
 
 /* load.py: Sampled scan level (2/3); In files: load.py:349:349 */
-"Sampled" = "Sampled";
+"Sampled" = "Échantillonné";
 
 /* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:351:351; load.py:1642:1642 */
-"Analysed" = "Analysed";
+"Analysed" = "Analysé";
 
 /* load.py: Unknown scan level; In files: load.py:352:352 */
-"Unknown" = "Unknown";
+"Unknown" = "Inconnu";
 
 /* load.py: Meters unit; In files: load.py:1351:1351 */
 "m" = "m";
 
 /* load.py: Scan complete status text; In files: load.py:1373:1373 */
-"Complete" = "Complete";
+"Complete" = "Complet";
 
 /* load.py: All scans complete status text; In files: load.py:1412:1412; load.py:1414:1414 */
-"All Samples Complete" = "All Samples Complete";
+"All Samples Complete" = "Tous les Échantillons sont Complets";
 
 /* load.py: Indicator for multiple possible bio variants; In files: load.py:1446:1446 */
-"Multiple Possible" = "Multiple Possible";
+"Multiple Possible" = "Plusieurs Possibles";
 
 /* load.py: Nearest waypoint text; In files: load.py:1460:1460; load.py:1674:1674 */
-"Nearest Saved Waypoint" = "Nearest Saved Waypoint";
+"Nearest Saved Waypoint" = "Point de Cheminement Enregistré le Plus Proche";
 
 /* load.py: Predicted bio not located label; In files: load.py:1465:1465 */
-"Not located" = "Not located";
+"Not located" = "Non situé";
 
 /* load.py: Basic scan data messages; In files: load.py:1505:1505 */
-"! Basic Scan Detected !" = "! Basic Scan Detected !";
+"! Basic Scan Detected !" = "! Analyse de Base Détectée !";
 
 /* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1507:1507 */
-"FSS / DSS / AutoScan Needed" = "FSS / DSS / AutoScan Needed";
+"FSS / DSS / AutoScan Needed" = "ACS / DSD / AutoScan Needed";
 
 /* load.py: Body signal display; In files: load.py:1511:1511 */
-"Signals" = "Signals";
+"Signals" = "Signaux";
 
 /* load.py: Body signal display; In files: load.py:1511:1511 */
 "Signal" = "Signal";
 
 /* load.py: Possible types label for body signal diplay; In files: load.py:1512:1512 */
-"Possible Types" = "Possible Types";
+"Possible Types" = "Types Possibles";
 
 /* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1555:1555 */
-"AutoScan/NavBeacon Data, Bios Possible" = "AutoScan/NavBeacon Data, Bios Possible";
+"AutoScan/NavBeacon Data, Bios Possible" = "Données de AnalyseAuto/BaliseNav, Bios Possibles";
 
 /* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1558:1558 */
-"Check FSS for Signals (or DSS)" = "Check FSS for Signals (or DSS)";
+"Check FSS for Signals (or DSS)" = "Vérifiez le ACS pour les Signaux (ou DSD)";
 
 /* load.py: Startup message before data has been processed; In files: load.py:1576:1576 */
-"BioScan: Awaiting Data" = "BioScan: Awaiting Data";
+"BioScan: Awaiting Data" = "BioScan : En Attente de Données";
 
 /* load.py: General BioScan prediction title label; In files: load.py:1613:1613 */
-"BioScan Predictions" = "BioScan Predictions";
+"BioScan Predictions" = "Prédictions BioScan";
 
 /* load.py: Scan in progress indicator; In files: load.py:1664:1664 */
-"In Progress" = "In Progress";
+"In Progress" = "En Cours";
 
 /* load.py: Analysed samples list label; In files: load.py:1679:1679 */
-"Analysed System Samples" = "Analysed System Samples";
+"Analysed System Samples" = "Échantillons de Système Analysés";
 
 /* load.py: No signals found in current system; In files: load.py:1686:1686 */
-"BioScan: No Signals Found" = "BioScan: No Signals Found";
+"BioScan: No Signals Found" = "BioScan : Aucun Signal Détecté";
 
 /* load.py: Overlay details label; In files: load.py:1701:1701 */
-"BioScan Details" = "BioScan Details";
+"BioScan Details" = "Détails de BioScan";
 
 /* load.py: Overlay no signals label; In files: load.py:1714:1714 */
-"BioScan: No Signals" = "BioScan: No Signals";
+"BioScan: No Signals" = "BioScan : Aucun Signal";
 
