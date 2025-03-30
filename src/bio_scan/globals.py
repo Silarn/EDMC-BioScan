@@ -13,17 +13,16 @@ from ExploData.explo_data.body_data.struct import PlanetData, StarData
 # Local imports
 import bio_scan.const
 import bio_scan.overlay as overlay
-from bio_scan.format_util import Formatter
 
 # EDMC imports
 from ttkHyperlinkLabel import HyperlinkLabel
-
 
 class Globals:
     """Holds module globals."""
 
     def __init__(self):
-        self.formatter = Formatter()
+        self.formatter = None
+        self.translation_context = ''
 
         self.VERSION = semantic_version.Version(bio_scan.const.version)
         self.NAME = bio_scan.const.name
@@ -98,3 +97,5 @@ class Globals:
 
         # EDSM vars
         self.fetched_edsm = False
+
+bioscan_globals = Globals()

@@ -2,6 +2,10 @@ from typing import Optional
 
 from ExploData.explo_data.body_data.struct import PlanetData
 
+from l10n import translations as tr
+
+from bio_scan.globals import bioscan_globals
+
 
 def get_body_shorthand(body_type: str) -> str:
     """
@@ -10,19 +14,19 @@ def get_body_shorthand(body_type: str) -> str:
     :return: A shorthand string representing the given body type
     """
 
+    shorthand = ''
     match body_type:
         case 'Icy body':
-            return ' (I)'
+            shorthand = tr.tl('I', bioscan_globals.translation_context)
         case 'Rocky body':
-            return ' (R)'
+            shorthand = tr.tl('R', bioscan_globals.translation_context)
         case 'Rocky ice body':
-            return ' (RI)'
+            shorthand = tr.tl('RI', bioscan_globals.translation_context)
         case 'Metal rich body':
-            return ' (MR)'
+            shorthand = tr.tl('MR', bioscan_globals.translation_context)
         case 'High metal content body':
-            return ' (HMC)'
-        case _:
-            return ''
+            shorthand = tr.tl('HMC', bioscan_globals.translation_context)
+    return f' ({shorthand})'
 
 
 def body_check(required_types: list[str], bodies: dict[str, PlanetData]) -> bool:
