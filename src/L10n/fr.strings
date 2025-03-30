@@ -44,7 +44,7 @@
 "Enable Debug Logging" = "Activer la Journalisation de Débogage";
 
 /* settings.py: Body focus filter settings title; In files: settings.py:105:105 */
-"Focus Body Signals: (?)" = "Concentrer Signaux Planète : (?)";
+"Focus Bio Details List: (?)" = "Concentrez la Liste des Détails de la Bio : (?)";
 
 /* settings.py: Tooltip text for body focus filter settings #1; In files: settings.py:111:111 */
 "This setting controls when the prediction details should display." = "Ce paramètre contrôle quand les détails de la prédiction doivent s'afficher.";
@@ -131,7 +131,7 @@
 "Ships added to this list will display BioScan on the overlay." = "Les vaisseaux ajoutés à cette liste afficheront BioScan sur la superposition.";
 
 /* In files: settings.py:353:353 */
-"When empty, BioScan will display for all ships." = "Lorsqu'il est vide, BioScan s'affichera pour tous les vaisseaux.";
+"When empty, BioScan will display for all ships." = "Si vide, BioScan s'affichera pour tous les vaisseaux.";
 
 /* In files: settings.py:362:362 */
 "Add" = "Ajouter";
@@ -649,102 +649,102 @@
 /* In files: util.py:393:393 */
 "Tussock Capillum" = "Touradon Capillum";
 
-/* load.py: ExploData DB migration threw an error; In files: load.py:101:101 */
-"BioScan: DB Migration Failed" = "BioScan : Migration BD Échouée";
+/* load.py: ExploData DB migration threw an error; In files: load.py:104:104 */
+"BioScan: DB Migration Failed" = "BioScan : Échec Migration BD";
 
-/* load.py: Hyperlink text for GitHub issue creation; In files: load.py:104:104 */
+/* load.py: Hyperlink text for GitHub issue creation; In files: load.py:107:107 */
 "Please Check or Submit an Issue" = "Veuillez Vérifier ou Soumettre un Problème";
 
-/* load.py: Warning text for mismatched ExploData database version; In files: load.py:109:109 */
+/* load.py: Warning text for mismatched ExploData database version; In files: load.py:112:112 */
 "BioScan: Database Mismatch" = "BioScan : Base De Données Incohérente";
 
-/* load.py: Latest release hyperlink text for database mismatch; In files: load.py:112:112 */
+/* load.py: Latest release hyperlink text for database mismatch; In files: load.py:115:115 */
 "BioScan/ExploData Version Mismatch" = "Incohérence Entre Les Versions BioScan/ExploData";
 
-/* load.py: Version update hyperlink message; In files: load.py:147:147 */
+/* load.py: Version update hyperlink message; In files: load.py:150:150 */
 "Version {} is now available" = "Version {} est maintenant disponible";
 
-/* load.py: Label for journal parsing progress indicator; In files: load.py:279:279; load.py:293:293 */
+/* load.py: Label for journal parsing progress indicator; In files: load.py:282:282; load.py:296:296 */
 "Parsing Journals" = "Analyse Des Journaux";
 
-/* load.py: Journal parsing error message (line 1); In files: load.py:305:305 */
+/* load.py: Journal parsing error message (line 1); In files: load.py:308:308 */
 "Error During Journal Parse" = "Erreur Durant L'Analyse Du Journal";
 
-/* load.py: Journal parsing error message (line 2); In files: load.py:307:307 */
+/* load.py: Journal parsing error message (line 2); In files: load.py:310:310 */
 "Please Submit a Report" = "Veuillez Soumettre un Rapport";
 
-/* load.py: Located scan level (0/3); In files: load.py:345:345 */
+/* load.py: Located scan level (0/3); In files: load.py:348:348 */
 "Located" = "Localisé";
 
-/* load.py: Logged scan level (1/3); In files: load.py:347:347 */
+/* load.py: Logged scan level (1/3); In files: load.py:350:350 */
 "Logged" = "Enregistré";
 
-/* load.py: Sampled scan level (2/3); In files: load.py:349:349 */
+/* load.py: Sampled scan level (2/3); In files: load.py:352:352 */
 "Sampled" = "Échantillonné";
 
-/* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:351:351; load.py:1642:1642 */
+/* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:354:354; load.py:1645:1645 */
 "Analysed" = "Analysé";
 
-/* load.py: Unknown scan level; In files: load.py:352:352 */
+/* load.py: Unknown scan level; In files: load.py:355:355 */
 "Unknown" = "Inconnu";
 
-/* load.py: Meters unit; In files: load.py:1351:1351 */
+/* load.py: Meters unit; In files: load.py:1354:1354 */
 "m" = "m";
 
-/* load.py: Scan complete status text; In files: load.py:1373:1373 */
+/* load.py: Scan complete status text; In files: load.py:1376:1376 */
 "Complete" = "Complété";
 
-/* load.py: All scans complete status text; In files: load.py:1412:1412; load.py:1414:1414 */
+/* load.py: All scans complete status text; In files: load.py:1415:1415; load.py:1417:1417 */
 "All Samples Complete" = "Tous Les Échantillonnages Complétés";
 
-/* load.py: Indicator for multiple possible bio variants; In files: load.py:1446:1446 */
+/* load.py: Indicator for multiple possible bio variants; In files: load.py:1449:1449 */
 "Multiple Possible" = "Plusieurs Possibles";
 
-/* load.py: Nearest waypoint text; In files: load.py:1460:1460; load.py:1674:1674 */
+/* load.py: Nearest waypoint text; In files: load.py:1463:1463; load.py:1677:1677 */
 "Nearest Saved Waypoint" = "Point de Cheminement Sauvegardé Le Plus Proche";
 
-/* load.py: Predicted bio not located label; In files: load.py:1465:1465 */
+/* load.py: Predicted bio not located label; In files: load.py:1468:1468 */
 "Not located" = "Non localisé";
 
-/* load.py: Basic scan data messages; In files: load.py:1505:1505 */
+/* load.py: Basic scan data messages; In files: load.py:1508:1508 */
 "! Basic Scan Detected !" = "! Scan Basic Detecté !";
 
-/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1507:1507 */
+/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1510:1510 */
 "FSS / DSS / AutoScan Needed" = "ACS / DSD / AutoScan Needed";
 
-/* load.py: Body signal display; In files: load.py:1511:1511 */
+/* load.py: Body signal display; In files: load.py:1514:1514 */
 "Signals" = "Signaux";
 
-/* load.py: Body signal display; In files: load.py:1511:1511 */
+/* load.py: Body signal display; In files: load.py:1514:1514 */
 "Signal" = "Signal";
 
-/* load.py: Possible types label for body signal diplay; In files: load.py:1512:1512 */
+/* load.py: Possible types label for body signal diplay; In files: load.py:1515:1515 */
 "Possible Types" = "Types Possibles";
 
-/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1555:1555 */
+/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1558:1558 */
 "AutoScan/NavBeacon Data, Bios Possible" = "Données ScanAuto/BaliseNav, Bios Possible";
 
-/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1558:1558 */
+/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1561:1561 */
 "Check FSS for Signals (or DSS)" = "Vérifiez le ACS pour les Signaux (ou DSD)";
 
-/* load.py: Startup message before data has been processed; In files: load.py:1576:1576 */
+/* load.py: Startup message before data has been processed; In files: load.py:1579:1579 */
 "BioScan: Awaiting Data" = "BioScan : Attente des Données";
 
-/* load.py: General BioScan prediction title label; In files: load.py:1613:1613 */
+/* load.py: General BioScan prediction title label; In files: load.py:1616:1616 */
 "BioScan Predictions" = "Prédictions BioScan";
 
-/* load.py: Scan in progress indicator; In files: load.py:1664:1664 */
+/* load.py: Scan in progress indicator; In files: load.py:1667:1667 */
 "In Progress" = "En Cours";
 
-/* load.py: Analysed samples list label; In files: load.py:1679:1679 */
+/* load.py: Analysed samples list label; In files: load.py:1682:1682 */
 "Analysed System Samples" = "Échantillons du Système Analysés";
 
-/* load.py: No signals found in current system; In files: load.py:1686:1686 */
+/* load.py: No signals found in current system; In files: load.py:1689:1689 */
 "BioScan: No Signals Found" = "BioScan : Aucun Signal Trouvé";
 
-/* load.py: Overlay details label; In files: load.py:1701:1701 */
+/* load.py: Overlay details label; In files: load.py:1704:1704 */
 "BioScan Details" = "Détails BioScan";
 
-/* load.py: Overlay no signals label; In files: load.py:1714:1714 */
+/* load.py: Overlay no signals label; In files: load.py:1717:1717 */
 "BioScan: No Signals" = "BioScan : Aucun Signal";
 

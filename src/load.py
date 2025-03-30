@@ -1701,28 +1701,28 @@ def update_display() -> None:
     if this.use_overlay.get() and this.overlay.available():
         if overlay_should_display():
             if detail_text:
-                this.overlay.display("bioscan_title", tr.tl("BioScan Details", this.translation_context),  # LANG: Overlay details label
+                this.overlay.display('bioscan_title', tr.tl('BioScan Details', this.translation_context),  # LANG: Overlay details label
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                                      color=this.overlay_color.get())
                 if redraw_overlay:
-                    this.overlay.display("bioscan_details", detail_text.strip(),
+                    this.overlay.display('bioscan_details', detail_text.strip(),
                                          x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
                                          color=this.overlay_color.get(), scrolled=this.overlay_detail_scroll.get(),
                                          limit=this.overlay_detail_length.get(), delay=this.overlay_detail_delay.get())
-                this.overlay.display("bioscan_summary", text,
+                this.overlay.display('bioscan_summary', text,
                                      x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
-                                     size="large", color=this.overlay_color.get())
+                                     size='large', color=this.overlay_color.get())
             else:
                 # LANG: Overlay no signals label
-                this.overlay.display("bioscan_title", tr.tl("BioScan: No Signals", this.translation_context),
+                this.overlay.display('bioscan_title', tr.tl('BioScan: No Signals', this.translation_context),
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                                      color=this.overlay_color.get())
-                this.overlay.clear("bioscan_details")
-                this.overlay.clear("bioscan_summary")
+                this.overlay.clear('bioscan_details')
+                this.overlay.clear('bioscan_summary')
         else:
-            this.overlay.clear("bioscan_title")
-            this.overlay.clear("bioscan_details")
-            this.overlay.clear("bioscan_summary")
+            this.overlay.clear('bioscan_title')
+            this.overlay.clear('bioscan_details')
+            this.overlay.clear('bioscan_summary')
 
 
 def display_planetary_data(bodies: dict, for_focus: bool = False) -> bool:

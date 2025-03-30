@@ -102,7 +102,7 @@ def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
     left_column.rowconfigure(6, weight=1)
     signal_label = nb.Label(
         left_column,
-        text=tr.tl('Focus Body Signals: (?)', bioscan_globals.translation_context),  # LANG: Body focus filter settings title
+        text=tr.tl('Focus Bio Details List: (?)', bioscan_globals.translation_context),  # LANG: Body focus filter settings title
     )
     signal_label.grid(row=0, padx=x_padding, sticky=tk.W)
     Tooltip(

@@ -44,7 +44,7 @@
 "Enable Debug Logging" = "Activar Registro de Depuración";
 
 /* settings.py: Body focus filter settings title; In files: settings.py:105:105 */
-"Focus Body Signals: (?)" = "Cuándo Enfocar las Señales Cuerpos: (?)";
+"Focus Bio Details List: (?)" = "Cuándo Enfocar las Señales Cuerpos: (?)";
 
 /* settings.py: Tooltip text for body focus filter settings #1; In files: settings.py:111:111 */
 "This setting controls when the prediction details should display." = "Esta configuración controla cuándo deben mostrarse los detalles de la predicción.";
