@@ -233,10 +233,9 @@ def parse_config(cmdr: str = '') -> None:
     this.overlay_detail_length = tk.IntVar(value=config.get_int(key='bioscan_overlay_detail_length', default=70))
     this.overlay_detail_delay = tk.DoubleVar(
         value=float(config.get_str(key='bioscan_overlay_detail_delay', default=10.0)))
+    this.overlay.setScreenDimensions(this.frame.winfo_screenwidth(), this.frame.winfo_screenheight())
     if cmdr:
         this.ship_whitelist = config.get_list(key=f'bioscan_ship_whitelist_{cmdr.lower()}', default=[])
-
-
 
 
 def version_check() -> str:
@@ -1700,6 +1699,7 @@ def update_display() -> None:
 
     if this.use_overlay.get() and this.overlay.available():
         if overlay_should_display():
+            this.overlay.draw_circle('bioscan_radar_1', x=600, y=300, r=100, color='green', ttl=20)
             if detail_text:
                 this.overlay.display('bioscan_title', tr.tl('BioScan Details', this.translation_context),  # LANG: Overlay details label
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),

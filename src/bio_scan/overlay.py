@@ -1,3 +1,4 @@
+import math
 import sys
 import threading
 from typing import Callable
@@ -15,6 +16,10 @@ except ImportError:
 
 logger = get_plugin_logger(const.name)
 
+VIRTUAL_WIDTH = 1280.0
+VIRTUAL_HEIGHT = 1024.0
+VIRTUAL_ORIGIN_X = 20.0
+VIRTUAL_ORIGIN_Y = 40.0
 
 def setInterval(interval: float) -> Callable:
     """
@@ -39,6 +44,11 @@ def setInterval(interval: float) -> Callable:
         return wrapper
 
     return decorator
+
+
+def round_away(val):
+    val += -0.5 if val < 0 else 0.5
+    return int(val)
 
 
 class TextBlock:
@@ -74,6 +84,14 @@ class Overlay:
         self._text_blocks: dict[str, TextBlock] = {}
         self._redraw_timer = self.redraw()
         self._scroll_timer = self.scroll()
+        self._screen_width = 1920
+        self._screen_height = 1080
+        self._over_aspect_x = self._calc_aspect_x()
+
+    def setScreenDimensions(self, w: int, h: int) -> None:
+        self._screen_width = w
+        self._screen_height = h
+        self._over_aspect_x = self._calc_aspect_x()
 
     def disconnect(self) -> None:
         """
@@ -82,6 +100,12 @@ class Overlay:
 
         self._redraw_timer.set()
         self._scroll_timer.set()
+
+    def _calc_aspect_x(self) -> float:
+        return (VIRTUAL_WIDTH+32) / (VIRTUAL_HEIGHT+18) * (self._screen_height-2*VIRTUAL_ORIGIN_Y) / (self._screen_width-2*VIRTUAL_ORIGIN_X)
+
+    def _aspect(self, x: float) -> int:
+        return round_away(self._over_aspect_x * x)
 
     def display(self, message_id: str, text: str, x: int = 0, y: int = 0, color: str = "#ffffff", size: str = "normal",
                 scrolled: bool = False, limit: int = 0, delay: float = 10) -> None:
@@ -114,6 +138,27 @@ class Overlay:
         )
         if not scrolled:
             self.draw(message_id)
+
+    def draw_circle(self, message_id: str, x: int, y: int, r: int, color: str = '#ffffff', ttl = 10):
+        try:
+            points = []
+            for pie_slice in range(49):
+                x_point = x + (r * math.cos(math.radians(7.5 * pie_slice)))
+                y_point = y + (r * math.sin(math.radians(7.5 * pie_slice)))
+                points.append({
+                    'x': self._aspect(x_point),
+                    'y': int(y_point)
+                })
+            message = {'id': message_id,
+                       'shape': 'vect',
+                       'color': color,
+                       'vector': points,
+                       'ttl': ttl}
+            self._overlay.send_raw(message)
+        except AttributeError:
+            self._overlay.connect()
+        except Exception as ex:
+            logger.debug('Exception during draw', exc_info=ex)
 
     def clear(self, message_id: str, from_line: int = 0, remove: bool = True) -> None:
         """
