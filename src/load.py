@@ -210,6 +210,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_radar_anchor_y', this.radar_anchor_y.get())
     config.set('bioscan_radar_radius', this.radar_radius.get())
     config.set('bioscan_radar_max_distance', this.radar_max_distance.get())
+    config.set('bioscan_radar_use_log', this.radar_use_log.get())
     update_display()
 
 
@@ -248,6 +249,7 @@ def parse_config(cmdr: str = '') -> None:
     this.radar_anchor_y = tk.IntVar(value=config.get_int(key='bioscan_radar_anchor_y', default=110))
     this.radar_radius = tk.IntVar(value=config.get_int(key='bioscan_radar_radius', default=100))
     this.radar_max_distance = tk.IntVar(value=config.get_int(key='bioscan_radar_max_distance', default=1500))
+    this.radar_use_log = tk.BooleanVar(value=config.get_bool(key='bioscan_radar_use_log', default=False))
 
 
 def version_check() -> str:
@@ -1596,8 +1598,12 @@ def render_radar(message_id: str) -> None:
              'text': this.formatter.format_distance(this.radar_max_distance.get(), 'm', False)}
         ]
         if this.current_scan[0]:
-            distance_radius = None if bio_genus[this.current_scan[0]]['distance'] > this.radar_max_distance.get() \
-                else this.radar_radius.get() * bio_genus[this.current_scan[0]]['distance'] / this.radar_max_distance.get()
+            if this.radar_use_log.get():
+                distance_radius = None if bio_genus[this.current_scan[0]]['distance'] > this.radar_max_distance.get() \
+                    else math.log(bio_genus[this.current_scan[0]]['distance'], this.radar_max_distance.get()) * this.radar_radius.get()
+            else:
+                distance_radius = None if bio_genus[this.current_scan[0]]['distance'] > this.radar_max_distance.get() \
+                    else bio_genus[this.current_scan[0]]['distance'] / this.radar_max_distance.get() * this.radar_radius.get()
             if distance_radius:
                 radar_circles.append({'radius': distance_radius, 'color': '#fe9900'})
         radar_markers: list[dict] = []
@@ -1650,7 +1656,7 @@ def render_radar(message_id: str) -> None:
         if radar_markers:
             this.overlay.render_radar(message_id, x=this.radar_anchor_x.get(), y=this.radar_anchor_y.get(),
                                       r=this.radar_radius.get(), d=this.radar_max_distance.get(),
-                                      markers=radar_markers, circles=radar_circles)
+                                      markers=radar_markers, circles=radar_circles, logarithmic=this.radar_use_log.get())
         else:
             this.overlay.clear_radar(message_id)
 
@@ -1804,7 +1810,7 @@ def update_display() -> None:
                 this.overlay.display('bioscan_summary', text,
                                      x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
                                      size='large', color=this.overlay_color.get())
-                if this.radar_enabled.get():
+                if this.radar_enabled.get() and this.planet_longitude and text:
                     render_radar('bioscan_radar')
                 else:
                     this.overlay.clear_radar('bioscan_radar')

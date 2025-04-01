@@ -456,12 +456,12 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
         # LANG: Radar enable / disable setting
         text=tr.tl('Enable Radar', bioscan_globals.translation_context),
         variable=bioscan_globals.radar_enabled
-    ).grid(row=1, column=0, columnspan=3, padx=x_padding, sticky=tk.NW)
+    ).grid(row=1, column=0, padx=x_padding, sticky=tk.NW)
     nb.Checkbutton(radar_frame,
         # LANG: Radar ship location tracking enable / disable setting
         text=tr.tl('Enable Ship Location Tracker', bioscan_globals.translation_context),
         variable=bioscan_globals.radar_ship_loc_enabled
-    ).grid(row=1, column=1, columnspan=3, padx=x_padding, sticky=tk.NW)
+    ).grid(row=1, column=1, columnspan=2, padx=x_padding, sticky=tk.NW)
 
     radar_anchor_frame = tk.Frame(radar_frame)
     radar_anchor_frame.grid(row=2, column=0, columnspan=3, sticky=tk.NSEW)
@@ -498,6 +498,11 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
     ).grid(row=4, column=1, sticky=tk.W)
     nb.Label(radar_frame, text=tr.tl('m', bioscan_globals.translation_context)) \
         .grid(row=4, column=2, sticky=tk.W)
+    nb.Checkbutton(radar_frame,
+        # LANG: Radar ship location tracking enable / disable setting
+        text=tr.tl('Use logarithmic scaling', bioscan_globals.translation_context),
+        variable=bioscan_globals.radar_use_log
+    ).grid(row=5, column=0, columnspan=3, padx=x_padding, sticky=tk.NW)
 
     return frame
 

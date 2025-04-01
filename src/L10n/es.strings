@@ -130,13 +130,13 @@
 /* In files: settings.py:352:352 */
 "Ships added to this list will display BioScan on the overlay." = "Los barcos agregados a esta lista mostrarán BioScan en la superposición.";
 
-/* In files: settings.py:353:353 */
+/* In files: settings.py:355:355 */
 "When empty, BioScan will display for all ships." = "Cuando esté vacío, BioScan se mostrará para todos los barcos.";
 
-/* In files: settings.py:362:362 */
+/* In files: settings.py:364:364 */
 "Add" = "Añadelo";
 
-/* In files: settings.py:364:364 */
+/* In files: settings.py:366:366 */
 "Remove" = "Eliminarlo";
 
 /* In files: settings.py:366:366 */
@@ -184,8 +184,11 @@
 /* settings.py: Distance label for radar display settings; In files: settings.py:493:493 */
 "Maximum radar distance:" = "Distancia máxima del radar:";
 
-/* load.py: Meters unit; In files: settings.py:499:499; load.py:1374:1374 */
+/* load.py: Meters unit; In files: settings.py:499:499; load.py:1376:1376 */
 "m" = "m";
+
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:503:503 */
+"Use logarithmic scaling" = "Utilice escala logarítmica";
 
 /* util.py: Color amethyst; In files: util.py:31:31 */
 "Amethyst" = "Amatista";

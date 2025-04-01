@@ -54,6 +54,7 @@ class Globals:
         self.radar_anchor_y: tk.IntVar | None = None
         self.radar_radius: tk.IntVar | None = None
         self.radar_max_distance: tk.IntVar | None = None
+        self.radar_use_log: tk.BooleanVar | None = None
 
         # GUI Objects
         self.parent: tk.Frame | None = None

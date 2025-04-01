@@ -187,6 +187,9 @@
 /* load.py: Meters unit; In files: settings.py:499:499; load.py:1374:1374 */
 "m" = "m";
 
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:503:503 */
+"Use logarithmic scaling" = "Logarithmische Skalierung verwenden";
+
 /* util.py: Color amethyst; In files: util.py:31:31 */
 "Amethyst" = "Amethyst";
 

@@ -70,13 +70,14 @@ class TextBlock:
 
 
 class RadarSet:
-    def __init__(self, markers: list[dict], circles: list[dict], x: int, y: int, r: int, d: int):
+    def __init__(self, markers: list[dict], circles: list[dict], x: int, y: int, r: int, d: int, log: bool):
         self.markers: list[dict] = markers
         self.circles: list[dict] = circles
         self.x = x
         self.y = y
         self.r = r
         self.d = d
+        self.log = log
 
 
 class Overlay:
@@ -175,7 +176,7 @@ class Overlay:
             logger.debug("Exception during overlay clear", exc_info=ex)
 
     def render_radar(self, message_id: str, x: int, y: int, r: int, d: int,
-                     markers: list | None = None, circles: list | None = None) -> None:
+                     markers: list | None = None, circles: list | None = None, logarithmic: bool = False) -> None:
         """
         Render radar display, cached to refresh on a timer.
 
@@ -186,10 +187,11 @@ class Overlay:
         :param d: Max distance of radar display
         :param markers: List of markers as a dict of 'distance', 'bearing', and 'genus'
         :param circles: List of circles to draw as a dict of 'radius' and 'color'
+        :param logarithmic: Make radar scale logarithmic (default: False)
         """
 
         self.clear_radar(message_id)
-        self._markers[message_id] = RadarSet(markers, circles, x, y, r, d)
+        self._markers[message_id] = RadarSet(markers, circles, x, y, r, d, logarithmic)
         self.draw_circles(message_id)
         self.draw_markers(message_id)
 
@@ -351,7 +353,13 @@ class Overlay:
                 }
                 self._overlay.send_raw(message)
                 for item in range(len(markers)):
-                    marker_radius = r if markers[item]['distance'] > d else r * markers[item]['distance'] / d
+                    if self._markers[message_id].log:
+                        log_d = math.log(markers[item]['distance']+1, d)
+                        log_d = log_d if markers[item]['distance'] > 0 else 0
+                        marker_radius = r if log_d > 1.0 else log_d * r
+                    else:
+                        marker_radius = r if markers[item]['distance'] > self._markers[message_id].d \
+                            else r * markers[item]['distance'] / self._markers[message_id].d
                     marker_bearing = markers[item]['bearing']
                     x_point = x + (marker_radius * math.cos(math.radians(marker_bearing)))
                     y_point = y + (marker_radius * math.sin(math.radians(marker_bearing)))
