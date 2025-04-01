@@ -1,3 +1,4 @@
+import math
 from typing import Optional
 
 from ExploData.explo_data.body_data.struct import PlanetData
@@ -92,3 +93,22 @@ def star_check(star_query: str, star_type: str) -> bool:
             return star_type.startswith(star_query)
         case _:
             return star_type == star_query
+
+
+def calc_bearing(lat_long: tuple[float, float]) -> float:
+    """
+    Get the bearing angle from your current position to the target position using lat/long coordinates.
+
+    :param lat_long: The target lat/long coordinates.
+    :return: The bearing angle (from 0-359)
+    """
+
+    lat_long2 = (bioscan_globals.planet_latitude, bioscan_globals.planet_longitude)
+    phi_1 = math.radians(lat_long2[0])
+    phi_2 = math.radians(lat_long[0])
+    delta_lambda = math.radians(lat_long[1] - lat_long2[1])
+    y = math.sin(delta_lambda) * math.cos(phi_2)
+    x = math.cos(phi_1) * math.sin(phi_2) \
+        - math.sin(phi_1) * math.cos(phi_2) * math.cos(delta_lambda)
+    theta = math.atan2(y, x)
+    return (math.degrees(theta) + 360) % 360

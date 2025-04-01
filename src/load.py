@@ -27,7 +27,7 @@ from bio_scan.nebula_data.sectors import data as nebula_sectors
 from bio_scan.settings import get_settings, ship_in_whitelist, ship_sold, change_ship_name, add_ship_id, sync_ship_name
 from bio_scan.status_flags import StatusFlags2, StatusFlags
 from bio_scan.util import system_distance, translate_colors, translate_body, translate_genus, translate_species
-from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check
+from bio_scan.body_data.util import get_body_shorthand, body_check, get_gravity_warning, star_check, calc_bearing
 from bio_scan.bio_data.codex import check_codex, check_codex_from_name
 from bio_scan.bio_data.regions import region_map, guardian_nebulae, tuber_zones
 from bio_scan.bio_data.species import rules as bio_types
@@ -204,6 +204,12 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_overlay_detail_length', this.overlay_detail_length.get())
     config.set('bioscan_overlay_detail_delay', str(this.overlay_detail_delay.get()))
     config.set(f'bioscan_ship_whitelist_{cmdr.lower()}', this.ship_whitelist)
+    config.set('bioscan_radar_enabled', this.radar_enabled.get())
+    config.set('bioscan_radar_ship_loc_enabled', this.radar_ship_loc_enabled.get())
+    config.set('bioscan_radar_anchor_x', this.radar_anchor_x.get())
+    config.set('bioscan_radar_anchor_y', this.radar_anchor_y.get())
+    config.set('bioscan_radar_radius', this.radar_radius.get())
+    config.set('bioscan_radar_max_distance', this.radar_max_distance.get())
     update_display()
 
 
@@ -236,6 +242,12 @@ def parse_config(cmdr: str = '') -> None:
     this.overlay.setScreenDimensions(this.frame.winfo_screenwidth(), this.frame.winfo_screenheight())
     if cmdr:
         this.ship_whitelist = config.get_list(key=f'bioscan_ship_whitelist_{cmdr.lower()}', default=[])
+    this.radar_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_radar_enabled', default=True))
+    this.radar_ship_loc_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_radar_ship_loc_enabled', default=True))
+    this.radar_anchor_x = tk.IntVar(value=config.get_int(key='bioscan_radar_anchor_x', default=500))
+    this.radar_anchor_y = tk.IntVar(value=config.get_int(key='bioscan_radar_anchor_y', default=110))
+    this.radar_radius = tk.IntVar(value=config.get_int(key='bioscan_radar_radius', default=100))
+    this.radar_max_distance = tk.IntVar(value=config.get_int(key='bioscan_radar_max_distance', default=1500))
 
 
 def version_check() -> str:
@@ -995,9 +1007,26 @@ def journal_entry(
                 sync_ship_name(entry['ShipID'], ship_name)
             prefs_changed(cmdr, is_beta)
 
+        case 'Location':
+            if 'Latitude' in entry and 'Taxi' in entry and not entry['Taxi']:
+                this.ship_location = (entry['Latitude'], entry['Longitude'])
+
+        case 'DockSRV':
+            if not this.ship_location:
+                this.ship_location = (this.planet_latitude, this.planet_longitude)
+
+        case 'Embark' | 'Disembark':
+            if not this.ship_location:
+                if entry.get('OnPlanet', False) and not entry.get('SRV', False):
+                    this.ship_location = (this.planet_latitude, this.planet_longitude)
+
         case 'ApproachBody' | 'Touchdown' | 'Liftoff':
+            if entry['event'] == 'Liftoff':
+                this.ship_location = None
             if entry['event'] in ['Liftoff', 'Touchdown'] and entry['PlayerControlled'] is False:
                 return ''
+            if entry['event'] == 'Touchdown':
+                this.ship_location = (entry['Latitude'], entry['Longitude'])
             body_name = get_body_name(entry['Body'])
             if body_name in this.planets:
                 this.location_name = body_name
@@ -1267,25 +1296,6 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     return ''
 
 
-def calc_bearing(lat_long: tuple[float, float]) -> float:
-    """
-    Get the bearing angle from your current position to the target position using lat/long coordinates.
-
-    :param lat_long: The target lat/long coordinates.
-    :return: The bearing angle (from 0-359)
-    """
-
-    lat_long2 = (this.planet_latitude, this.planet_longitude)
-    phi_1 = math.radians(lat_long2[0])
-    phi_2 = math.radians(lat_long[0])
-    delta_lambda = math.radians(lat_long[1] - lat_long2[1])
-    y = math.sin(delta_lambda) * math.cos(phi_2)
-    x = math.cos(phi_1) * math.sin(phi_2) \
-        - math.sin(phi_1) * math.cos(phi_2) * math.cos(delta_lambda)
-    theta = math.atan2(y, x)
-    return (math.degrees(theta) + 360) % 360
-
-
 def calc_distance(lat_long: tuple[float, float], lat_long2: tuple[float, float] | None = None) -> float:
     """
     Use the haversine formula to get the distance between two points of latitude/longitude.
@@ -1307,23 +1317,34 @@ def calc_distance(lat_long: tuple[float, float], lat_long2: tuple[float, float] 
     return this.planet_radius * c
 
 
-def get_distance(lat_long: tuple[float, float] | None = None) -> float | None:
+def get_distance(lat_long: tuple[float, float] | None = None, genus: str | None = None, species: str | None = None, all: bool = False) -> float | list[float] | None:
     """
-    Get the shortest distance to a scan location for the currently-in-progress species.
+    Get all distances or the shortest distance to a scan location for a species.
+    Defaults to the currently in-progress species.
 
     :param lat_long: The lat/long coordinates to consider for the distance. Defaults to the player's location.
+    :param genus: (optional) Genus of target species
+    :param species: (optional) Species of target species
+    :param all: Return all distances or just the nearest (default: False)
     :return: The minimum distance or None if we don't have active scan info.
     """
 
+    if not (genus and species):
+        if this.current_scan[0]:
+            genus = this.current_scan[0]
+            species = this.current_scan[1]
+
     distance_list = []
     if this.planet_latitude is not None and this.planet_longitude is not None:
-        if this.location_name and this.current_scan[0]:
+        if this.location_name and genus:
             waypoints: list[Waypoint] = (this.planets[this.location_name]
-                                         .get_flora(this.current_scan[0], this.current_scan[1])[0].waypoints)
+                                         .get_flora(genus, species)[0].waypoints)
             waypoints = list(
                 filter(lambda item: item.type == 'scan' and item.commander_id == this.commander.id, waypoints))
             for waypoint in waypoints:
                 distance_list.append(calc_distance((waypoint.latitude, waypoint.longitude), lat_long))
+            if all:
+                return distance_list
             return min(distance_list, default=None)
     return None
 
@@ -1562,6 +1583,78 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
     return detail_text, value_sum
 
 
+def render_radar(message_id: str) -> None:
+    """
+    Render overlay radar display for waypoints.
+
+    :param message_id: Identifier for overlay group
+    """
+
+    if this.planet_heading and this.planet_latitude and this.planet_longitude and this.location_name in this.planets:
+        radar_circles: list[dict] = [
+            {'radius': this.radar_radius.get(), 'color': '#ffffff',
+             'text': this.formatter.format_distance(this.radar_max_distance.get(), 'm', False)}
+        ]
+        if this.current_scan[0]:
+            distance_radius = None if bio_genus[this.current_scan[0]]['distance'] > this.radar_max_distance.get() \
+                else this.radar_radius.get() * bio_genus[this.current_scan[0]]['distance'] / this.radar_max_distance.get()
+            if distance_radius:
+                radar_circles.append({'radius': distance_radius, 'color': '#fe9900'})
+        radar_markers: list[dict] = []
+        for flora in this.planets[this.location_name].get_flora():
+            scans: list[Waypoint] = list(
+                filter(
+                    lambda item: item.commander_id == this.commander.id and item.type == 'scan',
+                    flora.waypoints
+                )
+            )
+            color = '#83fef6'
+            if this.current_scan[0] and this.current_scan[0] == flora.genus:
+                color = '#fe9900'
+            for scan in scans:
+                distance = calc_distance((scan.latitude, scan.longitude))
+                bearing = calc_bearing((scan.latitude, scan.longitude))
+                bearing = bearing - 90 - this.planet_heading
+                radar_markers.append({'genus': translate_genus(bio_genus[flora.genus]['name']),
+                                        'distance': distance, 'bearing': bearing, 'color': color})
+            waypoints: list[Waypoint] = list(
+                filter(
+                    lambda item: item.commander_id == this.commander.id and item.type == 'tag',
+                    flora.waypoints
+                )
+            )
+            color = '#ffffff'
+            if this.current_scan[0] == flora.genus:
+                color = '#83fe99'
+            elif this.current_scan[0]:
+                color = '#888888'
+            for waypoint in waypoints:
+                skip = False
+                for scan in scans:
+                    if calc_distance((waypoint.latitude, waypoint.longitude), (scan.latitude, scan.longitude)) < bio_genus[flora.genus]['distance']:
+                        skip = True
+                        continue
+                if skip:
+                    continue
+                distance = calc_distance((waypoint.latitude, waypoint.longitude))
+                bearing = calc_bearing((waypoint.latitude, waypoint.longitude))
+                bearing = bearing - 90 - this.planet_heading
+                radar_markers.append({'genus': translate_genus(bio_genus[flora.genus]['name']),
+                                        'distance': distance, 'bearing': bearing, 'color': color})
+            if this.ship_location and this.radar_ship_loc_enabled.get():
+                distance = calc_distance(this.ship_location)
+                bearing = calc_bearing(this.ship_location)
+                bearing = bearing - 90 - this.planet_heading
+                radar_markers.append({'genus': 'SHIP', 'distance': distance, 'bearing': bearing, 'color': '#3bfff2'})
+
+        if radar_markers:
+            this.overlay.render_radar(message_id, x=this.radar_anchor_x.get(), y=this.radar_anchor_y.get(),
+                                      r=this.radar_radius.get(), d=this.radar_max_distance.get(),
+                                      markers=radar_markers, circles=radar_circles)
+        else:
+            this.overlay.clear_radar(message_id)
+
+
 def update_display() -> None:
     """ Primary display update function. This is run whenever something could change the display state. """
 
@@ -1699,7 +1792,6 @@ def update_display() -> None:
 
     if this.use_overlay.get() and this.overlay.available():
         if overlay_should_display():
-            this.overlay.draw_circle('bioscan_radar_1', x=600, y=300, r=100, color='green', ttl=20)
             if detail_text:
                 this.overlay.display('bioscan_title', tr.tl('BioScan Details', this.translation_context),  # LANG: Overlay details label
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
@@ -1712,6 +1804,11 @@ def update_display() -> None:
                 this.overlay.display('bioscan_summary', text,
                                      x=this.overlay_summary_x.get(), y=this.overlay_summary_y.get(),
                                      size='large', color=this.overlay_color.get())
+                if this.radar_enabled.get():
+                    render_radar('bioscan_radar')
+                else:
+                    this.overlay.clear_radar('bioscan_radar')
+
             else:
                 # LANG: Overlay no signals label
                 this.overlay.display('bioscan_title', tr.tl('BioScan: No Signals', this.translation_context),
@@ -1719,10 +1816,12 @@ def update_display() -> None:
                                      color=this.overlay_color.get())
                 this.overlay.clear('bioscan_details')
                 this.overlay.clear('bioscan_summary')
+                this.overlay.clear_radar('bioscan_radar')
         else:
             this.overlay.clear('bioscan_title')
             this.overlay.clear('bioscan_details')
             this.overlay.clear('bioscan_summary')
+            this.overlay.clear_radar('bioscan_radar')
 
 
 def display_planetary_data(bodies: dict, for_focus: bool = False) -> bool:
@@ -1749,7 +1848,7 @@ def overlay_should_display() -> bool:
     if not this.docked and not this.on_foot:
         ship_name = monitor.state['ShipName'] if monitor.state['ShipName'] else ship_name_map.get(
                 monitor.state['ShipType'], monitor.state['ShipType'])
-        if this.ship_whitelist and not ship_in_whitelist(monitor.state['ShipID'], ship_name):
+        if ship_name and this.ship_whitelist and not ship_in_whitelist(monitor.state['ShipID'], ship_name):
             result = False
         if not this.in_supercruise and this.planet_radius == 0:
             result = False

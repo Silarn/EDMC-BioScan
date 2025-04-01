@@ -1,19 +1,19 @@
 /* Language name */
 "!Language" = "Español";
 
-/* In files: util.py:20:20 */
+/* In files: util.py:21:21 */
 "I" = "H";
 
-/* In files: util.py:22:22 */
+/* In files: util.py:23:23 */
 "R" = "R";
 
-/* In files: util.py:24:24 */
+/* In files: util.py:25:25 */
 "RI" = "HR";
 
-/* In files: util.py:26:26 */
+/* In files: util.py:27:27 */
 "MR" = "RM";
 
-/* In files: util.py:28:28 */
+/* In files: util.py:29:29 */
 "HMC" = "ACM";
 
 /* format_util.py: Credits unit; In files: format_util.py:7:7 */
@@ -156,6 +156,36 @@
 
 /* In files: settings.py:427:427 */
 "Scroll delay (sec):" = "Retraso de desplazamiento (seg):";
+
+/* settings.py: Waypoint / scan radar overlay settings title; In files: settings.py:441:441 */
+"Active Scan / Waypoint Radar (?):" = "Radar de Escaneo Activo / Punto de Ruta (?):";
+
+/* settings.py: Ship overlay tooltip; Line 1; In files: settings.py:446:446 */
+"Draw a radar on the overlay when active scans and waypoints are present." = "Dibuje un radar en la superposición cuando haya escaneos y puntos de referencia activos.";
+
+/* settings.py: Ship overlay tooltip; Line 2; In files: settings.py:448:448 */
+"This displays bio markers up to a defined distance and shows a display of the minimum scan distance." = "Esto muestra biomarcadores hasta una distancia definida y muestra la distancia mínima de escaneo.";
+
+/* settings.py: Ship overlay tooltip; Line 3; In files: settings.py:450:450 */
+"This is oriented where up is the direction you're facing. The ship location can be tracked as well." = "Arriba es la dirección hacia la que miras. También se puede rastrear la ubicación del barco.";
+
+/* settings.py: Radar enable / disable setting; In files: settings.py:455:455 */
+"Enable Radar" = "Habilitar Radar";
+
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:460:460 */
+"Enable Ship Location Tracker" = "Habilitar el Rastreador de Ubicación del Barco";
+
+/* settings.py: Main label for radar x/y/radius configuration; In files: settings.py:464:464 */
+"Radar Anchor (Center Point):" = "Punto de Anclaje del Radar (Punto Central):";
+
+/* settings.py: Radius label for radar display settings; In files: settings.py:479:479 */
+"Radius" = "Radio";
+
+/* settings.py: Distance label for radar display settings; In files: settings.py:493:493 */
+"Maximum radar distance:" = "Distancia máxima del radar:";
+
+/* load.py: Meters unit; In files: settings.py:499:499; load.py:1374:1374 */
+"m" = "m";
 
 /* util.py: Color amethyst; In files: util.py:31:31 */
 "Amethyst" = "Amatista";
@@ -687,9 +717,6 @@
 
 /* load.py: Unknown scan level; In files: load.py:352:352 */
 "Unknown" = "Desconocido";
-
-/* load.py: Meters unit; In files: load.py:1351:1351 */
-"m" = "m";
 
 /* load.py: Scan complete status text; In files: load.py:1373:1373 */
 "Complete" = "Completo";

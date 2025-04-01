@@ -48,6 +48,12 @@ class Globals:
         self.overlay_detail_scroll: tk.BooleanVar | None = None
         self.overlay_detail_length: tk.IntVar | None = None
         self.overlay_detail_delay: tk.DoubleVar | None = None
+        self.radar_enabled: tk.BooleanVar | None = None
+        self.radar_ship_loc_enabled: tk.BooleanVar | None = None
+        self.radar_anchor_x: tk.IntVar | None = None
+        self.radar_anchor_y: tk.IntVar | None = None
+        self.radar_radius: tk.IntVar | None = None
+        self.radar_max_distance: tk.IntVar | None = None
 
         # GUI Objects
         self.parent: tk.Frame | None = None
@@ -79,6 +85,7 @@ class Globals:
         self.location_name: str = ''
         self.location_id: str = ''
         self.location_state: str = ''
+        self.ship_location: tuple[float, float] | None = None
         self.planet_radius: float = 0.0
         self.planet_latitude: float | None = None
         self.planet_longitude: float | None = None

@@ -24,7 +24,7 @@ class Formatter:
 
         self.shorten = value
 
-    def format_unit(self, num: float, unit: str, space: bool = True) -> str:
+    def format_unit(self, num: float, unit: str, space: bool = True, monetary: bool = True) -> str:
         """
         Number formatting. Automatically convert base unit to kilo- or mega-.
 
@@ -37,14 +37,14 @@ class Formatter:
         if num > 999999:
             # 1.3 Mu
             # LANG: Millions unit
-            s = locale.format_string('%.1f ' + tr.tl('M', bioscan_globals.translation_context), num / 1000000.0, grouping=True, monetary=True)
+            s = locale.format_string('%.2f ' + tr.tl('M', bioscan_globals.translation_context), num / 1000000.0, grouping=True, monetary=monetary)
         elif num > 999:
             # 456 ku
             # LANG: Thousands unit
-            s = locale.format_string('%.1f ' + tr.tl('k', bioscan_globals.translation_context), num / 1000.0, grouping=True, monetary=True)
+            s = locale.format_string('%.2f ' + tr.tl('k', bioscan_globals.translation_context), num / 1000.0, grouping=True, monetary=monetary)
         else:
             # 789 u
-            s = locale.format_string('%.0f ', num, grouping=True, monetary=True)
+            s = locale.format_string('%.0f ', num, grouping=True, monetary=monetary)
 
         if not space:
             s = s.replace(' ', '')
@@ -84,14 +84,14 @@ class Formatter:
         else:
             return self.format_credits(min_value, space)
 
-    def format_distance(self, ls: int, unit: str, space: bool = True) -> str:
+    def format_distance(self, distance: int, unit: str, space: bool = True) -> str:
         """
         Distance formatter.
 
-        :param ls: Base distance. (Generally lightseconds, but can be another unit.)
-        :param unit: The unit for the distance. (Defaults to ls.)
-        :param space: Whether or not to add a space before the distance unit
+        :param distance: Base distance.
+        :param unit: The unit for the distance.
+        :param space: Whether to add a space before the distance unit
         :return: Formatted distance string with specified unit
         """
 
-        return self.format_unit(ls, unit, space)
+        return self.format_unit(distance, unit, space, False)

@@ -1,19 +1,19 @@
 /* Language name */
 "!Language" = "English";
 
-/* In files: util.py:20:20 */
+/* In files: util.py:21:21 */
 "I" = "I";
 
-/* In files: util.py:22:22 */
+/* In files: util.py:23:23 */
 "R" = "R";
 
-/* In files: util.py:24:24 */
+/* In files: util.py:25:25 */
 "RI" = "RI";
 
-/* In files: util.py:26:26 */
+/* In files: util.py:27:27 */
 "MR" = "MR";
 
-/* In files: util.py:28:28 */
+/* In files: util.py:29:29 */
 "HMC" = "HMC";
 
 /* format_util.py: Credits unit; In files: format_util.py:7:7 */
@@ -124,38 +124,68 @@
 /* In files: settings.py:337:337 */
 "Text Color" = "Text Color";
 
-/* In files: settings.py:346:346 */
+/* In files: settings.py:348:348 */
 "Ship Whitelist (?)" = "Ship Whitelist (?)";
 
-/* In files: settings.py:352:352 */
+/* In files: settings.py:354:354 */
 "Ships added to this list will display BioScan on the overlay." = "Ships added to this list will display BioScan on the overlay.";
 
-/* In files: settings.py:353:353 */
+/* In files: settings.py:355:355 */
 "When empty, BioScan will display for all ships." = "When empty, BioScan will display for all ships.";
 
-/* In files: settings.py:362:362 */
+/* In files: settings.py:364:364 */
 "Add" = "Add";
 
-/* In files: settings.py:364:364 */
+/* In files: settings.py:366:366 */
 "Remove" = "Remove";
 
-/* In files: settings.py:366:366 */
+/* In files: settings.py:368:368 */
 "Clear Ships" = "Clear Ships";
 
-/* In files: settings.py:386:386 */
+/* In files: settings.py:388:388 */
 "Prediction Details Anchor:" = "Prediction Details Anchor:";
 
-/* In files: settings.py:401:401 */
+/* In files: settings.py:403:403 */
 "Summary / Progress Anchor:" = "Summary / Progress Anchor:";
 
-/* In files: settings.py:418:418 */
+/* In files: settings.py:420:420 */
 "Scroll details" = "Scroll details";
 
-/* In files: settings.py:421:421 */
+/* In files: settings.py:423:423 */
 "Maximum details length:" = "Maximum details length:";
 
-/* In files: settings.py:427:427 */
+/* In files: settings.py:429:429 */
 "Scroll delay (sec):" = "Scroll delay (sec):";
+
+/* settings.py: Waypoint / scan radar overlay settings title; In files: settings.py:443:443 */
+"Active Scan / Waypoint Radar (?):" = "Active Scan / Waypoint Radar (?):";
+
+/* settings.py: Ship overlay tooltip; Line 1; In files: settings.py:446:446 */
+"Draw a radar on the overlay when active scans and waypoints are present." = "Draw a radar on the overlay when active scans and waypoints are present.";
+
+/* settings.py: Ship overlay tooltip; Line 2; In files: settings.py:448:448 */
+"This displays bio markers up to a defined distance and shows a display of the minimum scan distance." = "This displays bio markers up to a defined distance and shows a display of the minimum scan distance.";
+
+/* settings.py: Ship overlay tooltip; Line 3; In files: settings.py:452:452 */
+"This is oriented where up is the direction you're facing. The ship location can be tracked as well." = "This is oriented where up is the direction you're facing. The ship location can be tracked as well.";
+
+/* settings.py: Radar enable / disable setting; In files: settings.py:457:457 */
+"Enable Radar" = "Enable Radar";
+
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:462:462 */
+"Enable Ship Location Tracker" = "Enable Ship Location Tracker";
+
+/* settings.py: Main label for radar x/y/radius configuration; In files: settings.py:470:470 */
+"Radar Anchor (Center Point):" = "Radar Anchor (Center Point):";
+
+/* settings.py: Radius label for radar display settings; In files: settings.py:486:486 */
+"Radius:" = "Radius:";
+
+/* settings.py: Distance label for radar display settings; In files: settings.py:493:493 */
+"Maximum radar distance:" = "Maximum radar distance:";
+
+/* load.py: Meters unit; In files: settings.py:499:499; load.py:1374:1374 */
+"m" = "m";
 
 /* util.py: Color amethyst; In files: util.py:31:31 */
 "Amethyst" = "Amethyst";
@@ -292,16 +322,16 @@
 /* util.py: Genus anemone; In files: util.py:143:143 */
 "Anemone" = "Anemone";
 
-/* util.py: Genus amphora plant; util.py: Species crystalline shards; In files: util.py:145:145; util.py:399:399 */
+/* util.py: Genus amphora plant; In files: util.py:145:145; util.py:399:399 */
 "Amphora Plant" = "Amphora Plant";
 
-/* util.py: Species crystalline shards; util.py: Genus bark mound; In files: util.py:147:147; util.py:397:397 */
+/* util.py: Genus bark mound; In files: util.py:147:147; util.py:397:397 */
 "Bark Mound" = "Bark Mound";
 
 /* util.py: Genus brain tree; In files: util.py:149:149 */
 "Brain Tree" = "Brain Tree";
 
-/* util.py: Genus crystalline shards; util.py: Species crystalline shards; In files: util.py:151:151; util.py:395:395 */
+/* util.py: Genus crystalline shards; In files: util.py:151:151; util.py:395:395 */
 "Crystalline Shards" = "Crystalline Shards";
 
 /* util.py: Genus sinuous tubers; In files: util.py:153:153 */
@@ -664,87 +694,84 @@
 /* load.py: Version update hyperlink message; In files: load.py:150:150 */
 "Version {} is now available" = "Version {} is now available";
 
-/* load.py: Label for journal parsing progress indicator; In files: load.py:282:282; load.py:296:296 */
+/* load.py: Label for journal parsing progress indicator; In files: load.py:293:293; load.py:307:307 */
 "Parsing Journals" = "Parsing Journals";
 
-/* load.py: Journal parsing error message (line 1); In files: load.py:308:308 */
+/* load.py: Journal parsing error message (line 1); In files: load.py:319:319 */
 "Error During Journal Parse" = "Error During Journal Parse";
 
-/* load.py: Journal parsing error message (line 2); In files: load.py:310:310 */
+/* load.py: Journal parsing error message (line 2); In files: load.py:321:321 */
 "Please Submit a Report" = "Please Submit a Report";
 
-/* load.py: Located scan level (0/3); In files: load.py:348:348 */
+/* load.py: Located scan level (0/3); In files: load.py:359:359 */
 "Located" = "Located";
 
-/* load.py: Logged scan level (1/3); In files: load.py:350:350 */
+/* load.py: Logged scan level (1/3); In files: load.py:361:361 */
 "Logged" = "Logged";
 
-/* load.py: Sampled scan level (2/3); In files: load.py:352:352 */
+/* load.py: Sampled scan level (2/3); In files: load.py:363:363 */
 "Sampled" = "Sampled";
 
-/* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:354:354; load.py:1645:1645 */
+/* load.py: Bio scans completed indicator label; load.py: Analysed scan level (3/3); In files: load.py:365:365; load.py:1737:1737 */
 "Analysed" = "Analysed";
 
-/* load.py: Unknown scan level; In files: load.py:355:355 */
+/* load.py: Unknown scan level; In files: load.py:366:366 */
 "Unknown" = "Unknown";
 
-/* load.py: Meters unit; In files: load.py:1354:1354 */
-"m" = "m";
-
-/* load.py: Scan complete status text; In files: load.py:1376:1376 */
+/* load.py: Scan complete status text; In files: load.py:1396:1396 */
 "Complete" = "Complete";
 
-/* load.py: All scans complete status text; In files: load.py:1415:1415; load.py:1417:1417 */
+/* load.py: All scans complete status text; In files: load.py:1435:1435; load.py:1437:1437 */
 "All Samples Complete" = "All Samples Complete";
 
-/* load.py: Indicator for multiple possible bio variants; In files: load.py:1449:1449 */
+/* load.py: Indicator for multiple possible bio variants; In files: load.py:1469:1469 */
 "Multiple Possible" = "Multiple Possible";
 
-/* load.py: Nearest waypoint text; In files: load.py:1463:1463; load.py:1677:1677 */
+/* load.py: Nearest waypoint text; In files: load.py:1483:1483; load.py:1769:1769 */
 "Nearest Saved Waypoint" = "Nearest Saved Waypoint";
 
-/* load.py: Predicted bio not located label; In files: load.py:1468:1468 */
+/* load.py: Predicted bio not located label; In files: load.py:1488:1488 */
 "Not located" = "Not located";
 
-/* load.py: Basic scan data messages; In files: load.py:1508:1508 */
+/* load.py: Basic scan data messages; In files: load.py:1528:1528 */
 "! Basic Scan Detected !" = "! Basic Scan Detected !";
 
-/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1510:1510 */
+/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1530:1530 */
 "FSS / DSS / AutoScan Needed" = "FSS / DSS / AutoScan Needed";
 
-/* load.py: Body signal display; In files: load.py:1514:1514 */
+/* load.py: Body signal display; In files: load.py:1534:1534 */
 "Signals" = "Signals";
 
-/* load.py: Body signal display; In files: load.py:1514:1514 */
+/* load.py: Body signal display; In files: load.py:1534:1534 */
 "Signal" = "Signal";
 
-/* load.py: Possible types label for body signal diplay; In files: load.py:1515:1515 */
+/* load.py: Possible types label for body signal diplay; In files: load.py:1535:1535 */
 "Possible Types" = "Possible Types";
 
-/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1558:1558 */
+/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1578:1578 */
 "AutoScan/NavBeacon Data, Bios Possible" = "AutoScan/NavBeacon Data, Bios Possible";
 
-/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1561:1561 */
+/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1581:1581 */
 "Check FSS for Signals (or DSS)" = "Check FSS for Signals (or DSS)";
 
-/* load.py: Startup message before data has been processed; In files: load.py:1579:1579 */
+/* load.py: Startup message before data has been processed; In files: load.py:1671:1671 */
 "BioScan: Awaiting Data" = "BioScan: Awaiting Data";
 
-/* load.py: General BioScan prediction title label; In files: load.py:1616:1616 */
+/* load.py: General BioScan prediction title label; In files: load.py:1708:1708 */
 "BioScan Predictions" = "BioScan Predictions";
 
-/* load.py: Scan in progress indicator; In files: load.py:1667:1667 */
+/* load.py: Scan in progress indicator; In files: load.py:1759:1759 */
 "In Progress" = "In Progress";
 
-/* load.py: Analysed samples list label; In files: load.py:1682:1682 */
+/* load.py: Analysed samples list label; In files: load.py:1774:1774 */
 "Analysed System Samples" = "Analysed System Samples";
 
-/* load.py: No signals found in current system; In files: load.py:1689:1689 */
+/* load.py: No signals found in current system; In files: load.py:1781:1781 */
 "BioScan: No Signals Found" = "BioScan: No Signals Found";
 
-/* load.py: Overlay details label; In files: load.py:1704:1704 */
+/* load.py: Overlay details label; In files: load.py:1796:1796 */
 "BioScan Details" = "BioScan Details";
 
-/* load.py: Overlay no signals label; In files: load.py:1717:1717 */
+/* load.py: Overlay no signals label; In files: load.py:1812:1812 */
 "BioScan: No Signals" = "BioScan: No Signals";
 

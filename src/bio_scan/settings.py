@@ -341,12 +341,14 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
     )
     color_button.grid(row=1, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.NW)
 
+    ttk.Separator(frame).grid(row=2, column=0, pady=y_padding * 2, sticky=tk.EW)
+
     whitelist_label = nb.Label(
         frame,
         text=tr.tl('Ship Whitelist (?)', bioscan_globals.translation_context),
         justify=tk.LEFT
     )
-    whitelist_label.grid(row=2, column=0, padx=x_padding, sticky=tk.W)
+    whitelist_label.grid(row=3, column=0, padx=x_padding, sticky=tk.W)
     Tooltip(
         whitelist_label,
         text=tr.tl('Ships added to this list will display BioScan on the overlay.', bioscan_globals.translation_context) +
@@ -357,7 +359,7 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
 
     ship_whitelist_frame = tk.Frame(frame)
     ship_whitelist_frame.grid(row=4, column=0, sticky=tk.NSEW)
-    ship_whitelist_frame.columnconfigure(1, weight=1)
+    ship_whitelist_frame.columnconfigure(2, weight=1)
 
     add_ship_button = nb.Button(ship_whitelist_frame, text=tr.tl('Add', bioscan_globals.translation_context) + f' "{ship_name}"',
                                 command=add_ship)
@@ -419,17 +421,84 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
         variable=bioscan_globals.overlay_detail_scroll
     ).grid(row=0, column=0, padx=x_padding, sticky=tk.NW)
     nb.Label(details_frame, text=tr.tl('Maximum details length:', bioscan_globals.translation_context)) \
-        .grid(row=0, column=1, sticky=tk.W)
+        .grid(row=1, column=0, sticky=tk.W)
     nb.EntryMenu(
         details_frame, text=bioscan_globals.overlay_detail_length.get(), textvariable=bioscan_globals.overlay_detail_length,
         width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=2, sticky=tk.W)
+    ).grid(row=1, column=1, sticky=tk.W)
     nb.Label(details_frame, text=tr.tl('Scroll delay (sec):', bioscan_globals.translation_context)) \
-        .grid(row=0, column=3, sticky=tk.W)
+        .grid(row=1, column=2, sticky=tk.W)
     nb.EntryMenu(
         details_frame, text=bioscan_globals.overlay_detail_delay.get(), textvariable=bioscan_globals.overlay_detail_delay,
         width=8, validate='all', validatecommand=(frame.register(is_double), '%P', '%d')
-    ).grid(row=0, column=4, sticky=tk.W)
+    ).grid(row=1, column=3, sticky=tk.W)
+
+    ttk.Separator(frame).grid(row=3, column=1, pady=y_padding * 2, sticky=tk.EW)
+
+    radar_frame = tk.Frame(frame)
+    radar_frame.grid(row=4, column=1, sticky=tk.NSEW)
+    radar_frame.columnconfigure(2, weight=1)
+
+    # LANG: Waypoint / scan radar overlay settings title
+    radar_label = nb.Label(radar_frame, text=tr.tl('Active Scan / Waypoint Radar (?):', bioscan_globals.translation_context))
+    radar_label.grid(row=0, column=0, columnspan=3, sticky=tk.W)
+    Tooltip(
+        radar_label,
+        # LANG: Ship overlay tooltip; Line 1
+        text=tr.tl('Draw a radar on the overlay when active scans and waypoints are present.', bioscan_globals.translation_context) +
+        # LANG: Ship overlay tooltip; Line 2
+             '\n\n' + tr.tl('This displays bio markers up to a defined distance and shows a display of the minimum scan distance.', bioscan_globals.translation_context) +
+             # LANG: Ship overlay tooltip; Line 3
+             '\n\n' + tr.tl('This is oriented where up is the direction you\'re facing. The ship location can be tracked as well.', bioscan_globals.translation_context),
+        waittime=1000
+    )
+    nb.Checkbutton(radar_frame,
+        # LANG: Radar enable / disable setting
+        text=tr.tl('Enable Radar', bioscan_globals.translation_context),
+        variable=bioscan_globals.radar_enabled
+    ).grid(row=1, column=0, columnspan=3, padx=x_padding, sticky=tk.NW)
+    nb.Checkbutton(radar_frame,
+        # LANG: Radar ship location tracking enable / disable setting
+        text=tr.tl('Enable Ship Location Tracker', bioscan_globals.translation_context),
+        variable=bioscan_globals.radar_ship_loc_enabled
+    ).grid(row=1, column=1, columnspan=3, padx=x_padding, sticky=tk.NW)
+
+    radar_anchor_frame = tk.Frame(radar_frame)
+    radar_anchor_frame.grid(row=2, column=0, columnspan=3, sticky=tk.NSEW)
+    radar_anchor_frame.columnconfigure(4, weight=1)
+    # LANG: Main label for radar x/y/radius configuration
+    nb.Label(radar_anchor_frame, text=tr.tl('Radar Anchor (Center Point):', bioscan_globals.translation_context)) \
+        .grid(row=2, column=0, sticky=tk.W)
+    nb.Label(radar_anchor_frame, text='X') \
+        .grid(row=2, column=1, sticky=tk.W)
+    nb.EntryMenu(
+        radar_anchor_frame, text=bioscan_globals.radar_anchor_x.get(), textvariable=bioscan_globals.radar_anchor_x,
+        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
+    ).grid(row=2, column=2, sticky=tk.W)
+    nb.Label(radar_anchor_frame, text='Y') \
+        .grid(row=2, column=3, sticky=tk.W)
+    nb.EntryMenu(
+        radar_anchor_frame, text=bioscan_globals.radar_anchor_y.get(), textvariable=bioscan_globals.radar_anchor_y,
+        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
+    ).grid(row=2, column=4, sticky=tk.W)
+
+    # LANG: Radius label for radar display settings
+    nb.Label(radar_frame, text=tr.tl('Radius:', bioscan_globals.translation_context)) \
+        .grid(row=3, column=0, sticky=tk.W)
+    nb.EntryMenu(
+        radar_frame, text=bioscan_globals.radar_radius.get(), textvariable=bioscan_globals.radar_radius,
+        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
+    ).grid(row=3, column=1, columnspan=2, sticky=tk.W)
+    # LANG: Distance label for radar display settings
+    nb.Label(radar_frame, text=tr.tl('Maximum radar distance:', bioscan_globals.translation_context)) \
+        .grid(row=4, column=0, sticky=tk.W)
+    nb.EntryMenu(
+        radar_frame, text=bioscan_globals.radar_max_distance.get(), textvariable=bioscan_globals.radar_max_distance,
+        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
+    ).grid(row=4, column=1, sticky=tk.W)
+    nb.Label(radar_frame, text=tr.tl('m', bioscan_globals.translation_context)) \
+        .grid(row=4, column=2, sticky=tk.W)
+
     return frame
 
 

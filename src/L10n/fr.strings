@@ -124,38 +124,68 @@
 /* In files: settings.py:337:337 */
 "Text Color" = "Couleur du Texte";
 
-/* In files: settings.py:346:346 */
+/* In files: settings.py:348:348 */
 "Ship Whitelist (?)" = "Liste Blanche des Vaisseaux (?)";
 
-/* In files: settings.py:352:352 */
+/* In files: settings.py:354:354 */
 "Ships added to this list will display BioScan on the overlay." = "Les vaisseaux ajoutés à cette liste afficheront BioScan sur la superposition.";
 
-/* In files: settings.py:353:353 */
+/* In files: settings.py:355:355 */
 "When empty, BioScan will display for all ships." = "Si vide, BioScan s'affichera pour tous les vaisseaux.";
 
-/* In files: settings.py:362:362 */
+/* In files: settings.py:364:364 */
 "Add" = "Ajouter";
 
-/* In files: settings.py:364:364 */
+/* In files: settings.py:366:366 */
 "Remove" = "Retirer";
 
-/* In files: settings.py:366:366 */
+/* In files: settings.py:368:368 */
 "Clear Ships" = "Effacer les Vaisseaux";
 
-/* In files: settings.py:386:386 */
+/* In files: settings.py:388:388 */
 "Prediction Details Anchor:" = "Point D'Ancrage du Détails de la Prédiction:";
 
-/* In files: settings.py:401:401 */
+/* In files: settings.py:403:403 */
 "Summary / Progress Anchor:" = "Point D’Ancrage du Résumé/Progrès:";
 
-/* In files: settings.py:418:418 */
+/* In files: settings.py:420:420 */
 "Scroll details" = "Détails de défilement";
 
-/* In files: settings.py:421:421 */
+/* In files: settings.py:423:423 */
 "Maximum details length:" = "Longueur maximale des détails:";
 
-/* In files: settings.py:427:427 */
+/* In files: settings.py:429:429 */
 "Scroll delay (sec):" = "Délai de défilement (sec):";
+
+/* settings.py: Waypoint / scan radar overlay settings title; In files: settings.py:443:443 */
+"Active Scan / Waypoint Radar (?):" = "Radar de Balayage Actif / Point de Cheminement (?) :";
+
+/* settings.py: Ship overlay tooltip; Line 1; In files: settings.py:448:448 */
+"Draw a radar on the overlay when active scans and waypoints are present." = "Dessinez un radar sur la superposition lorsque des analyses et des points de cheminement actifs sont présents.";
+
+/* settings.py: Ship overlay tooltip; Line 2; In files: settings.py:450:450 */
+"This displays bio markers up to a defined distance and shows a display of the minimum scan distance." = "Cela affiche les biomarqueurs jusqu'à une distance définie et affiche la distance de numérisation minimale.";
+
+/* settings.py: Ship overlay tooltip; Line 3; In files: settings.py:452:452 */
+"This is oriented where up is the direction you're facing. The ship location can be tracked as well." = "Le haut indique la direction vers laquelle vous regardez. La position du vaisseaux peut également être suivie.";
+
+/* settings.py: Radar enable / disable setting; In files: settings.py:457:457 */
+"Enable Radar" = "Activer le Radar";
+
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:462:462 */
+"Enable Ship Location Tracker" = "Activer le Suivi de Localisation du Vaisseaux";
+
+/* settings.py: Main label for radar x/y/radius configuration; In files: settings.py:470:470 */
+"Radar Anchor (Center Point):" = "Ancre Radar (Point Central) :";
+
+/* settings.py: Radius label for radar display settings; In files: settings.py:479:479 */
+"Radius" = "Rayon";
+
+/* settings.py: Distance label for radar display settings; In files: settings.py:493:493 */
+"Maximum radar distance:" = "Distance radar maximale :";
+
+/* load.py: Meters unit; In files: settings.py:499:499; load.py:1374:1374 */
+"m" = "m";
 
 /* util.py: Color amethyst; In files: util.py:31:31 */
 "Amethyst" = "Améthyste";
@@ -687,9 +717,6 @@
 
 /* load.py: Unknown scan level; In files: load.py:355:355 */
 "Unknown" = "Inconnu";
-
-/* load.py: Meters unit; In files: load.py:1354:1354 */
-"m" = "m";
 
 /* load.py: Scan complete status text; In files: load.py:1376:1376 */
 "Complete" = "Complété";

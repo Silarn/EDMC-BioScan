@@ -392,10 +392,10 @@ def translate_species(species: str) -> str:
         case 'Tussock Capillum':
             return tr.tl('Tussock Capillum', bioscan_globals.translation_context)
         case 'Crystalline Shards':
-            return tr.tl('Crystalline Shards', bioscan_globals.translation_context)  # LANG: Species crystalline shards
+            return tr.tl('Crystalline Shards', bioscan_globals.translation_context)
         case 'Bark Mound':
-            return tr.tl('Bark Mound', bioscan_globals.translation_context)  # LANG: Species crystalline shards
+            return tr.tl('Bark Mound', bioscan_globals.translation_context)
         case 'Amphora Plant':
-            return tr.tl('Amphora Plant', bioscan_globals.translation_context)  # LANG: Species crystalline shards
+            return tr.tl('Amphora Plant', bioscan_globals.translation_context)
         case _:
             return species

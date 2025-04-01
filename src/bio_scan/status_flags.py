@@ -65,3 +65,6 @@ class StatusFlags2(Flag):
     MULTICREW_TELEPRESENCE = auto()
     MULTICREW_PHYSICAL = auto()
     SUPERCHARGING_FSD = auto()
+    SCO_ACTIVE = auto()
+    SUPERCRUISE_ASSIST = auto()
+    NPC_CREW = auto()
