@@ -101,6 +101,7 @@ class Overlay:
                 else:
                     self._overlay_type = 'edmcoverlay2'
         else:
+            self._overlay_type = "none"
             self._overlay: edmcoverlay.Overlay | None = None
         self._text_blocks: dict[str, TextBlock] = {}
         self._markers: dict[str, RadarSet] = {}
