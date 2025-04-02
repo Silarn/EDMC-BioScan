@@ -1,6 +1,7 @@
 import math
 import sys
 import threading
+from os import environ
 from typing import Callable
 
 from EDMCLogging import get_plugin_logger
@@ -90,6 +91,15 @@ class Overlay:
     def __init__(self):
         if edmcoverlay:
             self._overlay: edmcoverlay.Overlay | None = edmcoverlay.Overlay()
+            if hasattr(self._overlay, 'connection'):
+                self._overlay_type = 'EDMCOverlay'
+            elif hasattr(self._overlay, 'connect'):
+                self._overlay_type = 'edmcoverlay_for_linux'
+            else:
+                if environ.get('XDG_SESSION_TYPE', 'X11') == 'wayland':
+                    self._overlay_type = 'edmcoverlay2_wayland'
+                else:
+                    self._overlay_type = 'edmcoverlay2'
         else:
             self._overlay: edmcoverlay.Overlay | None = None
         self._text_blocks: dict[str, TextBlock] = {}
@@ -116,10 +126,15 @@ class Overlay:
         self._scroll_timer.set()
 
     def _calc_aspect_x(self) -> float:
-        return (VIRTUAL_WIDTH+32) / (VIRTUAL_HEIGHT+18) * (self._screen_height-2*VIRTUAL_ORIGIN_Y) / (self._screen_width-2*VIRTUAL_ORIGIN_X)
+        if self._overlay_type == 'EDMCOverlay':
+            return (VIRTUAL_WIDTH+32) / (VIRTUAL_HEIGHT+18) * (self._screen_height-2*VIRTUAL_ORIGIN_Y) / (self._screen_width-2*VIRTUAL_ORIGIN_X)
+        else:
+            return (VIRTUAL_WIDTH / VIRTUAL_HEIGHT) * (self._screen_height / self._screen_width)
 
     def _aspect(self, x: float) -> int:
-        return round_away(self._over_aspect_x * x)
+        if self._overlay_type in ['EDMCOverlay', 'edmcoverlay2']:
+            return round_away(self._over_aspect_x * x)
+        return int(x)
 
     def display(self, message_id: str, text: str, x: int = 0, y: int = 0, color: str = "#ffffff", size: str = "normal",
                 scrolled: bool = False, limit: int = 0, delay: float = 10) -> None:
@@ -190,7 +205,8 @@ class Overlay:
         :param logarithmic: Make radar scale logarithmic (default: False)
         """
 
-        self.clear_radar(message_id)
+        if self._overlay_type == 'EDMCOverlay' :
+            self.clear_radar(message_id)
         self._markers[message_id] = RadarSet(markers, circles, x, y, r, d, logarithmic)
         self.draw_circles(message_id)
         self.draw_markers(message_id)
@@ -223,7 +239,7 @@ class Overlay:
                     continue
                 self.draw(message_id)
 
-    @setInterval(5)
+    @setInterval(15)
     def redraw_radar(self):
         """
         Redraws all cached radars on a 5-second interval.
@@ -232,7 +248,8 @@ class Overlay:
 
         if self.available():
             for message_id, markers in self._markers.copy().items():
-                self.clear_radar(message_id, False)
+                if self._overlay_type == 'EDMCOverlay':
+                    self.clear_radar(message_id, False)
                 self.draw_circles(message_id)
                 self.draw_markers(message_id)
 
@@ -279,7 +296,7 @@ class Overlay:
             block = self._text_blocks[message_id]
             count = block.offset
             line_count = 0
-            spacer = 14 if block.size == "normal" else 24
+            spacer = 18 if block.size == "normal" else 28
             while (block.limit == 0 or count - block.offset <= block.limit) and count < len(block.text):
                 try:
                     self._overlay.send_message("{}_{}".format(message_id, line_count), block.text[count], block.color,

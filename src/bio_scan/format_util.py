@@ -2,9 +2,60 @@ import locale
 
 from l10n import translations as tr
 
+from EDMCLogging import get_plugin_logger
+
 from bio_scan.globals import bioscan_globals
 
+logger = get_plugin_logger('BioScan')
+
 credits_string = tr.tl('Cr', bioscan_globals.translation_context)  # LANG: Credits unit
+
+def convert_locale(locale_code: str) -> str:
+    match locale_code:
+        case 'cs':
+            return 'cs_CZ'
+        case 'de':
+            return 'de_DE'
+        case 'en':
+            return 'en_US'
+        case 'es':
+            return 'es_ES'
+        case 'fi':
+            return 'fi_FI'
+        case 'fr':
+            return 'fr_FR'
+        case 'hu':
+            return 'hu_HU'
+        case 'it':
+            return 'it_IT'
+        case 'ja':
+            return 'ja_JP'
+        case 'ko':
+            return 'ko_KR'
+        case 'lv':
+            return 'lv_LV'
+        case 'nl':
+            return 'nl_NL'
+        case 'pl':
+            return 'pl_PL'
+        case 'pt' | 'pt-PT':
+            return 'pt_PT'
+        case 'pt-BR':
+            return 'pt_BR'
+        case 'ru':
+            return 'ru_RU'
+        case 'sl':
+            return 'sl_SI'
+        case 'sr' | 'sr-Latn' | 'sr-Latn-BA':
+            return 'sr_RS'
+        case 'tr':
+            return 'tr_TR'
+        case 'uk':
+            return 'en_UK'
+        case 'zh-Hans':
+            return 'zh_ZA'
+        case _:
+            return 'en_US'
 
 class Formatter:
 
@@ -12,8 +63,12 @@ class Formatter:
         locale.setlocale(locale.LC_ALL, '')
         self.shorten: bool = shorten
 
-    def set_locale(self, local_code: str):
-        locale.setlocale(locale.LC_ALL, local_code)
+    def set_locale(self, locale_code: str):
+        try:
+            locale_code = convert_locale(locale_code)
+            locale.setlocale(locale.LC_ALL, locale_code)
+        except locale.Error as ex:
+            logger.error(f'Locale: {locale_code}', exc_info=ex)
 
     def set_shorten(self, value: bool) -> None:
         """

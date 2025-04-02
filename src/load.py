@@ -203,7 +203,8 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_overlay_detail_scroll', this.overlay_detail_scroll.get())
     config.set('bioscan_overlay_detail_length', this.overlay_detail_length.get())
     config.set('bioscan_overlay_detail_delay', str(this.overlay_detail_delay.get()))
-    config.set(f'bioscan_ship_whitelist_{cmdr.lower()}', this.ship_whitelist)
+    if cmdr:
+        config.set(f'bioscan_ship_whitelist_{cmdr.lower()}', this.ship_whitelist)
     config.set('bioscan_radar_enabled', this.radar_enabled.get())
     config.set('bioscan_radar_ship_loc_enabled', this.radar_ship_loc_enabled.get())
     config.set('bioscan_radar_anchor_x', this.radar_anchor_x.get())
