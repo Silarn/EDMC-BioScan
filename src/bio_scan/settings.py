@@ -252,10 +252,15 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
     frame = nb.Frame(parent)
     frame.columnconfigure(0, weight=1)
     frame.columnconfigure(1, weight=1)
-    frame.rowconfigure(5, weight=1)
+    left_frame = tk.Frame(frame)
+    left_frame.columnconfigure(0, weight=1)
+    right_frame = tk.Frame(frame)
+    right_frame.columnconfigure(0, weight=1)
+
+    left_frame.grid(row=0, column=0, sticky=tk.NSEW)
     color_button = None
     ship_list = nb.Label(
-        frame,
+        left_frame,
         text=', '.join(get_ship_names()) if len(bioscan_globals.ship_whitelist) else tr.tl('None', bioscan_globals.translation_context),
         justify=tk.LEFT
     )
@@ -328,12 +333,12 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
             add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
 
     nb.Checkbutton(
-        frame,
+        left_frame,
         text=tr.tl('Enable overlay', bioscan_globals.translation_context),
         variable=bioscan_globals.use_overlay
     ).grid(row=0, column=0, padx=x_button_padding, pady=0, sticky=tk.W)
     color_button = tk.Button(
-        frame,
+        left_frame,
         text=tr.tl('Text Color', bioscan_globals.translation_context),
         foreground=bioscan_globals.overlay_color.get(),
         background='grey4',
@@ -341,24 +346,54 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
     )
     color_button.grid(row=1, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.NW)
 
-    ttk.Separator(frame).grid(row=2, column=0, pady=y_padding * 2, sticky=tk.EW)
+    nb.Label(
+        left_frame,
+        text=tr.tl('Line spacing:', bioscan_globals.translation_context),
+        justify=tk.LEFT
+    ).grid(row=2, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
+
+    linespace_frame = tk.Frame(left_frame)
+    linespace_frame.grid(row=3, column=0, sticky=tk.NW)
+    linespace_frame.columnconfigure(3, weight=1)
+    nb.Label(
+        linespace_frame,
+        text=tr.tl('Normal:', bioscan_globals.translation_context),
+        justify=tk.LEFT
+    ).grid(row=0, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
+    nb.EntryMenu(
+        linespace_frame, text=bioscan_globals.overlay_line_spacing_normal.get(),
+        textvariable=bioscan_globals.overlay_line_spacing_normal,
+        width=8, validate='all', validatecommand=(linespace_frame.register(is_digit), '%P', '%d')
+    ).grid(row=0, column=1, pady=y_padding, sticky=tk.W)
+    nb.Label(
+        linespace_frame,
+        text=tr.tl('Large:', bioscan_globals.translation_context),
+        justify=tk.LEFT
+    ).grid(row=0, column=2, padx=x_padding, pady=y_padding, sticky=tk.W)
+    nb.EntryMenu(
+        linespace_frame, text=bioscan_globals.overlay_line_spacing_large.get(),
+        textvariable=bioscan_globals.overlay_line_spacing_large,
+        width=8, validate='all', validatecommand=(linespace_frame.register(is_digit), '%P', '%d')
+    ).grid(row=0, column=3, pady=y_padding, sticky=tk.W)
+
+    ttk.Separator(left_frame).grid(row=4, column=0, pady=y_padding * 2, sticky=tk.EW)
 
     whitelist_label = nb.Label(
-        frame,
+        left_frame,
         text=tr.tl('Ship Whitelist (?)', bioscan_globals.translation_context),
         justify=tk.LEFT
     )
-    whitelist_label.grid(row=3, column=0, padx=x_padding, sticky=tk.W)
+    whitelist_label.grid(row=5, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
     Tooltip(
         whitelist_label,
         text=tr.tl('Ships added to this list will display BioScan on the overlay.', bioscan_globals.translation_context) +
              '\n\n' + tr.tl('When empty, BioScan will display for all ships.', bioscan_globals.translation_context),
         waittime=1000
     )
-    ship_list.grid(row=3, column=0, padx=x_padding, sticky=tk.W)
+    ship_list.grid(row=6, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
 
-    ship_whitelist_frame = tk.Frame(frame)
-    ship_whitelist_frame.grid(row=4, column=0, sticky=tk.NSEW)
+    ship_whitelist_frame = tk.Frame(left_frame)
+    ship_whitelist_frame.grid(row=7, column=0, sticky=tk.NW)
     ship_whitelist_frame.columnconfigure(2, weight=1)
 
     add_ship_button = nb.Button(ship_whitelist_frame, text=tr.tl('Add', bioscan_globals.translation_context) + f' "{ship_name}"',
@@ -368,80 +403,82 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
     clear_ships_button = nb.Button(ship_whitelist_frame, text=tr.tl('Clear Ships', bioscan_globals.translation_context), command=clear_ships)
     if ship_name:
         if ship_in_whitelist(monitor.state['ShipID'], ship_name):
-            remove_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
+            remove_ship_button.grid(row=0, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.W)
         else:
-            add_ship_button.grid(row=0, column=0, padx=x_padding, sticky=tk.W)
+            add_ship_button.grid(row=0, column=0, padx=x_button_padding, pady=y_padding, sticky=tk.W)
     if not len(bioscan_globals.ship_whitelist):
         clear_ships_button['state'] = tk.DISABLED
-    clear_ships_button.grid(row=0, column=1, padx=x_padding, sticky=tk.W)
+    clear_ships_button.grid(row=0, column=1, padx=x_button_padding, pady=y_padding, sticky=tk.W)
 
-    anchor_frame = tk.Frame(frame)
+    # Second column
+    right_frame.grid(row=0, column=1, sticky=tk.NSEW)
+    anchor_frame = tk.Frame(right_frame)
     anchor_frame.grid(row=0, column=1, sticky=tk.NSEW)
     anchor_frame.columnconfigure(4, weight=1)
-    summary_frame = tk.Frame(frame)
+    summary_frame = tk.Frame(right_frame)
     summary_frame.grid(row=1, column=1, sticky=tk.NSEW)
     summary_frame.columnconfigure(4, weight=1)
-    details_frame = tk.Frame(frame)
+    details_frame = tk.Frame(right_frame)
     details_frame.grid(row=2, column=1, sticky=tk.NSEW)
     details_frame.columnconfigure(4, weight=1)
 
     nb.Label(anchor_frame, text=tr.tl('Prediction Details Anchor:', bioscan_globals.translation_context)) \
-        .grid(row=0, column=0, sticky=tk.W)
+        .grid(row=0, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
     nb.Label(anchor_frame, text='X') \
-        .grid(row=0, column=1, sticky=tk.W)
+        .grid(row=0, column=1, padx=(x_padding, 0), pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         anchor_frame, text=bioscan_globals.overlay_anchor_x.get(), textvariable=bioscan_globals.overlay_anchor_x,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=2, sticky=tk.W)
+        width=8, validate='all', validatecommand=(anchor_frame.register(is_digit), '%P', '%d')
+    ).grid(row=0, column=2, padx=(0, x_padding), pady=y_padding, sticky=tk.W)
     nb.Label(anchor_frame, text='Y') \
-        .grid(row=0, column=3, sticky=tk.W)
+        .grid(row=0, column=3, padx=(x_padding, 0), pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         anchor_frame, text=bioscan_globals.overlay_anchor_y.get(), textvariable=bioscan_globals.overlay_anchor_y,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=4, sticky=tk.W)
+        width=8, validate='all', validatecommand=(anchor_frame.register(is_digit), '%P', '%d')
+    ).grid(row=0, column=4, padx=(0, x_padding), pady=y_padding, sticky=tk.W)
 
     nb.Label(summary_frame, text=tr.tl('Summary / Progress Anchor:', bioscan_globals.translation_context)) \
-        .grid(row=0, column=0, sticky=tk.W)
+        .grid(row=0, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
     nb.Label(summary_frame, text='X') \
-        .grid(row=0, column=1, sticky=tk.W)
+        .grid(row=0, column=1, padx=(x_padding, 0), pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         summary_frame, text=bioscan_globals.overlay_summary_x.get(), textvariable=bioscan_globals.overlay_summary_x,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=2, sticky=tk.W)
+        width=8, validate='all', validatecommand=(summary_frame.register(is_digit), '%P', '%d')
+    ).grid(row=0, column=2, padx=(0, x_padding), pady=y_padding, sticky=tk.W)
     nb.Label(summary_frame, text='Y') \
-        .grid(row=0, column=3, sticky=tk.W)
+        .grid(row=0, column=3, padx=(x_padding, 0), pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         summary_frame, text=bioscan_globals.overlay_summary_y.get(), textvariable=bioscan_globals.overlay_summary_y,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=0, column=4, sticky=tk.W)
+        width=8, validate='all', validatecommand=(summary_frame.register(is_digit), '%P', '%d')
+    ).grid(row=0, column=4, padx=(0, x_padding), pady=y_padding, sticky=tk.W)
 
     nb.Checkbutton(
         details_frame,
         text=tr.tl('Scroll details', bioscan_globals.translation_context),
         variable=bioscan_globals.overlay_detail_scroll
-    ).grid(row=0, column=0, padx=x_padding, sticky=tk.NW)
+    ).grid(row=0, column=0, padx=x_padding, pady=y_padding, sticky=tk.NW)
     nb.Label(details_frame, text=tr.tl('Maximum details length:', bioscan_globals.translation_context)) \
-        .grid(row=1, column=0, sticky=tk.W)
+        .grid(row=1, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         details_frame, text=bioscan_globals.overlay_detail_length.get(), textvariable=bioscan_globals.overlay_detail_length,
         width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=1, column=1, sticky=tk.W)
+    ).grid(row=1, column=1, padx=(0, x_padding), pady=y_padding, sticky=tk.W)
     nb.Label(details_frame, text=tr.tl('Scroll delay (sec):', bioscan_globals.translation_context)) \
-        .grid(row=1, column=2, sticky=tk.W)
+        .grid(row=1, column=2, padx=x_padding, pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         details_frame, text=bioscan_globals.overlay_detail_delay.get(), textvariable=bioscan_globals.overlay_detail_delay,
         width=8, validate='all', validatecommand=(frame.register(is_double), '%P', '%d')
-    ).grid(row=1, column=3, sticky=tk.W)
+    ).grid(row=1, column=3, padx=(0, x_padding), pady=y_padding, sticky=tk.W)
 
-    ttk.Separator(frame).grid(row=3, column=1, pady=y_padding * 2, sticky=tk.EW)
+    ttk.Separator(right_frame).grid(row=3, column=1, pady=y_padding * 2, sticky=tk.EW)
 
-    radar_frame = tk.Frame(frame)
+    radar_frame = tk.Frame(right_frame)
     radar_frame.grid(row=4, column=1, sticky=tk.NSEW)
     radar_frame.columnconfigure(2, weight=1)
 
     # LANG: Waypoint / scan radar overlay settings title
     radar_label = nb.Label(radar_frame, text=tr.tl('Active Scan / Waypoint Radar (?):', bioscan_globals.translation_context))
-    radar_label.grid(row=0, column=0, columnspan=3, sticky=tk.W)
+    radar_label.grid(row=0, column=0, padx=x_padding, pady=y_padding, columnspan=3, sticky=tk.W)
     Tooltip(
         radar_label,
         # LANG: Ship overlay tooltip; Line 1
@@ -456,53 +493,53 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
         # LANG: Radar enable / disable setting
         text=tr.tl('Enable Radar', bioscan_globals.translation_context),
         variable=bioscan_globals.radar_enabled
-    ).grid(row=1, column=0, padx=x_padding, sticky=tk.NW)
+    ).grid(row=1, column=0, padx=x_padding, pady=y_padding, sticky=tk.NW)
     nb.Checkbutton(radar_frame,
         # LANG: Radar ship location tracking enable / disable setting
         text=tr.tl('Enable Ship Location Tracker', bioscan_globals.translation_context),
         variable=bioscan_globals.radar_ship_loc_enabled
-    ).grid(row=1, column=1, columnspan=2, padx=x_padding, sticky=tk.NW)
+    ).grid(row=1, column=1, columnspan=2, padx=x_padding, pady=y_padding, sticky=tk.NW)
 
     radar_anchor_frame = tk.Frame(radar_frame)
     radar_anchor_frame.grid(row=2, column=0, columnspan=3, sticky=tk.NSEW)
     radar_anchor_frame.columnconfigure(4, weight=1)
     # LANG: Main label for radar x/y/radius configuration
     nb.Label(radar_anchor_frame, text=tr.tl('Radar Anchor (Center Point):', bioscan_globals.translation_context)) \
-        .grid(row=2, column=0, sticky=tk.W)
+        .grid(row=2, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
     nb.Label(radar_anchor_frame, text='X') \
-        .grid(row=2, column=1, sticky=tk.W)
+        .grid(row=2, column=1, padx=(x_padding, 0), pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         radar_anchor_frame, text=bioscan_globals.radar_anchor_x.get(), textvariable=bioscan_globals.radar_anchor_x,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=2, column=2, sticky=tk.W)
+        width=8, validate='all', validatecommand=(radar_anchor_frame.register(is_digit), '%P', '%d')
+    ).grid(row=2, column=2, padx=(0, x_padding), pady=y_padding, sticky=tk.W)
     nb.Label(radar_anchor_frame, text='Y') \
-        .grid(row=2, column=3, sticky=tk.W)
+        .grid(row=2, column=3, padx=(x_padding, 0), pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         radar_anchor_frame, text=bioscan_globals.radar_anchor_y.get(), textvariable=bioscan_globals.radar_anchor_y,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=2, column=4, sticky=tk.W)
+        width=8, validate='all', validatecommand=(radar_anchor_frame.register(is_digit), '%P', '%d')
+    ).grid(row=2, column=4, padx=(0, x_padding), pady=y_padding, sticky=tk.W)
 
     # LANG: Radius label for radar display settings
     nb.Label(radar_frame, text=tr.tl('Radius:', bioscan_globals.translation_context)) \
-        .grid(row=3, column=0, sticky=tk.W)
+        .grid(row=3, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         radar_frame, text=bioscan_globals.radar_radius.get(), textvariable=bioscan_globals.radar_radius,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=3, column=1, columnspan=2, sticky=tk.W)
+        width=8, validate='all', validatecommand=(radar_frame.register(is_digit), '%P', '%d')
+    ).grid(row=3, column=1, padx=x_padding, pady=y_padding, columnspan=2, sticky=tk.W)
     # LANG: Distance label for radar display settings
     nb.Label(radar_frame, text=tr.tl('Maximum radar distance:', bioscan_globals.translation_context)) \
-        .grid(row=4, column=0, sticky=tk.W)
+        .grid(row=4, column=0, padx=x_padding, pady=y_padding, sticky=tk.W)
     nb.EntryMenu(
         radar_frame, text=bioscan_globals.radar_max_distance.get(), textvariable=bioscan_globals.radar_max_distance,
-        width=8, validate='all', validatecommand=(frame.register(is_digit), '%P', '%d')
-    ).grid(row=4, column=1, sticky=tk.W)
+        width=8, validate='all', validatecommand=(radar_frame.register(is_digit), '%P', '%d')
+    ).grid(row=4, column=1, padx=(x_padding, 0), pady=y_padding, sticky=tk.W)
     nb.Label(radar_frame, text=tr.tl('m', bioscan_globals.translation_context)) \
-        .grid(row=4, column=2, sticky=tk.W)
+        .grid(row=4, column=2, padx=(0, x_padding), pady=y_padding, sticky=tk.W)
     nb.Checkbutton(radar_frame,
         # LANG: Radar ship location tracking enable / disable setting
         text=tr.tl('Use logarithmic scaling', bioscan_globals.translation_context),
         variable=bioscan_globals.radar_use_log
-    ).grid(row=5, column=0, columnspan=3, padx=x_padding, sticky=tk.NW)
+    ).grid(row=5, column=0, columnspan=3, padx=x_padding, pady=y_padding, sticky=tk.NW)
 
     return frame
 

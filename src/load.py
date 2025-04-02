@@ -203,6 +203,9 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_overlay_detail_scroll', this.overlay_detail_scroll.get())
     config.set('bioscan_overlay_detail_length', this.overlay_detail_length.get())
     config.set('bioscan_overlay_detail_delay', str(this.overlay_detail_delay.get()))
+    config.set('bioscan_overlay_normal_spacing', this.overlay_line_spacing_normal.get())
+    config.set('bioscan_overlay_large_spacing', this.overlay_line_spacing_large.get())
+    this.overlay.set_line_spacing(this.overlay_line_spacing_normal.get(), this.overlay_line_spacing_large.get())
     if cmdr:
         config.set(f'bioscan_ship_whitelist_{cmdr.lower()}', this.ship_whitelist)
     config.set('bioscan_radar_enabled', this.radar_enabled.get())
@@ -241,7 +244,10 @@ def parse_config(cmdr: str = '') -> None:
     this.overlay_detail_length = tk.IntVar(value=config.get_int(key='bioscan_overlay_detail_length', default=70))
     this.overlay_detail_delay = tk.DoubleVar(
         value=float(config.get_str(key='bioscan_overlay_detail_delay', default=10.0)))
-    this.overlay.setScreenDimensions(this.frame.winfo_screenwidth(), this.frame.winfo_screenheight())
+    this.overlay_line_spacing_normal = tk.IntVar(value=config.get_int(key='bioscan_overlay_normal_spacing', default=16))
+    this.overlay_line_spacing_large = tk.IntVar(value=config.get_int(key='bioscan_overlay_large_spacing', default=26))
+    this.overlay.set_line_spacing(this.overlay_line_spacing_normal.get(), this.overlay_line_spacing_large.get()) \
+        .set_screen_dimensions(this.frame.winfo_screenwidth(), this.frame.winfo_screenheight())
     if cmdr:
         this.ship_whitelist = config.get_list(key=f'bioscan_ship_whitelist_{cmdr.lower()}', default=[])
     this.radar_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_radar_enabled', default=True))

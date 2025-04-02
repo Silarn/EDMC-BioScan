@@ -28,6 +28,7 @@ class Globals:
         self.NAME = bio_scan.const.name
 
         # Settings vars
+        # General
         self.credits_setting: tk.BooleanVar | None = None
         self.focus_setting: tk.StringVar | None = None
         self.signal_setting: tk.StringVar | None = None
@@ -39,6 +40,7 @@ class Globals:
         self.debug_logging_enabled: tk.BooleanVar | None = None
         self.focus_distance: tk.IntVar | None = None
         self.box_height: tk.IntVar | None = None
+        # Overlay
         self.use_overlay: tk.BooleanVar | None = None
         self.overlay_color: tk.StringVar | None = None
         self.overlay_anchor_x: tk.IntVar | None = None
@@ -48,6 +50,9 @@ class Globals:
         self.overlay_detail_scroll: tk.BooleanVar | None = None
         self.overlay_detail_length: tk.IntVar | None = None
         self.overlay_detail_delay: tk.DoubleVar | None = None
+        self.overlay_line_spacing_normal: tk.IntVar | None = None
+        self.overlay_line_spacing_large: tk.IntVar | None = None
+        ## Radar
         self.radar_enabled: tk.BooleanVar | None = None
         self.radar_ship_loc_enabled: tk.BooleanVar | None = None
         self.radar_anchor_x: tk.IntVar | None = None
@@ -55,6 +60,8 @@ class Globals:
         self.radar_radius: tk.IntVar | None = None
         self.radar_max_distance: tk.IntVar | None = None
         self.radar_use_log: tk.BooleanVar | None = None
+        ## Whitelist
+        self.ship_whitelist: list[str] = []
 
         # GUI Objects
         self.parent: tk.Frame | None = None
@@ -80,19 +87,21 @@ class Globals:
         self.migration_failed: bool = False
         self.db_mismatch: bool = False
         self.sql_session: Session | None = None
-        # Other state info
+        # System info
+        self.system: System | None = None
         self.main_star_type: str = ''
         self.main_star_luminosity: str = ''
         self.location_name: str = ''
         self.location_id: str = ''
         self.location_state: str = ''
+        # Body info
         self.ship_location: tuple[float, float] | None = None
         self.planet_radius: float = 0.0
         self.planet_latitude: float | None = None
         self.planet_longitude: float | None = None
         self.planet_altitude: float = 10000.0
         self.planet_heading: int | None = None
-        self.ship_whitelist: list[str] = []
+        # Ship / player status
         self.docked: bool = False
         self.on_foot: bool = False
         self.suit_name: str = ''
@@ -100,10 +109,11 @@ class Globals:
         self.in_supercruise: bool = False
         self.mode_changed: bool = False
         self.current_scan: tuple[str, str] = ('', '')
-        self.system: System | None = None
-        self.edd_replay: bool = False
 
         # EDSM vars
         self.fetched_edsm = False
+
+        # EDDMC compat
+        self.edd_replay: bool = False
 
 bioscan_globals = Globals()

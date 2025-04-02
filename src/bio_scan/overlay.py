@@ -2,7 +2,7 @@ import math
 import sys
 import threading
 from os import environ
-from typing import Callable
+from typing import Callable, Self
 
 from EDMCLogging import get_plugin_logger
 from bio_scan import const
@@ -53,8 +53,28 @@ def round_away(val):
 
 
 class TextBlock:
+    """
+    Cache class for a multi-line text block on the overlay.
+
+    These can be configured to auto-scroll beyond a certain length, with a given delay before scrolling
+    the opposite direction.
+    """
     def __init__(self, text: list[str], x: int, y: int, size: str, color: str,
                  scrolled: bool = False, limit: int = 0, delay: float = 10):
+        """
+        Constructor.
+
+        :param text: List of strings to display
+        :param x: X coordinate for upper left corner
+        :param y: Y coordinate for upper left corner
+        :param size: Text size (normal or large)
+        :param color: Text color (#aarrggbb, #rrggbb, red, green, blue, yellow, white, black)
+        :param scrolled: Whether to scroll the text display (default: False)
+        :param limit: Maximum line length of display, for use with 'scrolled' (default: 0)
+        :param delay: Time to wait before scrolling the opposite direction when reaching the
+         end of the text (default 10)
+        """
+
         self.text = text
         self.x = x
         self.y = y
@@ -71,7 +91,25 @@ class TextBlock:
 
 
 class RadarSet:
+    """
+    Cache class for a radar display.
+
+    Contains circles and marker positions with a given position and radius. Can be set to display
+    linearly or logarithmically.
+    """
     def __init__(self, markers: list[dict], circles: list[dict], x: int, y: int, r: int, d: int, log: bool):
+        """
+        Constructor.
+
+        :param markers: List of marker data. Should contain a dict of 'distance', 'bearing', 'color', and 'genus'.
+        :param circles: List of circle data. Should contain a dict of 'radius', 'color' and optionally 'text'.
+        :param x: X coordinate for upper left corner
+        :param y: Y coordinate for upper left corner
+        :param r: Radius of circle
+        :param d: Maximum distance tracked by radar (at r)
+        :param log: Whether to display a logarithmic distance scale
+        """
+
         self.markers: list[dict] = markers
         self.circles: list[dict] = circles
         self.x = x
@@ -103,6 +141,8 @@ class Overlay:
         else:
             self._overlay_type = "none"
             self._overlay: edmcoverlay.Overlay | None = None
+        self._normal_spacer: int = 16
+        self._large_spacer: int = 26
         self._text_blocks: dict[str, TextBlock] = {}
         self._markers: dict[str, RadarSet] = {}
         self._redraw_timer = self.redraw()
@@ -112,10 +152,32 @@ class Overlay:
         self._screen_height = 1080
         self._over_aspect_x = self._calc_aspect_x()
 
-    def setScreenDimensions(self, w: int, h: int) -> None:
+    def set_screen_dimensions(self, w: int, h: int) -> Self:
+        """
+        Sets screen dimensions for use in pixel ratio scaling.
+
+        :param w: Width.
+        :param h: Height.
+        :return: Returns self.
+        """
+
         self._screen_width = w
         self._screen_height = h
         self._over_aspect_x = self._calc_aspect_x()
+        return self
+
+    def set_line_spacing(self, normal: int, large: int) -> Self:
+        """
+        Sets line spacing for text displays.
+
+        :param normal: Normal text size spacing
+        :param large: Large text size spacing
+        :return: Returns self.
+        """
+
+        self._normal_spacer = normal
+        self._large_spacer = large
+        return self
 
     def disconnect(self) -> None:
         """
@@ -297,7 +359,7 @@ class Overlay:
             block = self._text_blocks[message_id]
             count = block.offset
             line_count = 0
-            spacer = 18 if block.size == "normal" else 28
+            spacer = self._normal_spacer if block.size == "normal" else self._large_spacer
             while (block.limit == 0 or count - block.offset <= block.limit) and count < len(block.text):
                 try:
                     self._overlay.send_message("{}_{}".format(message_id, line_count), block.text[count], block.color,
