@@ -92,19 +92,21 @@ class Formatter:
         if num > 999999:
             # 1.3 Mu
             # LANG: Millions unit
-            s = locale.format_string('%.2f ' + tr.tl('M', bioscan_globals.translation_context), num / 1000000.0, grouping=True, monetary=monetary)
+            s = locale.format_string('%.2f %s%s',
+                                     (num / 1000000.0, tr.tl('M', bioscan_globals.translation_context), unit),
+                                      grouping=True, monetary=monetary)
         elif num > 999:
             # 456 ku
             # LANG: Thousands unit
-            s = locale.format_string('%.2f ' + tr.tl('k', bioscan_globals.translation_context), num / 1000.0, grouping=True, monetary=monetary)
+            s = locale.format_string('%.2f %s%s',
+                                     (num / 1000.0, tr.tl('k', bioscan_globals.translation_context), unit),
+                                     grouping=True, monetary=monetary)
         else:
             # 789 u
-            s = locale.format_string('%.0f ', num, grouping=True, monetary=monetary)
+            s = locale.format_string('%.0f %s', (num, unit), grouping=True, monetary=monetary)
 
         if not space:
             s = s.replace(' ', '')
-
-        s += unit
 
         return s
 
@@ -113,13 +115,15 @@ class Formatter:
         Currency formatting.
 
         :param credit_amount: Base credit amount.
-        :param space: Whether or not to add a space before the credits unit
+        :param space: Whether to add a space before the credits unit
         :return: Formatted credits string
         """
-
         if self.shorten:
             return self.format_unit(credit_amount, credits_string, space)
-        return locale.format_string('%d %s', bioscan_globals.translation_context, credit_amount, credits_string, grouping=True, monetary=True)
+        credits_formatted = credits_string
+        if space:
+            credits_formatted = ' ' + credits_formatted
+        return locale.format_string(f'%d%s', (credit_amount, credits_formatted), grouping=True, monetary=True)
 
     def format_credit_range(self, min_value: float, max_value: float, space: bool = True) -> str:
         """
