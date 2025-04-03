@@ -2,7 +2,7 @@
 # BioScan plugin for EDMC
 # Source: https://github.com/Silarn/EDMC-BioScan
 # Licensed under the [GNU Public License (GPL)](http://www.gnu.org/licenses/gpl-2.0.html) version 2 or later.
-
+import locale
 # Core imports
 from copy import deepcopy
 from typing import Mapping, MutableMapping
@@ -1384,9 +1384,11 @@ def get_nearest(genus: str, waypoints: list[Waypoint]) -> str:
             bearing_diff = abs(bearing - this.planet_heading) % 360
             bearing_diff = 360 - bearing_diff if bearing_diff > 180 else bearing_diff
             bearing_diff = bearing_diff if (this.planet_heading + bearing_diff) % 360 == bearing else bearing_diff * -1
-            return '{}° ({}{}°), {}'.format(int(bearing),
+            # LANG: Degrees unit
+            degree_format = tr.tl('°', this.translation_context)
+            return '{}{} ({}{}{}), {}'.format(int(bearing), degree_format,
                                             '-> ' if bearing_diff >= 0 else '<- ',
-                                            int(abs(bearing_diff)),
+                                            int(abs(bearing_diff)), degree_format,
                                             distance_formatted)
 
     return ''
@@ -1772,7 +1774,7 @@ def update_display() -> None:
                     if not this.current_scan[0]:
                         this.current_scan = (genus, '')
                     distance = get_distance()
-                    distance_format = f'{distance:.2f}' if distance is not None else 'unk'
+                    distance_format = locale.format_string('%.2f', distance) if distance is not None else 'unk'
                     distance = distance if distance is not None else 0
                     waypoint = get_nearest(genus, waypoints) if (waypoints and this.waypoints_enabled.get()) else ''
                     text += '\n{}: {} - {} ({}/3) [{}]{}'.format(
@@ -1780,11 +1782,12 @@ def update_display() -> None:
                         translate_genus(bio_types[genus][species]['name']),
                         scan_label(scan),
                         scan,
-                        '{}/{}m'.format(
+                        '{}/{}{}'.format(
                             distance_format
                             if distance < bio_genus[genus]['distance']
                             else f'> {bio_genus[genus]["distance"]}',
-                            bio_genus[genus]['distance']
+                            bio_genus[genus]['distance'],
+                            tr.tl('m', this.translation_context)
                         ),
                         '\n' + tr.tl('Nearest Saved Waypoint', this.translation_context) + f': {waypoint}' if waypoint else ''
                     )

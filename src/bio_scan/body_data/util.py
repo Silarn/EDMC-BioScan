@@ -1,3 +1,4 @@
+import locale
 import math
 from typing import Optional
 
@@ -55,12 +56,13 @@ def get_gravity_warning(gravity: Optional[float], with_gravity: bool = False) ->
     """
 
     if gravity:
-        g_gravity = round(gravity / 9.80665, 2)
+        g_gravity = gravity / 9.80665
+        g_formatted = locale.format_string('%.2f', g_gravity, grouping=True, monetary=False)
         if g_gravity > 2.69:
-            return f' !{g_gravity}G!' if with_gravity else ' !G!'
+            return f' !{g_formatted}G!' if with_gravity else ' !G!'
         if g_gravity >= 1.0:
-            return f' ^{g_gravity}G^' if with_gravity else ' ^G^'
-        return f' {g_gravity}G' if with_gravity else ''
+            return f' ^{g_formatted}G^' if with_gravity else ' ^G^'
+        return f' {g_formatted}G' if with_gravity else ''
     return ''
 
 
