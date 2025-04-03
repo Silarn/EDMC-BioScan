@@ -1,28 +1,28 @@
 /* Language name */
 "!Language" = "English";
 
-/* In files: util.py:21:21 */
+/* In files: util.py:22:22 */
 "I" = "I";
 
-/* In files: util.py:23:23 */
+/* In files: util.py:24:24 */
 "R" = "R";
 
-/* In files: util.py:25:25 */
+/* In files: util.py:26:26 */
 "RI" = "RI";
 
-/* In files: util.py:27:27 */
+/* In files: util.py:28:28 */
 "MR" = "MR";
 
-/* In files: util.py:29:29 */
+/* In files: util.py:30:30 */
 "HMC" = "HMC";
 
 /* format_util.py: Credits unit; In files: format_util.py:11:11 */
 "Cr" = "Cr";
 
-/* format_util.py: Millions unit; In files: format_util.py:95:95 */
+/* In files: format_util.py:96:96 */
 "M" = "M";
 
-/* format_util.py: Thousands unit; In files: format_util.py:99:99 */
+/* In files: format_util.py:102:102 */
 "k" = "k";
 
 /* settings.py: Version tag at the top of the settings pane; In files: settings.py:51:51; settings.py:59:59 */
@@ -193,7 +193,7 @@
 /* settings.py: Distance label for radar display settings; In files: settings.py:530:530 */
 "Maximum radar distance:" = "Maximum radar distance:";
 
-/* load.py: Meters unit; In files: settings.py:536:536; load.py:1383:1383 */
+/* load.py: Meters unit; In files: settings.py:536:536; load.py:1383:1383; load.py:1788:1788 */
 "m" = "m";
 
 /* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:540:540 */
@@ -724,7 +724,7 @@
 /* load.py: Sampled scan level (2/3); In files: load.py:372:372 */
 "Sampled" = "Sampled";
 
-/* load.py: Bio scans completed indicator label; load.py: Analysed scan level (3/3); In files: load.py:374:374; load.py:1750:1750 */
+/* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:374:374; load.py:1757:1757 */
 "Analysed" = "Analysed";
 
 /* load.py: Unknown scan level; In files: load.py:375:375 */
@@ -739,7 +739,7 @@
 /* load.py: Indicator for multiple possible bio variants; In files: load.py:1478:1478 */
 "Multiple Possible" = "Multiple Possible";
 
-/* load.py: Nearest waypoint text; In files: load.py:1492:1492; load.py:1782:1782 */
+/* load.py: Nearest waypoint text; In files: load.py:1492:1492; load.py:1790:1790 */
 "Nearest Saved Waypoint" = "Nearest Saved Waypoint";
 
 /* load.py: Predicted bio not located label; In files: load.py:1497:1497 */
@@ -766,24 +766,24 @@
 /* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1590:1590 */
 "Check FSS for Signals (or DSS)" = "Check FSS for Signals (or DSS)";
 
-/* load.py: Startup message before data has been processed; In files: load.py:1684:1684 */
+/* load.py: Startup message before data has been processed; In files: load.py:1691:1691 */
 "BioScan: Awaiting Data" = "BioScan: Awaiting Data";
 
-/* load.py: General BioScan prediction title label; In files: load.py:1721:1721 */
+/* load.py: General BioScan prediction title label; In files: load.py:1728:1728 */
 "BioScan Predictions" = "BioScan Predictions";
 
-/* load.py: Scan in progress indicator; In files: load.py:1772:1772 */
+/* load.py: Scan in progress indicator; In files: load.py:1779:1779 */
 "In Progress" = "In Progress";
 
-/* load.py: Analysed samples list label; In files: load.py:1787:1787 */
+/* load.py: Analysed samples list label; In files: load.py:1795:1795 */
 "Analysed System Samples" = "Analysed System Samples";
 
-/* load.py: No signals found in current system; In files: load.py:1794:1794 */
+/* load.py: No signals found in current system; In files: load.py:1802:1802 */
 "BioScan: No Signals Found" = "BioScan: No Signals Found";
 
-/* load.py: Overlay details label; In files: load.py:1809:1809 */
+/* load.py: Overlay details label; In files: load.py:1817:1817 */
 "BioScan Details" = "BioScan Details";
 
-/* load.py: Overlay no signals label; In files: load.py:1827:1827 */
+/* load.py: Overlay no signals label; In files: load.py:1835:1835 */
 "BioScan: No Signals" = "BioScan: No Signals";
 

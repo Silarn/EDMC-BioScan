@@ -1384,11 +1384,9 @@ def get_nearest(genus: str, waypoints: list[Waypoint]) -> str:
             bearing_diff = abs(bearing - this.planet_heading) % 360
             bearing_diff = 360 - bearing_diff if bearing_diff > 180 else bearing_diff
             bearing_diff = bearing_diff if (this.planet_heading + bearing_diff) % 360 == bearing else bearing_diff * -1
-            # LANG: Degrees unit
-            degree_format = tr.tl('°', this.translation_context)
-            return '{}{} ({}{}{}), {}'.format(int(bearing), degree_format,
+            return '{}° ({}{}°), {}'.format(int(bearing),
                                             '-> ' if bearing_diff >= 0 else '<- ',
-                                            int(abs(bearing_diff)), degree_format,
+                                            int(abs(bearing_diff)),
                                             distance_formatted)
 
     return ''
@@ -1754,7 +1752,8 @@ def update_display() -> None:
             text += '{} - {} [{}G] - {}/{} {}'.format(
                 bio_bodies[this.location_name].get_name(),
                 translate_body(bio_bodies[this.location_name].get_type()),
-                '{:.2f}'.format(bio_bodies[this.location_name].get_gravity() / 9.797759).rstrip('0').rstrip('.'),
+                locale.format_string('%.2f', bio_bodies[this.location_name].get_gravity() / 9.797759, True, False)
+                    .rstrip('0').rstrip('.'),
                 # LANG: Bio scans completed indicator label
                 complete, len(bio_bodies[this.location_name].get_flora()), tr.tl('Analysed', this.translation_context)
             )
