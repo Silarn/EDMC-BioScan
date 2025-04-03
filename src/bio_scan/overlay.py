@@ -449,7 +449,7 @@ class Overlay:
                         'vector': [{
                             'x': self._aspect(x_point), 'y': int(y_point),
                             'color': markers[item]['color'], 'marker': 'cross',
-                            'text': markers[item]['genus'][0:2]
+                            'text': markers[item]['text']
                         }],
                         'ttl': 60
                     }

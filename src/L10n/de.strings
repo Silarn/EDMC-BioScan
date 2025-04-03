@@ -112,82 +112,91 @@
 /* In files: settings.py:234:234 */
 "Enable species waypoints with the comp. scanner" = "Aktivieren Sie Arten-Wegpunkte mit dem Zusammensetzungsscanner";
 
-/* In files: settings.py:259:259; settings.py:325:325 */
+/* In files: settings.py:264:264; settings.py:330:330 */
 "None" = "Keiner";
 
-/* In files: settings.py:272:272 */
+/* In files: settings.py:277:277 */
 "Overlay Color" = "Überlagerungsfarbe";
 
-/* In files: settings.py:332:332 */
+/* In files: settings.py:337:337 */
 "Enable overlay" = "Overlay aktivieren";
 
-/* In files: settings.py:337:337 */
+/* In files: settings.py:342:342 */
 "Text Color" = "Textfarbe";
 
-/* In files: settings.py:348:348 */
+/* In files: settings.py:351:351 */
+"Line spacing:" = "Zeilenabstand:";
+
+/* In files: settings.py:360:360 */
+"Normal:" = "Normal:";
+
+/* In files: settings.py:370:370 */
+"Large:" = "Groß:";
+
+/* In files: settings.py:383:383 */
 "Ship Whitelist (?)" = "Schiffs-Whitelist (?)";
 
-/* In files: settings.py:354:354 */
+/* In files: settings.py:389:389 */
 "Ships added to this list will display BioScan on the overlay." = "Schiffe, die dieser Liste hinzugefügt werden, zeigen BioScan auf der Überlagerung an.";
 
-/* In files: settings.py:355:355 */
+/* In files: settings.py:390:390 */
 "When empty, BioScan will display for all ships." = "Wenn leer, wird BioScan für alle Schiffe angezeigt.";
 
-/* In files: settings.py:364:364 */
+/* In files: settings.py:399:399 */
 "Add" = "Hinzufügen";
 
-/* In files: settings.py:366:366 */
+/* In files: settings.py:401:401 */
 "Remove" = "Entfernen";
 
-/* In files: settings.py:368:368 */
+/* In files: settings.py:403:403 */
 "Clear Ships" = "Liste Löschen";
 
-/* In files: settings.py:388:388 */
+/* In files: settings.py:425:425 */
 "Prediction Details Anchor:" = "Vorhersagedetails Anker:";
 
-/* In files: settings.py:403:403 */
+/* In files: settings.py:440:440 */
 "Summary / Progress Anchor:" = "Zusammenfassung / Fortschrittsanker:";
 
-/* In files: settings.py:420:420 */
+/* In files: settings.py:457:457 */
 "Scroll details" = "Scrollen die Details";
 
-/* In files: settings.py:423:423 */
+/* In files: settings.py:460:460 */
 "Maximum details length:" = "Maximale Detaillänge:";
 
-/* In files: settings.py:429:429 */
+/* In files: settings.py:466:466 */
 "Scroll delay (sec):" = "Scrollverzögerung (Sek.):";
 
-/* settings.py: Waypoint / scan radar overlay settings title; In files: settings.py:443:443 */
+/* settings.py: Waypoint / scan radar overlay settings title; In files: settings.py:480:480 */
 "Active Scan / Waypoint Radar (?):" = "Aktiver Scan / Wegpunktradar (?):";
 
-/* settings.py: Ship overlay tooltip; Line 1; In files: settings.py:446:446 */
+/* settings.py: Ship overlay tooltip; Line 1; In files: settings.py:485:485 */
 "Draw a radar on the overlay when active scans and waypoints are present." = "Zeichnen Sie ein Radar auf die Überlagerung, wenn aktive Scans und Wegpunkte vorhanden sind.";
 
-/* settings.py: Ship overlay tooltip; Line 2; In files: settings.py:448:448 */
+/* settings.py: Ship overlay tooltip; Line 2; In files: settings.py:487:487 */
 "This displays bio markers up to a defined distance and shows a display of the minimum scan distance." = "Dieser zeigt Biomarker bis zu einer definierten Distanz an und zeigt die minimale Scandistanz an.";
 
-/* settings.py: Ship overlay tooltip; Line 3; In files: settings.py:452:452 */
+/* settings.py: Ship overlay tooltip; Line 3; In files: settings.py:489:489 */
 "This is oriented where up is the direction you're facing. The ship location can be tracked as well." = "Die Ausrichtung ist so, dass nach oben Ihre Blickrichtung ist. Der Standort des Schiffes kann ebenfalls verfolgt werden.";
 
-/* settings.py: Radar enable / disable setting; In files: settings.py:457:457 */
+/* settings.py: Radar enable / disable setting; In files: settings.py:494:494 */
 "Enable Radar" = "Radar Aktivieren";
 
-/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:462:462 */
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:499:499 */
 "Enable Ship Location Tracker" = "Schiffsstandort-Tracker Aktivieren";
 
-/* settings.py: Main label for radar x/y/radius configuration; In files: settings.py:470:470 */
+/* settings.py: Main label for radar x/y/radius configuration; In files: settings.py:507:507 */
 "Radar Anchor (Center Point):" = "Radaranker (Mittelpunkt):";
 
 /* settings.py: Radius label for radar display settings; In files: settings.py:486:486 */
 "Radius:" = "Radius:";
 
-/* settings.py: Distance label for radar display settings; In files: settings.py:493:493 */
+/* settings.py: Distance label for radar display settings; In files: settings.py:530:530 */
 "Maximum radar distance:" = "Maximale Radarentfernung:";
 
-/* load.py: Meters unit; In files: settings.py:499:499; load.py:1374:1374 */
+/* load.py: Meters unit; In files: settings.py:536:536; load.py:1383:1383 */
 "m" = "m";
 
-/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:503:503 */
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:540:540 */
 "Use logarithmic scaling" = "Logarithmische Skalierung verwenden";
 
 /* util.py: Color amethyst; In files: util.py:31:31 */
@@ -697,25 +706,25 @@
 /* load.py: Version update hyperlink message; In files: load.py:150:150 */
 "Version {} is now available" = "Version {} ist jetzt verfügbar";
 
-/* load.py: Label for journal parsing progress indicator; In files: load.py:291:291; load.py:305:305 */
+/* load.py: Label for journal parsing progress indicator; In files: load.py:302:302; load.py:316:316 */
 "Parsing Journals" = "Journale Analysieren";
 
-/* load.py: Journal parsing error message (line 1); In files: load.py:317:317 */
+/* load.py: Journal parsing error message (line 1); In files: load.py:328:328 */
 "Error During Journal Parse" = "Fehler beim Journal-Parsing";
 
-/* load.py: Journal parsing error message (line 2); In files: load.py:319:319 */
+/* load.py: Journal parsing error message (line 2); In files: load.py:330:330 */
 "Please Submit a Report" = "Bitte senden Sie einen Bericht";
 
-/* load.py: Located scan level (0/3); In files: load.py:357:357 */
+/* load.py: Located scan level (0/3); In files: load.py:368:368 */
 "Located" = "Liegeplatz";
 
-/* load.py: Logged scan level (1/3); In files: load.py:359:359 */
+/* load.py: Logged scan level (1/3); In files: load.py:370:370 */
 "Logged" = "Angemeldet";
 
-/* load.py: Sampled scan level (2/3); In files: load.py:361:361 */
+/* load.py: Sampled scan level (2/3); In files: load.py:372:372 */
 "Sampled" = "Stichprobe";
 
-/* load.py: Bio scans completed indicator label; load.py: Analysed scan level (3/3); In files: load.py:363:363; load.py:1734:1734 */
+/* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:374:374; load.py:1750:1750 */
 "Analysed" = "Analysiert";
 
 /* load.py: Unknown scan level; In files: load.py:364:364 */

@@ -1604,6 +1604,13 @@ def render_radar(message_id: str) -> None:
             {'radius': this.radar_radius.get(), 'color': '#ffffff',
              'text': this.formatter.format_distance(this.radar_max_distance.get(), 'm', False)}
         ]
+        radar_segment = this.radar_max_distance.get() / 4
+        for mult in range(3):
+            if this.radar_use_log.get():
+                radius = math.log(radar_segment * (mult + 1), this.radar_max_distance.get()) * this.radar_radius.get()
+            else:
+                radius = radar_segment * (mult + 1) / this.radar_max_distance.get() * this.radar_radius.get()
+            radar_circles.append({'radius': radius, 'color': '#55ffffff'})
         if this.current_scan[0]:
             if this.radar_use_log.get():
                 distance_radius = None if bio_genus[this.current_scan[0]]['distance'] > this.radar_max_distance.get() \
@@ -1628,7 +1635,7 @@ def render_radar(message_id: str) -> None:
                 distance = calc_distance((scan.latitude, scan.longitude))
                 bearing = calc_bearing((scan.latitude, scan.longitude))
                 bearing = bearing - 90 - this.planet_heading
-                radar_markers.append({'genus': translate_genus(bio_genus[flora.genus]['name']),
+                radar_markers.append({'text': translate_genus(bio_genus[flora.genus]['name'])[0:3],
                                         'distance': distance, 'bearing': bearing, 'color': color})
             waypoints: list[Waypoint] = list(
                 filter(
@@ -1652,13 +1659,13 @@ def render_radar(message_id: str) -> None:
                 distance = calc_distance((waypoint.latitude, waypoint.longitude))
                 bearing = calc_bearing((waypoint.latitude, waypoint.longitude))
                 bearing = bearing - 90 - this.planet_heading
-                radar_markers.append({'genus': translate_genus(bio_genus[flora.genus]['name']),
+                radar_markers.append({'text': translate_genus(bio_genus[flora.genus]['name'])[0:3],
                                         'distance': distance, 'bearing': bearing, 'color': color})
             if this.ship_location and this.radar_ship_loc_enabled.get():
                 distance = calc_distance(this.ship_location)
                 bearing = calc_bearing(this.ship_location)
                 bearing = bearing - 90 - this.planet_heading
-                radar_markers.append({'genus': 'SHIP', 'distance': distance, 'bearing': bearing, 'color': '#3bfff2'})
+                radar_markers.append({'text': 'Ship', 'distance': distance, 'bearing': bearing, 'color': '#3bfff2'})
 
         if radar_markers:
             this.overlay.render_radar(message_id, x=this.radar_anchor_x.get(), y=this.radar_anchor_y.get(),

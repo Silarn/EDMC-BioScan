@@ -16,13 +16,13 @@
 /* In files: util.py:29:29 */
 "HMC" = "HMC";
 
-/* format_util.py: Credits unit; In files: format_util.py:7:7 */
+/* format_util.py: Credits unit; In files: format_util.py:11:11 */
 "Cr" = "Cr";
 
-/* format_util.py: Millions unit; In files: format_util.py:40:40 */
+/* format_util.py: Millions unit; In files: format_util.py:95:95 */
 "M" = "M";
 
-/* format_util.py: Thousands unit; In files: format_util.py:44:44 */
+/* format_util.py: Thousands unit; In files: format_util.py:99:99 */
 "k" = "k";
 
 /* settings.py: Version tag at the top of the settings pane; In files: settings.py:51:51; settings.py:59:59 */
@@ -112,82 +112,91 @@
 /* In files: settings.py:234:234 */
 "Enable species waypoints with the comp. scanner" = "Enable species waypoints with the comp. scanner";
 
-/* In files: settings.py:259:259; settings.py:325:325 */
+/* In files: settings.py:264:264; settings.py:330:330 */
 "None" = "None";
 
-/* In files: settings.py:272:272 */
+/* In files: settings.py:277:277 */
 "Overlay Color" = "Overlay Color";
 
-/* In files: settings.py:332:332 */
+/* In files: settings.py:337:337 */
 "Enable overlay" = "Enable overlay";
 
-/* In files: settings.py:337:337 */
+/* In files: settings.py:342:342 */
 "Text Color" = "Text Color";
 
-/* In files: settings.py:348:348 */
+/* In files: settings.py:351:351 */
+"Line spacing:" = "Line spacing:";
+
+/* In files: settings.py:360:360 */
+"Normal:" = "Normal:";
+
+/* In files: settings.py:370:370 */
+"Large:" = "Large:";
+
+/* In files: settings.py:383:383 */
 "Ship Whitelist (?)" = "Ship Whitelist (?)";
 
-/* In files: settings.py:354:354 */
+/* In files: settings.py:389:389 */
 "Ships added to this list will display BioScan on the overlay." = "Ships added to this list will display BioScan on the overlay.";
 
-/* In files: settings.py:355:355 */
+/* In files: settings.py:390:390 */
 "When empty, BioScan will display for all ships." = "When empty, BioScan will display for all ships.";
 
-/* In files: settings.py:364:364 */
+/* In files: settings.py:399:399 */
 "Add" = "Add";
 
-/* In files: settings.py:366:366 */
+/* In files: settings.py:401:401 */
 "Remove" = "Remove";
 
-/* In files: settings.py:368:368 */
+/* In files: settings.py:403:403 */
 "Clear Ships" = "Clear Ships";
 
-/* In files: settings.py:388:388 */
+/* In files: settings.py:425:425 */
 "Prediction Details Anchor:" = "Prediction Details Anchor:";
 
-/* In files: settings.py:403:403 */
+/* In files: settings.py:440:440 */
 "Summary / Progress Anchor:" = "Summary / Progress Anchor:";
 
-/* In files: settings.py:420:420 */
+/* In files: settings.py:457:457 */
 "Scroll details" = "Scroll details";
 
-/* In files: settings.py:423:423 */
+/* In files: settings.py:460:460 */
 "Maximum details length:" = "Maximum details length:";
 
-/* In files: settings.py:429:429 */
+/* In files: settings.py:466:466 */
 "Scroll delay (sec):" = "Scroll delay (sec):";
 
-/* settings.py: Waypoint / scan radar overlay settings title; In files: settings.py:443:443 */
+/* settings.py: Waypoint / scan radar overlay settings title; In files: settings.py:480:480 */
 "Active Scan / Waypoint Radar (?):" = "Active Scan / Waypoint Radar (?):";
 
-/* settings.py: Ship overlay tooltip; Line 1; In files: settings.py:448:448 */
+/* settings.py: Ship overlay tooltip; Line 1; In files: settings.py:485:485 */
 "Draw a radar on the overlay when active scans and waypoints are present." = "Draw a radar on the overlay when active scans and waypoints are present.";
 
-/* settings.py: Ship overlay tooltip; Line 2; In files: settings.py:450:450 */
+/* settings.py: Ship overlay tooltip; Line 2; In files: settings.py:487:487 */
 "This displays bio markers up to a defined distance and shows a display of the minimum scan distance." = "This displays bio markers up to a defined distance and shows a display of the minimum scan distance.";
 
-/* settings.py: Ship overlay tooltip; Line 3; In files: settings.py:452:452 */
+/* settings.py: Ship overlay tooltip; Line 3; In files: settings.py:489:489 */
 "This is oriented where up is the direction you're facing. The ship location can be tracked as well." = "This is oriented where up is the direction you're facing. The ship location can be tracked as well.";
 
-/* settings.py: Radar enable / disable setting; In files: settings.py:457:457 */
+/* settings.py: Radar enable / disable setting; In files: settings.py:494:494 */
 "Enable Radar" = "Enable Radar";
 
-/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:462:462 */
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:499:499 */
 "Enable Ship Location Tracker" = "Enable Ship Location Tracker";
 
-/* settings.py: Main label for radar x/y/radius configuration; In files: settings.py:470:470 */
+/* settings.py: Main label for radar x/y/radius configuration; In files: settings.py:507:507 */
 "Radar Anchor (Center Point):" = "Radar Anchor (Center Point):";
 
-/* settings.py: Radius label for radar display settings; In files: settings.py:486:486 */
+/* settings.py: Radius label for radar display settings; In files: settings.py:523:523 */
 "Radius:" = "Radius:";
 
-/* settings.py: Distance label for radar display settings; In files: settings.py:493:493 */
+/* settings.py: Distance label for radar display settings; In files: settings.py:530:530 */
 "Maximum radar distance:" = "Maximum radar distance:";
 
-/* load.py: Meters unit; In files: settings.py:499:499; load.py:1376:1376 */
+/* load.py: Meters unit; In files: settings.py:536:536; load.py:1383:1383 */
 "m" = "m";
 
-/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:503:503 */
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:540:540 */
 "Use logarithmic scaling" = "Use logarithmic scaling";
 
 /* util.py: Color amethyst; In files: util.py:31:31 */
@@ -697,84 +706,84 @@
 /* load.py: Version update hyperlink message; In files: load.py:150:150 */
 "Version {} is now available" = "Version {} is now available";
 
-/* load.py: Label for journal parsing progress indicator; In files: load.py:295:295; load.py:309:309 */
+/* load.py: Label for journal parsing progress indicator; In files: load.py:302:302; load.py:316:316 */
 "Parsing Journals" = "Parsing Journals";
 
-/* load.py: Journal parsing error message (line 1); In files: load.py:321:321 */
+/* load.py: Journal parsing error message (line 1); In files: load.py:328:328 */
 "Error During Journal Parse" = "Error During Journal Parse";
 
-/* load.py: Journal parsing error message (line 2); In files: load.py:323:323 */
+/* load.py: Journal parsing error message (line 2); In files: load.py:330:330 */
 "Please Submit a Report" = "Please Submit a Report";
 
-/* load.py: Located scan level (0/3); In files: load.py:361:361 */
+/* load.py: Located scan level (0/3); In files: load.py:368:368 */
 "Located" = "Located";
 
-/* load.py: Logged scan level (1/3); In files: load.py:363:363 */
+/* load.py: Logged scan level (1/3); In files: load.py:370:370 */
 "Logged" = "Logged";
 
-/* load.py: Sampled scan level (2/3); In files: load.py:365:365 */
+/* load.py: Sampled scan level (2/3); In files: load.py:372:372 */
 "Sampled" = "Sampled";
 
-/* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:367:367; load.py:1743:1743 */
+/* load.py: Bio scans completed indicator label; load.py: Analysed scan level (3/3); In files: load.py:374:374; load.py:1750:1750 */
 "Analysed" = "Analysed";
 
-/* load.py: Unknown scan level; In files: load.py:368:368 */
+/* load.py: Unknown scan level; In files: load.py:375:375 */
 "Unknown" = "Unknown";
 
-/* load.py: Scan complete status text; In files: load.py:1398:1398 */
+/* load.py: Scan complete status text; In files: load.py:1405:1405 */
 "Complete" = "Complete";
 
-/* load.py: All scans complete status text; In files: load.py:1437:1437; load.py:1439:1439 */
+/* load.py: All scans complete status text; In files: load.py:1444:1444; load.py:1446:1446 */
 "All Samples Complete" = "All Samples Complete";
 
-/* load.py: Indicator for multiple possible bio variants; In files: load.py:1471:1471 */
+/* load.py: Indicator for multiple possible bio variants; In files: load.py:1478:1478 */
 "Multiple Possible" = "Multiple Possible";
 
-/* load.py: Nearest waypoint text; In files: load.py:1485:1485; load.py:1775:1775 */
+/* load.py: Nearest waypoint text; In files: load.py:1492:1492; load.py:1782:1782 */
 "Nearest Saved Waypoint" = "Nearest Saved Waypoint";
 
-/* load.py: Predicted bio not located label; In files: load.py:1490:1490 */
+/* load.py: Predicted bio not located label; In files: load.py:1497:1497 */
 "Not located" = "Not located";
 
-/* load.py: Basic scan data messages; In files: load.py:1530:1530 */
+/* load.py: Basic scan data messages; In files: load.py:1537:1537 */
 "! Basic Scan Detected !" = "! Basic Scan Detected !";
 
-/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1532:1532 */
+/* load.py: Basic scan data FSS / DSS reminder; In files: load.py:1539:1539 */
 "FSS / DSS / AutoScan Needed" = "FSS / DSS / AutoScan Needed";
 
-/* load.py: Body signal display; In files: load.py:1536:1536 */
+/* load.py: Body signal display; In files: load.py:1543:1543 */
 "Signals" = "Signals";
 
-/* load.py: Body signal display; In files: load.py:1536:1536 */
+/* load.py: Body signal display; In files: load.py:1543:1543 */
 "Signal" = "Signal";
 
-/* load.py: Possible types label for body signal diplay; In files: load.py:1537:1537 */
+/* load.py: Possible types label for body signal diplay; In files: load.py:1544:1544 */
 "Possible Types" = "Possible Types";
 
-/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1580:1580 */
+/* load.py: Text for bodies with unknown signals; typically after autoscans; In files: load.py:1587:1587 */
 "AutoScan/NavBeacon Data, Bios Possible" = "AutoScan/NavBeacon Data, Bios Possible";
 
-/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1583:1583 */
+/* load.py: Reminder to trigger FSS / DSS for unknown signals; In files: load.py:1590:1590 */
 "Check FSS for Signals (or DSS)" = "Check FSS for Signals (or DSS)";
 
-/* load.py: Startup message before data has been processed; In files: load.py:1677:1677 */
+/* load.py: Startup message before data has been processed; In files: load.py:1684:1684 */
 "BioScan: Awaiting Data" = "BioScan: Awaiting Data";
 
-/* load.py: General BioScan prediction title label; In files: load.py:1714:1714 */
+/* load.py: General BioScan prediction title label; In files: load.py:1721:1721 */
 "BioScan Predictions" = "BioScan Predictions";
 
-/* load.py: Scan in progress indicator; In files: load.py:1765:1765 */
+/* load.py: Scan in progress indicator; In files: load.py:1772:1772 */
 "In Progress" = "In Progress";
 
-/* load.py: Analysed samples list label; In files: load.py:1780:1780 */
+/* load.py: Analysed samples list label; In files: load.py:1787:1787 */
 "Analysed System Samples" = "Analysed System Samples";
 
-/* load.py: No signals found in current system; In files: load.py:1787:1787 */
+/* load.py: No signals found in current system; In files: load.py:1794:1794 */
 "BioScan: No Signals Found" = "BioScan: No Signals Found";
 
-/* load.py: Overlay details label; In files: load.py:1802:1802 */
+/* load.py: Overlay details label; In files: load.py:1809:1809 */
 "BioScan Details" = "BioScan Details";
 
-/* load.py: Overlay no signals label; In files: load.py:1820:1820 */
+/* load.py: Overlay no signals label; In files: load.py:1827:1827 */
 "BioScan: No Signals" = "BioScan: No Signals";
 

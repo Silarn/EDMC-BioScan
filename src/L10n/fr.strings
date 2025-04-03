@@ -112,34 +112,43 @@
 /* In files: settings.py:234:234 */
 "Enable species waypoints with the comp. scanner" = "Activer les points de cheminement des espèces avec le scanner de comp.";
 
-/* In files: settings.py:259:259; settings.py:325:325 */
+/* In files: settings.py:264:264; settings.py:330:330 */
 "None" = "Aucune";
 
-/* In files: settings.py:272:272 */
+/* In files: settings.py:277:277 */
 "Overlay Color" = "Couleur de Superposition";
 
-/* In files: settings.py:332:332 */
+/* In files: settings.py:337:337 */
 "Enable overlay" = "Activer la superposition";
 
-/* In files: settings.py:337:337 */
+/* In files: settings.py:342:342 */
 "Text Color" = "Couleur du Texte";
 
-/* In files: settings.py:348:348 */
+/* In files: settings.py:351:351 */
+"Line spacing:" = "Interligne :";
+
+/* In files: settings.py:360:360 */
+"Normal:" = "Normale :";
+
+/* In files: settings.py:370:370 */
+"Large:" = "Grand :";
+
+/* In files: settings.py:383:383 */
 "Ship Whitelist (?)" = "Liste Blanche des Vaisseaux (?)";
 
-/* In files: settings.py:354:354 */
+/* In files: settings.py:389:389 */
 "Ships added to this list will display BioScan on the overlay." = "Les vaisseaux ajoutés à cette liste afficheront BioScan sur la superposition.";
 
-/* In files: settings.py:355:355 */
+/* In files: settings.py:390:390 */
 "When empty, BioScan will display for all ships." = "Si vide, BioScan s'affichera pour tous les vaisseaux.";
 
-/* In files: settings.py:364:364 */
+/* In files: settings.py:399:399 */
 "Add" = "Ajouter";
 
-/* In files: settings.py:366:366 */
+/* In files: settings.py:401:401 */
 "Remove" = "Retirer";
 
-/* In files: settings.py:368:368 */
+/* In files: settings.py:403:403 */
 "Clear Ships" = "Effacer les Vaisseaux";
 
 /* In files: settings.py:388:388 */
