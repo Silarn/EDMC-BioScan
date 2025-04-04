@@ -51,7 +51,7 @@ def convert_locale(locale_code: str) -> str:
         case 'tr':
             return 'tr_TR'
         case 'uk':
-            return 'en_UK'
+            return 'uk_UA'
         case 'zh-Hans':
             return 'zh_ZA'
         case _:
@@ -64,11 +64,13 @@ class Formatter:
         self.shorten: bool = shorten
 
     def set_locale(self, locale_code: str):
+        converted_locale_code = convert_locale(locale_code)
         try:
-            locale_code = convert_locale(locale_code)
-            locale.setlocale(locale.LC_ALL, locale_code)
+            locale.setlocale(locale.LC_ALL, converted_locale_code)
         except locale.Error as ex:
-            logger.error(f'Locale: {locale_code}', exc_info=ex)
+            logger.error(f'Failed to set locale: {locale_code} -> {converted_locale_code}')
+            locale.setlocale(locale.LC_ALL, '')
+            logger.error(f'Falling back to system default: {locale.getlocale()}')
 
     def set_shorten(self, value: bool) -> None:
         """
