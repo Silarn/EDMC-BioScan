@@ -87,7 +87,8 @@ class Formatter:
 
         :param num: Base numeral in standard unit. (e.g. meter, lightsecond, etc.)
         :param unit: Base unit abbreviation
-        :param space: Whether or not to include a space before the unit
+        :param space: Whether to include a space before the unit
+        :param monetary: Whether number is a monetary value
         :return: Formatted number string with metric unit conversion
         """
 
