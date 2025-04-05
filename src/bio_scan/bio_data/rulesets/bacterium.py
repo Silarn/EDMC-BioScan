@@ -8,7 +8,7 @@ catalog: dict[str, dict[str, Mapping]] = {
             'rulesets': [
                 {
                     'atmosphere': ['CarbonDioxide'],
-                    'body_type': ['Rocky body', 'High metal content body'],
+                    'body_type': ['Rocky body', 'High metal content body', 'Rocky ice body'],
                     'min_gravity': 0.039,
                     'max_gravity': 0.608,
                     'min_temperature': 145.0,
