@@ -1619,7 +1619,10 @@ def render_radar(message_id: str) -> None:
                 distance_radius = None if bio_genus[this.current_scan[0]]['distance'] > this.radar_max_distance.get() \
                     else bio_genus[this.current_scan[0]]['distance'] / this.radar_max_distance.get() * this.radar_radius.get()
             if distance_radius:
-                radar_circles.append({'radius': distance_radius, 'color': '#fe9900'})
+                color = '#fe9900'
+                if get_distance() >= bio_genus[this.current_scan[0]]['distance']:
+                    color = '#83fe99'
+                radar_circles.append({'radius': distance_radius, 'color': color})
         radar_markers: list[dict] = []
         for flora in this.planets[this.location_name].get_flora():
             scans: list[Waypoint] = list(
