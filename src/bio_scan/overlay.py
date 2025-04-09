@@ -131,16 +131,17 @@ class Overlay:
             self._overlay: edmcoverlay.Overlay | None = edmcoverlay.Overlay()
             if hasattr(self._overlay, 'connection'):
                 self._overlay_type = 'EDMCOverlay'
-            elif hasattr(self._overlay, 'connect'):
+            elif hasattr(self._overlay, 'connect') and not hasattr(self._overlay, 'server'):
                 self._overlay_type = 'edmcoverlay_for_linux'
             else:
-                if environ.get('XDG_SESSION_TYPE', 'X11') == 'wayland':
+                if environ.get('XDG_SESSION_TYPE', 'X11') == 'wayland' and hasattr(self._overlay, 'server'):
                     self._overlay_type = 'edmcoverlay2_wayland'
                 else:
                     self._overlay_type = 'edmcoverlay2'
         else:
             self._overlay_type = "none"
             self._overlay: edmcoverlay.Overlay | None = None
+        logger.debug(self._overlay_type)
         self._normal_spacer: int = 16
         self._large_spacer: int = 26
         self._text_blocks: dict[str, TextBlock] = {}
