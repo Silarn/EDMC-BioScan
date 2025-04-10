@@ -141,7 +141,6 @@ class Overlay:
         else:
             self._overlay_type = "none"
             self._overlay: edmcoverlay.Overlay | None = None
-        logger.debug(self._overlay_type)
         self._normal_spacer: int = 16
         self._large_spacer: int = 26
         self._text_blocks: dict[str, TextBlock] = {}
@@ -195,10 +194,15 @@ class Overlay:
         else:
             return (VIRTUAL_WIDTH / VIRTUAL_HEIGHT) * (self._screen_height / self._screen_width)
 
-    def _aspect(self, x: float) -> int:
+    def _aspect_x(self, x: float) -> int:
         if self._overlay_type in ['EDMCOverlay', 'edmcoverlay2']:
             return round_away(self._over_aspect_x * x)
         return int(x)
+
+    def _aspect_y(self, y: float) -> int:
+        if self._overlay_type == 'edmcoverlay2_wayland':
+            return int(y + 20)
+        return int(y)
 
     def display(self, message_id: str, text: str, x: int = 0, y: int = 0, color: str = "#ffffff", size: str = "normal",
                 scrolled: bool = False, limit: int = 0, delay: float = 10) -> None:
@@ -217,38 +221,42 @@ class Overlay:
         :param delay: Time between up/down scroll of scrolled text
         """
 
-        if sys.platform == 'linux':
+        if sys.platform == 'linux' and self._overlay_type == 'edmcoverlay2':
             formatted_text = (text.replace('🗸', '*').replace('\N{memo}', '»')
-                              .replace(' ', ' ').split("\n"))
+                              .replace(' ', ' ').split('\n'))
+        elif self._overlay_type == 'EDMCOverlay':
+            formatted_text = text.replace('🗸', '√').replace('\N{memo}', '♦').split('\n')
         else:
-            formatted_text = text.replace('🗸', '√').replace('\N{memo}', '♦').split("\n")
-        if not scrolled:
-            self.clear(message_id, False)
-        elif message_id in self._text_blocks and len(formatted_text) < len(self._text_blocks[message_id].text):
-            self.clear(message_id, len(formatted_text), False)
+            formatted_text = text.split('\n')
+        if (not scrolled or
+                (message_id in self._text_blocks and len(formatted_text) < len(self._text_blocks[message_id].text))):
+            self.clear(message_id, len(formatted_text)-1, False)
         self._text_blocks[message_id] = TextBlock(
             text=formatted_text, x=x, y=y, size=size, color=color, scrolled=scrolled, limit=limit, delay=delay
         )
         if not scrolled:
             self.draw(message_id)
 
-    def clear(self, message_id: str, from_line: int = 0, remove: bool = True) -> None:
+    def clear(self, message_id: str, new_length: int = 0, remove: bool = True) -> None:
         """
         Clears a given text block identified by a unique message ID.
 
         :param message_id: Unique ID of text to clear.
-        :param from_line: Start point of clear
+        :param new_length: Start point of clear
         :param remove: Remove the message from the cache.
         """
 
         try:
             if message_id in self._text_blocks:
-                count = from_line
-                while (count < len(self._text_blocks[message_id].text) or
-                       (self._text_blocks[message_id].limit > 0 and count < self._text_blocks[message_id].limit)):
-                    self._overlay.send_message("{}_{}".format(message_id, count),
-                                               "", "#ffffff", 0, 0, ttl=1)
-                    count += 1
+                last_len = self._text_blocks[message_id].limit if self._text_blocks[message_id].limit else len(self._text_blocks[message_id].text)
+                last_len = min(len(self._text_blocks[message_id].text), last_len)
+                if new_length:
+                    if new_length < last_len:
+                        for item in range(new_length, last_len):
+                            self._overlay.send_raw({'id': f'{message_id}_{item}'})
+                else:
+                    for item in range(last_len):
+                        self._overlay.send_raw({'id': f'{message_id}_{item}'})
                 if remove:
                     self._text_blocks.pop(message_id, None)
         except Exception as ex:
@@ -269,8 +277,10 @@ class Overlay:
         :param logarithmic: Make radar scale logarithmic (default: False)
         """
 
-        if self._overlay_type == 'EDMCOverlay' :
+        if self._overlay_type == 'EDMCOverlay':
             self.clear_radar(message_id)
+        else:
+            self.trim_radar(message_id, circles, markers)
         self._markers[message_id] = RadarSet(markers, circles, x, y, r, d, logarithmic)
         self.draw_circles(message_id)
         self.draw_markers(message_id)
@@ -289,6 +299,20 @@ class Overlay:
                 self._overlay.send_raw({'id': f'{message_id}_{item}'})
         if message_id in self._markers and remove:
             self._markers.pop(message_id)
+
+    def trim_radar(self, message_id: str, circles: list | None = None, markers: list | None = None) -> None:
+        """
+        Removes expired radar components
+        """
+        if message_id in self._markers:
+            if len(self._markers[message_id].circles) > len(circles):
+                for item in range(len(circles) - 1, len(self._markers[message_id].circles)):
+                    self._overlay.send_raw({'id': f'{message_id}_circle_{item}'})
+                    if 'text' in self._markers[message_id].circles[item]:
+                        self._overlay.send_raw({'id': f'{message_id}_circle_{item}_text'})
+            if len(self._markers[message_id].markers) > len(markers):
+                for item in range(len(markers), len(self._markers[message_id].markers) + 1):
+                    self._overlay.send_raw({'id':  f'{message_id}_{item}'})
 
     @setInterval(30)
     def redraw(self):
@@ -364,7 +388,7 @@ class Overlay:
             while (block.limit == 0 or count - block.offset <= block.limit) and count < len(block.text):
                 try:
                     self._overlay.send_message("{}_{}".format(message_id, line_count), block.text[count], block.color,
-                                               block.x, block.y + (spacer * (count - block.offset)),
+                                               block.x, self._aspect_y(block.y) + (spacer * (count - block.offset)),
                                                ttl=60, size=block.size)
                 except AttributeError:
                     count -= 1
@@ -386,8 +410,8 @@ class Overlay:
                         x_point = x + (r * math.cos(math.radians(7.5 * pie_slice)))
                         y_point = y + (r * math.sin(math.radians(7.5 * pie_slice)))
                         point = {
-                            'x': self._aspect(x_point),
-                            'y': int(y_point)
+                            'x': self._aspect_x(x_point),
+                            'y': self._aspect_y(y_point)
                         }
                         points.append(point)
 
@@ -399,8 +423,8 @@ class Overlay:
                     self._overlay.send_raw(message)
                     if 'text' in self._markers[message_id].circles[index]:
                         point = {
-                            'x': self._aspect(x + (r * math.cos(math.radians(0)))),
-                            'y': int(y + (r * math.sin(math.radians(0)))),
+                            'x': self._aspect_x(x + (r * math.cos(math.radians(0)))),
+                            'y': self._aspect_y(y + (r * math.sin(math.radians(0)))),
                             'color': self._markers[message_id].circles[index]['color'],
                             'text': self._markers[message_id].circles[index]['text'],
                             'marker': 'circle'
@@ -426,7 +450,7 @@ class Overlay:
                     'id': f'{message_id}_0',
                     'shape': 'vect',
                     'vector': [{
-                        'x': self._aspect(x), 'y': y,
+                        'x': self._aspect_x(x), 'y': self._aspect_y(y),
                         'color': self._markers[message_id].circles[0]['color'],
                         'marker': 'circle'
                     }],
@@ -448,7 +472,7 @@ class Overlay:
                         'id': f'{message_id}_{item+1}',
                         'shape': 'vect',
                         'vector': [{
-                            'x': self._aspect(x_point), 'y': int(y_point),
+                            'x': self._aspect_x(x_point), 'y': self._aspect_y(y_point),
                             'color': markers[item]['color'], 'marker': 'cross',
                             'text': markers[item]['text']
                         }],

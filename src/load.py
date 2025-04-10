@@ -1823,7 +1823,7 @@ def update_display() -> None:
                                      color=this.overlay_color.get())
                 if redraw_overlay:
                     this.overlay.display('bioscan_details', detail_text.strip(),
-                                         x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + 20,
+                                         x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get() + this.overlay_line_spacing_normal.get(),
                                          color=this.overlay_color.get(), scrolled=this.overlay_detail_scroll.get(),
                                          limit=this.overlay_detail_length.get(), delay=this.overlay_detail_delay.get())
                 this.overlay.display('bioscan_summary', text,
