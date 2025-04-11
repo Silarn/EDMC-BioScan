@@ -234,6 +234,12 @@ def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
         text=tr.tl('Enable species waypoints with the comp. scanner', bioscan_globals.translation_context),
         variable=bioscan_globals.waypoints_enabled
     ).grid(row=9, column=0, padx=0, sticky=tk.W)
+    nb.Checkbutton(
+        right_column,
+        text=tr.tl('Hide waypoint bearings with radar enabled (see overlay)', bioscan_globals.translation_context),
+        variable=bioscan_globals.hide_waypoint_bearings,
+        state=tk.ACTIVE if bioscan_globals.overlay.available() else tk.DISABLED
+    ).grid(row=10, column=0, padx=0, sticky=tk.W)
 
     return frame
 
@@ -335,7 +341,8 @@ def get_overlay_tab(parent: ttk.Notebook) -> tk.Frame:
     nb.Checkbutton(
         left_frame,
         text=tr.tl('Enable overlay', bioscan_globals.translation_context),
-        variable=bioscan_globals.use_overlay
+        variable=bioscan_globals.use_overlay,
+        state=tk.NORMAL if bioscan_globals.overlay.available() else tk.DISABLED
     ).grid(row=0, column=0, padx=x_button_padding, pady=0, sticky=tk.W)
     color_button = tk.Button(
         left_frame,

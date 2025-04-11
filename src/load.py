@@ -191,6 +191,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_exclude_signals', this.exclude_signals.get())
     config.set('bioscan_minimum_signals', this.minimum_signals.get())
     config.set('bioscan_waypoints', this.waypoints_enabled.get())
+    config.set('bioscan_hide_waypoint_bearings', this.hide_waypoint_bearings.get())
     config.set('bioscan_box_height', this.box_height.get())
     this.scroll_canvas.config(height=this.box_height.get())
     config.set('bioscan_debugging', this.debug_logging_enabled.get())
@@ -232,6 +233,7 @@ def parse_config(cmdr: str = '') -> None:
     this.exclude_signals = tk.BooleanVar(value=config.get_bool(key='bioscan_exclude_signals', default=False))
     this.minimum_signals = tk.IntVar(value=config.get_int(key='bioscan_minimum_signals', default=0))
     this.waypoints_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_waypoints', default=True))
+    this.hide_waypoint_bearings = tk.BooleanVar(value=config.get_bool(key='bioscan_hide_waypoint_bearings', default=True))
     this.box_height = tk.IntVar(value=config.get_int(key='bioscan_box_height', default=80))
     this.debug_logging_enabled = tk.BooleanVar(value=config.get_bool(key='bioscan_debugging', default=False))
     this.use_overlay = tk.BooleanVar(value=config.get_bool(key='bioscan_overlay', default=False))
@@ -1489,7 +1491,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             this.formatter.format_credits(bio_types[genus][species]['value']),
                             u' 🗸' if scan and scan[0].count == 3 else '',
                             # LANG: Nearest waypoint text
-                            f'\n  ' + tr.tl('Nearest Saved Waypoint', this.translation_context) + f': {waypoint}' if waypoint else ''
+                            f'\n  ' + tr.tl('Nearest Saved Waypoint', this.translation_context) +
+                                f': {waypoint}' if waypoint and not should_hide_waypoint() else ''
                         )
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
@@ -1883,6 +1886,12 @@ def overlay_should_display() -> bool:
     elif this.docked or not this.analysis_mode:
         result = False
     return result
+
+
+def should_hide_waypoint() -> bool:
+    if this.overlay.available() and this.use_overlay.get() and this.radar_enabled.get():
+        return this.hide_waypoint_bearings.get()
+    return False
 
 
 def bind_mousewheel(event: tk.Event) -> None:
