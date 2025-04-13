@@ -221,7 +221,7 @@ class Overlay:
         :param delay: Time between up/down scroll of scrolled text
         """
 
-        if sys.platform == 'linux' and self._overlay_type == 'edmcoverlay2':
+        if sys.platform == 'linux' and self._overlay_type in ['edmcoverlay2', 'edmcoverlay_for_linux']:
             formatted_text = (text.replace('🗸', '*').replace('\N{memo}', '»')
                               .replace(' ', ' ').split('\n'))
         elif self._overlay_type == 'EDMCOverlay':
