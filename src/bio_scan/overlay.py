@@ -314,7 +314,7 @@ class Overlay:
                 for item in range(len(markers), len(self._markers[message_id].markers) + 1):
                     self._overlay.send_raw({'id':  f'{message_id}_{item}'})
 
-    @setInterval(30)
+    @setInterval(15)
     def redraw(self):
         """
         Redraws all cached text blocks on a 30-second interval.
@@ -389,7 +389,7 @@ class Overlay:
                 try:
                     self._overlay.send_message("{}_{}".format(message_id, line_count), block.text[count], block.color,
                                                block.x, self._aspect_y(block.y) + (spacer * (count - block.offset)),
-                                               ttl=60, size=block.size)
+                                               ttl=20, size=block.size)
                 except AttributeError:
                     count -= 1
                     self._overlay.connect()
@@ -419,7 +419,7 @@ class Overlay:
                                'shape': 'vect',
                                'vector': points,
                                'color': self._markers[message_id].circles[index]['color'],
-                               'ttl': 60}
+                               'ttl': 20}
                     self._overlay.send_raw(message)
                     if 'text' in self._markers[message_id].circles[index]:
                         point = {
@@ -454,7 +454,7 @@ class Overlay:
                         'color': self._markers[message_id].circles[0]['color'],
                         'marker': 'circle'
                     }],
-                    'ttl': 60
+                    'ttl': 20
                 }
                 self._overlay.send_raw(message)
                 for item in range(len(markers)):
@@ -476,7 +476,7 @@ class Overlay:
                             'color': markers[item]['color'], 'marker': 'cross',
                             'text': markers[item]['text']
                         }],
-                        'ttl': 60
+                        'ttl': 20
                     }
                     self._overlay.send_raw(message)
             except AttributeError:
