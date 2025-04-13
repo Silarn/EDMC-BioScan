@@ -1235,6 +1235,12 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
                 and StatusFlags2.SOCIAL_ON_FOOT not in status2 and StatusFlags2.STATION_ON_FOOT not in status2:
             this.location_state = 'surface'
 
+    gui_focus = int(entry.get('GuiFocus', 0))
+    if gui_focus != this.gui_focus and ((gui_focus in [0, 2, 9, 10]) != (this.gui_focus in [0, 2, 9, 10])):
+        this.mode_changed = True
+        refresh = True
+    this.gui_focus = gui_focus
+
     if current_state != this.location_state:
         if (this.focus_setting.get() == 'On Approach' and this.location_state == 'approach') or \
                 (this.focus_setting.get() == 'On Surface' and this.location_state == 'surface') or \
@@ -1884,6 +1890,8 @@ def overlay_should_display() -> bool:
         if not this.suit_name.startswith('explorationsuit'):
             result = False
     elif this.docked or not this.analysis_mode:
+        result = False
+    if this.gui_focus not in [0, 2, 9, 10]:
         result = False
     return result
 

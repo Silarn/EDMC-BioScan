@@ -110,6 +110,7 @@ class Globals:
         self.in_supercruise: bool = False
         self.mode_changed: bool = False
         self.current_scan: tuple[str, str] = ('', '')
+        self.gui_focus: int = 0
 
         # EDSM vars
         self.fetched_edsm = False
