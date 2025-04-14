@@ -1235,6 +1235,12 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
                 and StatusFlags2.SOCIAL_ON_FOOT not in status2 and StatusFlags2.STATION_ON_FOOT not in status2:
             this.location_state = 'surface'
 
+    if StatusFlags.FSD_JUMP_IN_PROGRESS in status:
+        refresh = True
+        if StatusFlags.SUPERCRUISE in status:
+            reset()
+        this.location_state = 'fsd_jump'
+
     gui_focus = int(entry.get('GuiFocus', 0))
     if gui_focus != this.gui_focus and ((gui_focus in [0, 2, 9, 10]) != (this.gui_focus in [0, 2, 9, 10])):
         this.mode_changed = True
@@ -1898,7 +1904,7 @@ def overlay_should_display() -> bool:
             result = False
     elif this.docked or not this.analysis_mode:
         result = False
-    if this.gui_focus not in [0, 2, 9, 10]:
+    if this.gui_focus not in [0, 2, 9, 10] or this.location_state == 'fsd_jump':
         result = False
     return result
 
