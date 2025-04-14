@@ -1288,6 +1288,13 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     else:
         on_foot = False
 
+    if StatusFlags.HAVE_LATLONG in status:
+        if StatusFlags.IN_SHIP in status:
+            if StatusFlags.LANDED in status:
+                if not this.ship_location and this.planet_latitude:
+                    this.ship_location = (this.planet_latitude, this.planet_longitude)
+                    refresh = True
+
     if this.in_supercruise != (StatusFlags.SUPERCRUISE in status):
         this.in_supercruise = (StatusFlags.SUPERCRUISE in status)
         this.mode_changed = True
