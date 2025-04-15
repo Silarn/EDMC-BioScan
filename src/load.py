@@ -1022,6 +1022,13 @@ def journal_entry(
             if 'Latitude' in entry and 'Taxi' in entry and not entry['Taxi']:
                 this.ship_location = (entry['Latitude'], entry['Longitude'])
 
+        case 'StartJump':
+            if entry['JumpType'] == 'Hyperspace':
+                this.location_state = 'fsd_jump'
+                this.mode_changed = True
+                reset()
+                update_display()
+
         case 'DockSRV':
             if not this.ship_location:
                 this.ship_location = (this.planet_latitude, this.planet_longitude)
@@ -1237,9 +1244,9 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
 
     if StatusFlags.FSD_JUMP_IN_PROGRESS in status:
         refresh = True
-        if StatusFlags.SUPERCRUISE in status:
-            reset()
-        this.location_state = 'fsd_jump'
+        if this.location_state != 'fsd_jump':
+            this.location_state = 'fsd_jump'
+            this.mode_changed = True
 
     gui_focus = int(entry.get('GuiFocus', 0))
     if gui_focus != this.gui_focus and ((gui_focus in [0, 2, 9, 10]) != (this.gui_focus in [0, 2, 9, 10])):

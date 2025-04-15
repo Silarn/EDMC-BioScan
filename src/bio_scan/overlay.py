@@ -234,8 +234,7 @@ class Overlay:
         self._text_blocks[message_id] = TextBlock(
             text=formatted_text, x=x, y=y, size=size, color=color, scrolled=scrolled, limit=limit, delay=delay
         )
-        if not scrolled:
-            self.draw(message_id)
+        self.draw(message_id)
 
     def clear(self, message_id: str, new_length: int = 0, remove: bool = True) -> None:
         """
@@ -253,10 +252,10 @@ class Overlay:
                 if new_length:
                     if new_length < last_len:
                         for item in range(new_length, last_len):
-                            self._overlay.send_raw({'id': f'{message_id}_{item}'})
+                            self._overlay.send_raw({'id': f'{message_id}_{item}', 'text': '', 'ttl': 0})
                 else:
                     for item in range(last_len):
-                        self._overlay.send_raw({'id': f'{message_id}_{item}'})
+                        self._overlay.send_raw({'id': f'{message_id}_{item}', 'text': '', 'ttl': 0})
                 if remove:
                     self._text_blocks.pop(message_id, None)
         except Exception as ex:
@@ -292,9 +291,9 @@ class Overlay:
 
         if message_id in self._markers:
             for item in range(len(self._markers[message_id].circles)):
-                self._overlay.send_raw({'id': f'{message_id}_circle_{item}'})
+                self._overlay.send_raw({'id': f'{message_id}_circle_{item}', 'ttl': 0})
                 if 'text' in self._markers[message_id].circles[item]:
-                    self._overlay.send_raw({'id': f'{message_id}_circle_{item}_text'})
+                    self._overlay.send_raw({'id': f'{message_id}_circle_{item}_text', 'ttl': 0})
             for item in range(len(self._markers[message_id].markers) + 1):
                 self._overlay.send_raw({'id': f'{message_id}_{item}'})
         if message_id in self._markers and remove:
@@ -314,7 +313,7 @@ class Overlay:
                 for item in range(len(markers), len(self._markers[message_id].markers) + 1):
                     self._overlay.send_raw({'id':  f'{message_id}_{item}'})
 
-    @setInterval(15)
+    @setInterval(10)
     def redraw(self):
         """
         Redraws all cached text blocks on a 30-second interval.
@@ -327,7 +326,7 @@ class Overlay:
                     continue
                 self.draw(message_id)
 
-    @setInterval(15)
+    @setInterval(10)
     def redraw_radar(self):
         """
         Redraws all cached radars on a 5-second interval.
@@ -429,7 +428,7 @@ class Overlay:
                             'text': self._markers[message_id].circles[index]['text'],
                             'marker': 'circle'
                         }
-                        message = {'id': f'{message_id}_circle_{index}_text', 'shape': 'vect', 'vector': [point], 'ttl': 60}
+                        message = {'id': f'{message_id}_circle_{index}_text', 'shape': 'vect', 'vector': [point], 'ttl': 20}
                         self._overlay.send_raw(message)
                 except AttributeError:
                     self._overlay.connect()
