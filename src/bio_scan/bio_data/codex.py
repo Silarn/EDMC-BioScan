@@ -12,8 +12,6 @@ from bio_scan.util import translate_species
 
 
 def check_codex(commander: int, region: int | None, genus: str, species: str, variant: str = '') -> bool:
-    if region is None:
-        return False
     biological = species
     if variant:
         if species in bio_genus:
@@ -50,8 +48,14 @@ def check_codex(commander: int, region: int | None, genus: str, species: str, va
                     biological = f'{match.group(1)}_{code}_Name;'
 
     session = db.get_session()
-    entry: CodexScans = session.scalar(select(CodexScans).where(CodexScans.commander_id == commander)
-                                       .where(CodexScans.region == region).where(CodexScans.biological == biological))
+
+    if region is not None:
+        entry: CodexScans = session.scalar(select(CodexScans).where(CodexScans.commander_id == commander)
+                                           .where(CodexScans.region == region).where(CodexScans.biological == biological))
+    else:
+        entry: CodexScans = session.scalar(select(CodexScans).where(CodexScans.commander_id == commander)
+                                           .where(CodexScans.biological == biological))
+
     session.close()
 
     if entry:
@@ -59,7 +63,7 @@ def check_codex(commander: int, region: int | None, genus: str, species: str, va
     return False
 
 
-def check_codex_from_name(commander: int, region: int, name: str, variant: str = '') -> bool:
+def check_codex_from_name(commander: int, region: int | None, name: str, variant: str = '') -> bool:
     for genus, species_data in bio_types.items():
         for species_code, data in species_data.items():
             if translate_species(data['name']) == name:
