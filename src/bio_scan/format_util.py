@@ -11,6 +11,7 @@ logger = get_plugin_logger('BioScan')
 credits_string = tr.tl('Cr', bioscan_globals.translation_context)  # LANG: Credits unit
 
 def convert_locale(locale_code: str) -> str:
+    # Return normalized locale codes (without encoding, handled later in safe_setlocale)
     match locale_code:
         case 'cs':
             return 'cs_CZ'
@@ -53,9 +54,27 @@ def convert_locale(locale_code: str) -> str:
         case 'uk':
             return 'uk_UA'
         case 'zh-Hans':
-            return 'zh_ZA'
+            return 'zh_CN'
         case _:
             return 'en_US'
+
+def safe_setlocale(category, loc: str):
+    """
+    Try setting locale with multiple fallbacks to support different OS requirements.
+    """
+    try:
+        return locale.setlocale(category, loc)
+    except locale.Error:
+        pass
+    try:
+        return locale.setlocale(category, loc + '.UTF-8')
+    except locale.Error:
+        pass
+    try:
+        return locale.setlocale(category, loc.split('_')[0])
+    except locale.Error:
+        pass
+    return locale.setlocale(category, '')
 
 class Formatter:
 
@@ -66,7 +85,7 @@ class Formatter:
     def set_locale(self, locale_code: str):
         converted_locale_code = convert_locale(locale_code)
         try:
-            locale.setlocale(locale.LC_ALL, converted_locale_code)
+            safe_setlocale(locale.LC_ALL, converted_locale_code)
         except locale.Error as ex:
             logger.error(f'Failed to set locale: {locale_code} -> {converted_locale_code}')
             locale.setlocale(locale.LC_ALL, '')
