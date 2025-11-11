@@ -1515,7 +1515,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             f' - {translate_colors(color)}' if color else '',
                             scan_label(scan[0].count if scan else 0),
                             this.formatter.format_credits(bio_types[genus][species]['value']),
-                            u' 🗸' if scan and scan[0].count == 3 else '',
+                            u' \N{HEAVY CHECK MARK}\N{VARIATION SELECTOR-16}' if scan and scan[0].count == 3 else '',
                             # LANG: Nearest waypoint text
                             f'\n  ' + tr.tl('Nearest Saved Waypoint', this.translation_context) +
                                 f': {waypoint}' if waypoint and not should_hide_waypoint() else ''

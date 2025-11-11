@@ -131,6 +131,8 @@ class Overlay:
             self._overlay: edmcoverlay.Overlay | None = edmcoverlay.Overlay()
             if hasattr(self._overlay, 'connection'):
                 self._overlay_type = 'EDMCOverlay'
+            elif hasattr(self._overlay, '_emit_payload'):
+                self._overlay_type = 'modern_overlay'
             elif hasattr(self._overlay, 'connect') and not hasattr(self._overlay, 'server'):
                 self._overlay_type = 'edmcoverlay_for_linux'
             else:
@@ -191,6 +193,8 @@ class Overlay:
     def _calc_aspect_x(self) -> float:
         if self._overlay_type == 'EDMCOverlay':
             return (VIRTUAL_WIDTH+32) / (VIRTUAL_HEIGHT+18) * (self._screen_height-2*VIRTUAL_ORIGIN_Y) / (self._screen_width-2*VIRTUAL_ORIGIN_X)
+        elif self._overlay_type == 'modern_overlay':
+            return 1
         else:
             return (VIRTUAL_WIDTH / VIRTUAL_HEIGHT) * (self._screen_height / self._screen_width)
 
@@ -222,10 +226,10 @@ class Overlay:
         """
 
         if sys.platform == 'linux' and self._overlay_type in ['edmcoverlay2', 'edmcoverlay_for_linux']:
-            formatted_text = (text.replace('🗸', '*').replace('\N{memo}', '»')
+            formatted_text = (text.replace('\N{HEAVY CHECK MARK}\N{VARIATION SELECTOR-16}', '*').replace('\N{memo}', '»')
                               .replace(' ', ' ').split('\n'))
         elif self._overlay_type == 'EDMCOverlay':
-            formatted_text = text.replace('🗸', '√').replace('\N{memo}', '♦').split('\n')
+            formatted_text = text.replace('\N{HEAVY CHECK MARK}\N{VARIATION SELECTOR-16}', '√').replace('\N{memo}', '♦').split('\n')
         else:
             formatted_text = text.split('\n')
         if (not scrolled or
