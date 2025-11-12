@@ -232,8 +232,7 @@ class Overlay:
             formatted_text = text.replace('\N{HEAVY CHECK MARK}\N{VARIATION SELECTOR-16}', '√').replace('\N{memo}', '♦').split('\n')
         else:
             formatted_text = text.split('\n')
-        if (not scrolled or
-                (message_id in self._text_blocks and len(formatted_text) < len(self._text_blocks[message_id].text))):
+        if message_id in self._text_blocks and len(formatted_text) < len(self._text_blocks[message_id].text):
             self.clear(message_id, len(formatted_text)-1, False)
         self._text_blocks[message_id] = TextBlock(
             text=formatted_text, x=x, y=y, size=size, color=color, scrolled=scrolled, limit=limit, delay=delay
