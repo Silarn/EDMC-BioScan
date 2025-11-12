@@ -738,13 +738,23 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     if len(sorted_species) == 1:
         localized_species: list[tuple[str, list[str], int]] = []
         codex = False
+        codex_galaxy = False
         if sorted_species[0][1]:
             for color in sorted_species[0][1]:
-                if not check_codex(this.commander.id, this.system.region, genus, sorted_species[0][0], color):
+                if not check_codex(this.commander.id, None, genus, sorted_species[0][0], color):
+                    codex_galaxy = True
+                    codex = True
+                    break
+                elif not check_codex(this.commander.id, this.system.region, genus, sorted_species[0][0], color):
                     codex = True
                     break
         else:
-            codex = not check_codex(this.commander.id, this.system.region, genus, sorted_species[0][0])
+            if not check_codex(this.commander.id, None, genus, sorted_species[0][0]):
+                codex_galaxy = True
+                codex = True
+            elif not check_codex(this.commander.id, this.system.region, genus, sorted_species[0][0]):
+                codex = True
+        codex_symbol = '\N{milky way}' if codex_galaxy else '\N{memo}' if codex else ''
         if len(sorted_species[0][1]) > 1:
             localized_species = [
                 (translate_species(bio_types[genus][sorted_species[0][0]]['name']),
@@ -755,7 +765,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             False,
             (
                 '{}{}{}'.format(
-                    '\N{memo} ' if codex else '',
+                    f'{codex_symbol} ' if codex else '',
                     translate_species(bio_types[genus][sorted_species[0][0]]['name']),
                     f' - {translate_colors(sorted_species[0][1][0])}' if len(sorted_species[0][1]) == 1 else ''
                 ),
@@ -766,6 +776,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     elif len(sorted_species) > 0:
         color = ''
         codex = False
+        codex_galaxy = False
         localized_species = [
             (translate_genus(bio_types[genus][info[0]]['name']), info[1], bio_types[genus][info[0]]['value']) for info in sorted_species
         ]
@@ -773,11 +784,19 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             if not codex:
                 if colors:
                     for color in colors:
-                        if not check_codex(this.commander.id, this.system.region, genus, species, color):
+                        if not check_codex(this.commander.id, None, genus, species, color):
+                            codex = True
+                            codex_galaxy = True
+                            break
+                        elif not check_codex(this.commander.id, this.system.region, genus, species, color):
                             codex = True
                             break
                 else:
-                    codex = not check_codex(this.commander.id, this.system.region, genus, species)
+                    if not check_codex(this.commander.id, None, genus, species):
+                        codex_galaxy = True
+                        codex = True
+                    elif not check_codex(this.commander.id, this.system.region, genus, species):
+                        codex = True
             if len(colors) > 1:
                 color = ''
                 break
@@ -787,11 +806,12 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     break
                 if not color:
                     color = colors[0]
+        codex_symbol = '\N{milky way}' if codex_galaxy else '\N{memo}' if codex else ''
         this.planet_cache[body.get_name()][genus] = (
             False,
             (
                 '{}{}{}'.format(
-                    '\N{memo} ' if codex else '',
+                    f'{codex_symbol}' if codex else '',
                     translate_genus(bio_genus[genus]['name']),
                     f' - {translate_colors(color)}' if color else ''
                 ),
@@ -1476,6 +1496,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 and body.get_bio_signals() < this.minimum_signals.get()):
             detail_text += '\n'
         elif len(body.get_flora()) > 0:
+            detail_text += '\n'
             count = 0
             genus_count: dict[str, int] = {}
             for flora in sorted(body.get_flora(), key=lambda item: translate_genus(bio_genus[item.genus]['name'])):
@@ -1507,10 +1528,12 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if show:
                         waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
                                                                      and not this.current_scan[0] and waypoints) else ''
+                        codex = not check_codex(this.commander.id, this.system.region, genus, species, color)
+                        codex_galaxy = not check_codex(this.commander.id, None, genus, species, color)
+                        codex_symbol = '\N{milky way} ' if codex_galaxy else '\N{memo} ' if codex else ''
                         detail_text += '{}{}{}{} ({}): {}{}{}\n'.format(
                             '  ' if bio_genus[genus]['multiple'] else '',
-                            '\N{memo} ' if not check_codex(this.commander.id, this.system.region,
-                                                           genus, species, color) else '',
+                            f'{codex_symbol}',
                             translate_species(bio_types[genus][species]['name']),
                             f' - {translate_colors(color)}' if color else '',
                             scan_label(scan[0].count if scan else 0),
@@ -1531,7 +1554,10 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             species_details_final = deepcopy(species_details)
                             if species_details_final[1] and len(species_details_final[1]) > 1:
                                 for variant in species_details_final[1]:
-                                    if not check_codex_from_name(this.commander.id, this.system.region,
+                                    if not check_codex_from_name(this.commander.id, None, species_details_final[0], variant):
+                                        species_details_final[1][species_details_final[1].index(variant)] = \
+                                            f'\N{milky way}{translate_colors(variant)}'
+                                    elif not check_codex_from_name(this.commander.id, this.system.region,
                                                                  species_details_final[0], variant):
                                         species_details_final[1][species_details_final[1].index(variant)] = \
                                             f'\N{memo}{translate_colors(variant)}'
@@ -1543,7 +1569,13 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 if species_details_final[1]:
                                     variant = species_details_final[1][0]
                                     species_details_final[1][0] = translate_colors(variant)
-                                if not check_codex_from_name(this.commander.id, this.system.region,
+                                if not check_codex_from_name(this.commander.id, None, species_details_final[0], variant):
+                                    species_details_final = (
+                                        species_details_final[0],
+                                        [f'\N{milky way}{species_details_final[1][0]}'],
+                                        species_details_final[2]
+                                    )
+                                elif not check_codex_from_name(this.commander.id, this.system.region,
                                                              species_details_final[0], variant):
                                     species_details_final = (
                                         f'\N{memo}{species_details_final[0]}',
@@ -1584,7 +1616,10 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             species_details_final = deepcopy(species_details)
                             if species_details_final[1] and len(species_details_final[1]) > 1:
                                 for variant in species_details_final[1]:
-                                    if not check_codex_from_name(this.commander.id, this.system.region,
+                                    if not check_codex_from_name(this.commander.id, None, species_details_final[0], variant):
+                                        species_details_final[1][species_details_final[1].index(variant)] = \
+                                            f'\N{milky way}{translate_colors(variant)}'
+                                    elif not check_codex_from_name(this.commander.id, this.system.region,
                                                                  species_details_final[0], variant):
                                         species_details_final[1][species_details_final[1].index(variant)] = \
                                             f'\N{memo}{translate_colors(variant)}'
@@ -1596,8 +1631,14 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 if species_details_final[1]:
                                     variant = species_details_final[1][0]
                                     species_details_final[1][0] = translate_colors(variant)
-                                if not check_codex_from_name(this.commander.id, this.system.region,
-                                                             species_details_final[0], variant):
+                                if not check_codex_from_name(this.commander.id, None, species_details_final[0], variant):
+                                    species_details_final = (
+                                        species_details_final[0],
+                                        [f'\N{milky way}{species_details_final[1][0]}'],
+                                        species_details_final[2]
+                                    )
+                                elif not check_codex_from_name(this.commander.id, this.system.region,
+                                                               species_details_final[0], variant):
                                     species_details_final = (
                                         f'\N{memo}{species_details_final[0]}',
                                         species_details_final[1],

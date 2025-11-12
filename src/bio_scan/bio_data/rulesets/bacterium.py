@@ -269,7 +269,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.18,
                     'max_gravity': 0.61,
                     'min_temperature': 148.0,
-                    'max_temperature': 500.0,
+                    'max_temperature': 550.0,
                     'volcanism': 'Any'
                 },
                 {
@@ -277,7 +277,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.18,
                     'max_gravity': 0.61,
                     'min_temperature': 300.0,
-                    'max_temperature': 500.0,
+                    'max_temperature': 550.0,
                     'volcanism': 'None'
                 },
                 {  # Hot thin sulphur dioxide atmos
