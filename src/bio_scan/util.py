@@ -151,6 +151,10 @@ def translate_genus(genus: str) -> str:
             return tr.tl('Crystalline Shards', bioscan_globals.translation_context)  # LANG: Genus crystalline shards
         case 'Sinuous Tubers':
             return tr.tl('Sinuous Tubers', bioscan_globals.translation_context)  # LANG: Genus sinuous tubers
+        case 'Radicoida':
+            return tr.tl('Radicoida', bioscan_globals.translation_context) # LANG: Genus radicoida
+        case 'Unknwon':
+            return tr.tl('Unknown', bioscan_globals.translation_context) # LANG: Genus unknown
         case _:
             return genus
 
@@ -397,5 +401,9 @@ def translate_species(species: str) -> str:
             return tr.tl('Bark Mound', bioscan_globals.translation_context)
         case 'Amphora Plant':
             return tr.tl('Amphora Plant', bioscan_globals.translation_context)
+        case 'Radicoida Unicus':
+            return tr.tl('Radicoida Unicus', bioscan_globals.translation_context)
+        case 'Unknown':
+            return tr.tl('Unknown', bioscan_globals.translation_context)
         case _:
             return species

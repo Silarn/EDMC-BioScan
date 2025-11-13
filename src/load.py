@@ -910,7 +910,7 @@ def get_possible_values(body: PlanetData) -> list[tuple[str, tuple[int, int, lis
     """
 
     possible_genus: list[tuple[str, tuple[int, int, list]]] = []
-    for genus in sorted(bio_types, key=lambda item: translate_genus(bio_genus[item]['name'] if genus in bio_genus else 'Unknown')):
+    for genus in sorted(bio_types, key=lambda item: translate_genus(bio_genus[item]['name'] if item in bio_genus else 'Unknown')):
         name, min_potential_value, max_potential_value, all_species = value_estimate(body, genus)
         if min_potential_value != 0:
             possible_genus.append((name, (min_potential_value, max_potential_value, all_species)))
@@ -1508,7 +1508,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             detail_text += '\n'
             count = 0
             genus_count: dict[str, int] = {}
-            for flora in sorted(body.get_flora(), key=lambda item: translate_genus(bio_genus[item.genus]['name'] if genus in bio_genus else 'Unknown')):
+            for flora in sorted(body.get_flora(), key=lambda item: translate_genus(bio_genus[item.genus]['name']
+                                                                                   if item.genus in bio_genus else 'Unknown')):
                 count += 1
                 show = True
                 genus: str = flora.genus
@@ -1532,7 +1533,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if genus in bio_genus and bio_genus[genus]['multiple']:
                         genus_count[genus] = genus_count.get(genus, 0) + 1
                         if show and genus_count[genus] == 1:
-                            detail_text += (f'{translate_genus(bio_genus[genus]["name"])} - ' +
+                            detail_text += (f'{translate_genus(bio_genus[genus]["name"] if genus in bio_genus else 'Unknown')} - ' +
                                             tr.tl('Multiple Possible', this.translation_context) + ':\n')  # LANG: Indicator for multiple possible bio variants
                     if show:
                         waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
@@ -1543,7 +1544,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         detail_text += '{}{}{}{} ({}): {}{}{}\n'.format(
                             '  ' if (bio_genus[genus]['multiple'] if genus in bio_genus else False) else '',
                             f'{codex_symbol}',
-                            translate_species(bio_types[genus][species]['name']),
+                            translate_species(bio_types[genus][species]['name'] if genus in bio_types else 'Unknown'),
                             f' - {translate_colors(color)}' if color else '',
                             scan_label(scan[0].count if scan else 0),
                             this.formatter.format_credits(bio_types[genus][species]['value'] if genus in bio_types else 0),
@@ -1717,7 +1718,7 @@ def render_radar(message_id: str) -> None:
                 distance = calc_distance((scan.latitude, scan.longitude))
                 bearing = calc_bearing((scan.latitude, scan.longitude))
                 bearing = bearing - 90 - this.planet_heading
-                radar_markers.append({'text': translate_genus(bio_genus[flora.genus]['name'])[0:3],
+                radar_markers.append({'text': translate_genus(bio_genus[flora.genus]['name'] if flora.genus in bio_genus else 'Unknown')[0:3],
                                         'distance': distance, 'bearing': bearing, 'color': color})
             waypoints: list[Waypoint] = list(
                 filter(
@@ -1741,7 +1742,7 @@ def render_radar(message_id: str) -> None:
                 distance = calc_distance((waypoint.latitude, waypoint.longitude))
                 bearing = calc_bearing((waypoint.latitude, waypoint.longitude))
                 bearing = bearing - 90 - this.planet_heading
-                radar_markers.append({'text': translate_genus(bio_genus[flora.genus]['name'])[0:3],
+                radar_markers.append({'text': translate_genus(bio_genus[flora.genus]['name'] if flora.genus in bio_genus else 'Unknown')[0:3],
                                         'distance': distance, 'bearing': bearing, 'color': color})
             if this.ship_location and this.radar_ship_loc_enabled.get():
                 distance = calc_distance(this.ship_location)
