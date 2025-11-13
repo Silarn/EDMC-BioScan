@@ -51,6 +51,17 @@ _mound_amphora: dict[str, dict[str, Mapping]] = {
             ]
         }
     },
+    '$Codex_Ent_Ingensradices_Genus_Name;': {
+        '$Codex_Ent_Ingensradices_Unicus_Name;': {
+            'name': 'Radicoida Unicus',
+            'value': 119037,
+            'rulesets': [
+                {
+                    'system': 'HIP 87621'
+                }
+            ]
+        }
+    }
 }
 
 rules: dict[str, dict[str, Mapping]] = (_mound_amphora | aleoida | anemone | bacterium | brain_tree | cactoida |

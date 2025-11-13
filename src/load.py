@@ -401,10 +401,14 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     if genus not in this.planet_cache[body.get_name()]:
         this.planet_cache[body.get_name()][genus] = (True, ('', 0, 0, []))
 
+    if genus not in bio_types or genus not in bio_genus:
+        return this.planet_cache[body.get_name()][genus][1]
+
     # Main processor for the species rulesets
     possible_species: dict[str, set[str]] = {}
+    genus_name = bio_genus[genus]["name"] if genus in bio_genus else "Unknown"
     log(f'System: {this.system.name} - Body: {body.get_name()}')
-    log(f'Running checks for {bio_genus[genus]["name"]}:')
+    log(f'Running checks for {genus_name}:')
     for species, data in bio_types[genus].items():
         log(f'Species: {data["name"]}')
         count = 0
@@ -652,6 +656,10 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
                     case 'distance':
                         if body.get_distance() < value:
                             eliminated = True
+                    case 'system':
+                        if this.system.name != value:
+                            eliminated = True
+
                 if eliminated:
                     break
             if not eliminated:
@@ -902,7 +910,7 @@ def get_possible_values(body: PlanetData) -> list[tuple[str, tuple[int, int, lis
     """
 
     possible_genus: list[tuple[str, tuple[int, int, list]]] = []
-    for genus in sorted(bio_types, key=lambda item: translate_genus(bio_genus[item]['name'])):
+    for genus in sorted(bio_types, key=lambda item: translate_genus(bio_genus[item]['name'] if genus in bio_genus else 'Unknown')):
         name, min_potential_value, max_potential_value, all_species = value_estimate(body, genus)
         if min_potential_value != 0:
             possible_genus.append((name, (min_potential_value, max_potential_value, all_species)))
@@ -1420,7 +1428,8 @@ def get_nearest(genus: str, waypoints: list[Waypoint]) -> str:
         distances: list[tuple[float, float]] = []
         for waypoint in waypoints:
             min_distance = get_distance((waypoint.latitude, waypoint.longitude))
-            if min_distance is None or min_distance > bio_genus[genus]['distance']:
+            genus_distance = bio_genus[genus]["distance"] if genus in bio_genus else 100
+            if min_distance is None or min_distance > genus_distance:
                 distance = calc_distance((waypoint.latitude, waypoint.longitude))
                 bearing = calc_bearing((waypoint.latitude, waypoint.longitude))
                 distances.append((distance, bearing))
@@ -1499,7 +1508,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
             detail_text += '\n'
             count = 0
             genus_count: dict[str, int] = {}
-            for flora in sorted(body.get_flora(), key=lambda item: translate_genus(bio_genus[item.genus]['name'])):
+            for flora in sorted(body.get_flora(), key=lambda item: translate_genus(bio_genus[item.genus]['name'] if genus in bio_genus else 'Unknown')):
                 count += 1
                 show = True
                 genus: str = flora.genus
@@ -1513,14 +1522,14 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     )
                 )
                 if scan and scan[0].count == 3:
-                    value_sum += bio_types[genus][species]['value']
+                    value_sum += bio_types[genus][species]['value'] if genus in bio_types else 0
                     if this.scan_display_mode.get() == 'Hide':
                         show = False
                     elif this.scan_display_mode.get() == 'Hide in System' and not focused:
                         show = False
 
                 if species != '':
-                    if bio_genus[genus]['multiple']:
+                    if genus in bio_genus and bio_genus[genus]['multiple']:
                         genus_count[genus] = genus_count.get(genus, 0) + 1
                         if show and genus_count[genus] == 1:
                             detail_text += (f'{translate_genus(bio_genus[genus]["name"])} - ' +
@@ -1532,12 +1541,12 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         codex_galaxy = not check_codex(this.commander.id, None, genus, species, color)
                         codex_symbol = '\N{milky way} ' if codex_galaxy else '\N{memo} ' if codex else ''
                         detail_text += '{}{}{}{} ({}): {}{}{}\n'.format(
-                            '  ' if bio_genus[genus]['multiple'] else '',
+                            '  ' if (bio_genus[genus]['multiple'] if genus in bio_genus else False) else '',
                             f'{codex_symbol}',
                             translate_species(bio_types[genus][species]['name']),
                             f' - {translate_colors(color)}' if color else '',
                             scan_label(scan[0].count if scan else 0),
-                            this.formatter.format_credits(bio_types[genus][species]['value']),
+                            this.formatter.format_credits(bio_types[genus][species]['value'] if genus in bio_types else 0),
                             u' \N{HEAVY CHECK MARK}\N{VARIATION SELECTOR-16}' if scan and scan[0].count == 3 else '',
                             # LANG: Nearest waypoint text
                             f'\n  ' + tr.tl('Nearest Saved Waypoint', this.translation_context) +
@@ -1849,16 +1858,17 @@ def update_display() -> None:
                     distance_format = locale.format_string('%.2f', distance) if distance is not None else 'unk'
                     distance = distance if distance is not None else 0
                     waypoint = get_nearest(genus, waypoints) if (waypoints and this.waypoints_enabled.get()) else ''
+                    genus_distance = bio_genus[genus]['distance'] if genus in bio_genus else 100
                     text += '\n{}: {} - {} ({}/3) [{}]{}'.format(
                         tr.tl('In Progress', this.translation_context),  # LANG: Scan in progress indicator
-                        translate_genus(bio_types[genus][species]['name']),
+                        translate_genus(bio_types[genus][species]['name'] if genus in bio_types else 'Unknown'),
                         scan_label(scan),
                         scan,
                         '{}/{}{}'.format(
                             distance_format
-                            if distance < bio_genus[genus]['distance']
-                            else f'> {bio_genus[genus]["distance"]}',
-                            bio_genus[genus]['distance'],
+                            if distance < genus_distance
+                            else f'> {genus_distance}',
+                            genus_distance,
                             tr.tl('m', this.translation_context)
                         ),
                         '\n' + tr.tl('Nearest Saved Waypoint', this.translation_context) + f': {waypoint}' if waypoint else ''

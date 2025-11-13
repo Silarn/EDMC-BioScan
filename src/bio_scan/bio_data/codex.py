@@ -12,6 +12,8 @@ from bio_scan.util import translate_species
 
 
 def check_codex(commander: int, region: int | None, genus: str, species: str, variant: str = '') -> bool:
+    if genus not in bio_genus:
+        return False
     biological = species
     if variant:
         if species in bio_genus:
