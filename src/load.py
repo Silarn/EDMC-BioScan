@@ -1533,8 +1533,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if genus in bio_genus and bio_genus[genus]['multiple']:
                         genus_count[genus] = genus_count.get(genus, 0) + 1
                         if show and genus_count[genus] == 1:
-                            detail_text += (f'{translate_genus(bio_genus[genus]["name"] if genus in bio_genus else 'Unknown')} - ' +
-                                            tr.tl('Multiple Possible', this.translation_context) + ':\n')  # LANG: Indicator for multiple possible bio variants
+                            genus_name = translate_genus(bio_genus[genus]["name"] if genus in bio_genus else 'Unknown')
+                            detail_text += (f'{genus_name} - ' +
+                                            tr.tl('Multiple Possible', this.translation_context) + ':\n') # LANG: Indicator for multiple possible bio variants
                     if show:
                         waypoint = get_nearest(genus, waypoints) if (this.waypoints_enabled.get() and focused
                                                                      and not this.current_scan[0] and waypoints) else ''
