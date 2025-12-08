@@ -1556,6 +1556,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         )
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
+                    bio_name = (bio_genus[genus]['name'] if genus in bio_genus else 'Unknown') if bio_name == '' else bio_name
                     # LANG: Predicted bio not located label
                     detail_text += (f'{bio_name} (' + tr.tl('Not located', this.translation_context) +
                                     f'): {this.formatter.format_credit_range(min_val, max_val)}\n')
