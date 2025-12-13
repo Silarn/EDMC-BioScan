@@ -108,8 +108,9 @@ window. The text color and anchor points are configurable. Suggestions welcome.
 
 ## Requirements
 * [EDMC] version 5.7 and above (python 3.11)
+  * Future releases will be targetted at EDMC 6.x and python 3.13
 * SQLAlchemy python module (embedded in the exe distribution)
-* (Optional) [EDMCOverlay] / [edmcoverlay2]
+* (Optional) [ModernOverlay] / [EDMCOverlay] / [edmcoverlay2]
 
 ## Installation
 
@@ -127,7 +128,7 @@ window. The text color and anchor points are configurable. Suggestions welcome.
   * If you use `venv`, install the SQLAlchemy requirement from the `requirements.txt` to the EDMC venv
   * For system python, run `pip install -r requirements.txt` within the ExploData plugin directory to install SQLAlchemy
   * Ensure the correct `pip` is used for your version of EDMC
-* (Optional) Install the [EDMCOverlay] plugin for overlay support (or [edmcoverlay2] for Linux)
+* (Optional) Install [ModernOverlay] or another compatible overlay plugin for overlay support
   * Either 'EDMCOverlay' or 'edmcoverlay' should work as the plugin directory name
 * Start or restart EDMC to register the plugin and run any necessary database migrations
 
@@ -144,8 +145,11 @@ Procedurally generated nebula reference star coordinates pulled from [EDSM]'s AP
 
 ## Roadmap
 
+* Criteria details popout display
+* Compass bearing hint at waypoint locations
+* General graphical refinements
+* Improved star luminosity calculations
 * Voice support
-* Translations support
 
 ## License
 
@@ -165,6 +169,7 @@ Licensed under the [GNU Public License (GPL)][GPLv2] version 2 or later.
 [ExploData]: https://github.com/Silarn/EDMC-ExploData
 [Observatory]: https://github.com/Xjph/ObservatoryCore
 [BioInsights]: https://edjp.colacube.net/observatory
+[ModernOverlay]: https://github.com/SweetJonnySauce/EDMCModernOverlay
 [EDMCOverlay]: https://github.com/inorton/EDMCOverlay
 [edmcoverlay2]: https://github.com/pan-mroku/edmcoverlay2
 [latest release]: https://github.com/Silarn/EDMC-BioScan/releases/latest
