@@ -1505,7 +1505,6 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 and body.get_bio_signals() < this.minimum_signals.get()):
             detail_text += '\n'
         elif len(body.get_flora()) > 0:
-            detail_text += '\n'
             count = 0
             genus_count: dict[str, int] = {}
             for flora in sorted(body.get_flora(), key=lambda item: translate_genus(bio_genus[item.genus]['name']
