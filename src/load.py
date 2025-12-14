@@ -1259,7 +1259,7 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
     current_state = this.location_state
     this.location_state = ''
     if StatusFlags.HAVE_LATLONG in status:
-        if StatusFlags.IN_SHIP in status:
+        if StatusFlags.IN_SHIP in status or StatusFlags.IN_FIGHTER in status:
             if StatusFlags.LANDED in status:
                 this.location_state = 'surface'
             else:
