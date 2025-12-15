@@ -5,7 +5,7 @@
 import locale
 # Core imports
 from copy import deepcopy
-from typing import Mapping, MutableMapping
+from typing import Any, Mapping, MutableMapping
 import os
 import sys
 import re
@@ -961,7 +961,7 @@ def reload_system_data() -> None:
         this.main_star_luminosity = main_star.luminosity
 
 
-def add_star(entry: Mapping[str, any]) -> None:
+def add_star(entry: Mapping[str, Any]) -> None:
     """
     Add main star data from journal event
 
@@ -983,7 +983,7 @@ def add_star(entry: Mapping[str, any]) -> None:
 
 
 def journal_entry(
-        cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, any], state: MutableMapping[str, any]
+        cmdr: str, is_beta: bool, system: str, station: str, entry: Mapping[str, Any], state: MutableMapping[str, Any]
 ) -> str:
     """
     EDMC journal entry hook. Primary journal data handler.
@@ -1054,8 +1054,13 @@ def journal_entry(
             if entry['JumpType'] == 'Hyperspace':
                 this.location_state = 'fsd_jump'
                 this.mode_changed = True
+                this.at_nav_beacon = False
                 reset()
                 update_display()
+
+        case 'SuperCruiseDestination':
+            if entry['Type'] in ['$MULTIPLAYER_SCENARIO42_TITLE;', '$MULTIPLAYER_SCENARIO80_TITLE;']:
+                this.at_nav_beacon = True
 
         case 'DockSRV':
             if not this.ship_location:
@@ -1114,7 +1119,7 @@ def journal_entry(
     return ''  # No error
 
 
-def process_data_event(entry: Mapping[str, any]) -> None:
+def process_data_event(entry: Mapping[str, Any]) -> None:
     this.sql_session.commit()
     match entry['event']:
         case 'Scan':
@@ -1172,7 +1177,7 @@ def process_data_event(entry: Mapping[str, any]) -> None:
 
             if target_body is not None:
                 this.planets[target_body].set_flora_species_scan(
-                    entry['Genus'], entry['Species'], scan_level, this.commander.id
+                    entry['Genus'], entry['Species'], entry.get('WasLogged', None), scan_level, this.commander.id
                 )
                 if scan_level == 1 and this.current_scan[0]:
                     data: PlanetFlora = this.planets[target_body].get_flora(this.current_scan[0],
@@ -1227,8 +1232,13 @@ def process_data_event(entry: Mapping[str, any]) -> None:
 
                 update_display()
 
+        case 'Disembark':
+            if entry.get('OnPlanet', False):
+                update_display()
 
-def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, any]) -> str:
+
+
+def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, Any]) -> str:
     """
     EDMC dashboard entry hook. Parses updates to the Status.json.
     Used to determine planetary location data. Used by waypoints, organic scans, and display focus.
@@ -1449,7 +1459,7 @@ def get_nearest(genus: str, waypoints: list[Waypoint]) -> str:
     return ''
 
 
-def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> tuple[str, int]:
+def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> tuple[str, int, int]:
     """
     Get body genus estimate display text for the scroll pane
 
@@ -1461,6 +1471,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
     detail_text = ''
     complete_text = tr.tl('Complete', this.translation_context)  # LANG: Scan complete status text
     value_sum = 0
+    bonus_value_sum = 0
     for name, body in bodies.items():
         complete = True
         num_complete = 0
@@ -1523,6 +1534,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 )
                 if scan and scan[0].count == 3:
                     value_sum += bio_types[genus][species]['value'] if genus in bio_types else 0
+                    bonus_value_sum += bio_types[genus][species]['value'] * 4 \
+                        if scan[0].was_logged is False or body.was_footfalled(this.commander.id) is False else 0
                     if this.scan_display_mode.get() == 'Hide':
                         show = False
                     elif this.scan_display_mode.get() == 'Hide in System' and not focused:
@@ -1541,13 +1554,27 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         codex = not check_codex(this.commander.id, this.system.region, genus, species, color)
                         codex_galaxy = not check_codex(this.commander.id, None, genus, species, color)
                         codex_symbol = '\N{milky way} ' if codex_galaxy else '\N{memo} ' if codex else ''
-                        detail_text += '{}{}{}{} ({}): {}{}{}\n'.format(
+                        bio_credits = bio_types[genus][species]['value'] if genus in bio_types else 0
+                        if scan:
+                            bio_credits = bio_credits * 5 if scan[0].was_logged is False \
+                                or body.get_status(this.commander.id).was_footfalled is False else bio_credits
+                            bonus_icon = '\N{MONEY BAG}' if scan[0].was_logged is False \
+                                else '\N{NO ENTRY SIGN}' if scan[0].was_logged is True \
+                                else '\N{HEAVY PLUS SIGN}' if body.get_status(this.commander.id).was_footfalled is False \
+                                else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
+                                else '\N{WHITE QUESTION MARK ORNAMENT}'
+                        else:
+                            bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
+                                else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
+                                else '\N{WHITE QUESTION MARK ORNAMENT}'
+                        detail_text += '{}{}{}{} ({}): {}{}{}{}\n'.format(
                             '  ' if (bio_genus[genus]['multiple'] if genus in bio_genus else False) else '',
                             f'{codex_symbol}',
                             translate_species(bio_types[genus][species]['name'] if genus in bio_types else 'Unknown'),
                             f' - {translate_colors(color)}' if color else '',
                             scan_label(scan[0].count if scan else 0),
-                            this.formatter.format_credits(bio_types[genus][species]['value'] if genus in bio_types else 0),
+                            this.formatter.format_credits(bio_credits),
+                            bonus_icon,
                             u' \N{HEAVY CHECK MARK}\N{VARIATION SELECTOR-16}' if scan and scan[0].count == 3 else '',
                             # LANG: Nearest waypoint text
                             f'\n  ' + tr.tl('Nearest Saved Waypoint', this.translation_context) +
@@ -1556,9 +1583,12 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
                     bio_name = (bio_genus[genus]['name'] if genus in bio_genus else 'Unknown') if bio_name == '' else bio_name
+                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
+                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
+                        else '\N{WHITE QUESTION MARK ORNAMENT}'
                     # LANG: Predicted bio not located label
                     detail_text += (f'{bio_name} (' + tr.tl('Not located', this.translation_context) +
-                                    f'): {this.formatter.format_credit_range(min_val, max_val)}\n')
+                                    f'): {this.formatter.format_credit_range(min_val, max_val)}{bonus_icon}\n')
 
                     if this.focus_breakdown.get():
                         for species_details in all_species:
@@ -1618,9 +1648,13 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 count = 0
                 for bio_name, values in types:
                     count += 1
-                    detail_text += '{}: {}\n'.format(
+                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
+                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
+                        else '\N{WHITE QUESTION MARK ORNAMENT}'
+                    detail_text += '{}: {}{}\n'.format(
                         bio_name,
-                        this.formatter.format_credit_range(values[0], values[1])
+                        this.formatter.format_credit_range(values[0], values[1]),
+                        bonus_icon
                     )
                     if this.focus_breakdown.get():
                         for species_details in values[2]:
@@ -1670,7 +1704,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 # LANG: Reminder to trigger FSS / DSS for unknown signals
                                 tr.tl('Check FSS for Signals (or DSS)', this.translation_context) + '\n\n')
 
-    return detail_text, value_sum
+    return detail_text, value_sum, bonus_value_sum
 
 
 def render_radar(message_id: str) -> None:
@@ -1801,9 +1835,9 @@ def update_display() -> None:
     ]
 
     if display_planetary_data(bio_bodies, True):
-        detail_text, total_value = get_bodies_summary({this.location_name: this.planets[this.location_name]}, True)
+        detail_text, total_value, bonus_value = get_bodies_summary({this.location_name: this.planets[this.location_name]}, True)
     else:
-        detail_text, total_value = get_bodies_summary(bio_bodies)
+        detail_text, total_value, bonus_value = get_bodies_summary(bio_bodies)
 
     if detail_text != '':
         this.scroll_canvas.grid()
@@ -1877,10 +1911,12 @@ def update_display() -> None:
                     )
                     break
 
-        this.total_label['text'] = '{}:\n{} | FF: {}'.format(
+        this.total_label['text'] = '{}:\n{} | Bonus: {} | Total: {}'.format(
             tr.tl('Analysed System Samples', this.translation_context),  # LANG: Analysed samples list label
             this.formatter.format_credits(total_value),
-            this.formatter.format_credits((total_value * 5)))
+            this.formatter.format_credits(bonus_value),
+            this.formatter.format_credits(total_value + bonus_value)
+        )
     else:
         this.scroll_canvas.grid_remove()
         this.scrollbar.grid_remove()
@@ -1957,7 +1993,7 @@ def overlay_should_display() -> bool:
                 monitor.state['ShipType'], monitor.state['ShipType'])
         if ship_name and this.ship_whitelist and not ship_in_whitelist(monitor.state['ShipID'], ship_name):
             result = False
-        if not this.in_supercruise and this.planet_radius == 0:
+        if not this.in_supercruise and this.planet_radius == 0 and not this.at_nav_beacon:
             result = False
     if this.on_foot:
         if not this.suit_name.startswith('explorationsuit'):
