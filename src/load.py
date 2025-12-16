@@ -1058,7 +1058,7 @@ def journal_entry(
                 reset()
                 update_display()
 
-        case 'SuperCruiseDestination':
+        case 'SupercruiseDestinationDrop':
             if entry['Type'] in ['$MULTIPLAYER_SCENARIO42_TITLE;', '$MULTIPLAYER_SCENARIO80_TITLE;']:
                 this.at_nav_beacon = True
 
