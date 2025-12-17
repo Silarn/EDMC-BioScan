@@ -1786,8 +1786,9 @@ def render_radar(message_id: str) -> None:
                 radar_markers.append({'text': 'Ship', 'distance': distance, 'bearing': bearing, 'color': '#3bfff2'})
 
         if radar_markers:
+            north_bearing = 0 - 90 - this.planet_heading
             this.overlay.render_radar(message_id, x=this.radar_anchor_x.get(), y=this.radar_anchor_y.get(),
-                                      r=this.radar_radius.get(), d=this.radar_max_distance.get(),
+                                      r=this.radar_radius.get(), d=this.radar_max_distance.get(), north=north_bearing,
                                       markers=radar_markers, circles=radar_circles, logarithmic=this.radar_use_log.get())
         else:
             this.overlay.clear_radar(message_id)

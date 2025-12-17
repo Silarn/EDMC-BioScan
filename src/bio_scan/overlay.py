@@ -97,7 +97,7 @@ class RadarSet:
     Contains circles and marker positions with a given position and radius. Can be set to display
     linearly or logarithmically.
     """
-    def __init__(self, markers: list[dict], circles: list[dict], x: int, y: int, r: int, d: int, log: bool):
+    def __init__(self, markers: list[dict], circles: list[dict], x: int, y: int, r: int, d: int, north: float, log: bool):
         """
         Constructor.
 
@@ -116,6 +116,7 @@ class RadarSet:
         self.y = y
         self.r = r
         self.d = d
+        self.north = north
         self.log = log
 
 
@@ -264,7 +265,7 @@ class Overlay:
         except Exception as ex:
             logger.debug("Exception during overlay clear", exc_info=ex)
 
-    def render_radar(self, message_id: str, x: int, y: int, r: int, d: int,
+    def render_radar(self, message_id: str, x: int, y: int, r: int, d: int, north: float,
                      markers: list | None = None, circles: list | None = None, logarithmic: bool = False) -> None:
         """
         Render radar display, cached to refresh on a timer.
@@ -274,6 +275,7 @@ class Overlay:
         :param y: Center y coordinate of radar
         :param r: Radius of radar
         :param d: Max distance of radar display
+        :param north: Bearing toward 'north'
         :param markers: List of markers as a dict of 'distance', 'bearing', and 'genus'
         :param circles: List of circles to draw as a dict of 'radius' and 'color'
         :param logarithmic: Make radar scale logarithmic (default: False)
@@ -283,7 +285,7 @@ class Overlay:
             self.clear_radar(message_id)
         else:
             self.trim_radar(message_id, circles, markers)
-        self._markers[message_id] = RadarSet(markers, circles, x, y, r, d, logarithmic)
+        self._markers[message_id] = RadarSet(markers, circles, x, y, r, d, north, logarithmic)
         self.draw_circles(message_id)
         self.draw_markers(message_id)
 
@@ -299,6 +301,7 @@ class Overlay:
                     self._overlay.send_raw({'id': f'{message_id}_circle_{item}_text', 'ttl': 0})
             for item in range(len(self._markers[message_id].markers) + 1):
                 self._overlay.send_raw({'id': f'{message_id}_{item}'})
+            self._overlay.send_raw({'id': f'{message_id}_north'})
         if message_id in self._markers and remove:
             self._markers.pop(message_id)
 
@@ -446,6 +449,23 @@ class Overlay:
                 x = self._markers[message_id].x
                 y = self._markers[message_id].y
                 r = self._markers[message_id].r
+                message = {
+                    'id': f'{message_id}_north',
+                    'shape': 'vect',
+                    'vector': [
+                        {
+                            'x': self._aspect_x(x + ((r-5) * math.cos(math.radians(self._markers[message_id].north)))),
+                            'y': self._aspect_y(y + ((r-5) * math.sin(math.radians(self._markers[message_id].north)))),
+                        },
+                        {
+                            'x': self._aspect_x(x + ((r+5) * math.cos(math.radians(self._markers[message_id].north)))),
+                            'y': self._aspect_y(y + ((r+5) * math.sin(math.radians(self._markers[message_id].north)))),
+                        }
+                    ],
+                    'color': self._markers[message_id].circles[0]['color'],
+                    'ttl': 20
+                }
+                self._overlay.send_raw(message)
                 d = self._markers[message_id].d
                 markers = self._markers[message_id].markers
                 message = {
