@@ -1475,6 +1475,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
     for name, body in bodies.items():
         complete = True
         num_complete = 0
+        mult = 5 if body.was_footfalled(this.commander.id) is False else 1
         if len(body.get_flora()):
             for flora in body.get_flora():
                 scan: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
@@ -1535,7 +1536,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 if scan and scan[0].count == 3:
                     value_sum += bio_types[genus][species]['value'] if genus in bio_types else 0
                     bonus_value_sum += bio_types[genus][species]['value'] * 4 \
-                        if scan[0].was_logged is False or body.was_footfalled(this.commander.id) is False else 0
+                        if body.was_footfalled(this.commander.id) is False else 0
                     if this.scan_display_mode.get() == 'Hide':
                         show = False
                     elif this.scan_display_mode.get() == 'Hide in System' and not focused:
@@ -1553,20 +1554,22 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                                                      and not this.current_scan[0] and waypoints) else ''
                         codex = not check_codex(this.commander.id, this.system.region, genus, species, color)
                         codex_galaxy = not check_codex(this.commander.id, None, genus, species, color)
-                        codex_symbol = '\N{milky way} ' if codex_galaxy else '\N{memo} ' if codex else ''
+                        codex_symbol = '\N{MILKY WAY} ' if codex_galaxy else '\N{MEMO} ' if codex else ''
                         bio_credits = bio_types[genus][species]['value'] if genus in bio_types else 0
+                        bio_credits = bio_credits * mult if body.get_status(this.commander.id).was_footfalled is False else bio_credits
+                        bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
+                            else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
+                            else '\N{WHITE QUESTION MARK ORNAMENT}'
+                        if not body.was_discovered(this.commander.id) and body.was_mapped(this.commander.id):
+                            bonus_icon = '\N{WHITE QUESTION MARK ORNAMENT}'
                         if scan:
-                            bio_credits = bio_credits * 5 if scan[0].was_logged is False \
-                                or body.get_status(this.commander.id).was_footfalled is False else bio_credits
-                            bonus_icon = '\N{MONEY BAG}' if scan[0].was_logged is False \
-                                else '\N{NO ENTRY SIGN}' if scan[0].was_logged is True \
-                                else '\N{HEAVY PLUS SIGN}' if body.get_status(this.commander.id).was_footfalled is False \
-                                else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
-                                else '\N{WHITE QUESTION MARK ORNAMENT}'
-                        else:
-                            bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
-                                else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
-                                else '\N{WHITE QUESTION MARK ORNAMENT}'
+                            if scan[0].was_logged:
+                                bonus_icon = '\N{NO ENTRY SIGN}'
+                            # bonus_icon = '\N{MONEY BAG}' if scan[0].was_logged is False \
+                            #     else '\N{NO ENTRY SIGN}' if scan[0].was_logged is True \
+                            #     else '\N{HEAVY PLUS SIGN}' if body.get_status(this.commander.id).was_footfalled is False \
+                            #     else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
+                            #     else '\N{WHITE QUESTION MARK ORNAMENT}'
                         detail_text += '{}{}{}{} ({}): {}{}{}{}\n'.format(
                             '  ' if (bio_genus[genus]['multiple'] if genus in bio_genus else False) else '',
                             f'{codex_symbol}',
@@ -1586,9 +1589,11 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
                         else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
                         else '\N{WHITE QUESTION MARK ORNAMENT}'
+                    if not body.was_discovered(this.commander.id) and body.was_mapped(this.commander.id):
+                        bonus_icon = '\N{WHITE QUESTION MARK ORNAMENT}'
                     # LANG: Predicted bio not located label
                     detail_text += (f'{bio_name} (' + tr.tl('Not located', this.translation_context) +
-                                    f'): {this.formatter.format_credit_range(min_val, max_val)}{bonus_icon}\n')
+                                    f'): {this.formatter.format_credit_range(min_val * mult, max_val * mult)}{bonus_icon}\n')
 
                     if this.focus_breakdown.get():
                         for species_details in all_species:
@@ -1597,11 +1602,11 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 for variant in species_details_final[1]:
                                     if not check_codex_from_name(this.commander.id, None, species_details_final[0], variant):
                                         species_details_final[1][species_details_final[1].index(variant)] = \
-                                            f'\N{milky way}{translate_colors(variant)}'
+                                            f'\N{MILKY WAY}{translate_colors(variant)}'
                                     elif not check_codex_from_name(this.commander.id, this.system.region,
                                                                  species_details_final[0], variant):
                                         species_details_final[1][species_details_final[1].index(variant)] = \
-                                            f'\N{memo}{translate_colors(variant)}'
+                                            f'\N{MEMO}{translate_colors(variant)}'
                                     else:
                                         species_details_final[1][species_details_final[1].index(variant)] = \
                                             f'{translate_colors(variant)}'
@@ -1613,13 +1618,13 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 if not check_codex_from_name(this.commander.id, None, species_details_final[0], variant):
                                     species_details_final = (
                                         species_details_final[0],
-                                        [f'\N{milky way}{species_details_final[1][0]}'],
+                                        [f'\N{MILKY WAY}{species_details_final[1][0]}'],
                                         species_details_final[2]
                                     )
                                 elif not check_codex_from_name(this.commander.id, this.system.region,
                                                              species_details_final[0], variant):
                                     species_details_final = (
-                                        f'\N{memo}{species_details_final[0]}',
+                                        f'\N{MEMO}{species_details_final[0]}',
                                         species_details_final[1],
                                         species_details_final[2]
                                     )
@@ -1653,7 +1658,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         else '\N{WHITE QUESTION MARK ORNAMENT}'
                     detail_text += '{}: {}{}\n'.format(
                         bio_name,
-                        this.formatter.format_credit_range(values[0], values[1]),
+                        this.formatter.format_credit_range(values[0] * mult, values[1] * mult),
                         bonus_icon
                     )
                     if this.focus_breakdown.get():
@@ -1937,7 +1942,7 @@ def update_display() -> None:
     if this.use_overlay.get() and this.overlay.available():
         if overlay_should_display():
             if detail_text:
-                this.overlay.display('bioscan_title', tr.tl('BioScan Details', this.translation_context),  # LANG: Overlay details label
+                this.overlay.display('bioscan_title', tr.tl('BioScan Details', this.translation_context) + f' | {this.total_label['text']}',  # LANG: Overlay details label
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                                      color=this.overlay_color.get())
                 if redraw_overlay:
