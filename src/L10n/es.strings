@@ -109,8 +109,14 @@
 /* In files: settings.py:228:228 */
 "Hide in System: Hide completed species in the full system view" = "Hide in System: Ocultar especies completadas en la vista completa del sistema";
 
+/* In files: settings.py:233:233 */
+"Completely hide body when all samples are complete" = "Ocultar completamente el cuerpo cuando todas las muestras estén completas";
+
 /* In files: settings.py:234:234 */
 "Enable species waypoints with the comp. scanner" = "Habilitar puntos de referencia de especies con el escáner de comp.";
+
+/* In files: settings.py:244:244 */
+"Hide waypoint bearings with radar enabled (see overlay)" = "Ocultar las indicaciones de los puntos de referencia con el radar activado (ver superposición).";
 
 /* In files: settings.py:264:264; settings.py:330:330 */
 "None" = "Ninguno";
@@ -121,7 +127,7 @@
 /* In files: settings.py:337:337 */
 "Enable overlay" = "Habilitar superposición";
 
-/* In files: settings.py:342:342 */
+/* In files: settings.py:354:354 */
 "Text Color" = "Color del Texto";
 
 /* In files: settings.py:351:351 */
@@ -133,13 +139,13 @@
 /* In files: settings.py:370:370 */
 "Large:" = "Grande:";
 
-/* In files: settings.py:383:383 */
+/* In files: settings.py:395:395 */
 "Ship Whitelist (?)" = "Lista Blanca de Barcos (?)";
 
 /* In files: settings.py:389:389 */
 "Ships added to this list will display BioScan on the overlay." = "Los barcos agregados a esta lista mostrarán BioScan en la superposición.";
 
-/* In files: settings.py:370:370 */
+/* In files: settings.py:402:402 */
 "When empty, BioScan will display for all ships." = "Cuando esté vacío, BioScan se mostrará para todos los barcos.";
 
 /* In files: settings.py:364:364 */
@@ -166,7 +172,7 @@
 /* In files: settings.py:427:427 */
 "Scroll delay (sec):" = "Retraso de desplazamiento (seg):";
 
-/* settings.py: Waypoint / scan radar overlay settings title; In files: settings.py:441:441 */
+/* settings.py: Waypoint / scan radar overlay settings title; In files: settings.py:492:492 */
 "Active Scan / Waypoint Radar (?):" = "Radar de Escaneo Activo / Punto de Ruta (?):";
 
 /* settings.py: Ship overlay tooltip; Line 1; In files: settings.py:446:446 */
@@ -178,19 +184,19 @@
 /* settings.py: Ship overlay tooltip; Line 3; In files: settings.py:450:450 */
 "This is oriented where up is the direction you're facing. The ship location can be tracked as well." = "Arriba es la dirección hacia la que miras. También se puede rastrear la ubicación del barco.";
 
-/* settings.py: Radar enable / disable setting; In files: settings.py:455:455 */
+/* settings.py: Radar enable / disable setting; In files: settings.py:506:506 */
 "Enable Radar" = "Habilitar Radar";
 
-/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:460:460 */
+/* settings.py: Radar ship location tracking enable / disable setting; In files: settings.py:511:511 */
 "Enable Ship Location Tracker" = "Habilitar el Rastreador de Ubicación del Barco";
 
-/* settings.py: Main label for radar x/y/radius configuration; In files: settings.py:464:464 */
+/* settings.py: Main label for radar x/y/radius configuration; In files: settings.py:519:519 */
 "Radar Anchor (Center Point):" = "Punto de Anclaje del Radar (Punto Central):";
 
-/* settings.py: Radius label for radar display settings; In files: settings.py:479:479 */
+/* settings.py: Radius label for radar display settings; In files: settings.py:535:535 */
 "Radius" = "Radio";
 
-/* settings.py: Distance label for radar display settings; In files: settings.py:493:493 */
+/* settings.py: Distance label for radar display settings; In files: settings.py:542:542 */
 "Maximum radar distance:" = "Distancia máxima del radar:";
 
 /* load.py: Meters unit; In files: settings.py:499:499; load.py:1376:1376 */
@@ -334,20 +340,26 @@
 /* util.py: Genus anemone; In files: util.py:143:143 */
 "Anemone" = "Anémona";
 
-/* util.py: Species crystalline shards; util.py: Genus amphora plant; In files: util.py:145:145; util.py:399:399 */
+/* util.py: Genus amphora plant; In files: util.py:145:145; util.py:403:403 */
 "Amphora Plant" = "Planta de Ánfora";
 
-/* util.py: Species crystalline shards; util.py: Genus bark mound; In files: util.py:147:147; util.py:397:397 */
+/* util.py: Genus bark mound; In files: util.py:147:147; util.py:401:401 */
 "Bark Mound" = "Agrupaciones de Corteza";
 
 /* util.py: Genus brain tree; In files: util.py:149:149 */
 "Brain Tree" = "Árbol de Cerebros";
 
-/* util.py: Species crystalline shards; util.py: Genus crystalline shards; In files: util.py:151:151; util.py:395:395 */
+/* util.py: Genus crystalline shards; In files: util.py:151:151; util.py:399:399 */
 "Crystalline Shards" = "Esquirlas Crystalinas";
 
 /* util.py: Genus sinuous tubers; In files: util.py:153:153 */
 "Sinuous Tubers" = "Tubiformes Sinuosos";
+
+/* util.py: Genus radicoida; In files: util.py:155:155 */
+"Radicoida" = "Radicoida";
+
+/* load.py: Unknown scan level; util.py: Genus unknown; In files: util.py:157:157; util.py:407:407; load.py:379:379 */
+"Unknown" = "Desconocido";
 
 /* In files: util.py:167:167 */
 "Aleoida Arcus" = "Aleoida Arcus";
@@ -622,7 +634,7 @@
 /* In files: util.py:347:347 */
 "Lindigoticum Sinuous Tubers" = "Tubiformes Sinuosos Lindigoticum";
 
-/* In files: util.py:349:349 */
+/* In files: util.py:353:353 */
 "Violaceum Sinuous Tubers" = "Tubiformes Sinuosos Violaceum";
 
 /* In files: util.py:351:351 */
@@ -631,7 +643,7 @@
 /* In files: util.py:353:353 */
 "Blatteum Sinuous Tubers" = "Tubiformes Sinuosos Blatteum";
 
-/* In files: util.py:355:355 */
+/* In files: util.py:359:359 */
 "Tubus Conifer" = "Tubus Conifer";
 
 /* In files: util.py:357:357 */
@@ -643,53 +655,56 @@
 /* In files: util.py:361:361 */
 "Tubus Rosarium" = "Tubus Rosarium";
 
-/* In files: util.py:363:363 */
+/* In files: util.py:367:367 */
 "Tubus Compagibus" = "Tubus Compagibus";
 
-/* In files: util.py:365:365 */
+/* In files: util.py:369:369 */
 "Tussock Pennata" = "Tusoc Pennata";
 
-/* In files: util.py:367:367 */
+/* In files: util.py:371:371 */
 "Tussock Ventusa" = "Tusoc Ventusa";
 
-/* In files: util.py:369:369 */
+/* In files: util.py:373:373 */
 "Tussock Ignis" = "Tusoc Ignis";
 
-/* In files: util.py:371:371 */
+/* In files: util.py:375:375 */
 "Tussock Cultro" = "Tusoc Cultro";
 
-/* In files: util.py:373:373 */
+/* In files: util.py:377:377 */
 "Tussock Catena" = "Tusoc Catena";
 
-/* In files: util.py:375:375 */
+/* In files: util.py:379:379 */
 "Tussock Pennatis" = "Tusoc Pennatis";
 
-/* In files: util.py:377:377 */
+/* In files: util.py:381:381 */
 "Tussock Serrati" = "Tusoc Serrati";
 
-/* In files: util.py:379:379 */
+/* In files: util.py:383:383 */
 "Tussock Albata" = "Tusoc Albata";
 
-/* In files: util.py:381:381 */
+/* In files: util.py:385:385 */
 "Tussock Propagito" = "Tusoc Propagito";
 
-/* In files: util.py:383:383 */
+/* In files: util.py:387:387 */
 "Tussock Divisa" = "Tusoc Divisa";
 
-/* In files: util.py:385:385 */
+/* In files: util.py:389:389 */
 "Tussock Caputus" = "Tusoc Caputus";
 
-/* In files: util.py:387:387 */
+/* In files: util.py:391:391 */
 "Tussock Triticum" = "Tusoc Triticum";
 
-/* In files: util.py:389:389 */
+/* In files: util.py:393:393 */
 "Tussock Stigmasis" = "Tusoc Stigmasis";
 
-/* In files: util.py:391:391 */
+/* In files: util.py:395:395 */
 "Tussock Virgam" = "Tusoc Virgam";
 
-/* In files: util.py:393:393 */
+/* In files: util.py:397:397 */
 "Tussock Capillum" = "Tusoc Capillum";
+
+/* In files: util.py:405:405 */
+"Radicoida Unicus" = "Radicoida Unicus";
 
 /* load.py: ExploData DB migration threw an error; In files: load.py:101:101 */
 "BioScan: DB Migration Failed" = "BioScan: Error de migración de DB";
@@ -726,9 +741,6 @@
 
 /* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:351:351; load.py:1642:1642 */
 "Analysed" = "Analizado";
-
-/* load.py: Unknown scan level; In files: load.py:352:352 */
-"Unknown" = "Desconocido";
 
 /* load.py: Scan complete status text; In files: load.py:1373:1373 */
 "Complete" = "Completo";
@@ -769,7 +781,7 @@
 /* load.py: Startup message before data has been processed; In files: load.py:1576:1576 */
 "BioScan: Awaiting Data" = "BioScan: Esperando Datos";
 
-/* load.py: General BioScan prediction title label; In files: load.py:1613:1613 */
+/* load.py: General BioScan prediction title label; In files: load.py:1855:1855 */
 "BioScan Predictions" = "Predicciones de BioScan";
 
 /* load.py: Scan in progress indicator; In files: load.py:1664:1664 */
@@ -778,7 +790,7 @@
 /* load.py: Analysed samples list label; In files: load.py:1679:1679 */
 "Analysed System Samples" = "Muestras del Sistema Analizadas";
 
-/* load.py: No signals found in current system; In files: load.py:1686:1686 */
+/* load.py: No signals found in current system; In files: load.py:1935:1935 */
 "BioScan: No Signals Found" = "BioScan: No se Encontraron Señales";
 
 /* load.py: Overlay details label; In files: load.py:1701:1701 */

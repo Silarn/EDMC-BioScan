@@ -109,8 +109,14 @@
 /* In files: settings.py:228:228 */
 "Hide in System: Hide completed species in the full system view" = "Hide in System : Masquer les espèces terminées dans la vue complète du système";
 
+/* In files: settings.py:233:233 */
+"Completely hide body when all samples are complete" = "Cacher complètement le corps une fois tous les échantillons prélevés.";
+
 /* In files: settings.py:234:234 */
 "Enable species waypoints with the comp. scanner" = "Activer les points de cheminement des espèces avec le scanner de comp.";
+
+/* In files: settings.py:244:244 */
+"Hide waypoint bearings with radar enabled (see overlay)" = "Masquer les relèvements des points de passage lorsque le radar est activé (voir la superposition)";
 
 /* In files: settings.py:264:264; settings.py:330:330 */
 "None" = "Aucune";
@@ -348,6 +354,12 @@
 
 /* util.py: Genus sinuous tubers; In files: util.py:153:153 */
 "Sinuous Tubers" = "Tubercules Sinueux";
+
+/* util.py: Genus radicoida; In files: util.py:155:155 */
+"Radicoida" = "Radicoida";
+
+/* load.py: Unknown scan level; util.py: Genus unknown; In files: util.py:157:157; util.py:407:407; load.py:379:379 */
+"Unknown" = "Inconnu";
 
 /* In files: util.py:167:167 */
 "Aleoida Arcus" = "Aleoida Arcus";
@@ -691,6 +703,9 @@
 /* In files: util.py:393:393 */
 "Tussock Capillum" = "Touradon Capillum";
 
+/* In files: util.py:405:405 */
+"Radicoida Unicus" = "Radicoida Unicus";
+
 /* load.py: ExploData DB migration threw an error; In files: load.py:104:104 */
 "BioScan: DB Migration Failed" = "BioScan : Échec Migration BD";
 
@@ -726,9 +741,6 @@
 
 /* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:354:354; load.py:1645:1645 */
 "Analysed" = "Analysé";
-
-/* load.py: Unknown scan level; In files: load.py:355:355 */
-"Unknown" = "Inconnu";
 
 /* load.py: Scan complete status text; In files: load.py:1376:1376 */
 "Complete" = "Complété";

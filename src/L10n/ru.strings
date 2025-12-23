@@ -38,19 +38,19 @@
 "Overlay Settings" = "Настройки оверлея";
 
 /* settings.py: Journal parsing toggle button text; In files: settings.py:74:74 */
-"Start / Stop Journal Parsing" = "Start / Stop Journal Parsing";
+"Start / Stop Journal Parsing" = "Запустить/Остановить анализ журнала";
 
 /* settings.py: Debug logging checkbox label; In files: settings.py:79:79 */
-"Enable Debug Logging" = "Enable Debug Logging";
+"Enable Debug Logging" = "Включить ведение журнала отладки";
 
 /* settings.py: Body focus filter settings title; In files: settings.py:105:105 */
 "Focus Bio Details List: (?)" = "Локальный список сигналов: (?)";
 
 /* settings.py: Tooltip text for body focus filter settings #1; In files: settings.py:111:111 */
-"This setting controls when the prediction details should display." = "This setting controls when the prediction details should display.";
+"This setting controls when the prediction details should display." = "Этот параметр определяет, когда должны отображаться подробные сведения о прогнозе.";
 
 /* settings.py: Tooltip text for body focus filter settings #2; In files: settings.py:113:113 */
-"When filtered, you will only see details for the bio signals relevant to your current location." = "When filtered, you will only see details for the bio signals relevant to your current location.";
+"When filtered, you will only see details for the bio signals relevant to your current location." = "После применения фильтра вы увидите только информацию о биосигналах, относящихся к вашему текущему местоположению.";
 
 /* settings.py: Settings explanation for body focus filter options (dropdown options (e.g. On Approach) should not be translated); In files: settings.py:130:130 */
 "Never: Never filter signal details" = "Never: никогда не фильтровать сигналы";
@@ -109,11 +109,17 @@
 /* In files: settings.py:228:228 */
 "Hide in System: Hide completed species in the full system view" = "Hide in System: Скрыть завершенные виды в полном системном представлении";
 
+/* In files: settings.py:233:233 */
+"Completely hide body when all samples are complete" = "Полностью скрыть тело, когда все образцы будут собраны";
+
 /* In files: settings.py:234:234 */
 "Enable species waypoints with the comp. scanner" = "Включить видовые путевые точки с помощью комп. сканера";
 
+/* In files: settings.py:244:244 */
+"Hide waypoint bearings with radar enabled (see overlay)" = "Скрыть азимуты путевых точек при включенном радаре (см. наложение)";
+
 /* In files: settings.py:264:264; settings.py:330:330 */
-"None" = "None";
+"None" = "Никто";
 
 /* In files: settings.py:277:277 */
 "Overlay Color" = "Цвет оверлея";
@@ -137,10 +143,10 @@
 "Ship Whitelist (?)" = "Отображать на кораблях (?)";
 
 /* In files: settings.py:389:389 */
-"Ships added to this list will display BioScan on the overlay." = "Ships added to this list will display BioScan on the overlay.";
+"Ships added to this list will display BioScan on the overlay." = "Добавленные в этот список корабли будут отображать BioScan на наложенном экране.";
 
 /* In files: settings.py:390:390 */
-"When empty, BioScan will display for all ships." = "When empty, BioScan will display for all ships.";
+"When empty, BioScan will display for all ships." = "Когда контейнер будет пуст, BioScan отобразится для всех кораблей.";
 
 /* In files: settings.py:399:399 */
 "Add" = "Добавить";
@@ -170,13 +176,13 @@
 "Active Scan / Waypoint Radar (?):" = "Активный скан / Радар точек (?):";
 
 /* settings.py: Ship overlay tooltip; Line 1; In files: settings.py:485:485 */
-"Draw a radar on the overlay when active scans and waypoints are present." = "Draw a radar on the overlay when active scans and waypoints are present.";
+"Draw a radar on the overlay when active scans and waypoints are present." = "Отображать радар на наложенном изображении, если активны сканирование и заданы путевые точки.";
 
 /* settings.py: Ship overlay tooltip; Line 2; In files: settings.py:487:487 */
-"This displays bio markers up to a defined distance and shows a display of the minimum scan distance." = "This displays bio markers up to a defined distance and shows a display of the minimum scan distance.";
+"This displays bio markers up to a defined distance and shows a display of the minimum scan distance." = "Эта функция отображает биомаркеры на заданном расстоянии и показывает минимальное расстояние сканирования.";
 
 /* settings.py: Ship overlay tooltip; Line 3; In files: settings.py:489:489 */
-"This is oriented where up is the direction you're facing. The ship location can be tracked as well." = "This is oriented where up is the direction you're facing. The ship location can be tracked as well.";
+"This is oriented where up is the direction you're facing. The ship location can be tracked as well." = "Эта ориентация предполагает, что направление взгляда — вверх. Местоположение корабля также можно отслеживать.";
 
 /* settings.py: Radar enable / disable setting; In files: settings.py:494:494 */
 "Enable Radar" = "Включить радар";
@@ -348,6 +354,12 @@
 
 /* util.py: Genus sinuous tubers; In files: util.py:153:153 */
 "Sinuous Tubers" = "Волнистые клубни";
+
+/* util.py: Genus radicoida; In files: util.py:155:155 */
+"Radicoida" = "Radicoida";
+
+/* load.py: Unknown scan level; util.py: Genus unknown; In files: util.py:157:157; util.py:407:407; load.py:379:379 */
+"Unknown" = "Неизвестный";
 
 /* In files: util.py:167:167 */
 "Aleoida Arcus" = "Алеоида Arcus";
@@ -691,6 +703,9 @@
 /* In files: util.py:393:393 */
 "Tussock Capillum" = "Дерновина Capillum";
 
+/* In files: util.py:405:405 */
+"Radicoida Unicus" = "Radicoida Unicus";
+
 /* load.py: ExploData DB migration threw an error; In files: load.py:104:104 */
 "BioScan: DB Migration Failed" = "BioScan: DB Migration Failed";
 
@@ -727,20 +742,17 @@
 /* load.py: Analysed scan level (3/3); load.py: Bio scans completed indicator label; In files: load.py:354:354; load.py:1645:1645 */
 "Analysed" = "просканирован";
 
-/* load.py: Unknown scan level; In files: load.py:355:355 */
-"Unknown" = "Unknown";
-
 /* load.py: Scan complete status text; In files: load.py:1376:1376 */
-"Complete" = "Complete";
+"Complete" = "Завершить";
 
 /* load.py: All scans complete status text; In files: load.py:1415:1415; load.py:1417:1417 */
-"All Samples Complete" = "All Samples Complete";
+"All Samples Complete" = "Все образцы обработаны";
 
 /* load.py: Indicator for multiple possible bio variants; In files: load.py:1449:1449 */
-"Multiple Possible" = "Multiple Possible";
+"Multiple Possible" = "Несколько возможных вариантов";
 
 /* load.py: Nearest waypoint text; In files: load.py:1463:1463; load.py:1677:1677 */
-"Nearest Saved Waypoint" = "Nearest Saved Waypoint";
+"Nearest Saved Waypoint" = "Ближайшая сохраненная путевая точка";
 
 /* load.py: Predicted bio not located label; In files: load.py:1468:1468 */
 "Not located" = "не обнаружен";
