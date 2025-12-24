@@ -12,7 +12,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.04,
                     'max_gravity': 0.276,
                     'min_temperature': 180.0,
-                    'max_temperature': 190.0,
+                    #'max_temperature': 190.0,
                     'min_pressure': 0.025,
                     'volcanism': 'None',
                     'regions': ['!perseus']
@@ -40,6 +40,14 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_gravity': 0.276,
                     'min_temperature': 65.0,
                     'max_temperature': 120.0,
+                    'volcanism': 'Any'
+                },
+                {
+                    'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['High metal content body'],
+                    'min_gravity': 0.026,
+                    'max_gravity': 0.276,
+                    'min_temperature': 500.0,
                     'volcanism': 'Any'
                 },
                 {
@@ -136,7 +144,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.0405,
                     'max_gravity': 0.276,
                     'min_temperature': 180.0,
-                    'max_temperature': 197.0,
+                    #'max_temperature': 197.0,
                     'min_pressure': 0.025,
                     'volcanism': 'None',
                     'regions': ['perseus']
@@ -153,7 +161,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.0405,
                     'max_gravity': 0.276,
                     'min_temperature': 191.0,
-                    'max_temperature': 197.0,
+                    #'max_temperature': 197.0,
                     'min_pressure': 0.057,
                     'volcanism': 'None',
                     'regions': ['!perseus']

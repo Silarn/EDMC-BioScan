@@ -167,7 +167,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.045,
                     'max_gravity': 0.45,
                     'min_temperature': 50.0,
-                    'max_temperature': 200.0,
+                    # 'max_temperature': 200.0,
                     'volcanism': 'Any'
                 },
                 {
@@ -194,16 +194,16 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.45,
                     'max_gravity': 0.61,
                     'min_temperature': 300.0,
-                    'max_temperature': 500.0,
+                    #'max_temperature': 500.0,
                     'min_pressure': 0.006,
                     'volcanism': 'None'
                 },
                 {
                     'atmosphere': ['CarbonDioxide', 'CarbonDioxideRich'],
-                    'min_gravity': 0.26,
-                    'max_gravity': 0.57,
+                    'min_gravity': 0.025,
+                    'max_gravity': 0.61,
                     'min_temperature': 167.0,
-                    'max_temperature': 300.0,
+                    #'max_temperature': 300.0,
                     'min_pressure': 0.006,
                     'volcanism': 'Any'
                 },
@@ -301,7 +301,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'body_type': ['Icy body', 'Rocky ice body'],
                     'min_gravity': 0.315,
                     'max_gravity': 0.44,
-                    'min_temperature': 220.0,
+                    'min_temperature': 190.0,
                     'max_temperature': 330.0,
                     'min_pressure': 0.01,
                     'volcanism': 'Any'
@@ -445,7 +445,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_gravity': 0.38,
                     'max_gravity': 0.45,
                     'min_temperature': 190.0,
-                    'max_temperature': 320.0,
+                    'max_temperature': 330.0,
                     'min_pressure': 0.07,
                     'body_type': ['Icy body'],
                     'volcanism': ['nitrogen', 'ammonia']
@@ -482,8 +482,8 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'atmosphere': ['WaterRich'],
                     'min_gravity': 0.4,
                     'max_gravity': 0.5,
-                    'min_temperature': 240.0,
-                    'max_temperature': 320.0,
+                    'min_temperature': 190.0,
+                    'max_temperature': 330.0,
                     'body_type': ['Rocky ice body'],
                     'volcanism': 'None'
                 }

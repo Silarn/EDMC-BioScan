@@ -110,6 +110,15 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'min_temperature': 54.0,
                     'max_temperature': 210.0,
                     'volcanism': ['silicate', 'metallic', 'rocky']
+                },
+                {
+                    'atmosphere': ['CarbonDioxide'],
+                    'body_type': ['High metal content body'],
+                    'min_gravity': 0.05,
+                    'max_gravity': 0.276,
+                    'min_temperature': 500.0,
+                    #'max_temperature': 210.0,
+                    'volcanism': ['silicate', 'metallic', 'rocky']
                 }
             ],
         },
