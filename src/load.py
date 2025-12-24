@@ -1544,7 +1544,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         show = False
                     elif this.scan_display_mode.get() == 'Hide in System' and not focused:
                         show = False
-                    elif this.hide_body_complete.get():
+                    elif this.hide_body_complete.get() and complete:
                         show = False
 
                 if species != '':
