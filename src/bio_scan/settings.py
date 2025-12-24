@@ -224,22 +224,27 @@ def get_general_tab(parent: ttk.Notebook) -> tk.Frame:
     ).grid(row=6, column=0, sticky=tk.W)
     nb.Label(right_column,
              text=tr.tl('Check: Always show species with a checkmark when complete', bioscan_globals.translation_context) + '\n' +
-                        tr.tl('Hide: Always hide completed species', bioscan_globals.translation_context) + '\n' +
-                        tr.tl('Hide in System: Hide completed species in the full system view', bioscan_globals.translation_context),
+                  tr.tl('Hide: Always hide completed species', bioscan_globals.translation_context) + '\n' +
+                  tr.tl('Hide in System: Hide completed species in the full system view', bioscan_globals.translation_context),
              justify=tk.LEFT) \
         .grid(row=7, column=0, sticky=tk.NW)
-    ttk.Separator(right_column).grid(row=8, column=0, pady=y_padding * 2, sticky=tk.EW)
+    nb.Checkbutton(
+        right_column,
+        text=tr.tl('Completely hide body when all samples are complete', bioscan_globals.translation_context),
+        variable=bioscan_globals.hide_body_complete
+    ).grid(row=8, column=0, padx=0, sticky=tk.W)
+    ttk.Separator(right_column).grid(row=9, column=0, pady=y_padding * 2, sticky=tk.EW)
     nb.Checkbutton(
         right_column,
         text=tr.tl('Enable species waypoints with the comp. scanner', bioscan_globals.translation_context),
         variable=bioscan_globals.waypoints_enabled
-    ).grid(row=9, column=0, padx=0, sticky=tk.W)
+    ).grid(row=10, column=0, padx=0, sticky=tk.W)
     nb.Checkbutton(
         right_column,
         text=tr.tl('Hide waypoint bearings with radar enabled (see overlay)', bioscan_globals.translation_context),
         variable=bioscan_globals.hide_waypoint_bearings,
         state=tk.ACTIVE if bioscan_globals.overlay.available() else tk.DISABLED
-    ).grid(row=10, column=0, padx=0, sticky=tk.W)
+    ).grid(row=11, column=0, padx=0, sticky=tk.W)
 
     return frame
 

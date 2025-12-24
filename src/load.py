@@ -187,6 +187,7 @@ def prefs_changed(cmdr: str, is_beta: bool) -> None:
     config.set('bioscan_focus_distance', this.focus_distance.get())
     config.set('bioscan_focus_breakdown', this.focus_breakdown.get())
     config.set('bioscan_scan_display', this.scan_display_mode.get())
+    config.set('bioscan_hide_body_complete', this.hide_body_complete.get())
     config.set('bioscan_signal', this.signal_setting.get())
     config.set('bioscan_exclude_signals', this.exclude_signals.get())
     config.set('bioscan_minimum_signals', this.minimum_signals.get())
@@ -229,6 +230,7 @@ def parse_config(cmdr: str = '') -> None:
     this.focus_distance = tk.IntVar(value=config.get_int(key='bioscan_focus_distance', default=5000))
     this.focus_breakdown = tk.BooleanVar(value=config.get_bool(key='bioscan_focus_breakdown', default=False))
     this.scan_display_mode = tk.StringVar(value=config.get_str(key='bioscan_scan_display', default='Check'))
+    this.hide_body_complete = tk.BooleanVar(value=config.get_bool(key='bioscan_hide_body_complete', default=False))
     this.signal_setting = tk.StringVar(value=config.get_str(key='bioscan_signal', default='Always'))
     this.exclude_signals = tk.BooleanVar(value=config.get_bool(key='bioscan_exclude_signals', default=False))
     this.minimum_signals = tk.IntVar(value=config.get_int(key='bioscan_minimum_signals', default=0))
@@ -406,11 +408,11 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
 
     # Main processor for the species rulesets
     possible_species: dict[str, set[str]] = {}
-    genus_name = bio_genus[genus]["name"] if genus in bio_genus else "Unknown"
+    genus_name = bio_genus[genus]['name'] if genus in bio_genus else 'Unknown'
     log(f'System: {this.system.name} - Body: {body.get_name()}')
     log(f'Running checks for {genus_name}:')
     for species, data in bio_types[genus].items():
-        log(f'Species: {data["name"]}')
+        log(f'Species: {data['name']}')
         count = 0
         for ruleset in data['rulesets']:
             count += 1
@@ -1486,7 +1488,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
         else:
             complete = False
         if not focused:
-            if not complete or this.scan_display_mode.get() not in ['Hide', 'Hide in System']:
+            if not complete or (this.scan_display_mode.get() not in ['Hide', 'Hide in System'] and not this.hide_body_complete.get()):
                 if (this.exclude_signals.get() and body.get_bio_signals()
                         and body.get_bio_signals() < this.minimum_signals.get()):
                     detail_text += f'{name} - {body.get_bio_signals()} Signal{"s"[:body.get_bio_signals()^1]}'
@@ -1509,8 +1511,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         get_gravity_warning(body.get_gravity(), True)
                     )
             else:
-                # LANG: All scans complete status text
-                detail_text += f'{name} - ' + tr.tl('All Samples Complete', this.translation_context) + '\n'
+                if not this.hide_body_complete.get():
+                    # LANG: All scans complete status text
+                    detail_text += f'{name} - ' + tr.tl('All Samples Complete', this.translation_context) + '\n'
         elif complete and this.scan_display_mode.get() == 'Hide':
             detail_text += tr.tl('All Samples Complete', this.translation_context)
         if (this.exclude_signals.get() and body.get_bio_signals()
@@ -1540,6 +1543,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                     if this.scan_display_mode.get() == 'Hide':
                         show = False
                     elif this.scan_display_mode.get() == 'Hide in System' and not focused:
+                        show = False
+                    elif this.hide_body_complete.get():
                         show = False
 
                 if species != '':
@@ -1585,7 +1590,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         )
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
-                    bio_name = (bio_genus[genus]['name'] if genus in bio_genus else 'Unknown') if bio_name == '' else bio_name
+                    bio_name = translate_genus(bio_genus[genus]['name'] if genus in bio_genus else 'Unknown') if bio_name == '' else bio_name
                     bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
                         else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
                         else '\N{WHITE QUESTION MARK ORNAMENT}'
@@ -1916,12 +1921,14 @@ def update_display() -> None:
                         '\n' + tr.tl('Nearest Saved Waypoint', this.translation_context) + f': {waypoint}' if waypoint else ''
                     )
                     break
-
-        this.total_label['text'] = '{}:\n{} | Bonus: {} | Total: {}'.format(
-            tr.tl('Analysed System Samples', this.translation_context),  # LANG: Analysed samples list label
+        totals = '{} | Bonus: {} | Total: {}'.format(
             this.formatter.format_credits(total_value),
             this.formatter.format_credits(bonus_value),
             this.formatter.format_credits(total_value + bonus_value)
+        )
+        this.total_label['text'] = '{}:\n{}'.format(
+            tr.tl('Analysed System Samples', this.translation_context),  # LANG: Analysed samples list label,
+            totals
         )
     else:
         this.scroll_canvas.grid_remove()
@@ -1930,6 +1937,7 @@ def update_display() -> None:
         title = tr.tl('BioScan: No Signals Found', this.translation_context)  # LANG: No signals found in current system
         text = ''
         signal_summary = ''
+        totals = ''
         this.total_label['text'] = ''
 
     this.label['text'] = title + signal_summary + ('\n' if signal_summary else '') + text
@@ -1942,7 +1950,7 @@ def update_display() -> None:
     if this.use_overlay.get() and this.overlay.available():
         if overlay_should_display():
             if detail_text:
-                this.overlay.display('bioscan_title', tr.tl('BioScan Details', this.translation_context) + f' | {this.total_label['text']}',  # LANG: Overlay details label
+                this.overlay.display('bioscan_title', tr.tl('BioScan Details', this.translation_context) + f' | {totals}',  # LANG: Overlay details label
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                                      color=this.overlay_color.get())
                 if redraw_overlay:

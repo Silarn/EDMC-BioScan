@@ -34,6 +34,7 @@ class Globals:
         self.signal_setting: tk.StringVar | None = None
         self.focus_breakdown: tk.BooleanVar | None = None
         self.scan_display_mode: tk.StringVar | None = None
+        self.hide_body_complete: tk.BooleanVar | None = None
         self.waypoints_enabled: tk.BooleanVar | None = None
         self.hide_waypoint_bearings: tk.BooleanVar | None = None
         self.exclude_signals: tk.BooleanVar | None = None
