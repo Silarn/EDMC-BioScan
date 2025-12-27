@@ -44,8 +44,10 @@ Once fully analysed, the total system value (and possible first find value) will
 As of version 2.5, any potential species that has not yet been logged to your local region's codex will be marked. If
 there are multiple possible species or variants (colors), those will be individually marked in the detailed breakdown.
 
-This is marked by the 📝 memo emoji in front of the genus or variant. For best results,
-see [journal importing](#journal-importing).
+This is marked by the 📝 memo emoji in front of the genus or variant. Species / variants you haven't seen before will
+be marked with the 🌌 milky way emoji.
+
+For best results, see [journal importing](#journal-importing).
 
 ## Navigation
 
@@ -76,6 +78,12 @@ the nearest waypoint in the detailed species scroll list.
 The waypoint indicator will display the distance to the waypoint, the compass heading toward that waypoint, and an
 indicator for the direction and degrees to turn to face that heading. Note that waypoints will log your current
 location, so for best results make the scan as close to the target species as possible.
+
+#### Radar
+
+When using the [overlay](#overlay-version-27), you can use an optional radar display. This shows markers for any scanned
+bios relative to your facing direction. North is indicated on the border. The radar distance is configurable with both
+linear and logarithmic scaling modes. It will also track your ship location.
 
 ### Persistent Data
 

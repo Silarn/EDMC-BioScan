@@ -5,6 +5,7 @@
 import locale
 # Core imports
 from copy import deepcopy
+from datetime import datetime
 from typing import Any, Mapping, MutableMapping
 import os
 import sys
@@ -33,11 +34,11 @@ from bio_scan.bio_data.regions import region_map, guardian_nebulae, tuber_zones
 from bio_scan.bio_data.species import rules as bio_types
 
 # Database objects
-from sqlalchemy import select, delete, update
+from sqlalchemy import select, delete, update, desc
 from sqlalchemy.orm import Session
 
 from ExploData.explo_data import db
-from ExploData.explo_data.db import Commander, PlanetFlora, FloraScans, Waypoint, System, Metadata
+from ExploData.explo_data.db import Commander, Planet, PlanetStatus, PlanetFlora, FloraScans, Waypoint, System, Metadata, Death, Resurrection, ExoBioSale
 from ExploData.explo_data.body_data.struct import PlanetData, StarData, load_planets, load_stars, get_main_star
 from ExploData.explo_data.bio_data.codex import parse_variant
 from ExploData.explo_data.bio_data.genus import data as bio_genus
@@ -82,7 +83,8 @@ def plugin_start3(plugin_dir: str) -> str:
             this.db_mismatch = True
 
         if not this.db_mismatch:
-            register_event_callbacks({'Scan', 'FSSBodySignals', 'SAASignalsFound', 'ScanOrganic', 'CodexEntry'},
+            register_event_callbacks({'Scan', 'FSSBodySignals', 'SAASignalsFound', 'ScanOrganic', 'CodexEntry',
+                                      'SellOrganicData'},
                                      process_data_event)
     return this.NAME
 
@@ -1049,7 +1051,7 @@ def journal_entry(
             prefs_changed(cmdr, is_beta)
 
         case 'Location':
-            if 'Latitude' in entry and 'Taxi' in entry and not entry['Taxi']:
+            if 'Latitude' in entry and not entry.get('Taxi', False) and not entry.get('InSRV', False) and not entry.get('OnFoot', False):
                 this.ship_location = (entry['Latitude'], entry['Longitude'])
 
         case 'StartJump':
@@ -1072,6 +1074,8 @@ def journal_entry(
             if not this.ship_location:
                 if entry.get('OnPlanet', False) and not entry.get('SRV', False):
                     this.ship_location = (this.planet_latitude, this.planet_longitude)
+            if entry['event'] == 'Disembark' and entry.get('OnPlanet', False):
+                update_display()
 
         case 'ApproachBody' | 'Touchdown' | 'Liftoff':
             if entry['event'] == 'Liftoff':
@@ -1178,8 +1182,9 @@ def process_data_event(entry: Mapping[str, Any]) -> None:
                     scan_level = 3
 
             if target_body is not None:
+                timestamp: datetime = datetime.fromisoformat(entry['timestamp'])
                 this.planets[target_body].set_flora_species_scan(
-                    entry['Genus'], entry['Species'], entry.get('WasLogged', None), scan_level, this.commander.id
+                    entry['Genus'], entry['Species'], entry.get('WasLogged', None), scan_level, timestamp, this.commander.id
                 )
                 if scan_level == 1 and this.current_scan[0]:
                     data: PlanetFlora = this.planets[target_body].get_flora(this.current_scan[0],
@@ -1234,9 +1239,8 @@ def process_data_event(entry: Mapping[str, Any]) -> None:
 
                 update_display()
 
-        case 'Disembark':
-            if entry.get('OnPlanet', False):
-                update_display()
+        case 'SellOrganicData':
+            update_display()
 
 
 
@@ -1477,7 +1481,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
     for name, body in bodies.items():
         complete = True
         num_complete = 0
-        mult = 5 if body.was_footfalled(this.commander.id) is False else 1
+        bubble_body = not body.was_discovered(this.commander.id) and body.was_mapped(this.commander.id)
+        mult = 5 if body.was_footfalled(this.commander.id) is False and not bubble_body else 1
         if len(body.get_flora()):
             for flora in body.get_flora():
                 scan: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
@@ -1561,9 +1566,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         codex_galaxy = not check_codex(this.commander.id, None, genus, species, color)
                         codex_symbol = '\N{MILKY WAY} ' if codex_galaxy else '\N{MEMO} ' if codex else ''
                         bio_credits = bio_types[genus][species]['value'] if genus in bio_types else 0
-                        bio_credits = bio_credits * mult if body.get_status(this.commander.id).was_footfalled is False else bio_credits
-                        bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
-                            else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
+                        bio_credits = bio_credits * mult if body.get_status(this.commander.id).was_footfalled is False and not bubble_body else bio_credits
+                        bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False and not bubble_body \
+                            else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True or bubble_body \
                             else '\N{WHITE QUESTION MARK ORNAMENT}'
                         if not body.was_discovered(this.commander.id) and body.was_mapped(this.commander.id):
                             bonus_icon = '\N{WHITE QUESTION MARK ORNAMENT}'
@@ -1591,8 +1596,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
                     bio_name = translate_genus(bio_genus[genus]['name'] if genus in bio_genus else 'Unknown') if bio_name == '' else bio_name
-                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
-                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
+                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False and not bubble_body \
+                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True or bubble_body \
                         else '\N{WHITE QUESTION MARK ORNAMENT}'
                     if not body.was_discovered(this.commander.id) and body.was_mapped(this.commander.id):
                         bonus_icon = '\N{WHITE QUESTION MARK ORNAMENT}'
@@ -1658,8 +1663,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 count = 0
                 for bio_name, values in types:
                     count += 1
-                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False \
-                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
+                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False and not bubble_body \
+                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True or bubble_body \
                         else '\N{WHITE QUESTION MARK ORNAMENT}'
                     detail_text += '{}: {}{}\n'.format(
                         bio_name,
@@ -1715,6 +1720,54 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 tr.tl('Check FSS for Signals (or DSS)', this.translation_context) + '\n\n')
 
     return detail_text, value_sum, bonus_value_sum
+
+
+def get_unsold_data() -> int:
+    last_death: Death = this.sql_session.scalar(select(Death).where(Death.commander_id == this.commander.id).order_by(desc(Death.died_at)))
+    last_resurrect: Resurrection = this.sql_session.scalar(select(Resurrection).where(Resurrection.commander_id == this.commander.id)
+                                             .where(Resurrection.type.in_(['escape', 'recover'])).order_by(desc(Resurrection.resurrected_at)))
+    last_sold = this.sql_session.scalar(select(ExoBioSale).where(ExoBioSale.commander_id == this.commander.id).order_by(desc(ExoBioSale.sold_at)))
+
+    last_data_loss: datetime | None = None
+    last_sold_time: datetime | None = None
+    if last_death or last_resurrect:
+        last_death_time: datetime = last_death.died_at if last_death else None
+        last_resurrect_time: datetime = last_resurrect.resurrected_at if last_resurrect else None
+        last_data_loss = last_death_time if last_death_time else last_resurrect_time
+
+    if last_sold:
+        last_sold_time = last_sold.sold_at
+
+    data_cutoff_time: datetime | None = None
+    if last_sold_time:
+        data_cutoff_time = last_sold_time
+    if last_data_loss:
+        if data_cutoff_time:
+            data_cutoff_time = last_data_loss if last_data_loss > data_cutoff_time else data_cutoff_time
+        else:
+            data_cutoff_time = last_data_loss
+
+    recent_scans: list[FloraScans] = this.sql_session.scalars(select(FloraScans).where(FloraScans.commander_id == this.commander.id)
+                                                              .where(FloraScans.scanned_at > data_cutoff_time).where(FloraScans.count == 3)).all()
+
+    value = 0
+    if len(recent_scans) > 0:
+        for scan in recent_scans:
+            flora: PlanetFlora = this.sql_session.scalar(select(PlanetFlora).where(PlanetFlora.id == scan.flora_id))
+            planet: Planet = this.sql_session.scalar(select(Planet).where(Planet.id == flora.planet_id))
+            planet_status: PlanetStatus = this.sql_session.scalar(select(PlanetStatus).where(PlanetStatus.planet_id == planet.id)
+                                                                  .where(PlanetStatus.commander_id == this.commander.id))
+
+            base_value = bio_types[flora.genus][flora.species]['value']
+            if planet_status.was_footfalled is False:
+                if not planet_status.was_discovered and planet_status.was_mapped:
+                    value += base_value
+                else:
+                    value += base_value * 5
+            else:
+                value += base_value
+
+    return value
 
 
 def render_radar(message_id: str) -> None:
@@ -1815,7 +1868,7 @@ def update_display() -> None:
     if not this.commander:
         this.scroll_canvas.grid_remove()
         this.scrollbar.grid_remove()
-        this.total_label.grid_remove()
+        # this.total_label.grid_remove()
         # LANG: Startup message before data has been processed
         this.label['text'] = tr.tl('BioScan: Awaiting Data', this.translation_context)
         return
@@ -1850,10 +1903,10 @@ def update_display() -> None:
     else:
         detail_text, total_value, bonus_value = get_bodies_summary(bio_bodies)
 
+    unsold_data = this.formatter.format_credits(get_unsold_data())
     if detail_text != '':
         this.scroll_canvas.grid()
         this.scrollbar.grid()
-        this.total_label.grid()
         title = tr.tl('BioScan Predictions', this.translation_context) + ':\n'  # LANG: General BioScan prediction title label
         text = ''
         signal_summary = ''
@@ -1926,19 +1979,19 @@ def update_display() -> None:
             this.formatter.format_credits(bonus_value),
             this.formatter.format_credits(total_value + bonus_value)
         )
-        this.total_label['text'] = '{}:\n{}'.format(
+        this.total_label['text'] = '{}:\n{}{}'.format(
             tr.tl('Analysed System Samples', this.translation_context),  # LANG: Analysed samples list label,
-            totals
+            totals,
+            f'\nUnsold: {unsold_data}' if unsold_data else ''
         )
     else:
         this.scroll_canvas.grid_remove()
         this.scrollbar.grid_remove()
-        this.total_label.grid_remove()
         title = tr.tl('BioScan: No Signals Found', this.translation_context)  # LANG: No signals found in current system
         text = ''
         signal_summary = ''
         totals = ''
-        this.total_label['text'] = ''
+        this.total_label['text'] = f'Unsold: {unsold_data}' if unsold_data else 'No Unsold Data'
 
     this.label['text'] = title + signal_summary + ('\n' if signal_summary else '') + text
     redraw_overlay = True if this.values_label['text'] != detail_text.strip() else False
@@ -1950,7 +2003,8 @@ def update_display() -> None:
     if this.use_overlay.get() and this.overlay.available():
         if overlay_should_display():
             if detail_text:
-                this.overlay.display('bioscan_title', tr.tl('BioScan Details', this.translation_context) + f' | {totals}',  # LANG: Overlay details label
+                this.overlay.display('bioscan_title', tr.tl('BioScan Details', this.translation_context) + f' | {totals}' +  # LANG: Overlay details label
+                                     (f' | Unsold: {unsold_data}' if unsold_data else ''),
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                                      color=this.overlay_color.get())
                 if redraw_overlay:
@@ -1968,7 +2022,8 @@ def update_display() -> None:
 
             else:
                 # LANG: Overlay no signals label
-                this.overlay.display('bioscan_title', tr.tl('BioScan: No Signals', this.translation_context),
+                this.overlay.display('bioscan_title', tr.tl('BioScan: No Signals', this.translation_context) +
+                                     (f' | Unsold: {unsold_data}' if unsold_data else ''),
                                      x=this.overlay_anchor_x.get(), y=this.overlay_anchor_y.get(),
                                      color=this.overlay_color.get())
                 this.overlay.clear('bioscan_details')
