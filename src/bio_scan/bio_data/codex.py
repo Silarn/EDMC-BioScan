@@ -31,17 +31,22 @@ def check_codex(commander: int, region: int | None, genus: str, species: str, va
         elif 'colors' in bio_genus[genus]:
             variant_data = bio_genus[genus]['colors']
             code = ''
+            element = False
             color_data = []
             if 'species' in variant_data:
                 if 'star' in variant_data['species'][species]:
                     color_data = variant_data['species'][species]['star']
                 elif 'element' in variant_data['species'][species]:
                     color_data = variant_data['species'][species]['element']
+                    element = True
             else:
                 color_data = variant_data['star']
             for key, color in color_data.items():  # type: str, str
                 if color == variant:
-                    code = key.capitalize()
+                    if element:
+                        code = key.capitalize()
+                    else:
+                        code = key
                     break
 
             if code:

@@ -34,7 +34,7 @@ from bio_scan.bio_data.regions import region_map, guardian_nebulae, tuber_zones
 from bio_scan.bio_data.species import rules as bio_types
 
 # Database objects
-from sqlalchemy import select, delete, update, desc
+from sqlalchemy import select, delete, update, desc, asc
 from sqlalchemy.orm import Session
 
 from ExploData.explo_data import db
@@ -1482,15 +1482,49 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
     for name, body in bodies.items():
         complete = True
         num_complete = 0
+        flora_status: dict[int, tuple[bool, bool]] = {}
         bubble_body = not body.was_discovered(this.commander.id) and body.was_mapped(this.commander.id)
         mult = 5 if body.was_footfalled(this.commander.id) is False and not bubble_body else 1
         if len(body.get_flora()):
             for flora in body.get_flora():
+                was_sold = False
+                was_lost = False
                 scan: list[FloraScans] = list(filter(lambda item: item.commander_id == this.commander.id, flora.scans))
                 if not scan or scan[0].count < 3:
                     complete = False
                 else:
-                    num_complete += 1
+                    next_death = this.sql_session.scalar(select(Death).where(Death.commander_id == this.commander.id)
+                                                         .where(Death.died_at > scan[0].scanned_at)
+                                                         .order_by(asc(Death.died_at)))
+                    next_resurrection = this.sql_session.scalar(select(Resurrection).where(Resurrection.commander_id == this.commander.id)
+                                                                .where(Resurrection.type.in_(['escape', 'recover', 'rejoin']))
+                                                                .where(Resurrection.resurrected_at > scan[0].scanned_at)
+                                                                .order_by(asc(Resurrection.resurrected_at)))
+                    lost_date = None
+                    if next_death and next_resurrection:
+                        lost_date = next_death.died_at if next_death.died_at < next_resurrection.resurrected_at else next_resurrection.resurrected_at
+                    elif next_death:
+                        lost_date = next_death.died_at
+                    elif next_resurrection:
+                        lost_date = next_resurrection.resurrected_at
+                    if lost_date:
+                        sale = this.sql_session.scalar(
+                            select(ExoBioSale).where(ExoBioSale.commander_id == this.commander.id)
+                            .where(ExoBioSale.sold_at > scan[0].scanned_at).where(ExoBioSale.sold_at < lost_date))
+                        if sale:
+                            num_complete += 1
+                            was_sold = True
+                        else:
+                            complete = False
+                            was_lost = True
+                    else:
+                        num_complete += 1
+                        sale = this.sql_session.scalar(
+                            select(ExoBioSale).where(ExoBioSale.commander_id == this.commander.id)
+                            .where(ExoBioSale.sold_at > scan[0].scanned_at))
+                        if sale:
+                            was_sold = True
+                flora_status[flora.id] = (was_sold, was_lost)
         else:
             complete = False
         if not focused:
@@ -1542,10 +1576,10 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         flora.waypoints
                     )
                 )
-                if scan and scan[0].count == 3:
-                    value_sum += bio_types[genus][species]['value'] if genus in bio_types else 0
+                if scan and scan[0].count == 3 and not flora_status[flora.id][1]:
+                    value_sum += bio_types[genus][species]['value'] if genus in bio_types and not flora_status[flora.id][1] else 0
                     bonus_value_sum += bio_types[genus][species]['value'] * 4 \
-                        if body.was_footfalled(this.commander.id) is False else 0
+                        if body.was_footfalled(this.commander.id) is False and not flora_status[flora.id][1] else 0
                     if this.scan_display_mode.get() == 'Hide':
                         show = False
                     elif this.scan_display_mode.get() == 'Hide in System' and not focused:
@@ -1581,15 +1615,18 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             #     else '\N{HEAVY PLUS SIGN}' if body.get_status(this.commander.id).was_footfalled is False \
                             #     else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
                             #     else '\N{WHITE QUESTION MARK ORNAMENT}'
-                        detail_text += '{}{}{}{} ({}): {}{}{}{}\n'.format(
+                        detail_text += '{}{}{}{} ({}): {}{}{}{}{}{}\n'.format(
                             '  ' if (bio_genus[genus]['multiple'] if genus in bio_genus else False) else '',
                             f'{codex_symbol}',
                             translate_species(bio_types[genus][species]['name'] if genus in bio_types else 'Unknown'),
                             f' - {translate_colors(color)}' if color else '',
-                            scan_label(scan[0].count if scan else 0),
+                            scan_label(scan[0].count if scan else 0) if not flora_status[flora.id][1] \
+                                else tr.tl('Lost', this.translation_context),  # LANG: Indicates lost data due to death / respawn
                             this.formatter.format_credits(bio_credits),
                             bonus_icon,
-                            u' \N{HEAVY CHECK MARK}\N{VARIATION SELECTOR-16}' if scan and scan[0].count == 3 else '',
+                            '\N{LIGHT CHECK MARK}' if scan and scan[0].count == 3 and not flora_status[flora.id][1] else '',
+                            '\N{COLLISION SYMBOL}' if flora_status[flora.id][1] else '',
+                            '\N{HEAVY DOLLAR SIGN}' if flora_status[flora.id][0] else '',
                             # LANG: Nearest waypoint text
                             f'\n  ' + tr.tl('Nearest Saved Waypoint', this.translation_context) +
                                 f': {waypoint}' if waypoint and not should_hide_waypoint() else ''
@@ -1645,7 +1682,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 this.formatter.format_credits(species_details_final[2])
                             )
                 if len(body.get_flora()) == count:
-                    detail_text += '\n'
+                    if not complete or not this.hide_body_complete.get():
+                        detail_text += '\n'
 
         else:
             types = get_possible_values(body)
@@ -1726,7 +1764,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
 def get_unsold_data() -> int:
     last_death: Death = this.sql_session.scalar(select(Death).where(Death.commander_id == this.commander.id).order_by(desc(Death.died_at)))
     last_resurrect: Resurrection = this.sql_session.scalar(select(Resurrection).where(Resurrection.commander_id == this.commander.id)
-                                             .where(Resurrection.type.in_(['escape', 'recover'])).order_by(desc(Resurrection.resurrected_at)))
+                                             .where(Resurrection.type.in_(['escape', 'recover', 'rejoin'])).order_by(desc(Resurrection.resurrected_at)))
     last_sold = this.sql_session.scalar(select(ExoBioSale).where(ExoBioSale.commander_id == this.commander.id).order_by(desc(ExoBioSale.sold_at)))
 
     last_data_loss: datetime | None = None
