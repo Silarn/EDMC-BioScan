@@ -21,7 +21,7 @@ def check_codex(commander: int, region: int | None, genus: str, species: str, va
             color_data = bio_genus[species]['colors']['star']
             for key, color in color_data.items():  # type: str, str
                 if color == variant:
-                    code = key.capitalize()
+                    code = key
                     break
             if code:
                 match = re.match('^(.*)_Name;$', species)
