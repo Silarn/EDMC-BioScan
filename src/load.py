@@ -1006,6 +1006,17 @@ def journal_entry(
         return ''
 
     system_changed = False
+    if cmdr and (not this.commander or this.commander.name != cmdr):
+        commander = this.sql_session.scalar(select(Commander).where(Commander.name == cmdr))
+        if not commander:
+            commander = Commander(name=cmdr)
+            this.sql_session.add(this.commander)
+            this.sql_session.commit()
+        this.commander = commander
+        parse_config(cmdr)
+        system_changed = True
+        reload_system_data()
+
     if not state['StarPos']:
         return ''
     if system and (not this.system or system != this.system.name):
@@ -1026,16 +1037,6 @@ def journal_entry(
         this.suit_name = state['SuitCurrent']['name']
         this.mode_changed = True
         update_display()
-
-    if cmdr and (not this.commander or this.commander.name != cmdr):
-        stmt = select(Commander).where(Commander.name == cmdr)
-        result = this.sql_session.scalars(stmt)
-        this.commander = result.first()
-        if not this.commander:
-            this.commander = Commander(name=cmdr)
-            this.sql_session.add(this.commander)
-            this.sql_session.commit()
-        parse_config(cmdr)
 
     log(f'Event {entry["event"]}')
 
