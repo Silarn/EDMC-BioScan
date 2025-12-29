@@ -72,12 +72,14 @@ class Globals:
         self.scrollbar: ttk.Scrollbar | None = None
         self.scrollable_frame: ttk.Frame | None = None
         self.label: tk.Label | None = None
+        self.view_button: tk.Button | None = None
         self.values_label: tk.Label | None = None
         self.total_label: tk.Label | None = None
         self.edsm_button: tk.Label | None = None
         self.update_button: HyperlinkLabel | None = None
         self.journal_label: tk.Label | None = None
         self.overlay: overlay.Overlay = overlay.Overlay()
+        self.display_hidden: bool = False
 
         # Plugin state data
         # DB elements

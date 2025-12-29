@@ -122,7 +122,9 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
         register_journal_callbacks(this.frame, 'biodata', journal_start, journal_update, journal_end)
         register_edsm_callbacks(this.frame, 'biodata', edsm_start, edsm_end)
         this.label = tk.Label(this.frame)
-        this.label.grid(row=0, column=0, columnspan=2, sticky=tk.N)
+        this.label.grid(row=0, column=0, sticky=tk.N)
+        this.view_button = tk.Button(this.frame, text='🔼', command=toggle_view)
+        this.view_button.grid(row=0, column=1, sticky=tk.N)
         this.scroll_canvas = tk.Canvas(this.frame, height=this.box_height.get(), highlightthickness=0)
         this.scrollbar = ttk.Scrollbar(this.frame, orient='vertical', command=this.scroll_canvas.yview)
         this.scrollable_frame = ttk.Frame(this.scroll_canvas)
@@ -1899,18 +1901,19 @@ def render_radar(message_id: str) -> None:
 def update_display() -> None:
     """ Primary display update function. This is run whenever something could change the display state. """
 
-    if this.fetched_edsm or not this.system:
-        this.edsm_button.grid_remove()
-    else:
-        this.edsm_button.grid()
 
-    if not this.commander:
-        this.scroll_canvas.grid_remove()
-        this.scrollbar.grid_remove()
-        # this.total_label.grid_remove()
-        # LANG: Startup message before data has been processed
-        this.label['text'] = tr.tl('BioScan: Awaiting Data', this.translation_context)
-        return
+    if not this.display_hidden:
+        if this.fetched_edsm or not this.system:
+            this.edsm_button.grid_remove()
+        else:
+            this.edsm_button.grid()
+        if not this.commander:
+            this.scroll_canvas.grid_remove()
+            this.scrollbar.grid_remove()
+            # this.total_label.grid_remove()
+            # LANG: Startup message before data has been processed
+            this.label['text'] = tr.tl('BioScan: Awaiting Data', this.translation_context)
+            return
 
     bio_bodies = dict(
         sorted(
@@ -1944,8 +1947,9 @@ def update_display() -> None:
 
     unsold_data = this.formatter.format_credits(get_unsold_data())
     if detail_text != '':
-        this.scroll_canvas.grid()
-        this.scrollbar.grid()
+        if not this.display_hidden:
+            this.scroll_canvas.grid()
+            this.scrollbar.grid()
         title = tr.tl('BioScan Predictions', this.translation_context) + ':\n'  # LANG: General BioScan prediction title label
         text = ''
         signal_summary = ''
@@ -2032,7 +2036,8 @@ def update_display() -> None:
         totals = ''
         this.total_label['text'] = f'Unsold: {unsold_data}' if unsold_data else 'No Unsold Data'
 
-    this.label['text'] = title + signal_summary + ('\n' if signal_summary else '') + text
+    if not this.display_hidden:
+        this.label['text'] = title + signal_summary + ('\n' if signal_summary else '') + text
     redraw_overlay = True if this.values_label['text'] != detail_text.strip() else False
     if this.mode_changed:
         redraw_overlay = True
@@ -2117,6 +2122,24 @@ def should_hide_waypoint() -> bool:
     if this.overlay.available() and this.use_overlay.get() and this.radar_enabled.get():
         return this.hide_waypoint_bearings.get()
     return False
+
+
+def toggle_view():
+    this.display_hidden = not this.display_hidden
+    if this.display_hidden:
+        this.view_button['text'] = '🔽'
+    else:
+        this.view_button['text'] = '🔼'
+
+    if this.display_hidden:
+        this.label['text'] = tr.tl('BioScan (Hidden)', this.translation_context)
+        this.scroll_canvas.grid_remove()
+        this.scrollbar.grid_remove()
+        this.total_label.grid_remove()
+        this.edsm_button.grid_remove()
+    else:
+        this.total_label.grid()
+    update_display()
 
 
 def bind_mousewheel(event: tk.Event) -> None:
