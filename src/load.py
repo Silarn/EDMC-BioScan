@@ -1495,37 +1495,38 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 if not scan or scan[0].count < 3:
                     complete = False
                 else:
-                    next_death = this.sql_session.scalar(select(Death).where(Death.commander_id == this.commander.id)
-                                                         .where(Death.died_at > scan[0].scanned_at)
-                                                         .order_by(asc(Death.died_at)))
-                    next_resurrection = this.sql_session.scalar(select(Resurrection).where(Resurrection.commander_id == this.commander.id)
-                                                                .where(Resurrection.type.in_(['escape', 'recover', 'rejoin']))
-                                                                .where(Resurrection.resurrected_at > scan[0].scanned_at)
-                                                                .order_by(asc(Resurrection.resurrected_at)))
-                    lost_date = None
-                    if next_death and next_resurrection:
-                        lost_date = next_death.died_at if next_death.died_at < next_resurrection.resurrected_at else next_resurrection.resurrected_at
-                    elif next_death:
-                        lost_date = next_death.died_at
-                    elif next_resurrection:
-                        lost_date = next_resurrection.resurrected_at
-                    if lost_date:
-                        sale = this.sql_session.scalar(
-                            select(ExoBioSale).where(ExoBioSale.commander_id == this.commander.id)
-                            .where(ExoBioSale.sold_at > scan[0].scanned_at).where(ExoBioSale.sold_at < lost_date))
-                        if sale:
-                            num_complete += 1
-                            was_sold = True
+                    if scan[0].scanned_at:
+                        next_death = this.sql_session.scalar(select(Death).where(Death.commander_id == this.commander.id)
+                                                             .where(Death.died_at > scan[0].scanned_at)
+                                                             .order_by(asc(Death.died_at)))
+                        next_resurrection = this.sql_session.scalar(select(Resurrection).where(Resurrection.commander_id == this.commander.id)
+                                                                    .where(Resurrection.type.in_(['escape', 'recover', 'rejoin']))
+                                                                    .where(Resurrection.resurrected_at > scan[0].scanned_at)
+                                                                    .order_by(asc(Resurrection.resurrected_at)))
+                        lost_date = None
+                        if next_death and next_resurrection:
+                            lost_date = next_death.died_at if next_death.died_at < next_resurrection.resurrected_at else next_resurrection.resurrected_at
+                        elif next_death:
+                            lost_date = next_death.died_at
+                        elif next_resurrection:
+                            lost_date = next_resurrection.resurrected_at
+                        if lost_date:
+                            sale = this.sql_session.scalar(
+                                select(ExoBioSale).where(ExoBioSale.commander_id == this.commander.id)
+                                .where(ExoBioSale.sold_at > scan[0].scanned_at).where(ExoBioSale.sold_at < lost_date))
+                            if sale:
+                                num_complete += 1
+                                was_sold = True
+                            else:
+                                complete = False
+                                was_lost = True
                         else:
-                            complete = False
-                            was_lost = True
-                    else:
-                        num_complete += 1
-                        sale = this.sql_session.scalar(
-                            select(ExoBioSale).where(ExoBioSale.commander_id == this.commander.id)
-                            .where(ExoBioSale.sold_at > scan[0].scanned_at))
-                        if sale:
-                            was_sold = True
+                            num_complete += 1
+                            sale = this.sql_session.scalar(
+                                select(ExoBioSale).where(ExoBioSale.commander_id == this.commander.id)
+                                .where(ExoBioSale.sold_at > scan[0].scanned_at))
+                            if sale:
+                                was_sold = True
                 flora_status[flora.id] = (was_sold, was_lost)
         else:
             complete = False
