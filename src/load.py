@@ -1789,8 +1789,10 @@ def get_unsold_data() -> int:
         else:
             data_cutoff_time = last_data_loss
 
-    recent_scans: list[FloraScans] = this.sql_session.scalars(select(FloraScans).where(FloraScans.commander_id == this.commander.id)
-                                                              .where(FloraScans.scanned_at > data_cutoff_time).where(FloraScans.count == 3)).all()
+    recent_scans = []
+    if data_cutoff_time:
+        recent_scans: list[FloraScans] = this.sql_session.scalars(select(FloraScans).where(FloraScans.commander_id == this.commander.id)
+                                                                  .where(FloraScans.scanned_at > data_cutoff_time).where(FloraScans.count == 3)).all()
 
     value = 0
     if len(recent_scans) > 0:
