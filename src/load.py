@@ -1485,7 +1485,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
         complete = True
         num_complete = 0
         flora_status: dict[int, tuple[bool, bool]] = {}
-        system_populated = this.system.populated > 0
+        system_populated = this.system.population > 0
         mult = 5 if body.was_footfalled(this.commander.id) is False and not system_populated else 1
         if len(body.get_flora()):
             for flora in body.get_flora():
