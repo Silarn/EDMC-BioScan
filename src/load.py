@@ -1485,8 +1485,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
         complete = True
         num_complete = 0
         flora_status: dict[int, tuple[bool, bool]] = {}
-        bubble_body = not body.was_discovered(this.commander.id) and body.was_mapped(this.commander.id)
-        mult = 5 if body.was_footfalled(this.commander.id) is False and not bubble_body else 1
+        system_populated = this.system.populated > 0
+        mult = 5 if body.was_footfalled(this.commander.id) is False and not system_populated else 1
         if len(body.get_flora()):
             for flora in body.get_flora():
                 was_sold = False
@@ -1604,12 +1604,10 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         codex_galaxy = not check_codex(this.commander.id, None, genus, species, color)
                         codex_symbol = '\N{MILKY WAY} ' if codex_galaxy else '\N{MEMO} ' if codex else ''
                         bio_credits = bio_types[genus][species]['value'] if genus in bio_types else 0
-                        bio_credits = bio_credits * mult if body.get_status(this.commander.id).was_footfalled is False and not bubble_body else bio_credits
-                        bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False and not bubble_body \
-                            else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True or bubble_body \
+                        bio_credits = bio_credits * mult if body.get_status(this.commander.id).was_footfalled is False and not system_populated else bio_credits
+                        bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False and not system_populated \
+                            else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True or system_populated \
                             else '\N{WHITE QUESTION MARK ORNAMENT}'
-                        if not body.was_discovered(this.commander.id) and body.was_mapped(this.commander.id):
-                            bonus_icon = '\N{WHITE QUESTION MARK ORNAMENT}'
                         if scan:
                             if scan[0].was_logged:
                                 bonus_icon = '\N{NO ENTRY SIGN}'
@@ -1637,11 +1635,9 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 else:
                     bio_name, min_val, max_val, all_species = value_estimate(body, genus)
                     bio_name = translate_genus(bio_genus[genus]['name'] if genus in bio_genus else 'Unknown') if bio_name == '' else bio_name
-                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False and not bubble_body \
-                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True or bubble_body \
+                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False and not system_populated \
+                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True or system_populated \
                         else '\N{WHITE QUESTION MARK ORNAMENT}'
-                    if not body.was_discovered(this.commander.id) and body.was_mapped(this.commander.id):
-                        bonus_icon = '\N{WHITE QUESTION MARK ORNAMENT}'
                     # LANG: Predicted bio not located label
                     detail_text += (f'{bio_name} (' + tr.tl('Not located', this.translation_context) +
                                     f'): {this.formatter.format_credit_range(min_val * mult, max_val * mult)}{bonus_icon}\n')
@@ -1705,8 +1701,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                 count = 0
                 for bio_name, values in types:
                     count += 1
-                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False and not bubble_body \
-                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True or bubble_body \
+                    bonus_icon = '\N{MONEY BAG}' if body.get_status(this.commander.id).was_footfalled is False and not system_populated \
+                        else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True or system_populated \
                         else '\N{WHITE QUESTION MARK ORNAMENT}'
                     detail_text += '{}: {}{}\n'.format(
                         bio_name,
@@ -1801,10 +1797,11 @@ def get_unsold_data() -> int:
             planet: Planet = this.sql_session.scalar(select(Planet).where(Planet.id == flora.planet_id))
             planet_status: PlanetStatus = this.sql_session.scalar(select(PlanetStatus).where(PlanetStatus.planet_id == planet.id)
                                                                   .where(PlanetStatus.commander_id == this.commander.id))
+            system: System = this.sql_session.scalar(select(System).where(System.id == planet.system_id))
 
             base_value = bio_types[flora.genus][flora.species]['value']
             if planet_status.was_footfalled is False:
-                if not planet_status.was_discovered and planet_status.was_mapped:
+                if system.population > 0:
                     value += base_value
                 else:
                     value += base_value * 5
