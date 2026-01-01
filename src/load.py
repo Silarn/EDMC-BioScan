@@ -955,7 +955,10 @@ def reset() -> None:
     this.planets = {}
     this.planet_cache = {}
     this.stars = {}
-    this.scroll_canvas.yview_moveto(0.0)
+    try:
+        this.scroll_canvas.yview_moveto(0.0)
+    except tk.TclError as ex:
+        logger.debug('Couldn\'t reset the scroll pane.', exc_info=ex)
     this.sql_session.commit()
 
 
@@ -1106,7 +1109,10 @@ def journal_entry(
             this.location_state = ''
 
             update_display()
-            this.scroll_canvas.yview_moveto(0.0)
+            try:
+                this.scroll_canvas.yview_moveto(0.0)
+            except tk.TclError as ex:
+                logger.debug('Couldn\'t reset the scroll pane.', exc_info=ex)
 
         case 'SetUserShipName':
             change_ship_name(entry['ShipID'], ship_name)
@@ -1376,7 +1382,10 @@ def dashboard_entry(cmdr: str, is_beta: bool, entry: dict[str, Any]) -> str:
     if refresh:
         update_display()
     if scroll:
-        this.scroll_canvas.yview_moveto(0.0)
+        try:
+            this.scroll_canvas.yview_moveto(0.0)
+        except tk.TclError as ex:
+            logger.debug('Couldn\'t reset the scroll pane.', exc_info=ex)
 
     return ''
 
