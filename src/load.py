@@ -155,6 +155,7 @@ def plugin_app(parent: tk.Frame) -> tk.Frame:
             url = f'https://github.com/Silarn/EDMC-BioScan/releases/tag/v{update_version}'
             this.update_button = HyperlinkLabel(this.frame, text=text, url=url)
             this.update_button.grid(row=4, columnspan=2, sticky=tk.N)
+        this.started = True
         update_display()
         theme.register(this.values_label)
     return this.frame
@@ -1901,6 +1902,8 @@ def render_radar(message_id: str) -> None:
 def update_display() -> None:
     """ Primary display update function. This is run whenever something could change the display state. """
 
+    if not this.started:
+        return
 
     if not this.display_hidden:
         if this.fetched_edsm or not this.system:

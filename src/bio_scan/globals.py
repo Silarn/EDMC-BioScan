@@ -23,6 +23,7 @@ class Globals:
     def __init__(self):
         self.formatter = None
         self.translation_context = ''
+        self.started = False
 
         self.VERSION = semantic_version.Version(bio_scan.const.version)
         self.NAME = bio_scan.const.name
