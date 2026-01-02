@@ -63,23 +63,29 @@ def safe_setlocale(category, loc: str):
     Try setting locale with multiple fallbacks to support different OS requirements.
     """
     try:
-        return locale.setlocale(category, loc)
+        locale.setlocale(category, loc)
+        return
     except locale.Error:
         pass
     try:
-        return locale.setlocale(category, loc + '.UTF-8')
+        locale.setlocale(category, loc + '.UTF-8')
+        return
     except locale.Error:
         pass
     try:
-        return locale.setlocale(category, loc.split('_')[0])
+        locale.setlocale(category, loc.split('_')[0])
+        return
     except locale.Error:
         pass
-    return locale.setlocale(category, '')
+    locale.setlocale(category, '')
 
 class Formatter:
 
     def __init__(self, shorten=False):
-        locale.setlocale(locale.LC_ALL, '')
+        try:
+            locale.setlocale(locale.LC_ALL, '')
+        except locale.Error:
+            locale.setlocale(locale.LC_ALL, 'C')
         self.shorten: bool = shorten
 
     def set_locale(self, locale_code: str):
@@ -87,8 +93,8 @@ class Formatter:
         try:
             safe_setlocale(locale.LC_ALL, converted_locale_code)
         except locale.Error as ex:
-            logger.error(f'Failed to set locale: {locale_code} -> {converted_locale_code}')
-            locale.setlocale(locale.LC_ALL, '')
+            logger.error(f'Failed to set locale: {locale_code} -> {converted_locale_code}', exc_info=ex)
+            locale.setlocale(locale.LC_ALL, 'C')
             logger.error(f'Falling back to system default: {locale.getlocale()}')
 
     def set_shorten(self, value: bool) -> None:
