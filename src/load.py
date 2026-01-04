@@ -417,7 +417,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
     log(f'System: {this.system.name} - Body: {body.get_name()}')
     log(f'Running checks for {genus_name}:')
     for species, data in bio_types[genus].items():
-        log(f'Species: {data['name']}')
+        log(f'Species: {data["name"]}')
         count = 0
         for ruleset in data['rulesets']:
             count += 1
