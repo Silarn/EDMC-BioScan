@@ -1626,7 +1626,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             #     else '\N{HEAVY PLUS SIGN}' if body.get_status(this.commander.id).was_footfalled is False \
                             #     else '\N{HEAVY MINUS SIGN}' if body.get_status(this.commander.id).was_footfalled is True \
                             #     else '\N{WHITE QUESTION MARK ORNAMENT}'
-                        detail_text += '{}{}{}{} ({}): {}{}{}{}{}{}\n'.format(
+                        detail_text += '{}{}{}{} ({}): {}{}{}{}{}{}{}\n'.format(
                             '  ' if (bio_genus[genus]['multiple'] if genus in bio_genus else False) else '',
                             f'{codex_symbol}',
                             translate_species(bio_types[genus][species]['name'] if genus in bio_types else 'Unknown'),
@@ -1634,6 +1634,8 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                             scan_label(scan[0].count if scan else 0) if not flora_status[flora.id][1] \
                                 else tr.tl('Lost', this.translation_context),  # LANG: Indicates lost data due to death / respawn
                             this.formatter.format_credits(bio_credits),
+                            f' [{this.formatter.format_unit(bio_genus[genus]["distance"], 'm', False)}]' \
+                                if not this.current_scan[0] else '',
                             bonus_icon,
                             '\N{LIGHT CHECK MARK}' if scan and scan[0].count == 3 and not flora_status[flora.id][1] else '',
                             '\N{COLLISION SYMBOL}' if flora_status[flora.id][1] else '',
