@@ -1669,13 +1669,13 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                             f'{translate_colors(variant)}'
                             else:
                                 variant = ''
-                                if species_details_final[1]:
+                                if len(species_details_final[1]):
                                     variant = species_details_final[1][0]
                                     species_details_final[1][0] = translate_colors(variant)
                                 if not check_codex_from_name(this.commander.id, None, species_details_final[0], variant):
                                     species_details_final = (
-                                        species_details_final[0],
-                                        [f'\N{MILKY WAY}{species_details_final[1][0]}'],
+                                        f'\N{MILKY WAY}{species_details_final[0]}',
+                                        species_details_final[1],
                                         species_details_final[2]
                                     )
                                 elif not check_codex_from_name(this.commander.id, this.system.region,
