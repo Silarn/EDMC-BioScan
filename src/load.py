@@ -1635,7 +1635,7 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 else tr.tl('Lost', this.translation_context),  # LANG: Indicates lost data due to death / respawn
                             this.formatter.format_credits(bio_credits),
                             f' [{this.formatter.format_unit(bio_genus[genus]["distance"], 'm', False)}]' \
-                                if not this.current_scan[0] else '',
+                                if (not scan or (scan and scan[0].count < 3)) and not this.current_scan[0] else '',
                             bonus_icon,
                             '\N{LIGHT CHECK MARK}' if scan and scan[0].count == 3 and not flora_status[flora.id][1] else '',
                             '\N{COLLISION SYMBOL}' if flora_status[flora.id][1] else '',
@@ -1652,7 +1652,10 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                         else '\N{WHITE QUESTION MARK ORNAMENT}'
                     # LANG: Predicted bio not located label
                     detail_text += (f'{bio_name} (' + tr.tl('Not located', this.translation_context) +
-                                    f'): {this.formatter.format_credit_range(min_val * mult, max_val * mult)}{bonus_icon}\n')
+                                    f'): {this.formatter.format_credit_range(min_val * mult, max_val * mult)}' +
+                                    (f' [{this.formatter.format_unit(bio_genus[genus]["distance"], 'm', False)}]'
+                                    if not this.current_scan[0] else '') +
+                                    f'{bonus_icon}\n')
 
                     if this.focus_breakdown.get():
                         for species_details in all_species:
