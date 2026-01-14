@@ -1781,8 +1781,8 @@ def get_unsold_data() -> int:
                                              .where(Resurrection.type.in_(['escape', 'recover', 'rejoin'])).order_by(desc(Resurrection.resurrected_at)))
     last_sold = this.sql_session.scalar(select(ExoBioSale).where(ExoBioSale.commander_id == this.commander.id).order_by(desc(ExoBioSale.sold_at)))
 
-    last_data_loss: datetime | None = None
-    last_sold_time: datetime | None = None
+    last_data_loss: datetime = datetime.min
+    last_sold_time: datetime = datetime.min
     if last_death or last_resurrect:
         last_death_time: datetime = last_death.died_at if last_death else None
         last_resurrect_time: datetime = last_resurrect.resurrected_at if last_resurrect else None
@@ -1791,14 +1791,7 @@ def get_unsold_data() -> int:
     if last_sold:
         last_sold_time = last_sold.sold_at
 
-    data_cutoff_time: datetime | None = None
-    if last_sold_time:
-        data_cutoff_time = last_sold_time
-    if last_data_loss:
-        if data_cutoff_time:
-            data_cutoff_time = last_data_loss if last_data_loss > data_cutoff_time else data_cutoff_time
-        else:
-            data_cutoff_time = last_data_loss
+    data_cutoff_time = last_data_loss if last_data_loss > last_sold_time else last_sold_time
 
     recent_scans = []
     if data_cutoff_time:
