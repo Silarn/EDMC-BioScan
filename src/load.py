@@ -826,7 +826,7 @@ def value_estimate(body: PlanetData, genus: str) -> tuple[str, int, int, list[tu
             False,
             (
                 '{}{}{}'.format(
-                    f'{codex_symbol}' if codex else '',
+                    f'{codex_symbol} ' if codex else '',
                     translate_genus(bio_genus[genus]['name']),
                     f' - {translate_colors(color)}' if color else ''
                 ),
@@ -1664,11 +1664,11 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                 for variant in species_details_final[1]:
                                     if not check_codex_from_name(this.commander.id, None, species_details_final[0], variant):
                                         species_details_final[1][species_details_final[1].index(variant)] = \
-                                            f'\N{MILKY WAY}{translate_colors(variant)}'
+                                            f'\N{MILKY WAY} {translate_colors(variant)}'
                                     elif not check_codex_from_name(this.commander.id, this.system.region,
                                                                  species_details_final[0], variant):
                                         species_details_final[1][species_details_final[1].index(variant)] = \
-                                            f'\N{MEMO}{translate_colors(variant)}'
+                                            f'\N{MEMO} {translate_colors(variant)}'
                                     else:
                                         species_details_final[1][species_details_final[1].index(variant)] = \
                                             f'{translate_colors(variant)}'
@@ -1679,14 +1679,14 @@ def get_bodies_summary(bodies: dict[str, PlanetData], focused: bool = False) -> 
                                     species_details_final[1][0] = translate_colors(variant)
                                 if not check_codex_from_name(this.commander.id, None, species_details_final[0], variant):
                                     species_details_final = (
-                                        f'\N{MILKY WAY}{species_details_final[0]}',
+                                        f'\N{MILKY WAY} {species_details_final[0]}',
                                         species_details_final[1],
                                         species_details_final[2]
                                     )
                                 elif not check_codex_from_name(this.commander.id, this.system.region,
                                                              species_details_final[0], variant):
                                     species_details_final = (
-                                        f'\N{MEMO}{species_details_final[0]}',
+                                        f'\N{MEMO} {species_details_final[0]}',
                                         species_details_final[1],
                                         species_details_final[2]
                                     )
