@@ -37,6 +37,7 @@ from bio_scan.bio_data.species import rules as bio_types
 from sqlalchemy import select, delete, update, desc, asc
 from sqlalchemy.orm import Session
 
+import ExploData
 from ExploData.explo_data import db
 from ExploData.explo_data.db import Commander, Planet, PlanetStatus, PlanetFlora, FloraScans, Waypoint, System, Metadata, Death, Resurrection, ExoBioSale
 from ExploData.explo_data.body_data.struct import PlanetData, StarData, load_planets, load_stars, get_main_star
@@ -59,6 +60,9 @@ from l10n import translations as tr
 # 3rd Party
 from ExploData.explo_data.RegionMap import findRegion
 from ExploData.explo_data.RegionMapData import regions as galaxy_regions
+
+
+__version__ = bio_scan.const.version
 
 this.translation_context = os.path.dirname(__file__)
 logger = get_plugin_logger(this.NAME)
