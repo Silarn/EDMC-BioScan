@@ -46,7 +46,7 @@ catalog: dict[str, dict[str, Mapping]] = {
                     'max_temperature': 177.0,
                     'max_pressure': 0.0135,
                     'body_type': ['Rocky body', 'High metal content body'],
-                    'regions': ['outer', 'perseus', 'scutum-centaurus']
+                    'regions': ['!orion-cygnus-core', '!sagittarius-carina-core']
                 }
             ],
         },
