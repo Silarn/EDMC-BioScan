@@ -1078,7 +1078,9 @@ def journal_entry(
                 this.at_nav_beacon = True
 
         case 'DockSRV':
-            if not this.ship_location:
+            if entry['SRVType'] == 'lander01':
+                this.ship_location = None
+            elif not this.ship_location:
                 this.ship_location = (this.planet_latitude, this.planet_longitude)
 
         case 'Embark' | 'Disembark':
