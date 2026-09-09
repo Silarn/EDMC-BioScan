@@ -427,6 +427,37 @@ class Overlay:
                 count += 1
                 line_count += 1
 
+    def _draw_circle(self, circle_id: str, x: float, y: float, radius: float, color: str) -> None:
+        use_native_circle = self._overlay_type == 'modern_overlay' and self._modern_circle_supported is not False
+        if use_native_circle:
+            try:
+                self._overlay.send_shape(
+                    circle_id, 'circle', color=color, fill='',
+                    x=self._aspect_x(x), y=self._aspect_y(y), radius=round(radius), thickness=1, ttl=20
+                )
+            except TypeError: #thrown for 'radius' argument missing in older versions of modern_overlay
+                self._modern_circle_supported = False
+                use_native_circle = False
+            else:
+                self._modern_circle_supported = True
+        if not use_native_circle:
+            points = []
+            for pie_slice in range(49):
+                x_point = x + (radius * math.cos(math.radians(7.5 * pie_slice)))
+                y_point = y + (radius * math.sin(math.radians(7.5 * pie_slice)))
+                point = {
+                    'x': self._aspect_x(x_point),
+                    'y': self._aspect_y(y_point)
+                }
+                points.append(point)
+
+            message = {'id': circle_id,
+                       'shape': 'vect',
+                       'vector': points,
+                       'color': color,
+                       'ttl': 20}
+            self._overlay.send_raw(message)
+
     def draw_circles(self, message_id: str):
         if message_id in self._markers:
             for index in range(len(self._markers[message_id].circles)):
@@ -435,35 +466,7 @@ class Overlay:
                     y = self._markers[message_id].y
                     r = self._markers[message_id].circles[index]['radius']
                     color = self._markers[message_id].circles[index]['color']
-                    use_native_circle = self._overlay_type == 'modern_overlay' and self._modern_circle_supported is not False
-                    if use_native_circle:
-                        try:
-                            self._overlay.send_shape(
-                                f'{message_id}_circle_{index}', 'circle', color=color, fill='',
-                                x=self._aspect_x(x), y=self._aspect_y(y), radius=round(r), thickness=1, ttl=20
-                            )
-                        except TypeError: #thrown for 'radius' argument in older versions of modern_overlay
-                            self._modern_circle_supported = False
-                            use_native_circle = False
-                        else:
-                            self._modern_circle_supported = True
-                    if not use_native_circle:
-                        points = []
-                        for pie_slice in range(49):
-                            x_point = x + (r * math.cos(math.radians(7.5 * pie_slice)))
-                            y_point = y + (r * math.sin(math.radians(7.5 * pie_slice)))
-                            point = {
-                                'x': self._aspect_x(x_point),
-                                'y': self._aspect_y(y_point)
-                            }
-                            points.append(point)
-
-                        message = {'id': f'{message_id}_circle_{index}',
-                                   'shape': 'vect',
-                                   'vector': points,
-                                   'color': color,
-                                   'ttl': 20}
-                        self._overlay.send_raw(message)
+                    self._draw_circle(f'{message_id}_circle_{index}', x, y, r, color)
                     if 'text' in self._markers[message_id].circles[index]:
                         point = {
                             'x': self._aspect_x(x + r),
