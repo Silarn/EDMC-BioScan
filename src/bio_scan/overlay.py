@@ -7,13 +7,20 @@ from typing import Callable, Self
 from EDMCLogging import get_plugin_logger
 from bio_scan import const
 
-try:
-    from EDMCOverlay import edmcoverlay
-except ImportError:
+
+def _import_edmcoverlay():
     try:
-        from edmcoverlay import edmcoverlay
+        from EDMCOverlay import edmcoverlay as overlay_module
+        return overlay_module
     except ImportError:
-        edmcoverlay = None
+        try:
+            from edmcoverlay import edmcoverlay as overlay_module
+            return overlay_module
+        except ImportError:
+            return None
+
+
+edmcoverlay = _import_edmcoverlay()
 
 logger = get_plugin_logger(const.name)
 
@@ -128,22 +135,11 @@ class Overlay:
     """
 
     def __init__(self):
-        if edmcoverlay:
-            self._overlay: edmcoverlay.Overlay | None = edmcoverlay.Overlay()
-            if hasattr(self._overlay, 'connection'):
-                self._overlay_type = 'EDMCOverlay'
-            elif hasattr(self._overlay, '_emit_payload'):
-                self._overlay_type = 'modern_overlay'
-            elif hasattr(self._overlay, 'connect') and not hasattr(self._overlay, 'server'):
-                self._overlay_type = 'edmcoverlay_for_linux'
-            else:
-                if environ.get('XDG_SESSION_TYPE', 'X11') == 'wayland' and hasattr(self._overlay, 'server'):
-                    self._overlay_type = 'edmcoverlay2_wayland'
-                else:
-                    self._overlay_type = 'edmcoverlay2'
-        else:
-            self._overlay_type = "none"
-            self._overlay: edmcoverlay.Overlay | None = None
+        self._overlay = None
+        self._overlay_type = 'none'
+        self._modern_circle_supported: bool | None = None
+        if not self._connect_overlay():
+            logger.debug('BioScan overlay backend: none')
         self._normal_spacer: int = 16
         self._large_spacer: int = 26
         self._text_blocks: dict[str, TextBlock] = {}
@@ -154,6 +150,34 @@ class Overlay:
         self._screen_width = 1920
         self._screen_height = 1080
         self._over_aspect_x = self._calc_aspect_x()
+
+    def _connect_overlay(self) -> bool:
+        global edmcoverlay
+
+        if edmcoverlay is None:
+            edmcoverlay = _import_edmcoverlay()
+        if edmcoverlay is None:
+            return False
+
+        try:
+            self._overlay = edmcoverlay.Overlay()
+        except Exception as ex:
+            self._overlay = None
+            logger.debug('BioScan overlay connection failed', exc_info=ex)
+            return False
+
+        if hasattr(self._overlay, 'connection'):
+            self._overlay_type = 'EDMCOverlay'
+        elif hasattr(self._overlay, '_emit_payload'):
+            self._overlay_type = 'modern_overlay'
+        elif hasattr(self._overlay, 'connect') and not hasattr(self._overlay, 'server'):
+            self._overlay_type = 'edmcoverlay_for_linux'
+        elif environ.get('XDG_SESSION_TYPE', 'X11') == 'wayland' and hasattr(self._overlay, 'server'):
+            self._overlay_type = 'edmcoverlay2_wayland'
+        else:
+            self._overlay_type = 'edmcoverlay2'
+        logger.debug('BioScan overlay backend: %s', self._overlay_type)
+        return True
 
     def set_screen_dimensions(self, w: int, h: int) -> Self:
         """
@@ -403,34 +427,51 @@ class Overlay:
                 count += 1
                 line_count += 1
 
+    def _draw_circle(self, circle_id: str, x: float, y: float, radius: float, color: str) -> None:
+        use_native_circle = self._overlay_type == 'modern_overlay' and self._modern_circle_supported is not False
+        if use_native_circle:
+            try:
+                self._overlay.send_shape(
+                    circle_id, 'circle', color=color, fill='',
+                    x=self._aspect_x(x), y=self._aspect_y(y), radius=round(radius), thickness=1, ttl=20
+                )
+            except TypeError: #thrown for 'radius' argument missing in older versions of modern_overlay
+                self._modern_circle_supported = False
+                use_native_circle = False
+            else:
+                self._modern_circle_supported = True
+        if not use_native_circle:
+            points = []
+            for pie_slice in range(49):
+                x_point = x + (radius * math.cos(math.radians(7.5 * pie_slice)))
+                y_point = y + (radius * math.sin(math.radians(7.5 * pie_slice)))
+                point = {
+                    'x': self._aspect_x(x_point),
+                    'y': self._aspect_y(y_point)
+                }
+                points.append(point)
+
+            message = {'id': circle_id,
+                       'shape': 'vect',
+                       'vector': points,
+                       'color': color,
+                       'ttl': 20}
+            self._overlay.send_raw(message)
+
     def draw_circles(self, message_id: str):
         if message_id in self._markers:
             for index in range(len(self._markers[message_id].circles)):
                 try:
-                    points = []
                     x = self._markers[message_id].x
                     y = self._markers[message_id].y
                     r = self._markers[message_id].circles[index]['radius']
-                    for pie_slice in range(49):
-                        x_point = x + (r * math.cos(math.radians(7.5 * pie_slice)))
-                        y_point = y + (r * math.sin(math.radians(7.5 * pie_slice)))
-                        point = {
-                            'x': self._aspect_x(x_point),
-                            'y': self._aspect_y(y_point)
-                        }
-                        points.append(point)
-
-                    message = {'id': f'{message_id}_circle_{index}',
-                               'shape': 'vect',
-                               'vector': points,
-                               'color': self._markers[message_id].circles[index]['color'],
-                               'ttl': 20}
-                    self._overlay.send_raw(message)
+                    color = self._markers[message_id].circles[index]['color']
+                    self._draw_circle(f'{message_id}_circle_{index}', x, y, r, color)
                     if 'text' in self._markers[message_id].circles[index]:
                         point = {
-                            'x': self._aspect_x(x + (r * math.cos(math.radians(0)))),
-                            'y': self._aspect_y(y + (r * math.sin(math.radians(0)))),
-                            'color': self._markers[message_id].circles[index]['color'],
+                            'x': self._aspect_x(x + r),
+                            'y': self._aspect_y(y),
+                            'color': color,
                             'text': self._markers[message_id].circles[index]['text'],
                             'marker': 'circle'
                         }
@@ -513,13 +554,9 @@ class Overlay:
         :return: Availability of EDMCOverlay
         """
 
-        if self._overlay is not None:
-            if hasattr(self._overlay, 'connection'):
-                if self._overlay.connection is None:
-                    self._overlay = edmcoverlay.Overlay()
-            return True
-        else:
-            if edmcoverlay:
-                self._overlay = edmcoverlay.Overlay()
-                return True
-        return False
+        if self._overlay is None:
+            return self._connect_overlay()
+        if hasattr(self._overlay, 'connection') and self._overlay.connection is None:
+            self._overlay = None
+            return self._connect_overlay()
+        return True
